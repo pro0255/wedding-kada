@@ -20,9 +20,9 @@ const MAX_VIDEO_B = 100 * 1024 * 1024; // limit Cloudinary free tieru
 /* hlášky k nahrávání */
 const HLASKY = [
   "Nahráváme vaše vzpomínky…",
-  "Chviličku strpení…",
+  "Chviličku strpení, prosím…",
   "Už to bude…",
-  "Děkujeme, že se dělíte…",
+  "Děkujeme za každou fotku i video…",
 ];
 
 type Fotka = {
@@ -224,15 +224,17 @@ export default function FotoGalerie() {
     if (prilisVelke > 0) {
       zpravy.push(
         prilisVelke === 1
-          ? "Jedno video je moc velké (max 100 MB)."
-          : `${prilisVelke} videí je moc velkých (max 100 MB).`
+          ? "Jedno video je příliš velké (max. 100 MB)."
+          : prilisVelke < 5
+            ? `${prilisVelke} videa jsou příliš velká (max. 100 MB).`
+            : `${prilisVelke} videí je příliš velkých (max. 100 MB).`
       );
     }
     if (selhalo > 0) {
       zpravy.push(
         selhalo + prilisVelke === celkem
-          ? "Nahrání se nezdařilo. Zkontrolujte připojení a zkuste to znovu."
-          : `${celkem - selhalo - prilisVelke} z ${celkem} souborů se nahrálo, zbytek zkuste znovu.`
+          ? "Nahrání se nezdařilo. Zkontrolujte prosím připojení a zkuste to znovu."
+          : `Nahrálo se ${celkem - selhalo - prilisVelke} z ${celkem} souborů, zbytek zkuste prosím znovu.`
       );
     }
     if (zpravy.length) setChyba(zpravy.join(" "));
