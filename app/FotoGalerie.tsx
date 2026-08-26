@@ -77,8 +77,10 @@ export default function FotoGalerie() {
   const [jenMoje, setJenMoje] = useState(false);
   const [prubeh, setPrubeh] = useState<{ hotovo: number; celkem: number } | null>(null);
   const [chyba, setChyba] = useState<string | null>(null);
-  const [detail, setDetail] = useState<Fotka | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [nacitaVelkou, setNacitaVelkou] = useState(false);
   const device = useRef<string>("");
+  const dotyk = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     device.current = deviceId();
@@ -167,11 +169,6 @@ export default function FotoGalerie() {
             : x
         ) ?? null
     );
-    setDetail((d) =>
-      d?.id === fotka.id
-        ? { ...d, lajklJsem: !d.lajklJsem, lajky: d.lajky + (d.lajklJsem ? -1 : 1) }
-        : d
-    );
     try {
       await fetch("/api/fotky/lajk", {
         method: "POST",
@@ -185,7 +182,7 @@ export default function FotoGalerie() {
 
   async function smaz(fotka: Fotka) {
     setFotky((f) => f?.filter((x) => x.id !== fotka.id) ?? null);
-    setDetail(null);
+    setDetailId(null);
     try {
       await fetch("/api/fotky", {
         method: "DELETE",
@@ -201,6 +198,40 @@ export default function FotoGalerie() {
   const LIMIT = 24;
   const zobrazene = ukazVse ? viditelne : viditelne.slice(0, LIMIT);
   const mamNejake = (fotky ?? []).some((f) => f.moje);
+
+  // prohlížečka: fotka se hledá podle id, takže přežije obnovu galerie
+  const detailIndex = detailId ? viditelne.findIndex((f) => f.id === detailId) : -1;
+  const detail = detailIndex >= 0 ? viditelne[detailIndex] : null;
+  const predchozi = detail ? viditelne[(detailIndex - 1 + viditelne.length) % viditelne.length] : null;
+  const nasledujici = detail ? viditelne[(detailIndex + 1) % viditelne.length] : null;
+
+  function otevri(id: string) {
+    setNacitaVelkou(true);
+    setDetailId(id);
+  }
+
+  function posun(smer: -1 | 1) {
+    const cil = smer === -1 ? predchozi : nasledujici;
+    if (cil && cil.id !== detailId) otevri(cil.id);
+  }
+
+  // klávesy v prohlížečce + zámek scrollu pod ní
+  useEffect(() => {
+    if (!detailId) return;
+    const naKlavesu = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDetailId(null);
+      if (e.key === "ArrowLeft") posun(-1);
+      if (e.key === "ArrowRight") posun(1);
+    };
+    window.addEventListener("keydown", naKlavesu);
+    const puvodni = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", naKlavesu);
+      document.body.style.overflow = puvodni;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailId, detailIndex, viditelne.length]);
 
   return (
     <div className="galerie-telo">
@@ -255,7 +286,7 @@ export default function FotoGalerie() {
                 <button
                   type="button"
                   className="galerie-otevrit"
-                  onClick={() => setDetail(f)}
+                  onClick={() => otevri(f.id)}
                   aria-label="Zobrazit fotku"
                 >
                   <img src={nahledUrl(f.url, 600)} alt="Fotka od hosta" loading="lazy" />
@@ -284,9 +315,67 @@ export default function FotoGalerie() {
       )}
 
       {detail && (
-        <div className="galerie-detail" onClick={() => setDetail(null)}>
-          <img src={nahledUrl(detail.url, 1600)} alt="Fotka od hosta" />
+        <div
+          className="galerie-detail"
+          onClick={() => setDetailId(null)}
+          onTouchStart={(e) => {
+            dotyk.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          }}
+          onTouchEnd={(e) => {
+            const start = dotyk.current;
+            dotyk.current = null;
+            if (!start) return;
+            const dx = e.changedTouches[0].clientX - start.x;
+            const dy = e.changedTouches[0].clientY - start.y;
+            // vodorovné švihnutí = listování
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) posun(dx < 0 ? 1 : -1);
+          }}
+        >
+          <img
+            key={detail.id}
+            src={nahledUrl(detail.url, 1600)}
+            alt="Fotka od hosta"
+            className={nacitaVelkou ? "nacita" : ""}
+            onLoad={() => setNacitaVelkou(false)}
+          />
+          {nacitaVelkou && <span className="galerie-nacitani" aria-hidden="true" />}
+          {/* sousední fotky se stáhnou dopředu — listování je pak okamžité */}
+          {predchozi && predchozi.id !== detail.id && (
+            <link rel="preload" as="image" href={nahledUrl(predchozi.url, 1600)} />
+          )}
+          {nasledujici && nasledujici.id !== detail.id && (
+            <link rel="preload" as="image" href={nahledUrl(nasledujici.url, 1600)} />
+          )}
+          {viditelne.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="galerie-sipka galerie-sipka-l"
+                aria-label="Předchozí fotka"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  posun(-1);
+                }}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="galerie-sipka galerie-sipka-p"
+                aria-label="Další fotka"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  posun(1);
+                }}
+              >
+                ›
+              </button>
+            </>
+          )}
           <div className="galerie-detail-listy" onClick={(e) => e.stopPropagation()}>
+            <span className="galerie-pocitadlo">
+              {detailIndex + 1} / {viditelne.length}
+            </span>
             <button
               type="button"
               className={`galerie-srdce galerie-srdce-velke ${detail.lajklJsem ? "lajknuto" : ""}`}
@@ -302,7 +391,7 @@ export default function FotoGalerie() {
                 Smazat
               </button>
             )}
-            <button type="button" className="galerie-zavrit" onClick={() => setDetail(null)}>
+            <button type="button" className="galerie-zavrit" onClick={() => setDetailId(null)}>
               Zavřít
             </button>
           </div>

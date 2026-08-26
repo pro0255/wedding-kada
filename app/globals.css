@@ -1079,3 +1079,35 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
   .galerie-mrizka { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 7px; }
   .galerie-fotka img { border-width: 3px; }
 }
+
+/* prohlížečka — listování, počítadlo, načítání */
+.galerie-detail img { transition: opacity .25s ease; }
+.galerie-detail img.nacita { opacity: 0; }
+.galerie-nacitani {
+  position: absolute; top: 50%; left: 50%; width: 34px; height: 34px;
+  margin: -17px 0 0 -17px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .25); border-top-color: rgba(255, 255, 255, .85);
+  animation: galerie-tocse .8s linear infinite;
+}
+@keyframes galerie-tocse { to { transform: rotate(360deg); } }
+.galerie-sipka {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 1;
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, .12); color: var(--dark-ink);
+  font-size: 1.9rem; line-height: 1; font-family: var(--serif), Georgia, serif;
+  display: flex; align-items: center; justify-content: center; padding-bottom: 4px;
+}
+.galerie-sipka:hover { background: rgba(255, 255, 255, .22); }
+.galerie-sipka-l { left: 14px; }
+.galerie-sipka-p { right: 14px; }
+.galerie-pocitadlo {
+  font-size: .68rem; letter-spacing: .28em; color: var(--dark-ink); opacity: .7;
+}
+@media (max-width: 560px) {
+  .galerie-detail { padding: 1rem; gap: .9rem; }
+  .galerie-detail img { max-height: 74vh; border-width: 4px; }
+  .galerie-sipka { width: 38px; height: 38px; font-size: 1.6rem; background: rgba(255, 255, 255, .1); }
+  .galerie-sipka-l { left: 6px; }
+  .galerie-sipka-p { right: 6px; }
+  .galerie-detail-listy { flex-wrap: wrap; justify-content: center; gap: .9rem; }
+}
