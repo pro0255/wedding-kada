@@ -604,23 +604,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 .venue-map-actions a.primary { background: var(--zelena-text); color: var(--zelena-jemna); }
 .venue-map-actions a:hover { background: var(--zelena-syta); border-color: var(--zelena-syta); color: #fff; }
-.venue-map .leaflet-container { background: var(--zelena-jemna); }
-/* Filtr sedí jen na dlaždicích, ne na celém kontejneru — jinak by zešedl
+.venue-map .maplibregl-map { background: var(--zelena-jemna); }
+/* Filtr sedí jen na canvasu mapy, ne na celém kontejneru — jinak by zešedl
    i zlatý pin. sepia stočí šedou mapu do teplého tónu papíru webu. */
-.venue-map .leaflet-tile-pane {
+.venue-map .maplibregl-canvas {
   filter: grayscale(1) sepia(.12) hue-rotate(-10deg) saturate(.6) brightness(.88) contrast(1.28);
 }
 .venue-map-loading { background: var(--zelena-jemna); }
-/* decentní ovládání zoomu ve stylu webu */
-.venue-map .leaflet-control-zoom { border: 1px solid rgba(0,0,0,.15); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-.venue-map .leaflet-control-zoom a {
-  background: var(--bg); color: var(--ink);
-  border-bottom: 1px solid rgba(0,0,0,.1);
-  font-weight: 300;
-}
-.venue-map .leaflet-control-zoom a:hover { background: var(--bg-alt); color: var(--ink); }
 /* máslově-pískový pin */
-.venue-pin-wrap { background: none; border: none; }
 .venue-pin { position: relative; width: 48px; height: 48px; cursor: pointer; }
 .venue-pin-dot {
   position: absolute; left: 50%; top: 50%; width: 16px; height: 16px;
