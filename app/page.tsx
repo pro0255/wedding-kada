@@ -11,6 +11,7 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 
 import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
+import Scenka, { ScenkyDefs } from "./DoodleScenky";
 
 const ENVELOPE_KEY = "kj-envelope-opened";
 
@@ -416,42 +417,50 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
+        <ScenkyDefs />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
         </Reveal>
         <Reveal className="events">
           <div className="event">
+            <Scenka typ="snidane" />
             <h3>Snídaně</h3>
             <div className="meta">9:00 · U ženicha a nevěsty</div>
             <p>Poslední klidné sousto před tím, než to celé začne.</p>
           </div>
           <div className="event">
+            <Scenka typ="obrad" />
             <h3>Obřad</h3>
             <div className="meta">12:00 · U Zvoničky v Rekovicích</div>
             <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
           </div>
           <div className="event">
+            <Scenka typ="foceni" />
             <h3>Společné focení</h3>
             <div className="meta">13:00</div>
             <p>Chvilka pro novomanžele a pár fotek, které budeme ukazovat ještě za dvacet let.</p>
           </div>
           <div className="event">
+            <Scenka typ="pripitek" />
             <h3>Přípitek &amp; oběd</h3>
             <div className="meta">13:30</div>
             <p>Na zdraví, na lásku a na pořádný hlad.</p>
           </div>
           <div className="event">
+            <Scenka typ="tanec" />
             <h3>První tanec &amp; krájení dortu</h3>
             <div className="meta">15:30</div>
             <p>Jeden tanec, jeden dort a žádné záruky elegance.</p>
           </div>
           <div className="event">
+            <Scenka typ="odpoledne" />
             <h3>Svatební odpoledne</h3>
             <div className="meta">Odpoledne</div>
             <p>Dobré jídlo, sklenka v ruce a čas užít si den naplno.</p>
           </div>
           <div className="event">
+            <Scenka typ="party" />
             <h3>Večerní párty</h3>
             <div className="meta">Od 19:00</div>
             <p>Boty dolů, hudbu nahoru.</p>

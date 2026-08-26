@@ -569,6 +569,185 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .event:last-child .meta,
 .event .meta:last-child { margin-bottom: 0; }
 
+/* doodle scénky u programu — v klidu neviditelné, při najetí na kartu se
+   panáčci sami dokreslí v pravém okraji vedle programu. Aktivaci řídí výhradně
+   třída .hraje z JS (na myši mouseenter/leave + kontrola při scrollu, na dotyku
+   IntersectionObserver) — CSS :hover je při scrollu nespolehlivý a nechával
+   scénky svítit přes sebe. */
+.event { position: relative; }
+.event .scenka {
+  /* těsně vedle nadpisů — scény mají uvnitř SVG ještě ~18px prázdného náběhu,
+     takže kontejner smí začínat kousek před hranou sloupce */
+  position: absolute; top: 50%; left: calc(100% - .5rem);
+  color: var(--ink); pointer-events: none;
+  transform: translateY(-50%) rotate(3deg) scale(.94);
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1);
+}
+.event .scenka.hraje { transform: translateY(-50%) rotate(-1deg) scale(1); }
+.scenka svg { display: block; width: 208px; height: auto; overflow: visible; }
+
+/* užší okna s myší: na scénky není místo */
+@media (hover: hover) and (max-width: 1023px) {
+  .event .scenka { display: none; }
+}
+/* dotyk bez místa po straně: scénka v toku nad textem, kreslí ji scroll */
+@media (hover: none) and (max-width: 1023px) {
+  .event .scenka { position: relative; top: auto; left: auto; transform: none; margin: 0 auto .3rem; width: 176px; }
+  .event .scenka.hraje { transform: none; }
+}
+
+/* měkký „papírový" podklad, aby kresba četla i na květinovém dekoru */
+.event .scenka::before {
+  content: ""; position: absolute; inset: -14% -8%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(245, 242, 236, .95), rgba(245, 242, 236, 0));
+  opacity: 0; transition: opacity .5s ease;
+}
+.event .scenka.hraje::before { opacity: 1; }
+
+/* „line boil" — při přehrávání se čáry chvějí jako překreslovaná okénka
+   ruční animace (filtr definuje <ScenkyDefs /> v page.tsx) */
+.scenka.hraje .sc-kresba { filter: url(#sc-boil); }
+
+/* dokreslovací efekt: každá čára má pathLength=1, v klidu je schovaná
+   v mezeře dash vzoru (posun 1.05 — nikde nekouká tečka kulatého zakončení) */
+.scenka path { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset .9s ease-in-out; }
+.scenka path:nth-of-type(2n) { transition-duration: 1.15s; }
+.scenka path:nth-of-type(3n) { transition-duration: .7s; }
+.scenka.hraje path { stroke-dashoffset: 0; }
+
+/* výplně (hlavy, oči, plamínek) naskočí až po dokreslení čar */
+.scenka .sc-vypln { fill-opacity: 0; transition: fill-opacity .35s ease; }
+.scenka.hraje .sc-vypln { fill-opacity: 1; transition-delay: .55s; }
+
+/* všechny animované prvky stojí v klidové póze (0% keyframu) a rozjedou se až
+   aktivací; fill-mode both drží 0% keyframe i během animation-delay, jinak by
+   zpožděné prvky (noty, bublinky…) v klidu prosvítaly */
+.scenka [class^="sc-"], .scenka [class*=" sc-"] { transform-box: fill-box; animation-play-state: paused; animation-fill-mode: both; }
+.scenka.hraje [class^="sc-"], .scenka.hraje [class*=" sc-"] { animation-play-state: running; }
+
+/* dekorační prvky řízené přes opacity (srdce, noty, bublinky, momentka…)
+   se v klidu úplně vypnou — pouhá pauza by je zmrazila uprostřed cyklu
+   napůl viditelné; takhle navíc při každé aktivaci startují od začátku */
+.scenka:not(.hraje)
+  :is(.sc-srdce, .sc-srdicko, .sc-blesk, .sc-polaroid, .sc-jiskra, .sc-bublina, .sc-nota, .sc-trpyt, .sc-cinky, .sc-maxik-beh, .sc-maxik-smer) {
+  animation: none; opacity: 0;
+}
+
+.sc-zpozdeni-1 { animation-delay: .25s; }
+.sc-zpozdeni-2 { animation-delay: .5s; }
+.sc-zpozdeni-3 { animation-delay: .75s; }
+.sc-zpozdeni-4 { animation-delay: 1s; }
+
+/* snídaně */
+.sc-hrnek-p { animation: sc-hrnek-p 2.4s ease-in-out infinite; transform-origin: 0% 0%; }
+.sc-hrnek-l { animation: sc-hrnek-l 2.4s ease-in-out infinite; transform-origin: 100% 0%; }
+.sc-para { animation: sc-para 1.6s ease-in-out infinite; }
+.sc-vidlicka { animation: sc-vidlicka 2.1s ease-in-out infinite; transform-origin: 0% 60%; }
+/* mrně Maxík: běh tam a zpátky (beh) × otočení po směru (smer, skokově v půlce)
+   × rychlé hopsání (hop) × cupitání nožiček (nozka) */
+.sc-maxik-beh { animation: sc-maxik-beh 6s linear infinite; }
+.sc-maxik-smer { animation: sc-maxik-smer 6s linear infinite; }
+.sc-maxik-hop { animation: sc-maxik-hop .28s ease-in-out infinite alternate; }
+.sc-nozka-a { animation: sc-nozka-a .26s linear infinite alternate; transform-origin: 100% 0%; }
+.sc-nozka-b { animation: sc-nozka-b .26s linear infinite alternate; transform-origin: 0% 0%; }
+@keyframes sc-maxik-beh { 0% { transform: translateX(0); } 50% { transform: translateX(150px); } 100% { transform: translateX(0); } }
+@keyframes sc-maxik-smer { 0%, 49.9% { transform: scaleX(1); } 50%, 100% { transform: scaleX(-1); } }
+@keyframes sc-maxik-hop { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+@keyframes sc-nozka-a { from { transform: rotate(-16deg); } to { transform: rotate(20deg); } }
+@keyframes sc-nozka-b { from { transform: rotate(16deg); } to { transform: rotate(-20deg); } }
+@keyframes sc-hrnek-p { 0%, 50%, 100% { transform: rotate(0); } 65%, 85% { transform: rotate(-22deg); } }
+@keyframes sc-hrnek-l { 0%, 50%, 100% { transform: rotate(0); } 65%, 85% { transform: rotate(22deg); } }
+@keyframes sc-vidlicka { 0%, 45%, 100% { transform: rotate(0); } 60%, 80% { transform: rotate(-26deg); } }
+@keyframes sc-para { 0%, 100% { transform: translateY(0); opacity: .35; } 50% { transform: translateY(-4px); opacity: .9; } }
+
+/* obřad — zvonička zvoní, naklonění k puse, srdce a srdíčka, potlesk */
+.sc-zvon { animation: sc-zvon 1.5s ease-in-out infinite; transform-origin: 50% 0%; }
+.sc-cinky { animation: sc-cinky 1.5s ease-in-out infinite; }
+.sc-nakloni-p { animation: sc-nakloni-p 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+.sc-nakloni-l { animation: sc-nakloni-l 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+.sc-srdce { animation: sc-srdce 2.8s ease-in-out infinite; transform-origin: 50% 50%; transform: scale(0); }
+.sc-srdicko { animation: sc-srdicko 2.8s ease-in-out infinite; transform-origin: 50% 50%; }
+.sc-tlesk-a { animation: sc-tlesk-a .38s ease-in-out infinite alternate; transform-origin: 100% 100%; }
+.sc-tlesk-b { animation: sc-tlesk-b .38s ease-in-out infinite alternate; transform-origin: 0% 100%; }
+@keyframes sc-zvon { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+@keyframes sc-cinky { 0%, 30%, 100% { opacity: 0; } 55%, 80% { opacity: 1; } }
+@keyframes sc-nakloni-p { 0%, 12% { transform: rotate(0); } 38%, 68% { transform: rotate(10deg); } 92%, 100% { transform: rotate(0); } }
+@keyframes sc-nakloni-l { 0%, 12% { transform: rotate(0); } 38%, 68% { transform: rotate(-10deg); } 92%, 100% { transform: rotate(0); } }
+@keyframes sc-srdce { 0%, 32% { transform: scale(0); opacity: 0; } 46% { transform: scale(1.3); opacity: 1; } 56%, 78% { transform: scale(1); opacity: 1; } 95%, 100% { transform: scale(.4); opacity: 0; } }
+@keyframes sc-srdicko { 0%, 40% { transform: translateY(0) scale(.5); opacity: 0; } 55% { opacity: 1; } 100% { transform: translateY(-15px) scale(1); opacity: 0; } }
+@keyframes sc-tlesk-a { from { transform: rotate(0); } to { transform: rotate(28deg); } }
+@keyframes sc-tlesk-b { from { transform: rotate(0); } to { transform: rotate(-28deg); } }
+
+/* focení — blesk, z foťáku vypadne momentka, poskoky, mávání */
+.sc-blesk { animation: sc-blesk 2.6s ease-out infinite; transform-origin: 50% 50%; }
+.sc-polaroid { animation: sc-polaroid 2.6s ease-in-out infinite; transform-origin: 50% 0%; }
+.sc-hop { animation: sc-hop 1.1s ease-in-out infinite; }
+.sc-mava { animation: sc-mava .7s ease-in-out infinite alternate; transform-origin: 0% 100%; }
+@keyframes sc-blesk { 0%, 18%, 40%, 100% { opacity: 0; transform: scale(.4); } 24%, 32% { opacity: 1; transform: scale(1.15); } }
+@keyframes sc-polaroid { 0%, 30% { opacity: 0; transform: translateY(-7px) rotate(0); } 40% { opacity: 1; transform: translateY(-3px) rotate(2deg); } 58%, 86% { opacity: 1; transform: translateY(7px) rotate(7deg); } 96%, 100% { opacity: 0; transform: translateY(9px) rotate(7deg); } }
+@keyframes sc-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3.5px); } }
+@keyframes sc-mava { from { transform: rotate(-6deg); } to { transform: rotate(16deg); } }
+
+/* přípitek — ťuknutí, jiskra a stoupající bublinky */
+.sc-cink-p { animation: sc-cink-p 1.8s ease-in-out infinite; transform-origin: 0% 100%; }
+.sc-cink-l { animation: sc-cink-l 1.8s ease-in-out infinite; transform-origin: 100% 100%; }
+.sc-jiskra { animation: sc-jiskra 1.8s ease-out infinite; transform-origin: 50% 50%; transform: scale(0); }
+.sc-bublina { animation: sc-bublina 1.9s ease-out infinite; }
+@keyframes sc-cink-p { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(11deg); } }
+@keyframes sc-cink-l { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(-11deg); } }
+@keyframes sc-jiskra { 0%, 42%, 72%, 100% { opacity: 0; transform: scale(.3); } 50%, 62% { opacity: 1; transform: scale(1.1); } }
+@keyframes sc-bublina { 0%, 35% { opacity: 0; transform: translateY(0); } 50% { opacity: .9; } 100% { opacity: 0; transform: translateY(-13px); } }
+
+/* tanec — kolébání páru a plamínek svíčky */
+.sc-tanec { animation: sc-tanec 2s ease-in-out infinite; transform-origin: 50% 100%; }
+.sc-plamen { animation: sc-plamen .5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+@keyframes sc-tanec { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes sc-plamen { from { transform: scale(1); } to { transform: scale(1.25, .8) rotate(3deg); } }
+
+/* odpoledne — sluníčko, motýl (vodorovný let × svislé vlnění × mávání křídel),
+   houpání sklenky, kolébání */
+.sc-slunce { animation: sc-slunce 14s linear infinite; transform-origin: 50% 50%; }
+.sc-motyl-x { animation: sc-motyl-x 7s ease-in-out infinite alternate; }
+.sc-motyl-y { animation: sc-motyl-y 1.3s ease-in-out infinite alternate; }
+.sc-kridlo-a { animation: sc-kridlo .22s ease-in-out infinite alternate; transform-origin: 100% 50%; }
+.sc-kridlo-b { animation: sc-kridlo .22s ease-in-out infinite alternate; transform-origin: 0% 50%; }
+.sc-houpe { animation: sc-houpe 1.6s ease-in-out infinite; transform-origin: 0% 100%; }
+.sc-koleba { animation: sc-koleba 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes sc-slunce { to { transform: rotate(360deg); } }
+@keyframes sc-motyl-x { from { transform: translateX(0); } to { transform: translateX(112px); } }
+@keyframes sc-motyl-y { from { transform: translateY(-6px); } to { transform: translateY(6px); } }
+@keyframes sc-kridlo { from { transform: scaleX(1); } to { transform: scaleX(.3); } }
+@keyframes sc-houpe { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes sc-koleba { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+
+/* párty — houpající se disko koule s třpytkami, skoky se squash & stretch, noty */
+.sc-koule { animation: sc-koule 2.2s ease-in-out infinite; transform-origin: 50% 0%; }
+.sc-trpyt { animation: sc-trpyt 1.4s ease-in-out infinite; }
+.sc-skok { animation: sc-skok 1.15s ease-in-out infinite; transform-origin: 50% 100%; }
+.sc-nota { animation: sc-nota 1.6s ease-out infinite; }
+@keyframes sc-koule { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+@keyframes sc-trpyt { 0%, 40%, 100% { opacity: 0; } 55%, 78% { opacity: 1; } }
+@keyframes sc-skok {
+  0%, 100% { transform: translateY(0) scale(1); }
+  12% { transform: translateY(1px) scale(1.07, .9); }
+  38% { transform: translateY(-10px) scale(.96, 1.06); }
+  62% { transform: translateY(0) scale(1.05, .93); }
+  76% { transform: translateY(0) scale(1); }
+}
+@keyframes sc-nota { 0% { transform: translateY(5px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scenka [class^="sc-"], .scenka [class*=" sc-"] { animation: none; }
+  /* bez animací: panáčci stojí dokreslení napořád, bez chvění čar */
+  .scenka path { transition: none; stroke-dashoffset: 0; }
+  .scenka .sc-vypln { transition: none; fill-opacity: 1; }
+  .event .scenka { transition: none; }
+  .scenka.hraje .sc-kresba { filter: none; }
+  .sc-srdce, .sc-jiskra, .sc-blesk { opacity: 1; transform: none; }
+  .sc-nota, .sc-trpyt, .sc-cinky { opacity: .8; }
+  .sc-bublina, .sc-srdicko, .sc-polaroid { opacity: 0; }
+}
+
 /* location */
 .location { background: linear-gradient(to bottom, var(--broskev-jemna), var(--zelena-jemna) var(--prechod-sekci)); }
 .venue-map {
