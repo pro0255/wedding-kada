@@ -17,18 +17,12 @@ const KVALITA = 0.85;
 const OBNOVA_MS = 20_000;
 const MAX_VIDEO_B = 100 * 1024 * 1024; // limit Cloudinary free tieru
 
-/* hlášky k nahrávání — ať se hosté u progress baru nenudí */
+/* hlášky k nahrávání */
 const HLASKY = [
-  "Nalévá se šampaňské…",
-  "Ženich nervózně přešlapuje…",
-  "Družičky doplňují lesk na rty…",
-  "Maxík očichává svatební dort…",
-  "DJ ladí první tanec…",
-  "Kapesníčky se rozdávají do řad…",
-  "Prstýnky se leští do lesku…",
-  "Babička si sedá blíž k parketu…",
-  "Zvonička v Rekovicích se rozeznívá…",
-  "Řízky pro děti už syčí na pánvi…",
+  "Nahráváme vaše vzpomínky…",
+  "Chviličku strpení…",
+  "Už to bude…",
+  "Děkujeme, že se dělíte…",
 ];
 
 type Fotka = {
