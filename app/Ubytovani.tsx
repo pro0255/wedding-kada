@@ -13,6 +13,15 @@ export default function Ubytovani() {
   const [hotovo, setHotovo] = useState(false);
   const [chyba, setChyba] = useState<string | null>(null);
 
+  // host už jednou rezervoval (přežije obnovení stránky)
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("ubytovani-rezervovano") === "1") setHotovo(true);
+    } catch {
+      /* soukromé okno apod. — potvrzení se prostě nezapamatuje */
+    }
+  }, []);
+
   // načtení aktuální kapacity
   useEffect(() => {
     let zruseno = false;
@@ -54,6 +63,11 @@ export default function Ubytovani() {
       setHotovo(true);
       setJmeno("");
       setPocet("1");
+      try {
+        localStorage.setItem("ubytovani-rezervovano", "1");
+      } catch {
+        /* nevadí */
+      }
     } catch {
       setChyba("Odeslání se nezdařilo. Zkontrolujte připojení a zkuste to znovu.");
     } finally {
@@ -92,9 +106,26 @@ export default function Ubytovani() {
       )}
 
       {hotovo ? (
-        <p className="ubytovani-dekujeme" role="status">
-          Děkujeme, máme to zapsané! Ozveme se vám s detaily.
-        </p>
+        <div className="ubytovani-dekujeme" role="status">
+          <p>Děkujeme, máme to zapsané! Ozveme se vám s detaily.</p>
+          {!plno && (
+            <button
+              type="button"
+              className="ubytovani-znovu"
+              onClick={() => {
+                setHotovo(false);
+                setChyba(null);
+                try {
+                  localStorage.removeItem("ubytovani-rezervovano");
+                } catch {
+                  /* nevadí */
+                }
+              }}
+            >
+              Přidat další rezervaci
+            </button>
+          )}
+        </div>
       ) : (
         <form className="ubytovani-form" onSubmit={odesli}>
           <label>

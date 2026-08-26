@@ -693,6 +693,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   font-size: 1.25rem; color: var(--palette-sage-text);
 }
 .ubytovani-chyba { margin-top: 1.2rem; font-size: .85rem; color: var(--palette-rose-text); }
+.ubytovani-znovu {
+  display: block; margin: 1.4rem auto 0; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: .62rem; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--ink-soft); border-bottom: 1px solid rgba(0,0,0,.25); padding: 0 0 .3rem;
+}
+.ubytovani-znovu:hover { color: var(--ink); border-bottom-color: var(--accent); }
 
 @media (max-width: 520px) {
   .ubytovani-form { grid-template-columns: 1fr; }
