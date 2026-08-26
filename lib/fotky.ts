@@ -151,8 +151,8 @@ export async function prepniLajk(
   return { lajknuto: true };
 }
 
-/** Smaže obrázek v Cloudinary (podepsaný Admin API request). */
-async function smazZCloudinary(publicId: string): Promise<void> {
+/** Smaže soubor v Cloudinary (podepsaný Admin API request). */
+async function smazZCloudinary(publicId: string, typ: "image" | "video"): Promise<void> {
   const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const klic = process.env.CLOUDINARY_API_KEY;
   const tajemstvi = process.env.CLOUDINARY_API_SECRET;
@@ -173,7 +173,7 @@ async function smazZCloudinary(publicId: string): Promise<void> {
     signature: podpis,
   });
   const odpoved = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloud}/image/destroy`,
+    `https://api.cloudinary.com/v1_1/${cloud}/${typ}/destroy`,
     { method: "POST", body: telo }
   );
   if (!odpoved.ok) {
@@ -201,7 +201,10 @@ export async function smazFotku(
     throw new Error(`Airtable vrátil ${smazani.status}: ${await smazani.text()}`);
   }
 
-  if (zaznam.fields.PublicId) await smazZCloudinary(zaznam.fields.PublicId);
+  if (zaznam.fields.PublicId) {
+    const typ = zaznam.fields.Url?.includes("/video/upload/") ? "video" : "image";
+    await smazZCloudinary(zaznam.fields.PublicId, typ);
+  }
 
   // sirotčí lajky smazané fotky — po 10, víc Airtable v jednom requestu nevezme
   const lajky = await nactiZaznamy(API_LAJKY, `{FotkaId}='${doFormule(id)}'`);

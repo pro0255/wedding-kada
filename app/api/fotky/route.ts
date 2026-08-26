@@ -39,7 +39,8 @@ export async function POST(request: Request) {
   const urlOk =
     typeof url === "string" &&
     !!cloud &&
-    url.startsWith(`https://res.cloudinary.com/${cloud}/image/upload/`);
+    (url.startsWith(`https://res.cloudinary.com/${cloud}/image/upload/`) ||
+      url.startsWith(`https://res.cloudinary.com/${cloud}/video/upload/`));
 
   if (!device || !urlOk || typeof publicId !== "string" || publicId.length > 300) {
     return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });

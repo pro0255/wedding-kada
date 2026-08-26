@@ -1111,3 +1111,55 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
   .galerie-sipka-p { right: 6px; }
   .galerie-detail-listy { flex-wrap: wrap; justify-content: center; gap: .9rem; }
 }
+
+/* průběh nahrávání — bar + rotující svatební hlášky */
+.galerie-prubeh { max-width: 340px; margin: 1.6rem auto 0; }
+.galerie-prubeh-bar {
+  height: 3px; background: color-mix(in srgb, var(--palette-blue-text) 18%, transparent);
+  overflow: hidden;
+}
+.galerie-prubeh-bar span {
+  display: block; height: 100%; background: var(--palette-blue-text);
+  transition: width .35s ease;
+}
+.galerie-prubeh-text {
+  margin-top: .7rem; font-size: .62rem; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.galerie-hlaska {
+  margin-top: .5rem; font-family: var(--serif), Georgia, serif; font-style: italic;
+  font-size: .95rem; color: var(--palette-blue-text);
+  animation: galerie-hlaska-in .5s ease;
+}
+@keyframes galerie-hlaska-in { from { opacity: 0; transform: translateY(4px); } }
+
+/* skeleton mřížky při prvním načtení */
+.galerie-skeleton {
+  display: block; aspect-ratio: 1; border: 4px solid #fff;
+  background: color-mix(in srgb, var(--ink) 7%, var(--bg));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .07);
+  animation: galerie-dycha 1.4s ease-in-out infinite;
+}
+@keyframes galerie-dycha {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
+
+/* video: play odznak v mřížce + přehrávač v prohlížečce */
+.galerie-play {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(28, 26, 23, .55); pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.galerie-play svg { width: 20px; height: 20px; fill: #fff; margin-left: 2px; }
+.galerie-detail video {
+  max-width: 100%; max-height: 78vh;
+  border: 6px solid #fff; box-shadow: 0 12px 50px rgba(0, 0, 0, .5); cursor: default;
+  transition: opacity .25s ease; background: #000;
+}
+.galerie-detail video.nacita { opacity: 0; }
+@media (max-width: 560px) {
+  .galerie-detail video { max-height: 74vh; border-width: 4px; }
+  .galerie-skeleton { border-width: 3px; }
+}
