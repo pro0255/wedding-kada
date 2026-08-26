@@ -590,10 +590,17 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (hover: hover) and (max-width: 1023px) {
   .event .scenka { display: none; }
 }
-/* dotyk bez místa po straně: scénka v toku nad textem, kreslí ji scroll */
+/* dotyk bez místa po straně: scénka je sbalená (nezabírá místo) a rozbalí se
+   nad textem až klepnutím na kartu */
 @media (hover: none) and (max-width: 1023px) {
-  .event .scenka { position: relative; top: auto; left: auto; transform: none; margin: 0 auto .3rem; width: 176px; }
-  .event .scenka.hraje { transform: none; }
+  .event .scenka {
+    position: relative; top: auto; left: auto; transform: none;
+    margin: 0 auto; width: 200px;
+    height: 0; overflow: hidden;
+    transition: height .45s ease;
+  }
+  .event .scenka svg { width: 200px; }
+  .event .scenka.hraje { transform: none; height: 104px; }
 }
 
 /* měkký „papírový" podklad, aby kresba četla i na květinovém dekoru */

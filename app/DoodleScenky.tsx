@@ -482,13 +482,30 @@ export default function Scenka({ typ }: { typ: ScenkaTyp }) {
     const event = el?.closest(".event");
     if (!el || !event) return;
 
-    const vypni = () => setHraje(false);
+    let zapnuto = false;
+    const vypni = () => {
+      zapnuto = false;
+      setHraje(false);
+    };
 
-    // dotyková zařízení: scénka se dokreslí, když je karta ve viewportu
+    // dotyková zařízení: scénka je sbalená a rozbalí se až klepnutím na kartu
+    // (další klepnutí, nebo klepnutí na jinou kartu, ji zase zavře)
     if (window.matchMedia("(hover: none)").matches) {
-      const io = new IntersectionObserver(([e]) => setHraje(e.isIntersecting), { threshold: 0.5 });
-      io.observe(el);
-      return () => io.disconnect();
+      const prepni = () => {
+        if (zapnuto) {
+          vypni();
+          return;
+        }
+        if (vypniAktivni && vypniAktivni !== vypni) vypniAktivni();
+        vypniAktivni = vypni;
+        zapnuto = true;
+        setHraje(true);
+      };
+      event.addEventListener("click", prepni);
+      return () => {
+        event.removeEventListener("click", prepni);
+        if (vypniAktivni === vypni) vypniAktivni = null;
+      };
     }
 
     // usadit scénku hned vedle textu: karta je široká 560px, ale texty končí
