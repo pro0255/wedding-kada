@@ -9,28 +9,21 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 });
 
 import Ring3D from "./Ring3D";
+import Ubytovani from "./Ubytovani";
 
 const ENVELOPE_KEY = "kj-envelope-opened";
 
-const GALLERY = [
-  { src: "/assets/kada-hrad.jpg", alt: "Zásnuby na Troskách" },
-  { src: "/assets/couple-golden-hour.jpg", alt: "Kateřina a Jakub" },
-  { src: "/assets/kada-husky.jpg", alt: "Zimní procházka" },
-];
 const LOADER_MS = 5000;
 
 // hlášky z Pána prstenů, lehce svatebně upravené
 const LOTR_QUOTES = [
-  "Jeden prsten vládne všem. Od 06. 06. 2027 budou dva.",
-  "Kouzelník nikdy nechodí pozdě. Tahle svatba taky ne.",
+  "Jeden prsten vládne všem. Od 18. 09. 2027 budou dva.",
   "You shall not pass!… teda, bez pozvánky.",
   "Ani Frodo nenesl nic tak vzácného, jako jsou tyhle prstýnky.",
-  "I ten nejmenší prsten může změnit celý příběh.",
-  "Moje rozhodnutí. Můj poklad. 💍",
 ];
 
 // TODO: skutečné datum svatby
-const WEDDING_DATE = new Date("2027-06-06T12:00:00+02:00");
+const WEDDING_DATE = new Date("2027-09-18T12:00:00+02:00");
 
 function useCountdown(target: Date) {
   const [left, setLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
@@ -56,6 +49,15 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // pokud je prvek při mountu už (byť částečně) ve viewportu, ukaž ho rovnou —
+    // observer by na už-viditelný prvek nemusel spolehlivě zareagovat
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add("in");
+      return;
+    }
+
     const io = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -64,7 +66,7 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
             io.unobserve(e.target);
           }
         }),
-      { threshold: 0.15 }
+      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -76,179 +78,138 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   );
 }
 
-const pad = (n: number) => String(n).padStart(2, "0");
+type Barva = { nazev: string; hex: string };
 
-/* galerie lightbox */
-function Lightbox({
-  index,
-  onClose,
-  onMove,
-}: {
-  index: number;
-  onClose: () => void;
-  onMove: (dir: 1 | -1) => void;
-}) {
+/* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama.
+   TODO: kromě dresscodu jsou odpovědi jen návrh, přepiš je. */
+const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
+  {
+    q: "Je na svatbě nějaký dresscode?",
+    a: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost — hlavně ať vám je v tom, co si vezmete, dobře.",
+    barvy: [
+      { nazev: "Světle modrá", hex: "#c3d7ec" },
+      { nazev: "Broskvová", hex: "#f6c396" },
+      { nazev: "Růžová", hex: "#f5a3a8" },
+      { nazev: "Světle růžová", hex: "#f4d3d9" },
+      { nazev: "Modrá", hex: "#a8c8ec" },
+      { nazev: "Krémově žlutá", hex: "#f8e4a3" },
+      { nazev: "Šalvějová", hex: "#b7d3ab" },
+    ],
+  },
+  {
+    q: "Bude na svatbě zajištěn odvoz?",
+    a: "Odvoz ze svatby zajištěný máme — od 15 hodin budou k dispozici dva řidiči, kteří vás rádi odvezou domů. Dopravu na místo si ale, prosím, zařiďte každý sám.",
+  },
+  {
+    q: "Můžeme vzít děti?",
+    a: "S vašimi dětmi počítáme a vzít je samozřejmě můžete. Asi si ale všichni — vy i vaše děti — večer užijeme víc, pokud je necháte na pár hodin u prarodičů nebo příbuzných. Pokud se nakonec rozhodnete je nevzít, dejte nám prosím vědět.",
+  },
+  {
+    q: "Co si přejete za dar?",
+    a: "Nejradši bychom místo věcí, které stejně brzy skončí v šuplíku, přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A pokud byste přece jen chtěli něco přinést, mysleli jsme na naše chlupaté kamarády: místo kytice nebo lahve rádi odvezeme granule, deky nebo hračky do jednoho ze dvou útulků, se kterými jsme domluveni.",
+  },
+];
+
+/* Jeden dotaz. Výšku odpovědi měříme a nastavujeme v px — do `auto` se plynule
+   animovat nedá, tak ji po každém přepnutí změříme z obsahu. */
+function Dotaz({ q, a, barvy }: { q: string; a: string; barvy?: Barva[] }) {
+  const [otevreno, setOtevreno] = useState(false);
+  const [vyska, setVyska] = useState(0);
+  const obsah = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") onMove(1);
-      if (e.key === "ArrowLeft") onMove(-1);
-    };
-    window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose, onMove]);
-
-  const photo = GALLERY[index];
-  return (
-    <div className="lightbox" onClick={onClose}>
-      <button className="lb-close" aria-label="Zavřít" onClick={onClose}>
-        ×
-      </button>
-      <button
-        className="lb-nav lb-prev"
-        aria-label="Předchozí"
-        onClick={(e) => {
-          e.stopPropagation();
-          onMove(-1);
-        }}
-      >
-        ‹
-      </button>
-      <figure onClick={(e) => e.stopPropagation()}>
-        <img src={photo.src} alt={photo.alt} />
-        <figcaption>{photo.alt}</figcaption>
-      </figure>
-      <button
-        className="lb-nav lb-next"
-        aria-label="Další"
-        onClick={(e) => {
-          e.stopPropagation();
-          onMove(1);
-        }}
-      >
-        ›
-      </button>
-    </div>
-  );
-}
-
-/* globální zámek: nikdy nejsou vidět dva easter eggy naráz */
-let eggLockUntil = 0;
-function scheduleEgg(delayMs: number, durationMs: number, fire: () => void) {
-  const now = Date.now();
-  // když by kolidoval s jiným, počká, až ten zmizí
-  const start = Math.max(now + delayMs, eggLockUntil + 400);
-  eggLockUntil = start + durationMs;
-  return setTimeout(fire, start - now);
-}
-
-/* easter egg: polaroid, který vyskočí na hover / tap */
-function EggHost({
-  children,
-  src,
-  caption,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  src: string;
-  caption: string;
-  delay?: number;
-}) {
-  const [open, setOpen] = useState(false);
-  const hostRef = useRef<HTMLDivElement>(null);
-
-  // poprvé vyskočí sám, když sekce najede do viewportu
-  useEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    let t: ReturnType<typeof setTimeout>;
-    let hide: ReturnType<typeof setTimeout>;
-    const DURATION = 4000;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          t = scheduleEgg(delay, DURATION, () => {
-            setOpen(true);
-            hide = setTimeout(() => setOpen(false), DURATION);
-          });
-          io.disconnect();
-        }
-      },
-      { threshold: 0.6 }
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      clearTimeout(t);
-      clearTimeout(hide);
-    };
-  }, [delay]);
+    const zmer = () => setVyska(otevreno ? obsah.current?.scrollHeight ?? 0 : 0);
+    zmer();
+    if (!otevreno) return;
+    // text se při změně šířky přelomí jinak, takže otevřenou odpověď přeměřujeme
+    window.addEventListener("resize", zmer);
+    return () => window.removeEventListener("resize", zmer);
+  }, [otevreno]);
 
   return (
-    <div
-      ref={hostRef}
-      className={`egg-host ${open ? "egg-open" : ""}`}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onClick={() => setOpen((o) => !o)}
-    >
-      {children}
-      <div className="polaroid" aria-hidden>
-        <img src={src} alt="" />
-        <span>{caption}</span>
+    <div className={`faq-item ${otevreno ? "open" : ""}`}>
+      <button
+        type="button"
+        className="faq-otazka"
+        aria-expanded={otevreno}
+        onClick={() => setOtevreno((o) => !o)}
+      >
+        <span>{q}</span>
+        <span className="faq-znak" aria-hidden="true" />
+      </button>
+      <div className="faq-obal" style={{ height: vyska }}>
+        <div className="faq-odpoved" ref={obsah}>
+          <p>{a}</p>
+          {barvy && (
+            <ul className="faq-barvy">
+              {barvy.map((b) => (
+                <li key={b.hex}>
+                  {/* název jen pro čtečky — vizuálně stačí samotná kulička */}
+                  <span className="faq-kulicka" style={{ background: b.hex }} />
+                  <span className="faq-skryte">{b.nazev}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-/* easter egg: Luna občas vykoukne od spodního okraje */
-function LunaPeek() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    let hide: ReturnType<typeof setTimeout>;
-    let t: ReturnType<typeof setTimeout>;
-    const DURATION = 7000;
-    let visible = false;
-    // Luna vykoukne, jen když je člověk úplně dole (u patičky)
-    const footer = document.querySelector("footer");
-    let io: IntersectionObserver | undefined;
-    if (footer) {
-      io = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting && !visible) {
-            visible = true;
-            t = scheduleEgg(400, DURATION, () => {
-              setShow(true);
-              hide = setTimeout(() => {
-                setShow(false);
-                visible = false;
-              }, DURATION);
-            });
-          }
-        },
-        { threshold: 0.4 }
-      );
-      io.observe(footer);
-    }
-    return () => {
-      clearTimeout(t);
-      clearTimeout(hide);
-      io?.disconnect();
-    };
-  }, []);
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
+const PRIBEH_FOTKY = [
+  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách" },
+  { src: "/fotky/2.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/4.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/6.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/11.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/16.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/20.jpeg", alt: "Kateřina a Jakub" },
+];
+
+// jak leží jednotlivé fotky na hromádce (0 = úplně navrchu)
+const HROMADKA_SLOTY = [
+  { rot: -1.5, x: 0, y: 0 },
+  { rot: 3.2, x: 12, y: 8 },
+  { rot: -4, x: -10, y: 15 },
+  { rot: 2.4, x: 6, y: 22 },
+];
+
+function FotoHromadka() {
+  const [aktivni, setAktivni] = useState(0);
+  const pocet = PRIBEH_FOTKY.length;
+
   return (
     <button
       type="button"
-      className={`luna-peek ${show ? "show" : ""}`}
-      onClick={() => setShow((s) => !s)}
-      aria-label="Kočka Luna"
+      className="foto-hromadka"
+      onClick={() => setAktivni((i) => (i + 1) % pocet)}
+      aria-label="Zobrazit další fotku"
     >
-      <span className="luna-bubble">Luna to celé schvaluje</span>
-      <img src="/assets/luna.jpg" alt="" />
+      {PRIBEH_FOTKY.map((foto, i) => {
+        const slot = (i - aktivni + pocet) % pocet;
+        const viditelny = slot < HROMADKA_SLOTY.length;
+        const poloha = HROMADKA_SLOTY[Math.min(slot, HROMADKA_SLOTY.length - 1)];
+        return (
+          <img
+            key={foto.src}
+            src={foto.src}
+            alt={slot === 0 ? foto.alt : ""}
+            className={`foto-list ${slot === 0 ? "foto-vrchni" : ""}`}
+            style={{
+              transform: `translate(${poloha.x}px, ${poloha.y}px) rotate(${poloha.rot}deg)`,
+              zIndex: pocet - slot,
+              opacity: viditelny ? 1 : 0,
+            }}
+          />
+        );
+      })}
+      <span className="foto-pocitadlo">
+        {aktivni + 1} / {pocet}
+      </span>
     </button>
   );
 }
@@ -259,8 +220,30 @@ export default function Home() {
   // obálka se mountne jen při první návštěvě — žádné bliknutí při opakované
   const [envelopeActive, setEnvelopeActive] = useState(false);
   const [quote, setQuote] = useState<string | null>(null);
-  const [lightbox, setLightbox] = useState<number | null>(null);
   const left = useCountdown(WEDDING_DATE);
+
+  // Rozplynutí spodku hero řídí scroll: nahoře je fotka ostrá až k hraně,
+  // po ~45 % výšky okna je přechod naplno. Samotné doznívání kreslí CSS.
+  useEffect(() => {
+    let cekaNaSnimek = false;
+    const uprav = () => {
+      cekaNaSnimek = false;
+      const pomer = Math.min(1, window.scrollY / (window.innerHeight * 0.45));
+      document.documentElement.style.setProperty("--hero-fade-pomer", pomer.toFixed(3));
+    };
+    const naScroll = () => {
+      if (cekaNaSnimek) return;
+      cekaNaSnimek = true;
+      requestAnimationFrame(uprav);
+    };
+    uprav();
+    window.addEventListener("scroll", naScroll, { passive: true });
+    window.addEventListener("resize", naScroll);
+    return () => {
+      window.removeEventListener("scroll", naScroll);
+      window.removeEventListener("resize", naScroll);
+    };
+  }, []);
 
   useEffect(() => {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
@@ -318,7 +301,7 @@ export default function Home() {
             <div className="env-card">
               <div className="env-card-inner">
                 <div className="env-card-mono">K &amp; J</div>
-                <div className="env-card-date">06 · 06 · 2027</div>
+                <div className="env-card-date">18 · 09 · 2027</div>
                 <div className="env-card-note">Zveme vás na naši svatbu</div>
               </div>
             </div>
@@ -337,144 +320,62 @@ export default function Home() {
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}
       <section className="hero-full" id="hero">
-        {/* TODO: kvalitní společná fotka na výšku/šířku */}
-        <img className="hero-bg" src="/assets/couple-golden-hour.jpg" alt="Kateřina a Jakub" />
-        <div className="hero-content">
+        <img className="hero-bg" src="/fotky/kaplicka.png" alt="Kaplička" />
+        <div className={`hero-content ${stage === "done" ? "in" : ""}`}>
           <p className="hero-eyebrow">Bereme se</p>
           <h1 className="hero-title">Kateřina &amp; Jakub</h1>
-          <div className="hero-date">06 · 06 · 2027</div>{/* TODO datum svatby */}
+          <div className="hero-date">18 · 09 · 2027</div>
         </div>
         <a className="hero-scroll" href="#countdown" aria-label="Posunout dolů">
           <span />
         </a>
       </section>
 
+      {/* od odpočtu níž rámuje obsah tenká linka a dole sedí panorama Beskyd */}
+      <div className="obsah-ramec">
+
       {/* countdown */}
       <section className="countdown" id="countdown">
         <Reveal className="wrap">
           <p className="eyebrow">Odpočítáváme</p>
-          <h2>Zbývá</h2>
-          <EggHost src="/assets/pluto.jpg" caption="Pluto se už taky nemůže dočkat" delay={2500}>
-            <div className="count">
-              <div>
-                <b>{left ? left.d : "–"}</b>
-                <span>dní</span>
-              </div>
-              <div>
-                <b>{left ? pad(left.h) : "–"}</b>
-                <span>hodin</span>
-              </div>
-              <div>
-                <b>{left ? pad(left.m) : "–"}</b>
-                <span>minut</span>
-              </div>
-              <div>
-                <b>{left ? pad(left.s) : "–"}</b>
-                <span>vteřin</span>
-              </div>
+          <h2>Zbývá do svatby</h2>
+          <div className="count">
+            <div>
+              <b>{left ? left.d : "–"}</b>
+              <span>dní</span>
             </div>
-          </EggHost>
+            <div>
+              <b>{left ? pad(left.h) : "–"}</b>
+              <span>hodin</span>
+            </div>
+            <div>
+              <b>{left ? pad(left.m) : "–"}</b>
+              <span>minut</span>
+            </div>
+            <div>
+              <b>{left ? pad(left.s) : "–"}</b>
+              <span>vteřin</span>
+            </div>
+          </div>
         </Reveal>
       </section>
 
       {/* příběh */}
-      <section id="story">
-        <Reveal className="wrap">
-          <p className="eyebrow">Náš příběh</p>
-          <h2>Jak to celé začalo</h2>
-          <p className="lead">
-            {/* TODO skutečný příběh */}
-            Pět let spolu, jedno zásnubní „ano“ na Troskách — a teď to velké.
-            Sem přijde pár vět o tom, jak jsme se potkali a proč jsme se rozhodli
-            udělat ten velký krok.
-          </p>
+      <section className="story" id="story">
+        <Reveal className="story-grid">
           <div className="story-photo">
-            <img src="/assets/couple-golden-hour.jpg" alt="Kateřina a Jakub" />
+            <FotoHromadka />
           </div>
-        </Reveal>
-      </section>
-
-      {/* kdo jsme */}
-      <section id="people" style={{ paddingTop: 0 }}>
-        <Reveal className="wrap">
-          <p className="eyebrow">Snoubenci</p>
-          <h2>Kdo jsme</h2>
-        </Reveal>
-        <Reveal className="people">
-          <div className="person">
-            <img src="/assets/kada-hrad.jpg" alt="Nevěsta Kateřina" />
-            <h3>Kateřina</h3>
-            <div className="role">Nevěsta</div>
-            <p>{/* TODO bio nevěsty */}Miluje hory, hrady a svého psa. Krátké bio doplníme.</p>
-          </div>
-          <div className="person">
-            <img src="/assets/jakub.jpg" alt="Ženich Jakub" />
-            <h3>Jakub</h3>
-            <div className="role">Ženich</div>
-            <p>{/* TODO bio ženicha */}Krátké bio Jakuba doplníme, až budou texty a fotky.</p>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* program (dark) */}
-      <section className="schedule" id="schedule">
-        <Reveal className="wrap">
-          <p className="eyebrow">Nahlédněte</p>
-          <h2>Program dne</h2>
-          <div className="slots">
-            {/* TODO časy */}
-            <div className="slot">
-              <b>12:00</b>
-              <span>Obřad</span>
-            </div>
-            <div className="slot">
-              <b>13:30</b>
-              <span>Přípitek &amp; raut</span>
-            </div>
-            <div className="slot">
-              <b>17:00</b>
-              <span>Večeře</span>
-            </div>
-            <div className="slot">
-              <b>20:00</b>
-              <span>Hudba &amp; tanec</span>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* průběh */}
-      <section id="events">
-        <Reveal className="wrap">
-          <p className="eyebrow">Co vás čeká</p>
-          <h2>Průběh dne</h2>
-        </Reveal>
-        <Reveal className="events">
-          <EggHost src="/assets/maximilian.jpg" caption="Prstýnky hlídá Maxík — ministr prstýnků">
-            <div className="event">
-              <div className="num">01</div>
-              <div>
-                <h3>Obřad</h3>
-                <div className="meta">12:00 · Místo TBD</div>
-                <p>Slavnostní „ano“ pod širým nebem. Detaily doplníme.</p>
-              </div>
-            </div>
-          </EggHost>
-          <div className="event">
-            <div className="num">02</div>
-            <div>
-              <h3>Přípitek &amp; focení</h3>
-              <div className="meta">13:30 · Zahrada</div>
-              <p>Skleničku do ruky, úsměv do objektivu.</p>
-            </div>
-          </div>
-          <div className="event">
-            <div className="num">03</div>
-            <div>
-              <h3>Hostina &amp; party</h3>
-              <div className="meta">17:00 · Sál</div>
-              <p>Večeře, proslovy, tanec — a možná i půlnoční překvapení.</p>
-            </div>
+          <div className="story-text">
+            <p className="eyebrow">Náš příběh</p>
+            <h2>Jak to celé začalo</h2>
+            <p className="lead">
+              Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
+              největší společné dobrodružství. Poznali jsme se, zamilovali se,
+              prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
+              plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
+              jít životem bok po boku – a proto si 18. září 2027 řekneme své „ano“.
+            </p>
           </div>
         </Reveal>
       </section>
@@ -484,35 +385,127 @@ export default function Home() {
         <Reveal className="wrap">
           <p className="eyebrow">Kde se to stane</p>
           <h2>Místo konání</h2>
-          <p className="lead">{/* TODO název místa */}Úzká · Ostrava</p>
+          <p className="lead">Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm</p>
           <VenueMap />
+          <Ubytovani />
         </Reveal>
       </section>
 
-      {/* galerie */}
-      <section id="gallery">
+      {/* program */}
+      <section className="schedule" id="schedule">
         <Reveal className="wrap">
-          <p className="eyebrow">Naše momenty</p>
-          <h2>Galerie</h2>
+          <p className="eyebrow">Nahlédněte</p>
+          <h2>Program dne</h2>
         </Reveal>
-        <Reveal className="grid">
-          {GALLERY.map((p, i) => (
-            <img key={p.src} src={p.src} alt={p.alt} onClick={() => setLightbox(i)} />
+        <Reveal className="events">
+          <div className="event">
+            <h3>Snídaně</h3>
+            <div className="meta">9:00 · U ženicha a nevěsty</div>
+            <p>Poslední klidné sousto před tím, než to celé začne.</p>
+          </div>
+          <div className="event">
+            <h3>Obřad</h3>
+            <div className="meta">12:00 · U Zvoničky v Rekovicích</div>
+            <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
+          </div>
+          <div className="event">
+            <h3>Společné focení</h3>
+            <div className="meta">13:00</div>
+            <p>Chvilka pro novomanžele a pár fotek, které budeme ukazovat ještě za dvacet let.</p>
+          </div>
+          <div className="event">
+            <h3>Přípitek &amp; oběd</h3>
+            <div className="meta">13:30</div>
+            <p>Na zdraví, na lásku a na pořádný hlad.</p>
+          </div>
+          <div className="event">
+            <h3>První tanec &amp; krájení dortu</h3>
+            <div className="meta">15:30</div>
+            <p>Jeden tanec, jeden dort a žádné záruky elegance.</p>
+          </div>
+          <div className="event">
+            <h3>Svatební odpoledne</h3>
+            <div className="meta">Odpoledne</div>
+            <p>Dobré jídlo, sklenka v ruce a čas užít si den naplno.</p>
+          </div>
+          <div className="event">
+            <h3>Večerní párty</h3>
+            <div className="meta">Od 19:00</div>
+            <p>Boty dolů, hudbu nahoru.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* menu */}
+      <section className="menu" id="menu">
+        <Reveal className="menu-karta">
+          <span className="menu-masle" aria-hidden="true" />
+          <div className="wrap">
+            <p className="eyebrow">Dobrou chuť</p>
+            <h2>Svatební menu</h2>
+            <p className="lead">
+              To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili na obřad —
+              my víme svoje. Dobrou chuť!
+            </p>
+          </div>
+          <div className="events">
+          <div className="event">
+            <div className="meta">Polévka</div>
+            <h3>Svatební vývar</h3>
+            <p>Játrové knedlíčky, zelenina, nudle</p>
+          </div>
+          <div className="event">
+            <div className="meta">Hlavní chod</div>
+            <h3>Vepřová panenka v sous-vide s pečenými grenaille a pepřovou omáčkou</h3>
+          </div>
+          <div className="event">
+            <div className="meta">Dezert</div>
+            <h3>Svatební dort</h3>
+            <p>Čokoládový korpus, pařížský krém, malinové compote</p>
+          </div>
+          </div>
+
+          <div className="wrap menu-kids-title">
+            <p className="eyebrow">Pro nejmenší</p>
+            <h3>Dětské svatební menu</h3>
+          </div>
+          <div className="events">
+            <div className="event">
+              <div className="meta">Polévka</div>
+              <h3>Svatební vývar</h3>
+              <p>Zelenina, nudle</p>
+            </div>
+            <div className="event">
+              <div className="meta">Hlavní chod</div>
+              <h3>Kuřecí smažený řízek s bramborovým pyré</h3>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* nejčastější dotazy */}
+      <section className="faq" id="faq">
+        <Reveal className="wrap">
+          <p className="eyebrow">Ptáte se</p>
+          <h2>Nejčastější dotazy</h2>
+          <p className="lead">Klepnutím na otázku se rozbalí odpověď.</p>
+        </Reveal>
+        <Reveal className="faq-list">
+          {DOTAZY.map(({ q, a, barvy }) => (
+            <Dotaz key={q} q={q} a={a} barvy={barvy} />
           ))}
         </Reveal>
       </section>
 
       <footer>Kateřina &amp; Jakub · 2027 · Těšíme se na vás</footer>
 
-      <LunaPeek />
-
-      {lightbox !== null && (
-        <Lightbox
-          index={lightbox}
-          onClose={() => setLightbox(null)}
-          onMove={(dir) => setLightbox((i) => ((i ?? 0) + dir + GALLERY.length) % GALLERY.length)}
-        />
-      )}
+        {/* až za sekcemi, aby ležely nad jejich pozadím (obsah má z-index 1, zůstává navrchu) */}
+        <span className="kvetiny" aria-hidden="true">
+          <span className="kvetiny-pas kvetiny-l" />
+          <span className="kvetiny-pas kvetiny-r" />
+        </span>
+        <span className="stred-pruh" aria-hidden="true" />
+      </div>
     </>
   );
 }
