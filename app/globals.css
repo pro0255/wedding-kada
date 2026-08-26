@@ -52,8 +52,6 @@
   /* pin na mapě — máslová do pískové, ať na zelenošedé mapě svítí */
   --pin-svetla: #f9e3a4;
   --pin-piskova: #d8b25c;
-  /* 0 = hero ostré až dolů, 1 = plně rozplynuté; přepisuje JS při scrollu */
-  --hero-fade-pomer: 0;
   /* pastelová modrá pro odpočet — nejsvětlejší odstín, který na béžové ještě projde
      kontrastem 4.5:1 (popisky jsou malé a hodně prostrkané, níž už se špatně čtou) */
   --odpocet-modra: #456d86;
@@ -282,11 +280,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 
 /* fullscreen hero */
 .hero-full {
-  /* Délka doznívání se řídí scrollem: nahoře je fotka ostrá až k dolní hraně
-     (hrana je přesně na zlomu, takže není vidět) a teprve scrollem se rozplyne.
-     Poměr 0–1 nastavuje JS v Home na :root. */
-  --hero-fade-max: clamp(150px, 22vh, 300px);
-  --hero-fade: calc(var(--hero-fade-max) * var(--hero-fade-pomer));
+  /* Délka doznívání fotky do béžové. Statická a dlouhá — dřívější varianta
+     řízená scrollem přes JS přepočítávala masku (a překreslovala celé hero)
+     každý frame a předěl působil jako tvrdý skok. */
+  --hero-fade: clamp(280px, 46svh, 520px);
   /* stejná barva jako sekce pod hero (odpočet), skrz rozplynutou fotku
      prosvítá ona — na předělu tak nevznikne žádný barevný skok */
   background: var(--modra-jemna);
@@ -309,23 +306,31 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 /* Fotka i tmavý překryv se dole rozplynou TOUŽ maskou. Kdyby se místo toho
    překrývaly béžovým gradientem, ležel by závoj na ztmavené fotce a vznikl by
-   šedavý pás. Mezistupně opisují ease křivku — čistě lineární přechod
-   prozradí místo, kde začíná. */
+   šedavý pás. Mezistupně opisují smoothstep křivku — plynulý náběh i doběh,
+   žádné místo, kde by přechod „začínal". */
 .hero-bg,
 .hero-full::after {
   -webkit-mask-image: linear-gradient(to bottom,
     #000 calc(100% - var(--hero-fade)),
-    rgba(0, 0, 0, .93) calc(100% - var(--hero-fade) * .8),
-    rgba(0, 0, 0, .75) calc(100% - var(--hero-fade) * .6),
-    rgba(0, 0, 0, .48) calc(100% - var(--hero-fade) * .4),
-    rgba(0, 0, 0, .2) calc(100% - var(--hero-fade) * .2),
+    rgba(0, 0, 0, .98) calc(100% - var(--hero-fade) * .88),
+    rgba(0, 0, 0, .92) calc(100% - var(--hero-fade) * .74),
+    rgba(0, 0, 0, .8) calc(100% - var(--hero-fade) * .6),
+    rgba(0, 0, 0, .63) calc(100% - var(--hero-fade) * .47),
+    rgba(0, 0, 0, .44) calc(100% - var(--hero-fade) * .35),
+    rgba(0, 0, 0, .26) calc(100% - var(--hero-fade) * .24),
+    rgba(0, 0, 0, .12) calc(100% - var(--hero-fade) * .14),
+    rgba(0, 0, 0, .04) calc(100% - var(--hero-fade) * .06),
     transparent 100%);
           mask-image: linear-gradient(to bottom,
     #000 calc(100% - var(--hero-fade)),
-    rgba(0, 0, 0, .93) calc(100% - var(--hero-fade) * .8),
-    rgba(0, 0, 0, .75) calc(100% - var(--hero-fade) * .6),
-    rgba(0, 0, 0, .48) calc(100% - var(--hero-fade) * .4),
-    rgba(0, 0, 0, .2) calc(100% - var(--hero-fade) * .2),
+    rgba(0, 0, 0, .98) calc(100% - var(--hero-fade) * .88),
+    rgba(0, 0, 0, .92) calc(100% - var(--hero-fade) * .74),
+    rgba(0, 0, 0, .8) calc(100% - var(--hero-fade) * .6),
+    rgba(0, 0, 0, .63) calc(100% - var(--hero-fade) * .47),
+    rgba(0, 0, 0, .44) calc(100% - var(--hero-fade) * .35),
+    rgba(0, 0, 0, .26) calc(100% - var(--hero-fade) * .24),
+    rgba(0, 0, 0, .12) calc(100% - var(--hero-fade) * .14),
+    rgba(0, 0, 0, .04) calc(100% - var(--hero-fade) * .06),
     transparent 100%);
 }
 .hero-content {
@@ -344,14 +349,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 .hero-date { font-family: var(--serif), Georgia, serif; font-size: clamp(1.3rem, 3.5vw, 1.9rem); letter-spacing: .3em; }
 .hero-scroll {
-  /* šipka drží pevnou pozici a mizí s tím, jak se hero rozplývá */
+  /* šipka odjede nahoru s hero — netřeba ji stmívat zvlášť */
   position: absolute; left: 50%; bottom: 2.4rem; transform: translateX(-50%);
-  opacity: calc(1 - var(--hero-fade-pomer));
-  z-index: 1; width: 28px; height: 46px; border: 1px solid rgba(247,243,234,.7);
+  /* tmavý odstín — šipka sedí v rozplynuté (světlé) části fotky */
+  z-index: 1; width: 28px; height: 46px; border: 1px solid rgba(43,41,37,.4);
   border-radius: 16px; display: flex; justify-content: center; padding-top: 8px;
 }
 .hero-scroll span {
-  width: 3px; height: 8px; border-radius: 2px; background: rgba(247,243,234,.9);
+  width: 3px; height: 8px; border-radius: 2px; background: rgba(43,41,37,.55);
   animation: scrollNudge 1.8s ease-in-out infinite;
 }
 @keyframes scrollNudge {
@@ -375,11 +380,15 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   --kv-tile: 640px;
   /* síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu */
   --kv-zavoj: .36;
-  position: absolute; inset: 0;
+  /* Pevná výška místo bottom: 0 — dekor tak nemění geometrii, když obsah
+     roste (rozbalené FAQ), a prohlížeč ho nepřekresluje každý frame animace.
+     Přesah ořízne overflow: hidden na .obsah-ramec. */
+  position: absolute; top: 0; left: 0; right: 0; height: 15000px;
   overflow: hidden; pointer-events: none;
-  /* dekor náběhne až kus pod předělem od hero, ať tam nevznikne další hrana */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 200px);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 200px);
+  /* dekor náběhne až kus pod předělem od hero, dlouze — krátký náběh dělal
+     pod rozplynutou fotkou druhou (květinovou) hranu */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.35) 300px, #000 640px);
+          mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.35) 300px, #000 640px);
 }
 .kvetiny-pas {
   position: absolute; top: -6%; bottom: -6%;
@@ -406,9 +415,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   /* béžový závoj drží květiny v pozadí; sílu ladí --kv-zavoj výš */
   background:
     linear-gradient(rgba(245, 242, 236, var(--kv-zavoj)), rgba(245, 242, 236, var(--kv-zavoj))),
-    url("/fotky/kvetiny-2.jpg") repeat-y center top / 100% var(--kv-tile);
-  /* saturate > 1 vytáhne pastelové odstíny, které blur jinak splácne do béžové */
-  filter: blur(9px) saturate(1.3);
+    url("/fotky/kvetiny-2-blur.jpg") repeat-y center top / 100% var(--kv-tile);
+  /* Blur a saturaci má fotka zapečené v sobě (viz kvetiny-2-blur.jpg).
+     CSS filter tady dřív nutil prohlížeč překreslovat rozostření přes celou
+     výšku stránky při každé změně layoutu (např. rozbalení FAQ) a web se sekal. */
+  /* vlastní kompozitní vrstva — bez ní se květiny překreslují s každým
+     posunem obsahu nad nimi (animace výšky FAQ) a stránka se seká */
+  transform: translateZ(0);
 }
 .kvetiny-pas::before {
   -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .25), #000 calc(var(--kv-tile) * .75), transparent var(--kv-tile));
@@ -425,9 +438,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* Světlý pruh táhnoucí se celým středem odshora až dolů. Leží nad květinami,
    takže drží text čitelný i tam, kde boční pruhy dosáhnou do středu. */
 .stred-pruh {
-  position: absolute; top: 0; bottom: 0; left: 50%;
+  /* pevná výška ze stejného důvodu jako u .kvetiny výš */
+  position: absolute; top: 0; height: 15000px; left: 50%;
   width: clamp(300px, 52vw, 820px);
-  transform: translateX(-50%);
+  /* translateZ(0) = vlastní kompozitní vrstva, stejný důvod jako u květin */
+  transform: translateX(-50%) translateZ(0);
   pointer-events: none;
   background: linear-gradient(to right,
     transparent 0,
@@ -436,9 +451,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
     rgba(250, 248, 243, .88) 82%,
     rgba(250, 248, 243, .55) 92%,
     transparent 100%);
-  /* nahoře doznívá, ať pod hero nevznikne vodorovná hrana; dolů jde až na konec */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 4%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 4%);
+  /* nahoře doznívá, ať pod hero nevznikne vodorovná hrana; dolů jde až na konec
+     (v px, ne v % — procenta by se přepočítávala s každou změnou výšky) */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.4) 300px, #000 640px);
+          mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.4) 300px, #000 640px);
 }
 
 /* na mobilu je na boky málo místa — užší pruhy a nižší dlaždice,
@@ -446,8 +462,6 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (max-width: 700px) {
   .kvetiny { --kv-tile: 300px; --kv-zavoj: .56; }
   .kvetiny-pas { width: clamp(110px, 34vw, 210px); }
-  .kvetiny-pas::before,
-  .kvetiny-pas::after { filter: blur(7px) saturate(1.3); }
   .stred-pruh { width: clamp(240px, 74vw, 420px); }
 }
 /* obsah sekcí drží nad rámečkem i horami */
@@ -493,16 +507,41 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   object-fit: cover; background: #fff;
   border: 9px solid #fff;
   box-shadow: 0 12px 34px rgba(0,0,0,.18);
-  transition: transform .55s cubic-bezier(.22,.61,.36,1), opacity .4s ease;
+  transition: box-shadow .3s ease; /* transform a opacity animuje motion */
 }
+/* focus i hover značí jen zvednutý stín vrchní fotky — outline kolem celého
+   tlačítka Chrome zobrazoval i po kliknutí myší a působil jako cizí rámeček */
 .foto-hromadka:hover .foto-vrchni,
-.foto-hromadka:focus-visible .foto-vrchni { box-shadow: 0 18px 44px rgba(0,0,0,.26); }
-.foto-hromadka:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
-.foto-pocitadlo {
-  position: absolute; right: -2px; bottom: -30px; z-index: 20;
-  font-size: .62rem; letter-spacing: .28em; color: var(--ink-soft);
+.foto-hromadka:focus-visible .foto-vrchni { box-shadow: 0 18px 44px rgba(0,0,0,.28); }
+.foto-hromadka:focus-visible { outline: none; }
+/* Ťukající ruka v rohu hromádky — beze slov naznačí, že se fotkami dá
+   klikáním listovat. Po prvním kliknutí ji komponenta odmountuje. */
+.foto-tap {
+  position: absolute; right: 16px; bottom: 22px; z-index: 20;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: rgba(253, 252, 249, .92);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  animation: tapBounce 1.8s ease-in-out infinite;
 }
-@media (max-width: 760px) { .foto-pocitadlo { right: 50%; transform: translateX(50%); } }
+.foto-tap svg { width: 28px; height: 28px; fill: var(--palette-rose-text); }
+/* rozpínající se kroužek, jako by ruka opravdu ťukla */
+.foto-tap::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid rgba(253, 252, 249, .95);
+  animation: tapRipple 1.8s ease-out infinite;
+}
+@keyframes tapBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40%      { transform: translateY(6px) scale(.92); }
+  60%      { transform: translateY(0) scale(1); }
+}
+@keyframes tapRipple {
+  0%, 38% { transform: scale(1); opacity: .9; }
+  85%     { transform: scale(1.8); opacity: 0; }
+  100%    { transform: scale(1.8); opacity: 0; }
+}
 .story-text .lead { margin: 0; max-width: none; }
 @media (max-width: 760px) {
   .story-grid { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
@@ -677,13 +716,6 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .menu-masle {
   position: absolute; left: 50%; top: -50px; transform: translateX(-50%);
   width: 150px; height: 104px; pointer-events: none;
-  /* proužek v barvě sekce přeruší linku rámečku pod mašlí —
-     linka leží 18px pod hranou karty, tedy 68px od vrchu tohoto prvku */
-  background: linear-gradient(var(--bg-alt), var(--bg-alt))
-              no-repeat center 61px / 100% 14px;
-}
-.menu-masle::after {
-  content: ""; position: absolute; inset: 0;
   background: url("/masle.svg") no-repeat center / contain;
 }
 .menu-karta .wrap { max-width: none; }
@@ -709,10 +741,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
     border-width: 20px; border-image-width: 20px;
     padding: 3.4rem .6rem 1rem;
   }
-  .menu-masle {
-    width: 116px; height: 80px; top: -38px;
-    background-position: center 42px; background-size: 100% 12px;
-  }
+  .menu-masle { width: 116px; height: 80px; top: -38px; }
 }
 
 footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: center; color: var(--ink-soft); font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; }
