@@ -63,7 +63,12 @@ async function posliMail(jmeno: string, pocet: number, stav: Stav): Promise<bool
 
 /** Aktuální stav kapacity pro zobrazení na webu. */
 export async function GET() {
-  return Response.json(await stavKapacity());
+  try {
+    return Response.json(await stavKapacity());
+  } catch (chyba) {
+    console.error("[ubytovani] Nepodařilo se načíst kapacitu:", chyba);
+    return Response.json({ chyba: "Kapacitu se nepodařilo načíst." }, { status: 502 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -98,7 +103,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const vysledek = await pridejRezervaci(jmenoOcistene, pocetCislo);
+  let vysledek;
+  try {
+    vysledek = await pridejRezervaci(jmenoOcistene, pocetCislo);
+  } catch (chyba) {
+    console.error("[ubytovani] Rezervaci se nepodařilo uložit:", chyba);
+    return Response.json(
+      { chyba: "Rezervaci se nepodařilo uložit, zkuste to prosím za chvíli." },
+      { status: 502 }
+    );
+  }
 
   if (!vysledek.ok) {
     return Response.json(

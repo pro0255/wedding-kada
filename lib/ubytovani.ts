@@ -1,17 +1,15 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
-
 /** Celkový počet lůžek k dispozici. */
 export const KAPACITA_CELKEM = 26;
-/** Místa obsazená mimo formulář (domluvená předem) — výchozí stav 7/26. */
-export const KAPACITA_ZAKLAD = 7;
 
-export type Rezervace = {
-  jmeno: string;
-  pocet: number;
-  /** ISO datum odeslání */
-  kdy: string;
-};
+/**
+ * Rezervace žijí v Airtable tabulce „Rezervace“ — ta je jediným zdrojem
+ * pravdy. Každý řádek má Status: „Zamluveno“ (mimo web), „Rezervováno“
+ * (z formuláře) nebo „Zrušeno“ (nepočítá se do obsazenosti).
+ * Ruční úpravy v tabulce se na webu projeví okamžitě.
+ */
+const BASE_ID = "appw1s9BtzlKCPous";
+const TABULKA = "Rezervace";
+const API = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABULKA)}`;
 
 export type Stav = {
   obsazeno: number;
@@ -19,29 +17,50 @@ export type Stav = {
   volno: number;
 };
 
-type Data = { rezervace: Rezervace[] };
+type AirtableZaznam = {
+  id: string;
+  fields: { "Počet osob"?: number; Status?: string };
+};
 
-const SOUBOR = path.join(process.cwd(), "data", "ubytovani.json");
-
-async function nacti(): Promise<Data> {
-  try {
-    const raw = await fs.readFile(SOUBOR, "utf8");
-    const data = JSON.parse(raw) as Partial<Data>;
-    return { rezervace: Array.isArray(data.rezervace) ? data.rezervace : [] };
-  } catch {
-    // soubor ještě neexistuje (nebo je poškozený) — začínáme s prázdným seznamem
-    return { rezervace: [] };
-  }
+function hlavicky(): Record<string, string> {
+  const klic = process.env.AIRTABLE_KEY;
+  if (!klic) throw new Error("Chybí AIRTABLE_KEY v prostředí.");
+  return {
+    Authorization: `Bearer ${klic}`,
+    "Content-Type": "application/json",
+  };
 }
 
-async function uloz(data: Data): Promise<void> {
-  await fs.mkdir(path.dirname(SOUBOR), { recursive: true });
-  await fs.writeFile(SOUBOR, JSON.stringify(data, null, 2), "utf8");
+async function nactiZaznamy(): Promise<AirtableZaznam[]> {
+  const zaznamy: AirtableZaznam[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = new URL(API);
+    url.searchParams.set("pageSize", "100");
+    url.searchParams.append("fields[]", "Počet osob");
+    url.searchParams.append("fields[]", "Status");
+    if (offset) url.searchParams.set("offset", offset);
+
+    const odpoved = await fetch(url, { headers: hlavicky(), cache: "no-store" });
+    if (!odpoved.ok) {
+      throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
+    }
+    const data = (await odpoved.json()) as {
+      records: AirtableZaznam[];
+      offset?: string;
+    };
+    zaznamy.push(...data.records);
+    offset = data.offset;
+  } while (offset);
+
+  return zaznamy;
 }
 
-function spocitej(data: Data): Stav {
-  const obsazeno =
-    KAPACITA_ZAKLAD + data.rezervace.reduce((soucet, r) => soucet + r.pocet, 0);
+function spocitej(zaznamy: AirtableZaznam[]): Stav {
+  const obsazeno = zaznamy
+    .filter((z) => z.fields.Status !== "Zrušeno")
+    .reduce((soucet, z) => soucet + (z.fields["Počet osob"] ?? 0), 0);
   return {
     obsazeno,
     celkem: KAPACITA_CELKEM,
@@ -49,39 +68,53 @@ function spocitej(data: Data): Stav {
   };
 }
 
-// zápisy řadíme za sebe, aby si dva souběžné požadavky nepřepsaly soubor
-let fronta: Promise<unknown> = Promise.resolve();
-function serializuj<T>(operace: () => Promise<T>): Promise<T> {
-  const vysledek = fronta.then(operace, operace);
-  fronta = vysledek.catch(() => {});
-  return vysledek;
-}
-
 /** Aktuální stav kapacity. */
 export async function stavKapacity(): Promise<Stav> {
-  return spocitej(await nacti());
+  return spocitej(await nactiZaznamy());
 }
 
 export type VysledekRezervace =
   | { ok: true; stav: Stav }
   | { ok: false; duvod: "plno"; stav: Stav };
 
-/** Zapíše rezervaci a vrátí přepočítaný stav. */
+/** Zapíše rezervaci do Airtable a vrátí přepočítaný stav. */
 export async function pridejRezervaci(
   jmeno: string,
   pocet: number
 ): Promise<VysledekRezervace> {
-  return serializuj(async () => {
-    const data = await nacti();
-    const pred = spocitej(data);
+  const pred = spocitej(await nactiZaznamy());
+  if (pocet > pred.volno) {
+    return { ok: false, duvod: "plno", stav: pred };
+  }
 
-    if (pocet > pred.volno) {
-      return { ok: false as const, duvod: "plno" as const, stav: pred };
-    }
-
-    data.rezervace.push({ jmeno, pocet, kdy: new Date().toISOString() });
-    await uloz(data);
-
-    return { ok: true as const, stav: spocitej(data) };
+  const odpoved = await fetch(API, {
+    method: "POST",
+    headers: hlavicky(),
+    body: JSON.stringify({
+      // typecast doplní volbu „Rezervováno“, kdyby v tabulce ještě chyběla
+      typecast: true,
+      records: [
+        {
+          fields: {
+            "Jméno hosta": jmeno,
+            "Počet osob": pocet,
+            Status: "Rezervováno",
+            "Datum rezervace": new Date().toISOString(),
+          },
+        },
+      ],
+    }),
   });
+  if (!odpoved.ok) {
+    throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
+  }
+
+  return {
+    ok: true,
+    stav: {
+      ...pred,
+      obsazeno: pred.obsazeno + pocet,
+      volno: Math.max(0, pred.volno - pocet),
+    },
+  };
 }
