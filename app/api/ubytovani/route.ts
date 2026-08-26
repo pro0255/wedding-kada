@@ -115,16 +115,13 @@ export async function POST(request: Request) {
   }
 
   if (!vysledek.ok) {
-    return Response.json(
-      {
-        chyba:
-          vysledek.stav.volno === 0
-            ? "Kapacita ubytování je bohužel už plná."
-            : `Zbývá už jen ${vysledek.stav.volno} volných míst.`,
-        stav: vysledek.stav,
-      },
-      { status: 409 }
-    );
+    const chyba =
+      vysledek.duvod === "duplicita"
+        ? "Vypadá to, že rezervaci na toto jméno už máme. Pokud potřebujete něco změnit nebo přidat, ozvěte se nám."
+        : vysledek.stav.volno === 0
+          ? "Kapacita ubytování je bohužel už plná."
+          : `Zbývá už jen ${vysledek.stav.volno} volných míst.`;
+    return Response.json({ chyba, stav: vysledek.stav }, { status: 409 });
   }
 
   const odeslano = await posliMail(jmenoOcistene, pocetCislo, vysledek.stav);

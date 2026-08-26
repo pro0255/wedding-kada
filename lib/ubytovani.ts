@@ -19,8 +19,25 @@ export type Stav = {
 
 type AirtableZaznam = {
   id: string;
-  fields: { "Počet osob"?: number; Status?: string };
+  fields: { "Jméno hosta"?: string; "Počet osob"?: number; Status?: string };
 };
+
+/**
+ * Normalizace pro porovnání jmen: bez diakritiky, malá písmena, jedno
+ * mezerování a abecedně seřazená slova — takže „Nováková Jana“,
+ * „JANA novakova“ i „Jana  Nováková“ jsou totéž jméno.
+ */
+function normalizujJmeno(jmeno: string): string {
+  return jmeno
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .sort()
+    .join(" ");
+}
 
 function hlavicky(): Record<string, string> {
   const klic = process.env.AIRTABLE_KEY;
@@ -38,6 +55,7 @@ async function nactiZaznamy(): Promise<AirtableZaznam[]> {
   do {
     const url = new URL(API);
     url.searchParams.set("pageSize", "100");
+    url.searchParams.append("fields[]", "Jméno hosta");
     url.searchParams.append("fields[]", "Počet osob");
     url.searchParams.append("fields[]", "Status");
     if (offset) url.searchParams.set("offset", offset);
@@ -75,14 +93,26 @@ export async function stavKapacity(): Promise<Stav> {
 
 export type VysledekRezervace =
   | { ok: true; stav: Stav }
-  | { ok: false; duvod: "plno"; stav: Stav };
+  | { ok: false; duvod: "plno" | "duplicita"; stav: Stav };
 
 /** Zapíše rezervaci do Airtable a vrátí přepočítaný stav. */
 export async function pridejRezervaci(
   jmeno: string,
   pocet: number
 ): Promise<VysledekRezervace> {
-  const pred = spocitej(await nactiZaznamy());
+  const zaznamy = await nactiZaznamy();
+  const pred = spocitej(zaznamy);
+
+  const hledane = normalizujJmeno(jmeno);
+  const uzRezervoval = zaznamy.some(
+    (z) =>
+      z.fields.Status !== "Zrušeno" &&
+      normalizujJmeno(z.fields["Jméno hosta"] ?? "") === hledane
+  );
+  if (uzRezervoval) {
+    return { ok: false, duvod: "duplicita", stav: pred };
+  }
+
   if (pocet > pred.volno) {
     return { ok: false, duvod: "plno", stav: pred };
   }
