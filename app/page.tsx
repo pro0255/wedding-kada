@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
@@ -11,21 +11,39 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 
 import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
-import Scenka, { ScenkyDefs } from "./DoodleScenky";
+import Link from "next/link";
+import Ikona from "./ProgramIkony";
+import { SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
 
 const ENVELOPE_KEY = "kj-envelope-opened";
 
-const LOADER_MS = 5000;
-
 // hlášky z Pána prstenů, lehce svatebně upravené
+/* V hlášce jsou mezi částmi data nezlomitelné mezery (U+00A0, v editoru
+   vypadají jako obyčejné) — jinak se datum v úzkém sloupci lámalo mezi
+   „18.“ a „09.“ na dva řádky. */
 const LOTR_QUOTES = [
-  "Jeden prsten vládne všem. Od 18. 09. 2027 budou dva.",
+  "Jeden prsten vládne všem. Od 18. 09. 2027 budou dva.",
   "You shall not pass!… teda, bez pozvánky.",
   "Ani Frodo nenesl nic tak vzácného, jako jsou tyhle prstýnky.",
 ];
 
+/* Majáky Gondoru na hřebenech panoramatu: [x, y, zpoždění v s]. Souřadnice
+   jsou skutečné vrcholy hory.svg (lokální minima jeho polyline), ne odhad —
+   plamínek musí stát na hřebeni, ne vedle něj. Rozhořívají se zleva doprava.
+   Nejvyšší vrchol (760, 111) je schválně vynechaný — stojí na něm zvonička. */
+const MAJAKY: [number, number, number][] = [
+  [115, 153, 0.6],
+  [525, 157, 1.5],
+  [1275, 150, 2.4],
+];
+
 // TODO: skutečné datum svatby
 const WEDDING_DATE = new Date("2027-09-18T12:00:00+02:00");
+/* Půlnoc na začátku svatebního dne. Rozcestník na fotky se přepíná tímhle,
+   ne časem obřadu — hosté fotí od snídaně, v poledne by bylo pozdě. Zapsáno
+   jako výslovný okamžik s posunem +02:00, ne dopočtem z WEDDING_DATE přes
+   setHours: to by u hosta v jiném pásmu spadlo na jinou půlnoc. */
+const SVATEBNI_DEN = new Date("2027-09-18T00:00:00+02:00");
 
 function useCountdown(target: Date) {
   const [left, setLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
@@ -80,10 +98,49 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   );
 }
 
+/* Ostrá je vždycky ta sekce, která zrovna prochází prostředkem okna; ostatní
+   se lehce zamlží, takže předěl mezi dvěma barvami pozadí netahá oko zpátky.
+   Rozostřuje se jen obsah (.reveal), ne sekce jako celek — blur na sekci by
+   rozmazal i její okraj a mezi barvami by vznikla viditelná hrana. */
+function useZaostreniSekci() {
+  useEffect(() => {
+    // s vypnutými animacemi ať web zůstane celý ostrý
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const sekce = document.querySelectorAll<HTMLElement>(".obsah-ramec > section");
+    if (!sekce.length) return;
+
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) =>
+          e.target.classList.toggle("sekce-mimo", !e.isIntersecting),
+        ),
+      // úzký pás uprostřed okna — sekce je ostrá, dokud jím prochází
+      { rootMargin: "-42% 0px -42% 0px" },
+    );
+    sekce.forEach((s) => io.observe(s));
+    return () => io.disconnect();
+  }, []);
+}
+
+/* Po svatbě rozcestník vyzývá k nahrání fotek, před ní galerii jen slibuje —
+   host by jinak klikl do prázdné stránky. Vyhodnocuje se až v efektu, ne při
+   renderu: server nezná čas prohlížeče a HTML by se při hydrataci rozešlo.
+   Prvního renderu si nikdo nevšimne, sekce je do té doby schovaná v <Reveal>.
+   Interval hlídá web nechaný otevřený přes půlnoc před svatbou. */
+function usePoSvatbe() {
+  const [po, setPo] = useState(false);
+  useEffect(() => {
+    const zkontroluj = () => setPo(Date.now() >= SVATEBNI_DEN.getTime());
+    zkontroluj();
+    const t = setInterval(zkontroluj, 60_000);
+    return () => clearInterval(t);
+  }, []);
+  return po;
+}
+
 type Barva = { nazev: string; hex: string };
 
-/* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama.
-   TODO: kromě dresscodu jsou odpovědi jen návrh, přepiš je. */
+/* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama. */
 const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
   {
     q: "Je na svatbě nějaký dresscode?",
@@ -105,6 +162,10 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
   {
     q: "Můžeme vzít děti?",
     a: "S vašimi dětmi počítáme a vzít je samozřejmě můžete. Asi si ale všichni — vy i vaše děti — večer užijeme víc, pokud je necháte na pár hodin u prarodičů nebo příbuzných. Pokud se nakonec rozhodnete je nevzít, dejte nám prosím vědět.",
+  },
+  {
+    q: "Jak to bude s fotkami od hostů?",
+    a: "Na svatbě bude vyvěšený QR kód. Načtete ho foťákem v telefonu a otevře se stránka, kam nahrajete, co jste během dne nafotili — fotky i videa. Nemusíte nic instalovat ani se nikam přihlašovat.\n\nVšechno se sejde na jednom místě, kde si to všichni můžou prohlédnout, dát tomu srdíčko nebo si to stáhnout. Když něco nahrajete omylem, můžete to sami smazat.\n\nJen prosíme: během obřadu telefony do kapsy, fotíme až po jeho skončení. Stejnou galerii pak najdete i tady na webu, takže se k ní vrátíte, i když už QR kód po ruce mít nebudete.",
   },
   {
     q: "Co si přejete za dar?",
@@ -141,7 +202,11 @@ function Dotaz({ q, a, barvy }: { q: string; a: string; barvy?: Barva[] }) {
       </button>
       <div className="faq-obal" style={{ height: vyska }}>
         <div className="faq-odpoved" ref={obsah}>
-          <p>{a}</p>
+          {/* Delší odpovědi se dají v textu rozdělit prázdným řádkem a vysází
+             se jako samostatné odstavce — jeden dlouhý blok se čte hůř. */}
+          {a.split("\n\n").map((odstavec, i) => (
+            <p key={i}>{odstavec}</p>
+          ))}
           {barvy && (
             <ul className="faq-barvy">
               {barvy.map((b) => (
@@ -196,7 +261,7 @@ function Odpocet() {
 /* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
 const PRIBEH_FOTKY = [
   { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách" },
-  { src: "/fotky/2.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/2.jpeg", alt: "První společná fotka" },
   { src: "/fotky/4.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/6.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/11.jpeg", alt: "Kateřina a Jakub" },
@@ -214,8 +279,9 @@ const HROMADKA_SLOTY = [
 
 function FotoHromadka() {
   const [aktivni, setAktivni] = useState(0);
-  // ťukající ruka zmizí po prvním kliknutí — dál už návštěvník ví, co dělat
-  const [klikl, setKlikl] = useState(false);
+  // až po prvním kliknutí smí odcházející fotka animovat odchod — jinak by
+  // spodní fotka při prvním vykreslení bliknula
+  const [listoval, setListoval] = useState(false);
   const pocet = PRIBEH_FOTKY.length;
 
   return (
@@ -223,7 +289,7 @@ function FotoHromadka() {
       type="button"
       className="foto-hromadka"
       onClick={() => {
-        setKlikl(true);
+        setListoval(true);
         setAktivni((i) => (i + 1) % pocet);
       }}
       aria-label="Zobrazit další fotku"
@@ -232,7 +298,7 @@ function FotoHromadka() {
         const slot = (i - aktivni + pocet) % pocet;
         const viditelny = slot < HROMADKA_SLOTY.length;
         // fotka, která právě odešla z vršku — odhodí se doprava a zapadne pod hromádku
-        const odchazi = klikl && slot === pocet - 1;
+        const odchazi = listoval && slot === pocet - 1;
         const poloha = HROMADKA_SLOTY[Math.min(slot, HROMADKA_SLOTY.length - 1)];
         return (
           <motion.img
@@ -264,13 +330,27 @@ function FotoHromadka() {
           />
         );
       })}
-      {!klikl && (
-        <span className="foto-tap" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z" />
-          </svg>
-        </span>
-      )}
+      {/* ručně psaná šipka — zve k listování a zůstává vidět pořád */}
+      <span className="doodle-obal doodle-obal-klikni" aria-hidden="true">
+        <SipkaKlikni />
+      </span>
+      {/* popisky patří ke konkrétním fotkám a ukážou se jen když jsou navrchu:
+          „zásnuby na Troskách“ k první, „první společná fotka“ k zimní druhé */}
+      <AnimatePresence>
+        {(aktivni === 0 || aktivni === 1) && (
+          <motion.span
+            key={aktivni}
+            className="doodle-obal doodle-obal-zasnuby"
+            aria-hidden="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            {aktivni === 0 ? <SipkaZasnuby /> : <SipkaPrvniFotka />}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </button>
   );
 }
@@ -287,22 +367,25 @@ export default function Home() {
 
   useEffect(() => {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
-    const opened = !!localStorage.getItem(ENVELOPE_KEY);
-    const t = setTimeout(() => {
-      if (opened) {
-        setStage("done");
-      } else {
-        setEnvelopeActive(true);
-        setStage("closed");
-      }
-    }, LOADER_MS);
-    // 1s = rezerva na .9s opacity transition loaderu
-    const t2 = setTimeout(() => setLoaderGone(true), LOADER_MS + 1000);
-    return () => {
-      clearTimeout(t);
-      clearTimeout(t2);
-    };
   }, []);
+
+  useZaostreniSekci();
+  const poSvatbe = usePoSvatbe();
+
+  /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
+     tak počká, dokud host sám nechce dál. */
+  const vstup = () => {
+    if (stage !== "loading") return;
+    if (localStorage.getItem(ENVELOPE_KEY)) {
+      setStage("done");
+    } else {
+      setEnvelopeActive(true);
+      setStage("closed");
+    }
+    // 1s = rezerva na .9s opacity transition loaderu; teprve pak ho
+    // odmountujeme, jinak by three.js prsten běžel skrytý celou návštěvu
+    setTimeout(() => setLoaderGone(true), 1000);
+  };
 
   // dokud je obálka na obrazovce, stránka pod ní nescrolluje
   useEffect(() => {
@@ -324,9 +407,70 @@ export default function Home() {
       {/* loading — zlatý prsten + hláška, mezitím se rozhodne obálka vs. web */}
       {!loaderGone && (
         <div className={`loader ${stage !== "loading" ? "loader-hide" : ""}`} aria-hidden={stage !== "loading"}>
-          <div className="loader-brand">K &amp; J</div>
-          <Ring3D />
+          {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
+             druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
+             kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
+             nebyly světlejší než hory. Zarovnání drží tím, že mají stejnou
+             krabici a preserveAspectRatio xMidYMax odpovídá background-size
+             auto 100 % / center bottom. */}
+          <span className="loader-hory" aria-hidden="true" />
+          <svg
+            className="loader-majaky"
+            viewBox="0 0 1400 300"
+            preserveAspectRatio="xMidYMax meet"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <radialGradient id="majak-zar">
+                <stop offset="0%" stopColor="#ffd9a0" stopOpacity=".95" />
+                <stop offset="45%" stopColor="#e8a24c" stopOpacity=".4" />
+                <stop offset="100%" stopColor="#e8a24c" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            {MAJAKY.map(([x, y, zpozdeni]) => (
+              <g
+                key={x}
+                className="majak"
+                transform={`translate(${x} ${y})`}
+                style={{ animationDelay: `${zpozdeni}s` }}
+              >
+                {/* hranice ze zkřížených polen; kreslí se ve stejné barvě jako
+                   hory, jen o něco sytěji, ať je pod plamenem vidět */}
+                <path
+                  className="majak-hranice"
+                  d="M -5.5 0 L 3.5 -6.5 M 5.5 0 L -3.5 -6.5 M 0 0 L 0 -7"
+                  fill="none"
+                  stroke="#9a8158"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
+                <circle className="majak-zar" cy="-13" r="26" fill="url(#majak-zar)" />
+                {/* plamen začíná až nad hranicí (y = −6), ne na zemi */}
+                <path
+                  className="majak-plamen"
+                  d="M 0 -6 C -4.5 -11, -4 -18, 0 -23 C 4 -18, 4.5 -11, 0 -6 Z"
+                  fill="#f0b45e"
+                />
+              </g>
+            ))}
+          </svg>
+          <div className="loader-brand">
+            K &amp; J
+            <span className="loader-date">18 · 09 · 2027</span>
+          </div>
+          {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal
+             nikdo, kdo web ovládá klávesnicí nebo čtečkou */}
+          <button
+            type="button"
+            className="loader-vstup"
+            onClick={vstup}
+            aria-label="Vstoupit na svatební web"
+          >
+            <Ring3D />
+          </button>
           {quote && <p className="loader-quote">{quote}</p>}
+          <p className="loader-vyzva">Klepněte na prsten</p>
         </div>
       )}
 
@@ -378,7 +522,8 @@ export default function Home() {
         </a>
       </section>
 
-      {/* od odpočtu níž rámuje obsah tenká linka a dole sedí panorama Beskyd */}
+      {/* od odpočtu níž rámuje obsah tenká linka a po stranách jdou květiny;
+          panorama Beskyd (hory.svg) je jen na úvodní obrazovce, ne tady */}
       <div className="obsah-ramec">
 
       {/* countdown */}
@@ -390,6 +535,9 @@ export default function Home() {
           <div className="story-photo">
             <FotoHromadka />
           </div>
+          <span className="doodle-obal doodle-obal-srdce" aria-hidden="true">
+            <SrdceIniciraly />
+          </span>
           <div className="story-text">
             <p className="eyebrow">Náš příběh</p>
             <h2>Jak to celé začalo</h2>
@@ -417,50 +565,55 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
-        <ScenkyDefs />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
         </Reveal>
         <Reveal className="events">
           <div className="event">
-            <Scenka typ="snidane" />
+            <Ikona typ="snidane" />
             <h3>Snídaně</h3>
             <div className="meta">9:00 · U ženicha a nevěsty</div>
             <p>Poslední klidné sousto před tím, než to celé začne.</p>
           </div>
           <div className="event">
-            <Scenka typ="obrad" />
+            <Ikona typ="obrad" />
             <h3>Obřad</h3>
             <div className="meta">12:00 · U Zvoničky v Rekovicích</div>
             <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
           </div>
           <div className="event">
-            <Scenka typ="foceni" />
+            <Ikona typ="foceni" />
             <h3>Společné focení</h3>
             <div className="meta">13:00</div>
             <p>Chvilka pro novomanžele a pár fotek, které budeme ukazovat ještě za dvacet let.</p>
           </div>
           <div className="event">
-            <Scenka typ="pripitek" />
+            <Ikona typ="pripitek" />
             <h3>Přípitek &amp; oběd</h3>
             <div className="meta">13:30</div>
             <p>Na zdraví, na lásku a na pořádný hlad.</p>
           </div>
           <div className="event">
-            <Scenka typ="tanec" />
-            <h3>První tanec &amp; krájení dortu</h3>
+            <Ikona typ="dort" />
+            <h3>Krájení dortu</h3>
             <div className="meta">15:30</div>
-            <p>Jeden tanec, jeden dort a žádné záruky elegance.</p>
+            <p>První společný řez. Nůž držíme oba, vinu neseme napůl.</p>
           </div>
           <div className="event">
-            <Scenka typ="odpoledne" />
+            <Ikona typ="tanec" />
+            <h3>První tanec</h3>
+            <div className="meta">16:30</div>
+            <p>Jeden tanec a žádné záruky elegance.</p>
+          </div>
+          <div className="event">
+            <Ikona typ="odpoledne" />
             <h3>Svatební odpoledne</h3>
             <div className="meta">Odpoledne</div>
             <p>Dobré jídlo, sklenka v ruce a čas užít si den naplno.</p>
           </div>
           <div className="event">
-            <Scenka typ="party" />
+            <Ikona typ="party" />
             <h3>Večerní párty</h3>
             <div className="meta">Od 19:00</div>
             <p>Boty dolů, hudbu nahoru.</p>
@@ -512,6 +665,45 @@ export default function Home() {
               <h3>Kuřecí smažený řízek s bramborovým pyré</h3>
             </div>
           </div>
+        </Reveal>
+        {/* poznámka mimo rámeček — patří k menu, ale není to chod */}
+        <Reveal className="menu-poznamka">
+          <p>
+            Máte-li speciální stravovací požadavky (vegetariánské, veganské či
+            zdravotní), dejte nám prosím vědět předem.
+          </p>
+        </Reveal>
+      </section>
+
+      {/* Rozcestník na galerii fotek. Bez něj se na /fotky dalo dostat jen
+         přes QR kódy na stolech — po svatbě, až kódy nikdo mít nebude, by
+         byla stránka z webu nedosažitelná. */}
+      <section className="fotky-odkaz" id="fotky">
+        <Reveal className="wrap">
+          <p className="eyebrow">Vzpomínky</p>
+          <h2>Fotky od vás</h2>
+          {poSvatbe ? (
+            <>
+              <p className="lead">
+                Vyfoťte, nahrajte, rozdávejte srdíčka. Fotky i videa se tu
+                objeví všem — díky, že nám pomáháte posbírat celý den.
+              </p>
+              <Link className="btn" href="/fotky">
+                Otevřít galerii
+              </Link>
+            </>
+          ) : (
+            <p className="lead">
+              18. září se tu otevře galerie, kam budete moct nahrát všechno,
+              co nafotíte. Zatím je prázdná — stačí mít nabitý telefon.
+            </p>
+          )}
+          {/* prosba platí před svatbou i v její den, proto stojí mimo podmínku */}
+          <p className="fotky-prosba">
+            Jen malá prosba: <strong>během obřadu nechte telefony v kapse.</strong>{" "}
+            Chceme se dívat na vás, ne na displeje — a od toho máme fotografa.
+            Po jeho skončení pak foťte, co hrdlo ráčí.
+          </p>
         </Reveal>
       </section>
 

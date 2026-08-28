@@ -4,6 +4,48 @@ import { useEffect, useState } from "react";
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
 
+
+/* Růžové doodle auto, které projede po lince nad ubytováním — vyjede z mlhy
+   vlevo a do mlhy vpravo zase zmizí. Kreslí se stejnou rukou jako doodly
+   u „Náš příběh“: jen obrys, kulaté konce tahů, žádná výplň.
+
+   Auto míří doprava, přední kapota je tedy na pravé straně. Kola sedí středem
+   na spodní hraně karoserie (y = 30) a spodkem přesahují pod ni, takže po
+   lince opravdu jedou, ne aby se vznášela.
+
+   Pohyb i mlhu na koncích řídí .auto-drah v globals.css. */
+function AutoNaLince() {
+  const T = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2.4,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  return (
+    <span className="auto-drah" aria-hidden="true">
+      <svg viewBox="0 0 72 36" focusable="false">
+        {/* karoserie jedním tahem: zaoblená záď, střecha, čelní sklo, kapota */}
+        <path
+          {...T}
+          d="M 8 30 C 3 30, 2 23, 6 21 C 9 20, 13 19.4, 17 19 C 21 10, 29 5.5, 39 5.5 C 49 5.5, 56 10, 59.5 18.5 C 63 19, 67 20, 68.5 21 C 72 22.5, 71.5 29, 66 30 Z"
+        />
+        {/* okna oddělená sloupkem — zadní menší, přední se svažuje s čelním sklem */}
+        <path {...T} d="M 20.5 18.5 C 23.5 11.5, 29 7.8, 35.5 7.5 L 35.5 18.5 Z" />
+        <path {...T} d="M 39 7.5 C 46.5 7.8, 52.5 11.5, 56 18.5 L 39 18.5 Z" />
+        {/* hrana dveří a klika */}
+        <path {...T} d="M 37.2 19 L 37.2 28" />
+        <path {...T} d="M 30 22.5 L 34.5 22.5" />
+        {/* kola s náboji */}
+        <circle {...T} cx="21" cy="30" r="4.6" />
+        <circle {...T} cx="21" cy="30" r="1.5" />
+        <circle {...T} cx="55" cy="30" r="4.6" />
+        <circle {...T} cx="55" cy="30" r="1.5" />
+      </svg>
+    </span>
+  );
+}
+
 export default function Ubytovani() {
   const [stav, setStav] = useState<Stav | null>(null);
   const [jmeno, setJmeno] = useState("");
@@ -80,6 +122,7 @@ export default function Ubytovani() {
 
   return (
     <div className="ubytovani">
+      <AutoNaLince />
       <h3>Ubytování</h3>
       <p className="lead">
         Máme pro vás zamluvená lůžka přímo v místě konání —{" "}

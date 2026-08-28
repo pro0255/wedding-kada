@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 
 const serif = Cormorant_Garamond({
@@ -15,6 +15,13 @@ const sans = Jost({
   variable: "--sans",
 });
 
+// rukopis pro ručně psané doodly u „Náš příběh“
+const rukopis = Caveat({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "600"],
+  variable: "--rukopis",
+});
+
 export const metadata: Metadata = {
   title: "Kateřina & Jakub — Svatba",
   description: "Bereme se — a chceme vás u toho.",
@@ -25,7 +32,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="cs">
-      <body className={`${serif.variable} ${sans.variable}`}>{children}</body>
+      <body className={`${serif.variable} ${sans.variable} ${rukopis.variable}`}>{children}</body>
     </html>
   );
 }

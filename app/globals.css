@@ -49,12 +49,16 @@
   --prechod-sekci: clamp(110px, 16vh, 230px);
   --zelena-text: var(--palette-sage-text);
   --zelena-syta: #46503c;
-  /* pin na mapě — máslová do pískové, ať na zelenošedé mapě svítí */
-  --pin-svetla: #f9e3a4;
-  --pin-piskova: #d8b25c;
-  /* pastelová modrá pro odpočet — nejsvětlejší odstín, který na béžové ještě projde
-     kontrastem 4.5:1 (popisky jsou malé a hodně prostrkané, níž už se špatně čtou) */
-  --odpocet-modra: #456d86;
+  /* sytá modrá — tmavší než --palette-blue-text, pro zvýraznění na modrém
+     podkladu (prosba o telefonech u fotek) */
+  --modra-syta: #33556b;
+  /* sytá růžová pro hover a focus — protějšek --zelena-syta, ať mají tlačítka
+     v sekci Místo konání dost tmavý stav i po přebarvení */
+  --ruzova-syta: #7d3740;
+  /* pin na mapě — světlá růžová do syté, aby ladil s růžovou sekcí a přitom
+     se na zelenošedé mapě neztratil (žlutá tu byla dřív, k růžové neseděla) */
+  --pin-svetla: #f7dee2;
+  --pin-ruzova: #c9737c;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -75,9 +79,89 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   transition: opacity .9s ease, visibility .9s;
 }
 .loader-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+/* Úvodní obrazovka nemá květinový dekor jako zbytek webu — prsten je jediné,
+   na co má host kliknout, a v květinovém rámu o pozornost soupeřil s pozadím.
+   Kytky přijdou hned za ním na samotném webu.
+
+   Spodní odsazení se odvozuje z výšky panoramatu (poměr 1400 : 300 ze šířky
+   okna), takže si obsah drží odstup od zvoničky sám při jakékoli šířce. Bere
+   se jen 55 % — na plnou výšku vyjel obsah moc vysoko a nahoře zbývalo prázdno.
+   Strop 18vh je pojistka pro nízká široká okna, kde by i tohle vytlačilo
+   prsten z obrazovky. */
+.loader {
+  --hory-vyska: calc(100vw * 3 / 14);
+  overflow: hidden;
+  padding-bottom: min(calc(var(--hory-vyska) * .55), 18vh);
+}
+/* Panorama Beskyd přes celou šířku spodní hrany. Obě vrstvy — pozadí s horami
+   i překryv s majáky — mají krabici v poměru samotného obrázku (1400 × 300),
+   takže se škálují úplně stejně a plamínky sedí přesně na hřebenech. Dřív se
+   pozadí škálovalo výškou (auto 100 %) a svg šířkou (meet), a majáky se od
+   hřebenů odlepovaly podle šířky okna. */
+.loader-hory,
+.loader-majaky {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  aspect-ratio: 1400 / 300; pointer-events: none;
+}
+.loader-hory {
+  opacity: .55;
+  background: url("/hory.svg") no-repeat center bottom / 100% auto;
+  /* jen jemné doznění úplně nahoře — delší by vybledlo hřebeny, ty leží
+     už od 37 % výšky obrázku */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 20%);
+}
+.loader-majaky { width: 100%; overflow: visible; }
+/* Maják se zažehne a zůstane hořet — both drží koncový stav, jinak by po
+   doběhnutí animace zase zhasl. */
+.majak { opacity: 0; animation: majak-zazeh 1.1s ease-out both; }
+@keyframes majak-zazeh {
+  0%   { opacity: 0; }
+  35%  { opacity: 1; }
+  55%  { opacity: .75; }
+  100% { opacity: 1; }
+}
+/* Záře dýchá, plamen se třepotá. transform-box: fill-box je tu nutnost —
+   ve výchozím view-box se transform-origin počítá ze středu celého panoramatu
+   (700, 150), takže každý pulz mrštil plamínkem přes půl hory. U plamene je
+   střed na patě, ať se natahuje vzhůru a neodlepí se od hřebene. */
+.majak-zar,
+.majak-plamen { transform-box: fill-box; }
+/* hranice nehoří ani nedýchá — jen se zažehne spolu s majákem */
+.majak-hranice { opacity: .75; }
+.majak-zar { animation: majak-zar 3.4s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes majak-zar {
+  0%, 100% { transform: scale(.85); opacity: .75; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+.majak-plamen { animation: majak-plamen 1.3s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes majak-plamen {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  30%      { transform: scaleY(1.18) scaleX(.9); }
+  65%      { transform: scaleY(.92) scaleX(1.06); }
+}
+/* s vypnutými animacemi majáky prostě tiše svítí */
+@media (prefers-reduced-motion: reduce) {
+  .majak { opacity: 1; animation: none; }
+  .majak-zar, .majak-plamen { animation: none; }
+}
+.loader-brand,
+.loader-vstup,
+.loader-quote,
+.loader-vyzva { position: relative; z-index: 2; }
+/* Iniciály a pod nimi datum svatby. Sloupec s vlastní malou mezerou — .loader
+   má gap 2.4rem a ten by dvojici roztrhl na dva samostatné řádky. */
 .loader-brand {
+  display: flex; flex-direction: column; align-items: center; gap: .7rem;
   font-family: var(--serif), Georgia, serif;
-  letter-spacing: .45em; font-size: 1rem; color: var(--ink-soft);
+  letter-spacing: .45em; font-size: 1.25rem; color: var(--ink-soft);
+}
+/* Datum je to hlavní, co si má host z úvodní obrazovky odnést, takže plná
+   tmavá barva a větší stupeň než iniciály. Průhlednost tu dřív byla taky
+   a spolu s drobným písmem se datum ztrácelo. */
+.loader-date {
+  font-size: 1.2rem; letter-spacing: .26em;
+  color: var(--ink);
 }
 /* než naskočí canvas, jen jemná zlatá záře — žádný plochý prsten */
 .loader-ring3d::before {
@@ -96,9 +180,28 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   filter: drop-shadow(0 0 26px rgba(200,168,105,.4));
 }
 .loader-ring3d canvas { position: relative; z-index: 1; }
+/* prsten jako tlačítko — vzhled si nese Ring3D, tlačítko dodá jen chování */
+.loader-vstup {
+  background: none; border: none; padding: 0; cursor: pointer;
+  border-radius: 50%; line-height: 0;
+  transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+}
+.loader-vstup:hover { transform: scale(1.06); }
+.loader-vstup:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
+/* výzva jemně pulzuje, ať je jasné, že se čeká na hosta */
+.loader-vyzva {
+  margin: -1rem 0 0; font-size: .72rem; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--ink-soft);
+  animation: loaderVyzva 2.4s ease-in-out 1.2s infinite both;
+}
+@keyframes loaderVyzva { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .loader-vstup { transition: none; }
+  .loader-vyzva { animation: none; opacity: .8; }
+}
 .loader-quote {
   font-family: var(--serif), Georgia, serif; font-style: italic;
-  font-size: 1.05rem; color: var(--ink-soft); text-align: center;
+  font-size: 1.25rem; color: var(--ink-soft); text-align: center;
   max-width: 34ch; padding: 0 1.5rem; line-height: 1.6;
   animation: quoteIn 1.2s ease .3s both;
 }
@@ -286,7 +389,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   --hero-fade: clamp(280px, 46svh, 520px);
   /* stejná barva jako sekce pod hero (odpočet), skrz rozplynutou fotku
      prosvítá ona — na předělu tak nevznikne žádný barevný skok */
-  background: var(--modra-jemna);
+  background: var(--ruzova-jemna);
   position: relative; height: 100svh; min-height: 480px;
   padding: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -468,7 +571,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .reveal { position: relative; z-index: 1; }
 
 /* countdown */
-.countdown { background: var(--modra-jemna); }
+.countdown { background: var(--ruzova-jemna); }
 /* čtyři stejně široké sloupce s dělicími linkami — rytmus tak nezávisí na tom,
    jestli má číslo dvě nebo tři číslice */
 .count {
@@ -488,14 +591,18 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 .count span {
   display: block; margin-top: .8rem;
-  font-size: .62rem; letter-spacing: .3em; text-transform: uppercase; color: var(--odpocet-modra);
+  font-size: .62rem; letter-spacing: .3em; text-transform: uppercase; color: var(--palette-rose-text);
 }
 
 /* story */
 /* Každá sekce začíná barvou té nad sebou a přejde do vlastní, takže mezi nimi
-   není hrana. Poslední stop gradientu drží zbytek plochy jednolitý. */
-.story { background: linear-gradient(to bottom, var(--modra-jemna), var(--broskev-jemna) var(--prechod-sekci)); }
-.story-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; max-width: 980px; margin: 0 auto; text-align: left; }
+   není hrana. Poslední stop gradientu drží zbytek plochy jednolitý.
+   Střídání je odvozené odzadu od menu, které musí vyjít růžově: menu růžová,
+   Program modrá, Místo konání růžová, Náš příběh modrá, odpočet i hero
+   růžová. Za menu pokračuje modrý rozcestník na fotky a řadu uzavírá růžové
+   FAQ, jehož barvu drží i patička. */
+.story { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); }
+.story-grid { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; max-width: 980px; margin: 0 auto; text-align: left; }
 /* hromádka fotek — vypadá jako stoh vyvolaných fotek, kliknutím se listuje */
 .foto-hromadka {
   position: relative; display: block; width: 100%; aspect-ratio: 4/5;
@@ -514,267 +621,250 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-hromadka:hover .foto-vrchni,
 .foto-hromadka:focus-visible .foto-vrchni { box-shadow: 0 18px 44px rgba(0,0,0,.28); }
 .foto-hromadka:focus-visible { outline: none; }
-/* Ťukající ruka v rohu hromádky — beze slov naznačí, že se fotkami dá
-   klikáním listovat. Po prvním kliknutí ji komponenta odmountuje. */
-.foto-tap {
-  position: absolute; right: 16px; bottom: 22px; z-index: 20;
-  width: 54px; height: 54px; border-radius: 50%;
-  background: rgba(253, 252, 249, .92);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none;
-  animation: tapBounce 1.8s ease-in-out infinite;
+/* ——— ručně psané doodly u „Náš příběh" ———
+   Kreslí se samy: každá čára má pathLength=1 a vyjede z mezery dash vzoru.
+   Animace stojí, dokud sekci neodhalí <Reveal> (.reveal.in), aby si host
+   dokreslení nezmeškal ještě před scrollem. */
+.doodle-obal {
+  position: absolute; z-index: 20; pointer-events: none;
+  /* modrá podle pozadí sekce — „klikni“, popisky u fotek i srdce drží jednu
+     barvu, dřív byly na zlaté z --accent */
+  color: var(--palette-blue-text); line-height: 0;
 }
-.foto-tap svg { width: 28px; height: 28px; fill: var(--palette-rose-text); }
-/* rozpínající se kroužek, jako by ruka opravdu ťukla */
-.foto-tap::before {
-  content: ""; position: absolute; inset: 0; border-radius: 50%;
-  border: 1px solid rgba(253, 252, 249, .95);
-  animation: tapRipple 1.8s ease-out infinite;
+.story-doodle { display: block; width: 100%; height: auto; overflow: visible; }
+.story-doodle path {
+  stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05;
+  animation: doodle-kresli .9s ease-in-out both;
+  animation-play-state: paused;
 }
-@keyframes tapBounce {
-  0%, 100% { transform: translateY(0) scale(1); }
-  40%      { transform: translateY(6px) scale(.92); }
-  60%      { transform: translateY(0) scale(1); }
+/* hroty a opeření doletí až po dřevci, jinak by šipka vznikala pozpátku */
+.story-doodle .doodle-hrot { animation-duration: .3s; animation-delay: .8s; }
+/* šíp u srdce se kreslí až po samotném srdci */
+.story-doodle .doodle-sip { animation-delay: .55s; }
+.story-doodle .doodle-sip.doodle-hrot { animation-delay: 1.2s; }
+/* nápis nemá tah, jen se objeví — a to až když je kolem něj dokresleno */
+.story-doodle .doodle-napis {
+  fill: currentColor; stroke: none;
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  opacity: 0; animation: doodle-napis .55s ease-out both;
+  animation-play-state: paused; animation-delay: .75s;
 }
-@keyframes tapRipple {
-  0%, 38% { transform: scale(1); opacity: .9; }
-  85%     { transform: scale(1.8); opacity: 0; }
-  100%    { transform: scale(1.8); opacity: 0; }
+.story-doodle .doodle-datum { animation-delay: 1.35s; opacity: 0; }
+.reveal.in .story-doodle path,
+.reveal.in .story-doodle .doodle-napis { animation-play-state: running; }
+@keyframes doodle-kresli { to { stroke-dashoffset: 0; } }
+@keyframes doodle-napis { from { opacity: 0; } to { opacity: 1; } }
+
+/* Polohy jsou spočítané tak, aby špička šipky mířila kousek dovnitř fotky:
+   obal se odsadí o vlastní výšku minus vzdálenost špičky od jeho okraje. */
+.doodle-obal-klikni { width: 182px; left: 0; bottom: -122px; }
+/* „zásnuby na Troskách“ a „první společná fotka“ se střídají ve stejném rohu */
+.doodle-obal-zasnuby { width: 196px; right: -1%; top: -160px; }
+.doodle-obal-srdce { width: 196px; right: -8px; bottom: -84px; transform: rotate(-7deg); }
+/* šipka „klikni" se navíc lehce pohupuje — stejná role, jakou měla ťukající ruka */
+.doodle-obal-klikni .story-doodle {
+  animation: doodle-pohup 2.6s ease-in-out 1.4s infinite;
+  transform-origin: 20% 80%;
+}
+@keyframes doodle-pohup {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  50%      { transform: translate(3px, -5px) rotate(-2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doodle-obal-klikni .story-doodle { animation: none; }
 }
 .story-text .lead { margin: 0; max-width: none; }
 @media (max-width: 760px) {
   .story-grid { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
   /* width je potřeba — fotky v hromádce jsou absolutní, samy by šířku neurčily */
-  .story-photo { width: 100%; max-width: 420px; margin: 0 auto; }
+  .story-photo { width: 100%; max-width: 420px; margin: 0 auto 5rem; }
   .story-text .lead { margin: 0 auto; max-width: 46ch; }
+  /* doodly se zmenší a přisadí blíž — na úzké obrazovce není kam odskočit */
+  .doodle-obal-klikni { width: 138px; left: 0; bottom: -96px; }
+  .doodle-obal-zasnuby { width: 146px; right: 0; top: -119px; }
+  .doodle-obal-srdce { width: 150px; right: 0; bottom: -78px; }
 }
 
 /* schedule */
-.schedule { background: linear-gradient(to bottom, var(--zelena-jemna), var(--zluta-jemna) var(--prechod-sekci)); color: var(--ink); }
-.schedule .eyebrow { color: var(--zluta-text); }
-/* názvy bodů programu ve žluté z dresscodu; menu má svou vínovou níž */
-.schedule .event h3 { color: var(--zluta-text); }
-.countdown .eyebrow { color: var(--odpocet-modra); }
-.story .eyebrow { color: var(--broskev-text); }
-.location .eyebrow { color: var(--zelena-text); }
-.location .lead { color: var(--zelena-text); }
+.schedule { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); color: var(--ink); }
+.schedule .eyebrow { color: var(--palette-blue-text); }
+/* názvy bodů programu v modré podle pozadí sekce; menu má svou vínovou níž */
+.schedule .event h3 { color: var(--palette-blue-text); }
+.countdown .eyebrow { color: var(--palette-rose-text); }
+.story .eyebrow { color: var(--palette-blue-text); }
+.location .eyebrow { color: var(--palette-rose-text); }
+.location .lead { color: var(--palette-rose-text); }
 .menu .eyebrow { color: var(--palette-blush-text); }
+/* FAQ leží na modré — „Ptáte se“ jako jediný eyebrow zůstával na zlaté z .eyebrow */
+.faq .eyebrow { color: var(--palette-rose-text); }
 .events { max-width: 560px; margin: 3rem auto 0; text-align: left; }
 .event { padding: 2rem 0; border-top: 1px solid rgba(0,0,0,.1); }
 .event:last-child { border-bottom: 1px solid rgba(0,0,0,.1); }
-.event h3 { font-size: 1.35rem; letter-spacing: .06em; }
-.event .meta { font-size: .66rem; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-soft); margin: .35rem 0 .8rem; }
-.event p { color: var(--ink-soft); font-size: .92rem; }
+.event h3 { font-size: 1.5rem; letter-spacing: .06em; }
+.event .meta { font-size: .74rem; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-soft); margin: .35rem 0 .8rem; }
+.event p { color: var(--ink-soft); font-size: 1.02rem; }
 .event:last-child .meta,
 .event .meta:last-child { margin-bottom: 0; }
 
-/* doodle scénky u programu — v klidu neviditelné, při najetí na kartu se
-   panáčci sami dokreslí v pravém okraji vedle programu. Aktivaci řídí výhradně
-   třída .hraje z JS (na myši mouseenter/leave + kontrola při scrollu, na dotyku
-   IntersectionObserver) — CSS :hover je při scrollu nespolehlivý a nechával
-   scénky svítit přes sebe. */
+/* Linkové ikony u programu — v klidu neviditelné, při najetí na kartu se
+   dokreslí v pravém okraji vedle textu a rozpohybují se. Aktivaci řídí
+   výhradně třída .hraje z JS (na myši mouseenter/leave + kontrola při
+   scrollu, na dotyku klepnutí) — CSS :hover je při scrollu nespolehlivý
+   a nechával ikony svítit přes sebe. */
 .event { position: relative; }
-.event .scenka {
-  /* těsně vedle nadpisů — scény mají uvnitř SVG ještě ~18px prázdného náběhu,
-     takže kontejner smí začínat kousek před hranou sloupce */
-  position: absolute; top: 50%; left: calc(100% - .5rem);
-  color: var(--ink); pointer-events: none;
-  transform: translateY(-50%) rotate(3deg) scale(.94);
+.event .program-ikona {
+  /* left je jen záloha, než se spustí JS — ten ho v ProgramIkony.tsx přepíše
+     na skutečný konec textu daného bodu, aby ikona seděla těsně u něj.
+     Řádky jsou různě dlouhé, takže ikony nestojí pod sebou v jedné ose. */
+  position: absolute; top: 50%; left: calc(100% + 1.5rem);
+  /* stejná barva jako nadpis bodu programu */
+  color: var(--palette-blue-text); pointer-events: none;
+  transform: translateY(-50%) scale(.94);
   transition: transform .55s cubic-bezier(.34, 1.56, .64, 1);
 }
-.event .scenka.hraje { transform: translateY(-50%) rotate(-1deg) scale(1); }
-.scenka svg { display: block; width: 208px; height: auto; overflow: visible; }
+.event .program-ikona.hraje { transform: translateY(-50%) scale(1); }
+.program-ikona svg { display: block; width: 208px; height: auto; overflow: visible; }
 
-/* užší okna s myší: na scénky není místo */
+/* užší okna s myší: na ikonu vedle textu není místo */
 @media (hover: hover) and (max-width: 1023px) {
-  .event .scenka { display: none; }
+  .event .program-ikona { display: none; }
 }
-/* dotyk bez místa po straně: scénka je sbalená (nezabírá místo) a rozbalí se
+/* dotyk bez místa po straně: ikona je sbalená (nezabírá místo) a rozbalí se
    nad textem až klepnutím na kartu */
 @media (hover: none) and (max-width: 1023px) {
-  .event .scenka {
+  .event .program-ikona {
     position: relative; top: auto; left: auto; transform: none;
     margin: 0 auto; width: 200px;
     height: 0; overflow: hidden;
     transition: height .45s ease;
   }
-  .event .scenka svg { width: 200px; }
-  .event .scenka.hraje { transform: none; height: 104px; }
+  .event .program-ikona svg { width: 200px; }
+  .event .program-ikona.hraje { transform: none; height: 104px; }
 }
 
 /* měkký „papírový" podklad, aby kresba četla i na květinovém dekoru */
-.event .scenka::before {
+.event .program-ikona::before {
   content: ""; position: absolute; inset: -14% -8%; z-index: -1;
   background: radial-gradient(closest-side, rgba(245, 242, 236, .95), rgba(245, 242, 236, 0));
   opacity: 0; transition: opacity .5s ease;
 }
-.event .scenka.hraje::before { opacity: 1; }
+.event .program-ikona.hraje::before { opacity: 1; }
 
-/* „line boil" — při přehrávání se čáry chvějí jako překreslovaná okénka
-   ruční animace (filtr definuje <ScenkyDefs /> v page.tsx) */
-.scenka.hraje .sc-kresba { filter: url(#sc-boil); }
-
-/* dokreslovací efekt: každá čára má pathLength=1, v klidu je schovaná
-   v mezeře dash vzoru (posun 1.05 — nikde nekouká tečka kulatého zakončení) */
-.scenka path { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset .9s ease-in-out; }
-.scenka path:nth-of-type(2n) { transition-duration: 1.15s; }
-.scenka path:nth-of-type(3n) { transition-duration: .7s; }
-.scenka.hraje path { stroke-dashoffset: 0; }
-
-/* výplně (hlavy, oči, plamínek) naskočí až po dokreslení čar */
-.scenka .sc-vypln { fill-opacity: 0; transition: fill-opacity .35s ease; }
-.scenka.hraje .sc-vypln { fill-opacity: 1; transition-delay: .55s; }
+/* Dokreslovací efekt: každá čára má pathLength=1, v klidu je schovaná
+   v mezeře dash vzoru (posun 1.05 — nikde nekouká tečka kulatého zakončení).
+   Schválně transition, ne animation: na týchž <path> visí přes třídy pi-*
+   pohybové animace a dvě vlastnosti animation na jednom elementu by se
+   navzájem přebily. */
+.program-ikona path { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset .9s ease-in-out; }
+/* tvary uvnitř masek se nedokreslují — tam musí být hotové hned, jinak by
+   maska „naskakovala“ spolu s kresbou */
+.program-ikona mask path { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
+.program-ikona path:nth-of-type(2n) { transition-duration: 1.15s; }
+.program-ikona path:nth-of-type(3n) { transition-duration: .7s; }
+.program-ikona.hraje path { stroke-dashoffset: 0; }
 
 /* všechny animované prvky stojí v klidové póze (0% keyframu) a rozjedou se až
    aktivací; fill-mode both drží 0% keyframe i během animation-delay, jinak by
-   zpožděné prvky (noty, bublinky…) v klidu prosvítaly */
-.scenka [class^="sc-"], .scenka [class*=" sc-"] { transform-box: fill-box; animation-play-state: paused; animation-fill-mode: both; }
-.scenka.hraje [class^="sc-"], .scenka.hraje [class*=" sc-"] { animation-play-state: running; }
+   zpožděné prvky (pára, konfety…) v klidu prosvítaly */
+.program-ikona [class*="pi-"] { transform-box: fill-box; animation-play-state: paused; animation-fill-mode: both; }
+.program-ikona.hraje [class*="pi-"] { animation-play-state: running; }
 
-/* dekorační prvky řízené přes opacity (srdce, noty, bublinky, momentka…)
-   se v klidu úplně vypnou — pouhá pauza by je zmrazila uprostřed cyklu
-   napůl viditelné; takhle navíc při každé aktivaci startují od začátku */
-.scenka:not(.hraje)
-  :is(.sc-srdce, .sc-srdicko, .sc-blesk, .sc-polaroid, .sc-jiskra, .sc-bublina, .sc-nota, .sc-trpyt, .sc-cinky, .sc-maxik-beh, .sc-maxik-smer) {
+/* prvky řízené přes opacity (záblesk, jiskra, bublinky, třpyt, konfety) se
+   v klidu úplně vypnou — pouhá pauza by je zmrazila uprostřed cyklu napůl
+   viditelné; takhle navíc při každé aktivaci startují od začátku */
+.program-ikona:not(.hraje)
+  :is(.pi-blesk, .pi-jiskra, .pi-bublina, .pi-trpyt, .pi-konfeta, .pi-oci) {
   animation: none; opacity: 0;
 }
 
-.sc-zpozdeni-1 { animation-delay: .25s; }
-.sc-zpozdeni-2 { animation-delay: .5s; }
-.sc-zpozdeni-3 { animation-delay: .75s; }
-.sc-zpozdeni-4 { animation-delay: 1s; }
+.pi-cek-1 { animation-delay: .25s; }
+.pi-cek-2 { animation-delay: .5s; }
+.pi-cek-3 { animation-delay: .75s; }
 
-/* snídaně */
-.sc-hrnek-p { animation: sc-hrnek-p 2.4s ease-in-out infinite; transform-origin: 0% 0%; }
-.sc-hrnek-l { animation: sc-hrnek-l 2.4s ease-in-out infinite; transform-origin: 100% 0%; }
-.sc-para { animation: sc-para 1.6s ease-in-out infinite; }
-.sc-vidlicka { animation: sc-vidlicka 2.1s ease-in-out infinite; transform-origin: 0% 60%; }
-/* mrně Maxík: běh tam a zpátky (beh) × otočení po směru (smer, skokově v půlce)
-   × rychlé hopsání (hop) × cupitání nožiček (nozka) */
-.sc-maxik-beh { animation: sc-maxik-beh 6s linear infinite; }
-.sc-maxik-smer { animation: sc-maxik-smer 6s linear infinite; }
-.sc-maxik-hop { animation: sc-maxik-hop .28s ease-in-out infinite alternate; }
-.sc-nozka-a { animation: sc-nozka-a .26s linear infinite alternate; transform-origin: 100% 0%; }
-.sc-nozka-b { animation: sc-nozka-b .26s linear infinite alternate; transform-origin: 0% 0%; }
-@keyframes sc-maxik-beh { 0% { transform: translateX(0); } 50% { transform: translateX(150px); } 100% { transform: translateX(0); } }
-@keyframes sc-maxik-smer { 0%, 49.9% { transform: scaleX(1); } 50%, 100% { transform: scaleX(-1); } }
-@keyframes sc-maxik-hop { from { transform: translateY(0); } to { transform: translateY(-2px); } }
-@keyframes sc-nozka-a { from { transform: rotate(-16deg); } to { transform: rotate(20deg); } }
-@keyframes sc-nozka-b { from { transform: rotate(16deg); } to { transform: rotate(-20deg); } }
-@keyframes sc-hrnek-p { 0%, 50%, 100% { transform: rotate(0); } 65%, 85% { transform: rotate(-22deg); } }
-@keyframes sc-hrnek-l { 0%, 50%, 100% { transform: rotate(0); } 65%, 85% { transform: rotate(22deg); } }
-@keyframes sc-vidlicka { 0%, 45%, 100% { transform: rotate(0); } 60%, 80% { transform: rotate(-26deg); } }
-@keyframes sc-para { 0%, 100% { transform: translateY(0); opacity: .35; } 50% { transform: translateY(-4px); opacity: .9; } }
+/* snídaně — stoupající pára */
+.pi-para { animation: pi-para 1.6s ease-in-out infinite; }
+@keyframes pi-para { 0%, 100% { transform: translateY(0); opacity: .35; } 50% { transform: translateY(-4px); opacity: .9; } }
 
-/* obřad — zvonička zvoní, naklonění k puse, srdce a srdíčka, potlesk */
-.sc-zvon { animation: sc-zvon 1.5s ease-in-out infinite; transform-origin: 50% 0%; }
-.sc-cinky { animation: sc-cinky 1.5s ease-in-out infinite; }
-.sc-nakloni-p { animation: sc-nakloni-p 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
-.sc-nakloni-l { animation: sc-nakloni-l 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
-.sc-srdce { animation: sc-srdce 2.8s ease-in-out infinite; transform-origin: 50% 50%; transform: scale(0); }
-.sc-srdicko { animation: sc-srdicko 2.8s ease-in-out infinite; transform-origin: 50% 50%; }
-.sc-tlesk-a { animation: sc-tlesk-a .38s ease-in-out infinite alternate; transform-origin: 100% 100%; }
-.sc-tlesk-b { animation: sc-tlesk-b .38s ease-in-out infinite alternate; transform-origin: 0% 100%; }
-@keyframes sc-zvon { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
-@keyframes sc-cinky { 0%, 30%, 100% { opacity: 0; } 55%, 80% { opacity: 1; } }
-@keyframes sc-nakloni-p { 0%, 12% { transform: rotate(0); } 38%, 68% { transform: rotate(10deg); } 92%, 100% { transform: rotate(0); } }
-@keyframes sc-nakloni-l { 0%, 12% { transform: rotate(0); } 38%, 68% { transform: rotate(-10deg); } 92%, 100% { transform: rotate(0); } }
-@keyframes sc-srdce { 0%, 32% { transform: scale(0); opacity: 0; } 46% { transform: scale(1.3); opacity: 1; } 56%, 78% { transform: scale(1); opacity: 1; } 95%, 100% { transform: scale(.4); opacity: 0; } }
-@keyframes sc-srdicko { 0%, 40% { transform: translateY(0) scale(.5); opacity: 0; } 55% { opacity: 1; } 100% { transform: translateY(-15px) scale(1); opacity: 0; } }
-@keyframes sc-tlesk-a { from { transform: rotate(0); } to { transform: rotate(28deg); } }
-@keyframes sc-tlesk-b { from { transform: rotate(0); } to { transform: rotate(-28deg); } }
+/* obřad — srdíčko nad prstýnky tepe */
+.pi-tep { animation: pi-tep 1.9s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes pi-tep { 0%, 100% { transform: scale(1); } 22% { transform: scale(1.18); } 44% { transform: scale(1); } }
 
-/* focení — blesk, z foťáku vypadne momentka, poskoky, mávání */
-.sc-blesk { animation: sc-blesk 2.6s ease-out infinite; transform-origin: 50% 50%; }
-.sc-polaroid { animation: sc-polaroid 2.6s ease-in-out infinite; transform-origin: 50% 0%; }
-.sc-hop { animation: sc-hop 1.1s ease-in-out infinite; }
-.sc-mava { animation: sc-mava .7s ease-in-out infinite alternate; transform-origin: 0% 100%; }
-@keyframes sc-blesk { 0%, 18%, 40%, 100% { opacity: 0; transform: scale(.4); } 24%, 32% { opacity: 1; transform: scale(1.15); } }
-@keyframes sc-polaroid { 0%, 30% { opacity: 0; transform: translateY(-7px) rotate(0); } 40% { opacity: 1; transform: translateY(-3px) rotate(2deg); } 58%, 86% { opacity: 1; transform: translateY(7px) rotate(7deg); } 96%, 100% { opacity: 0; transform: translateY(9px) rotate(7deg); } }
-@keyframes sc-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3.5px); } }
-@keyframes sc-mava { from { transform: rotate(-6deg); } to { transform: rotate(16deg); } }
+/* focení — záblesk z blesku */
+.pi-blesk { animation: pi-blesk 2.6s ease-out infinite; transform-origin: 50% 100%; }
+@keyframes pi-blesk { 0%, 18%, 40%, 100% { opacity: 0; transform: scale(.5); } 24%, 32% { opacity: 1; transform: scale(1.1); } }
 
-/* přípitek — ťuknutí, jiskra a stoupající bublinky */
-.sc-cink-p { animation: sc-cink-p 1.8s ease-in-out infinite; transform-origin: 0% 100%; }
-.sc-cink-l { animation: sc-cink-l 1.8s ease-in-out infinite; transform-origin: 100% 100%; }
-.sc-jiskra { animation: sc-jiskra 1.8s ease-out infinite; transform-origin: 50% 50%; transform: scale(0); }
-.sc-bublina { animation: sc-bublina 1.9s ease-out infinite; }
-@keyframes sc-cink-p { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(11deg); } }
-@keyframes sc-cink-l { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(-11deg); } }
-@keyframes sc-jiskra { 0%, 42%, 72%, 100% { opacity: 0; transform: scale(.3); } 50%, 62% { opacity: 1; transform: scale(1.1); } }
-@keyframes sc-bublina { 0%, 35% { opacity: 0; transform: translateY(0); } 50% { opacity: .9; } 100% { opacity: 0; transform: translateY(-13px); } }
+/* přípitek — sklenky se k sobě nakloní, cvrnkne jiskra, stoupají bublinky */
+.pi-cink-p { animation: pi-cink-p 1.8s ease-in-out infinite; transform-origin: 0% 100%; }
+.pi-cink-l { animation: pi-cink-l 1.8s ease-in-out infinite; transform-origin: 100% 100%; }
+.pi-jiskra { animation: pi-jiskra 1.8s ease-out infinite; transform-origin: 50% 100%; }
+.pi-bublina { animation: pi-bublina 1.9s ease-out infinite; }
+@keyframes pi-cink-p { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(12deg); } }
+@keyframes pi-cink-l { 0%, 25%, 75%, 100% { transform: rotate(0); } 45%, 55% { transform: rotate(-12deg); } }
+@keyframes pi-jiskra { 0%, 42%, 72%, 100% { opacity: 0; transform: scale(.3); } 50%, 62% { opacity: 1; transform: scale(1.1); } }
+@keyframes pi-bublina { 0%, 35% { opacity: 0; transform: translateY(0); } 50% { opacity: .9; } 100% { opacity: 0; transform: translateY(-13px); } }
 
-/* tanec — kolébání páru a plamínek svíčky */
-.sc-tanec { animation: sc-tanec 2s ease-in-out infinite; transform-origin: 50% 100%; }
-.sc-plamen { animation: sc-plamen .5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
-@keyframes sc-tanec { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-@keyframes sc-plamen { from { transform: scale(1); } to { transform: scale(1.25, .8) rotate(3deg); } }
+/* dort — nůž zajede do dortu; nůž a díra, kterou v něm vykrajuje, se musí
+   hýbat úplně stejně, proto souřadnice viewBoxu a pevný střed otáčení
+   (rukojeť), ne bbox každé skupiny */
+.pi-nuz { animation: pi-nuz 2.8s ease-in-out infinite; transform-box: view-box; transform-origin: 183px 34px; }
+@keyframes pi-nuz { 0%, 45%, 100% { transform: translate(0, 0) rotate(0); } 62%, 80% { transform: translate(-3px, 5px) rotate(-7deg); } }
 
-/* odpoledne — sluníčko, motýl (vodorovný let × svislé vlnění × mávání křídel),
-   houpání sklenky, kolébání */
-.sc-slunce { animation: sc-slunce 14s linear infinite; transform-origin: 50% 50%; }
-.sc-motyl-x { animation: sc-motyl-x 7s ease-in-out infinite alternate; }
-.sc-motyl-y { animation: sc-motyl-y 1.3s ease-in-out infinite alternate; }
-.sc-kridlo-a { animation: sc-kridlo .22s ease-in-out infinite alternate; transform-origin: 100% 50%; }
-.sc-kridlo-b { animation: sc-kridlo .22s ease-in-out infinite alternate; transform-origin: 0% 50%; }
-.sc-houpe { animation: sc-houpe 1.6s ease-in-out infinite; transform-origin: 0% 100%; }
-.sc-koleba { animation: sc-koleba 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
-@keyframes sc-slunce { to { transform: rotate(360deg); } }
-@keyframes sc-motyl-x { from { transform: translateX(0); } to { transform: translateX(112px); } }
-@keyframes sc-motyl-y { from { transform: translateY(-6px); } to { transform: translateY(6px); } }
-@keyframes sc-kridlo { from { transform: scaleX(1); } to { transform: scaleX(.3); } }
-@keyframes sc-houpe { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
-@keyframes sc-koleba { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+/* tanec — pár se kolébá, mrká a čárky pohybu se rozsvěcují */
+.pi-tanec { animation: pi-tanec 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.pi-svih { animation: pi-svih 2.4s ease-in-out infinite; }
+.pi-oci { animation: pi-oci 4.4s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes pi-svih { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+@keyframes pi-oci { 0%, 90%, 100% { opacity: 1; transform: scaleY(1); } 94% { opacity: 1; transform: scaleY(.15); } }
+@keyframes pi-tanec { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
 
-/* párty — houpající se disko koule s třpytkami, skoky se squash & stretch, noty */
-.sc-koule { animation: sc-koule 2.2s ease-in-out infinite; transform-origin: 50% 0%; }
-.sc-trpyt { animation: sc-trpyt 1.4s ease-in-out infinite; }
-.sc-skok { animation: sc-skok 1.15s ease-in-out infinite; transform-origin: 50% 100%; }
-.sc-nota { animation: sc-nota 1.6s ease-out infinite; }
-@keyframes sc-koule { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
-@keyframes sc-trpyt { 0%, 40%, 100% { opacity: 0; } 55%, 78% { opacity: 1; } }
-@keyframes sc-skok {
-  0%, 100% { transform: translateY(0) scale(1); }
-  12% { transform: translateY(1px) scale(1.07, .9); }
-  38% { transform: translateY(-10px) scale(.96, 1.06); }
-  62% { transform: translateY(0) scale(1.05, .93); }
-  76% { transform: translateY(0) scale(1); }
+/* odpoledne — sluníčku se točí paprsky */
+.pi-slunce { animation: pi-slunce 16s linear infinite; transform-origin: 50% 50%; }
+@keyframes pi-slunce { to { transform: rotate(360deg); } }
+
+/* párty — poledníky koule se zužují a rozšiřují (odtud dojem otáčení),
+   kolem se blýskne třpyt a padají konfety */
+.pi-koule-a { animation: pi-koule 3.2s linear infinite; transform-origin: 50% 50%; }
+.pi-koule-b { animation: pi-koule 3.2s linear infinite; transform-origin: 50% 50%; animation-delay: -1.6s; }
+.pi-trpyt { animation: pi-trpyt 1.4s ease-in-out infinite; }
+.pi-konfeta { animation: pi-konfeta 2.6s linear infinite; transform-origin: 50% 50%; }
+@keyframes pi-koule { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.12); } }
+@keyframes pi-trpyt { 0%, 40%, 100% { opacity: 0; } 55%, 78% { opacity: 1; } }
+@keyframes pi-konfeta {
+  0%   { transform: translateY(-6px) rotate(0); opacity: 0; }
+  18%  { opacity: 1; }
+  100% { transform: translateY(48px) rotate(230deg); opacity: 0; }
 }
-@keyframes sc-nota { 0% { transform: translateY(5px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .scenka [class^="sc-"], .scenka [class*=" sc-"] { animation: none; }
-  /* bez animací: panáčci stojí dokreslení napořád, bez chvění čar */
-  .scenka path { transition: none; stroke-dashoffset: 0; }
-  .scenka .sc-vypln { transition: none; fill-opacity: 1; }
-  .event .scenka { transition: none; }
-  .scenka.hraje .sc-kresba { filter: none; }
-  .sc-srdce, .sc-jiskra, .sc-blesk { opacity: 1; transform: none; }
-  .sc-nota, .sc-trpyt, .sc-cinky { opacity: .8; }
-  .sc-bublina, .sc-srdicko, .sc-polaroid { opacity: 0; }
+  .program-ikona [class*="pi-"] { animation: none; }
+  /* bez animací: ikona zůstane dokreslená napořád */
+  .program-ikona path { transition: none; stroke-dashoffset: 0; }
+  .event .program-ikona { transition: none; }
+  .pi-blesk, .pi-jiskra { opacity: 1; transform: none; }
+  .pi-trpyt { opacity: .8; }
+  .pi-bublina, .pi-konfeta { opacity: 0; }
 }
 
 /* location */
-.location { background: linear-gradient(to bottom, var(--broskev-jemna), var(--zelena-jemna) var(--prechod-sekci)); }
+.location { background: linear-gradient(to bottom, var(--modra-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
 .venue-map {
   position: relative; display: block;
   height: 380px; max-width: 720px; margin: 2.4rem auto;
   border-radius: 6px; overflow: hidden;
   /* teplý stín místo neutrálně šedého — sedne ke zlaté lince webu */
-  box-shadow: 0 14px 40px rgba(92, 102, 80, .22);
+  box-shadow: 0 14px 40px rgba(158, 71, 80, .22);
   cursor: pointer; text-decoration: none;
 }
-/* zelená linka po obvodu — stejný odstín jako zbytek sekce */
+/* růžová linka po obvodu — stejný odstín jako zbytek sekce */
 .venue-map::before {
   content: ""; position: absolute; inset: 0; z-index: 460; pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--zelena-text) 45%, transparent); border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--palette-rose-text) 45%, transparent); border-radius: 6px;
 }
 /* okraje doznívají do béžové, ať mapa není tvrdý obdélník v ploše sekce;
    střed zůstává čistý, takže se to pinu netýká */
 .venue-map::after {
   content: ""; position: absolute; inset: 0; z-index: 450; pointer-events: none;
-  box-shadow: inset 0 0 32px 8px var(--zelena-jemna);
+  box-shadow: inset 0 0 32px 8px var(--ruzova-jemna);
 }
 .venue-map-actions {
   position: absolute; left: 50%; bottom: 1.4rem; transform: translateX(-50%);
@@ -782,34 +872,31 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   display: flex; gap: .6rem; white-space: nowrap;
 }
 .venue-map-actions a {
-  background: var(--zelena-jemna); color: var(--zelena-text);
-  border: 1px solid var(--zelena-text);
+  background: var(--ruzova-jemna); color: var(--palette-rose-text);
+  border: 1px solid var(--palette-rose-text);
   padding: .8rem 1.6rem; font-size: .64rem;
   letter-spacing: .28em; text-transform: uppercase;
   text-decoration: none; transition: .3s;
 }
-.venue-map-actions a.primary { background: var(--zelena-text); color: var(--zelena-jemna); }
-.venue-map-actions a:hover { background: var(--zelena-syta); border-color: var(--zelena-syta); color: #fff; }
-.venue-map .maplibregl-map { background: var(--zelena-jemna); }
-/* Filtr sedí jen na canvasu mapy, ne na celém kontejneru — jinak by zešedl
-   i zlatý pin. sepia stočí šedou mapu do teplého tónu papíru webu. */
-.venue-map .maplibregl-canvas {
-  filter: grayscale(1) sepia(.12) hue-rotate(-10deg) saturate(.6) brightness(.88) contrast(1.28);
-}
-.venue-map-loading { background: var(--zelena-jemna); }
-/* máslově-pískový pin */
+.venue-map-actions a.primary { background: var(--palette-rose-text); color: var(--ruzova-jemna); }
+.venue-map-actions a:hover { background: var(--ruzova-syta); border-color: var(--ruzova-syta); color: #fff; }
+.venue-map .maplibregl-map { background: var(--ruzova-jemna); }
+/* Žádný filtr — barvy si mapa nastavuje sama v VenueMap.tsx (googlovská
+   paleta se šalvějovou zelení). Dřív tu byl grayscale, který ji odbarvil. */
+.venue-map-loading { background: var(--ruzova-jemna); }
+/* růžový pin */
 .venue-pin { position: relative; width: 48px; height: 48px; cursor: pointer; }
 .venue-pin-dot {
   position: absolute; left: 50%; top: 50%; width: 16px; height: 16px;
   margin: -8px 0 0 -8px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--pin-svetla), var(--pin-piskova) 70%);
+  background: radial-gradient(circle at 35% 30%, var(--pin-svetla), var(--pin-ruzova) 70%);
   /* tenký tmavší lem — světlý bod by se na světlé mapě jinak ztratil */
-  box-shadow: 0 2px 6px rgba(60, 70, 52, .4), 0 0 0 1px rgba(140, 110, 45, .45);
+  box-shadow: 0 2px 6px rgba(92, 48, 54, .4), 0 0 0 1px rgba(158, 71, 80, .5);
 }
 .venue-pin-ring {
   position: absolute; left: 50%; top: 50%; width: 16px; height: 16px;
   margin: -8px 0 0 -8px; border-radius: 50%;
-  border: 2px solid var(--pin-piskova);
+  border: 2px solid var(--pin-ruzova);
   animation: pinPulse 2.2s ease-out infinite;
 }
 @keyframes pinPulse {
@@ -824,56 +911,98 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn:disabled:hover { background: none; color: var(--ink); }
 
-/* ubytování — formulář a stav kapacity pod mapou */
+/* ubytování — formulář a stav kapacity pod mapou.
+   Celý blok je o ~10 % větší než zbytek sekce: je to jediné místo na webu,
+   kde host něco vyplňuje, tak ať se to dobře čte a trefuje. */
 .ubytovani {
-  max-width: 560px; margin: 3.5rem auto 0; padding-top: 3rem;
+  position: relative; /* kotva pro auto jedoucí po horní lince */
+  max-width: 620px; margin: 3.9rem auto 0; padding-top: 3.3rem;
   border-top: 1px solid rgba(0,0,0,.1); text-align: center;
 }
-.ubytovani h3 { font-size: 1.4rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1rem; }
-.ubytovani .lead { font-size: .92rem; }
+
+/* ——— doodle auto na lince nad ubytováním ———
+   Posouvá se celá dráha, ne auto samo: transform v procentech se počítá
+   z vlastní šířky prvku, a dráha je široká přesně jako linka. Auto visí u
+   jejího pravého konce, takže translateX(-115 %) ho postaví kus vlevo za
+   linku a translateX(15 %) kus za její pravý konec. Kdyby se místo toho
+   animovalo left, přepočítával by prohlížeč kvůli malému doodlu layout
+   každý snímek. */
+.auto-drah {
+  position: absolute; left: 0; right: 0; top: 0; height: 0;
+  pointer-events: none;
+  animation: auto-jede 20s linear infinite;
+}
+.auto-drah svg {
+  /* Pod koly zbývá uvnitř viewBoxu ~1,1 px prázdna a top: 0 dráhy sedí až za
+     1px rámečkem — s tímhle posunem dosednou kola přesně na linku. */
+  position: absolute; right: 0; bottom: -0.5px;
+  width: 56px; height: auto; overflow: visible;
+  color: var(--palette-rose-text);
+}
+/* Mlha na obou koncích: auto se z rozostření vynoří, kus cesty jede ostré a
+   zase se do něj ztratí. Krajní dvacetiny cyklu je úplně pryč, aby mezi
+   dvěma průjezdy byla pauza a linka si odpočala. */
+@keyframes auto-jede {
+  0%        { transform: translateX(-115%); opacity: 0; filter: blur(4px); }
+  10%       { opacity: 0; filter: blur(4px); }
+  22%       { opacity: 1; filter: blur(0); }
+  78%       { opacity: 1; filter: blur(0); }
+  90%       { opacity: 0; filter: blur(4px); }
+  100%      { transform: translateX(15%); opacity: 0; filter: blur(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auto-drah { display: none; }
+}
+.ubytovani h3 { font-size: 1.55rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1.1rem; }
+.ubytovani .lead { font-size: 1.02rem; }
 /* Jost má načtenou váhu 500 — výchozí bold (700) by prohlížeč jen dopočítal */
 .ubytovani .lead strong { font-weight: 500; color: var(--ink); }
 
-.kapacita { margin: 2.2rem auto 2.6rem; max-width: 340px; }
-.kapacita-cisla { display: flex; align-items: baseline; justify-content: center; gap: .8rem; }
+.kapacita { margin: 2.4rem auto 2.9rem; max-width: 375px; }
+.kapacita-cisla { display: flex; align-items: baseline; justify-content: center; gap: .9rem; }
 .kapacita-cisla b {
-  font-family: var(--serif), Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1;
+  font-family: var(--serif), Georgia, serif; font-weight: 500; font-size: 2.45rem; line-height: 1;
 }
-.kapacita-cisla b span { color: var(--ink-soft); font-size: 1.3rem; }
-.kapacita-popis { font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-soft); }
-.kapacita-bar { margin-top: .9rem; height: 3px; background: rgba(0,0,0,.1); overflow: hidden; }
-.kapacita-fill { height: 100%; background: var(--palette-sage-text); transition: width .8s ease; }
+.kapacita-cisla b span { color: var(--ink-soft); font-size: 1.45rem; }
+.kapacita-popis { font-size: .68rem; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-soft); }
+.kapacita-bar { margin-top: 1rem; height: 4px; background: rgba(0,0,0,.1); overflow: hidden; }
+.kapacita-fill { height: 100%; background: var(--palette-rose-text); transition: width .8s ease; }
 
 .ubytovani-form {
-  display: grid; grid-template-columns: 1fr 120px; gap: 1.4rem 1.2rem;
+  display: grid; grid-template-columns: 1fr 132px; gap: 1.55rem 1.35rem;
   align-items: end; text-align: left;
 }
 .ubytovani-form label { display: block; }
 .ubytovani-form label span {
-  display: block; font-size: .62rem; letter-spacing: .28em;
-  text-transform: uppercase; color: var(--ink-soft); margin-bottom: .5rem;
+  display: block; font-size: .68rem; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--ink-soft); margin-bottom: .55rem;
 }
 .ubytovani-form input {
   width: 100%; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,.25);
-  padding: .5rem 0; font-family: inherit; font-size: 1rem; font-weight: 300;
+  padding: .55rem 0; font-family: inherit; font-size: 1.1rem; font-weight: 300;
   color: var(--ink); border-radius: 0;
 }
 .ubytovani-form input:focus { outline: none; border-bottom-color: var(--accent); }
 .ubytovani-form input:disabled { opacity: .4; }
 .ubytovani-form input::placeholder { color: var(--ink-soft); opacity: .5; }
-.ubytovani-form .btn { grid-column: 1 / -1; justify-self: center; margin-top: 1rem; background: none; cursor: pointer; font-family: inherit; }
+/* .btn je sdílený se zbytkem webu, tady se zvětšuje spolu se sekcí */
+.ubytovani-form .btn {
+  grid-column: 1 / -1; justify-self: center; margin-top: 1.1rem;
+  background: none; cursor: pointer; font-family: inherit;
+  font-size: .72rem; padding: .95rem 2.45rem;
+}
 /* skryté pole proti spamu */
 .ubytovani-past { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
 .ubytovani-dekujeme {
-  margin-top: 1.5rem; font-family: var(--serif), Georgia, serif;
-  font-size: 1.25rem; color: var(--palette-sage-text);
+  margin-top: 1.65rem; font-family: var(--serif), Georgia, serif;
+  font-size: 1.38rem; color: var(--palette-rose-text);
 }
-.ubytovani-chyba { margin-top: 1.2rem; font-size: .85rem; color: var(--palette-rose-text); }
+.ubytovani-chyba { margin-top: 1.3rem; font-size: .94rem; color: var(--palette-rose-text); }
 .ubytovani-znovu {
-  display: block; margin: 1.4rem auto 0; background: none; border: none; cursor: pointer;
-  font-family: inherit; font-size: .62rem; letter-spacing: .28em; text-transform: uppercase;
-  color: var(--ink-soft); border-bottom: 1px solid rgba(0,0,0,.25); padding: 0 0 .3rem;
+  display: block; margin: 1.55rem auto 0; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: .68rem; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--ink-soft); border-bottom: 1px solid rgba(0,0,0,.25); padding: 0 0 .33rem;
 }
 .ubytovani-znovu:hover { color: var(--ink); border-bottom-color: var(--accent); }
 
@@ -882,7 +1011,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 
 /* menu */
-.menu { background: linear-gradient(to bottom, var(--zluta-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
+.menu { background: linear-gradient(to bottom, var(--modra-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
 .menu-kids-title { margin-top: 3.5rem; padding-top: 3rem; border-top: 1px solid rgba(0,0,0,.1); }
 .menu-kids-title h3 { font-size: 1.4rem; letter-spacing: .1em; text-transform: uppercase; }
 
@@ -905,6 +1034,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .menu-karta > .events:first-of-type { margin-top: 2.4rem; }
 
 /* chody uvnitř rámečku — čistý typografický seznam, žádné vlastní rámečky */
+/* poznámka pod rámečkem menu — drobná a tlumená, ať nekonkuruje chodům */
+.menu-poznamka {
+  /* záporný margin ukusuje z 36px rámečku .menu-karta (je to border, takže
+     pod poslední linkou zůstává pruh prázdna) — bez něj visí poznámka nízko */
+  max-width: 520px; margin: -.5rem auto 0; text-align: center;
+  font-size: .88rem; font-style: italic; line-height: 1.65; color: var(--ink-soft);
+}
 .menu .events { display: grid; gap: 2.1rem; max-width: none; text-align: center; }
 .menu .event {
   background: none; box-shadow: none; border: none; border-radius: 0; padding: 0;
@@ -927,15 +1063,35 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   .menu-masle { width: 116px; height: 80px; top: -38px; }
 }
 
-footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: center; color: var(--ink-soft); font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; }
+footer { background: var(--ruzova-jemna); position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: center; color: var(--ink-soft); font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; }
 
 /* reveal on scroll */
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease, filter .8s ease; }
 .reveal.in { opacity: 1; transform: none; }
+/* Sekce, ze které host odjel, se lehce zamlží — třídu přepíná useZaostreniSekci
+   v page.tsx podle toho, jestli sekce prochází prostředkem okna. Selektor musí
+   být na .reveal.in, ne na .reveal: jinak by přebil úvodní opacity: 0 a obsah
+   sekcí, které host ještě neviděl, by prosvítal rozmazaný místo aby čekal. */
+.sekce-mimo .reveal.in { filter: blur(2.5px); opacity: .55; }
 
 /* ---------- nejčastější dotazy ---------- */
-/* menu je --bg-alt, FAQ pokračuje střídáním na --bg */
-.faq { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--bg) var(--prechod-sekci)); }
+/* menu končí růžovou, FAQ střídání uzavírá modrou — a v ní pokračuje i
+   patička, aby na jejím předělu nevznikla hrana */
+/* Rozcestník na fotky je nově modrý článek mezi růžovým menu a růžovým FAQ —
+   střídání tak drží dál a menu zůstává růžové. Akcenty jsou modré stejně jako
+   na samotné stránce /fotky, aby na sebe obě navazovaly. */
+.fotky-odkaz { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); }
+.fotky-odkaz .eyebrow { color: var(--palette-blue-text); }
+/* prosba o obřadu — drobnější a tlumená, aby nekonkurovala hlavní výzvě */
+.fotky-prosba {
+  max-width: 46ch; margin: 1.6rem auto 0;
+  font-size: .9rem; font-style: italic; line-height: 1.65; color: var(--ink-soft);
+}
+.fotky-prosba strong { font-weight: 500; font-style: normal; color: var(--modra-syta); }
+.fotky-odkaz .btn { margin-top: 2.2rem; border-color: var(--palette-blue-text); color: var(--palette-blue-text); }
+.fotky-odkaz .btn:hover { background: var(--palette-blue-text); border-color: var(--palette-blue-text); color: #fff; }
+
+.faq { background: linear-gradient(to bottom, var(--modra-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
 .faq-list { max-width: 640px; margin: 2.8rem auto 0; text-align: left; }
 
 .faq-item { border-top: 1px solid rgba(0, 0, 0, .1); }
@@ -951,7 +1107,7 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
   color: var(--ink);
   transition: color .3s ease;
 }
-.faq-otazka:hover { color: var(--palette-blush-text); }
+.faq-otazka:hover { color: var(--palette-rose-text); }
 .faq-otazka:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
 
 /* plus, které se po otevření překlopí na minus */
@@ -972,6 +1128,9 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
 }
 .faq-odpoved { padding-bottom: 1.5rem; }
 .faq-odpoved p { color: var(--ink-soft); font-size: .95rem; max-width: 54ch; }
+/* mezera mezi odstavci delší odpovědi — bez ní na sebe navazovaly bez pauzy
+   a tři odstavce vypadaly jako jeden blok */
+.faq-odpoved p + p { margin-top: .9rem; }
 
 /* vzorník pastelů k dresscodu */
 .faq-barvy {
@@ -992,14 +1151,16 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
   .faq-obal { transition: none; }
 }
 
-/* ---------- zelené ladění sekce Místo konání ---------- */
-.ubytovani { border-top-color: color-mix(in srgb, var(--zelena-text) 28%, transparent); }
-.kapacita-bar { background: color-mix(in srgb, var(--zelena-text) 18%, transparent); }
-.ubytovani-form input { border-bottom-color: color-mix(in srgb, var(--zelena-text) 45%, transparent); }
-.ubytovani-form input:focus { border-bottom-color: var(--zelena-syta); }
-.location .btn { border-color: var(--zelena-text); color: var(--zelena-text); }
-.location .btn:hover:not(:disabled) { background: var(--zelena-syta); border-color: var(--zelena-syta); color: #fff; }
-.location .btn:disabled:hover { background: none; color: var(--zelena-text); }
+/* ---------- růžové ladění sekce Místo konání ----------
+   Zelená tu zůstala jen v dlaždicích mapy (barvy si nastavuje VenueMap.tsx);
+   všechno kolem jde z růžové, protože sekce v ní končí. */
+.ubytovani { border-top-color: color-mix(in srgb, var(--palette-rose-text) 28%, transparent); }
+.kapacita-bar { background: color-mix(in srgb, var(--palette-rose-text) 18%, transparent); }
+.ubytovani-form input { border-bottom-color: color-mix(in srgb, var(--palette-rose-text) 45%, transparent); }
+.ubytovani-form input:focus { border-bottom-color: var(--ruzova-syta); }
+.location .btn { border-color: var(--palette-rose-text); color: var(--palette-rose-text); }
+.location .btn:hover:not(:disabled) { background: var(--ruzova-syta); border-color: var(--ruzova-syta); color: #fff; }
+.location .btn:disabled:hover { background: none; color: var(--palette-rose-text); }
 
 /* ---------- fotky od hostů (upload + živá galerie + lajky) ---------- */
 .galerie { background: linear-gradient(to bottom, var(--bg), var(--modra-jemna) var(--prechod-sekci)); }
@@ -1162,4 +1323,27 @@ footer { position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: cente
 @media (max-width: 560px) {
   .galerie-detail video { max-height: 74vh; border-width: 4px; }
   .galerie-skeleton { border-width: 3px; }
+}
+
+/* ——— ozdobné příbory po stranách svatebního menu ———
+   Vidlička vlevo, vpravo blíž k menu nůž a za ním lžíce. Sedí absolutně
+   vedle .menu-karta; odsazení musí přeskočit i 36px rámeček (ten je border,
+   tedy mimo padding box, ke kterému se right/left: 100 % vztahuje).
+   Ukážou se až tam, kde vedle menu opravdu je místo — jinak by se
+   překrývaly s textem. */
+/* Momentálně se nevykresluje — <Vidlicka/Nuz/Lzice> jsou z .menu-karta
+   vyndané. Styly i app/Pribory.tsx zůstávají, kdyby se měly vrátit. */
+.menu-pribor { display: none; }
+@media (min-width: 1280px) {
+  .menu-pribor {
+    display: block;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    height: 44rem; color: var(--palette-rose); pointer-events: none;
+  }
+  .menu-pribor svg { display: block; height: 100%; width: auto; overflow: visible; }
+  /* šířka příboru = výška × 120/780 ≈ 6,77 rem — z toho vycházejí odstupy;
+     vpravo se tak vejde nůž i lžíce ještě na 1280px široké obrazovce */
+  .menu-pribor-vidlicka { right: calc(100% + 3.4rem); }
+  .menu-pribor-nuz { left: calc(100% + 3.4rem); }
+  .menu-pribor-lzice { left: calc(100% + 11.5rem); }
 }

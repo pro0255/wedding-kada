@@ -6,7 +6,8 @@ export const metadata: Metadata = {
   description: "Nahrajte fotky a videa ze svatby přímo z mobilu.",
 };
 
-/** Samostatná stránka pro QR kódy na stolech — bez obálky a loaderu. */
+/** Samostatná stránka za QR kódem vyvěšeným na svatbě — bez obálky a loaderu.
+    Odkazuje na ni i sekce „Fotky od vás“ na hlavní stránce. */
 export default function FotkyStranka() {
   return (
     <main className="galerie-stranka">
