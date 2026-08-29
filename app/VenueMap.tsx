@@ -61,6 +61,9 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
      hotelu by byla pro většinu hostů nedostupná. Tam se proto přepíná
      klepnutím a v rohu svítí ikonka, že se dá otočit. */
   const [dotyk, setDotyk] = useState(false);
+  const scenaRef = useRef<HTMLDivElement>(null);
+  // jakmile host sám klepne, ukázka se už nespouští ani nedokončuje
+  const zasahHosta = useRef(false);
   useEffect(() => {
     const mq = window.matchMedia("(hover: none)");
     const nastav = () => setDotyk(mq.matches);
@@ -68,6 +71,44 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
     mq.addEventListener("change", nastav);
     return () => mq.removeEventListener("change", nastav);
   }, []);
+
+  /* Karta se po příjezdu do zorného pole jednou sama otočí a vrátí. Text na
+     štítku říká, že se dá klepnout, ale ukázat to je silnější než napsat —
+     host uvidí na vlastní oči, že má mapa druhou stranu.
+
+     Jen na dotyku: na myši stačí najet a stane se to samo. S vypnutými
+     animacemi se ukázka přeskočí. Spustí se jednou za návštěvu a když host
+     mezitím klepne sám, zbytek se zruší, ať mu karta nepřeskočí pod prstem. */
+  useEffect(() => {
+    if (!dotyk) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const el = scenaRef.current;
+    if (!el) return;
+
+    const casovace: number[] = [];
+    const io = new IntersectionObserver(
+      (zaznamy) => {
+        if (!zaznamy.some((z) => z.isIntersecting)) return;
+        io.disconnect();
+        casovace.push(
+          window.setTimeout(() => {
+            if (!zasahHosta.current) setOtoceno(true);
+          }, 900),
+        );
+        casovace.push(
+          window.setTimeout(() => {
+            if (!zasahHosta.current) setOtoceno(false);
+          }, 3000),
+        );
+      },
+      { rootMargin: "0px 0px -25% 0px" },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      casovace.forEach((t) => clearTimeout(t));
+    };
+  }, [dotyk]);
 
   useEffect(() => {
     onFlipChange?.(otoceno);
@@ -138,10 +179,18 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
   return (
     <>
       <div
+        ref={scenaRef}
         className="venue-map-scene"
         onMouseEnter={dotyk ? undefined : () => setOtoceno(true)}
         onMouseLeave={dotyk ? undefined : () => setOtoceno(false)}
-        onClick={dotyk ? () => setOtoceno((o) => !o) : undefined}
+        onClick={
+          dotyk
+            ? () => {
+                zasahHosta.current = true;
+                setOtoceno((o) => !o);
+              }
+            : undefined
+        }
       >
         <div className={`venue-map${otoceno ? " je-otoceny" : ""}`}>
           <div className="venue-flip-front">
@@ -171,6 +220,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
               <path d="M19.2 13.3 V17 a4.8 4.8 0 0 1 -4.8 4.8 h-1.7 a4.6 4.6 0 0 1 -3.2 -1.3 L6.4 17.2 a1.6 1.6 0 0 1 2.3 -2.2 l1.5 1.5" />
             </g>
           </svg>
+          <span>Klepnutím zobrazíte hotel</span>
         </span>
         {/* Na myši stačí otočku naznačit dvěma šipkami do kruhu — hover ji
            spustí sám, není na co klepat. Ikona ruky by tu byla matoucí. */}

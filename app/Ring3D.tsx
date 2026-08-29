@@ -52,7 +52,10 @@ export default function Ring3D() {
 
     const size = Math.min(el.clientWidth || 260, 320);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    /* Na telefonu strop 1.5, ne 2. Prsten je vykreslený na 170 px, takže vyšší
+       hustota nic nepřidá, ale plocha k vykreslení roste s druhou mocninou. */
+    const uzke = window.matchMedia("(max-width: 700px)").matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, uzke ? 1.5 : 2));
     renderer.setSize(size, size);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -78,7 +81,11 @@ export default function Ring3D() {
       emissiveMap: inscription,
       emissiveIntensity: 0.9,
     });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.2, 96, 220), gold);
+    /* 96 × 220 segmentů dělalo přes 42 tisíc trojúhelníků na kroužek velký
+       170 px — telefon to vytížil tak, že klepnutí na prsten nemělo kdy projít
+       a host se nedostal dovnitř. 40 × 96 je pod 8 tisíc a na téhle velikosti
+       je hrana pořád hladká. */
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.2, 40, 96), gold);
     scene.add(ring);
 
     // zlatý poletující prach
