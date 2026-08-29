@@ -417,11 +417,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* Na telefonu květiny nevykreslujeme. Pruhy by tu byly ~128px široké a
    dlaždice se svisle opakuje po 300px, takže na 8500px dlouhé stránce vyšla
    ta samá fotka skoro třicetkrát pod sebou — nečetlo se to jako fotografie,
-   ale jako laciná tapeta. Se světlým pruhem uprostřed padá i jeho důvod
-   existence, ten neměl co tlumit. Barevné střídání sekcí nese vzhled samo. */
+   ale jako laciná tapeta.
+
+   Místo nich je celá stránka béžová se světlým pruhem středem, stejně jako
+   ho má desktop nad květinami. Barevné střídání sekcí se tím na mobilu ruší;
+   barvy nadpisů, eyebrow ani tlačítek se nemění, ty zůstávají podle sekcí. */
 @media (max-width: 700px) {
-  .kvetiny,
-  .stred-pruh { display: none; }
+  .kvetiny { display: none; }
+  .stred-pruh { display: block; }
 }
 /* obsah sekcí drží nad rámečkem i horami */
 .reveal { position: relative; z-index: 1; }
@@ -717,8 +720,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .venue-map-scene {
   position: relative; display: block;
   height: 380px; max-width: 720px; margin: 2.4rem auto;
-  border-radius: 6px; overflow: hidden;
   perspective: 1600px;
+  /* Overflow tu být NESMÍ. Při otáčení se bližší hrana karty perspektivou
+     zvětší — při perspective 1600 a šířce 720 vyroste karta uprostřed otáčky
+     z 380 px na ~490 px — a ořez by jí uřízl rámeček nahoře i dole. Ořezávat
+     stačí obě strany karty (.venue-flip-front / -back), ty mají overflow
+     a zaoblení samy. */
+  overflow: visible;
 }
 .venue-map {
   position: absolute; inset: 0;
@@ -737,6 +745,31 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 .venue-flip-back { transform: rotateY(180deg); }
 .venue-flip-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Pokyn k otočení jen na dotykových zařízeních — na myši stačí hover a ikonka
+   by tam jen překážela. Stojí mimo rotující kartu, aby se s ní neodtočila. */
+.venue-flip-pokyn { display: none; }
+@media (hover: none) {
+  .venue-flip-pokyn {
+    display: block; position: absolute; right: .7rem; bottom: .7rem; z-index: 2;
+    width: 38px; height: 38px; padding: 8px; border-radius: 50%;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    color: var(--palette-rose-text);
+    box-shadow: 0 2px 10px rgba(158, 71, 80, .28);
+    pointer-events: none;
+    transition: opacity .35s ease;
+    animation: venue-pokyn 2.6s ease-in-out infinite;
+  }
+  .venue-flip-pokyn svg { display: block; width: 100%; height: 100%; }
+  /* po otočení už host ví, že karta má druhou stranu */
+  .venue-flip-pokyn.je-skryty { opacity: 0; }
+}
+@keyframes venue-pokyn {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.14); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .venue-flip-pokyn { animation: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .venue-map { transition: none; }
 }
@@ -1249,4 +1282,22 @@ footer { background: var(--ruzova-jemna); position: relative; z-index: 1; paddin
   .menu-pribor-vidlicka { right: calc(100% + 3.4rem); }
   .menu-pribor-nuz { left: calc(100% + 3.4rem); }
   .menu-pribor-lzice { left: calc(100% + 11.5rem); }
+}
+
+
+/* ---------- mobil: béžové pozadí místo střídání barev ----------
+   Musí stát až na konci souboru. Definice pozadí jednotlivých sekcí mají
+   stejnou specificitu, takže rozhoduje pořadí — dřív v souboru by je tenhle
+   přepis neporazil. Mění se výhradně pozadí; barvy nadpisů, eyebrow ani
+   tlačítek zůstávají podle sekcí, jak byly. */
+@media (max-width: 700px) {
+  .hero-full,
+  .countdown,
+  .story,
+  .location,
+  .schedule,
+  .menu,
+  .fotky-odkaz,
+  .faq,
+  footer { background: var(--bg); }
 }

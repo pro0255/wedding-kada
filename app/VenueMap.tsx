@@ -57,6 +57,17 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
   const containerRef = useRef<HTMLDivElement>(null);
   // tlačítka jsou teď pod rámečkem, mimo kartu, takže na ně otáčení nedosáhne
   const [otoceno, setOtoceno] = useState(false);
+  /* Na dotyku žádný hover nevzniká, takže by se karta nikdy neotočila a fotka
+     hotelu by byla pro většinu hostů nedostupná. Tam se proto přepíná
+     klepnutím a v rohu svítí ikonka, že se dá otočit. */
+  const [dotyk, setDotyk] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none)");
+    const nastav = () => setDotyk(mq.matches);
+    nastav();
+    mq.addEventListener("change", nastav);
+    return () => mq.removeEventListener("change", nastav);
+  }, []);
 
   useEffect(() => {
     onFlipChange?.(otoceno);
@@ -128,8 +139,9 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
     <>
       <div
         className="venue-map-scene"
-        onMouseEnter={() => setOtoceno(true)}
-        onMouseLeave={() => setOtoceno(false)}
+        onMouseEnter={dotyk ? undefined : () => setOtoceno(true)}
+        onMouseLeave={dotyk ? undefined : () => setOtoceno(false)}
+        onClick={dotyk ? () => setOtoceno((o) => !o) : undefined}
       >
         <div className={`venue-map${otoceno ? " je-otoceny" : ""}`}>
           <div className="venue-flip-front">
@@ -139,6 +151,27 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
             <img src="/fotky/rekovice.png" alt="Hotel Rekovice" className="venue-flip-photo" />
           </div>
         </div>
+        {/* Ikonka stojí mimo otáčející se kartu, aby se neodtočila pryč.
+           Vykresluje se jen na dotykových zařízeních (viz CSS) a po otočení
+           zmizí — to už host ví, že se karta dá překlopit. Ruka s ukazováčkem
+           a paprsky — stejná ikona, jakou lidi znají z „klikni sem“. */}
+        <span className={`venue-flip-pokyn${otoceno ? " je-skryty" : ""}`} aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <g fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              {/* paprsky nad špičkou ukazováčku — „klepni“ */}
+              <path d="M11.7 4.6 V1.9" />
+              <path d="M9.1 5.3 L7.4 3.1" />
+              <path d="M14.3 5.3 L16 3.1" />
+              <path d="M7.6 7.5 L4.9 6.7" />
+              <path d="M15.8 7.5 L18.5 6.7" />
+              {/* ukazováček, dva pokrčené prsty a dlaň se zápěstím */}
+              <path d="M10.2 16.4 V7.8 a1.5 1.5 0 0 1 3 0 v4.6" />
+              <path d="M13.2 12.4 a1.5 1.5 0 0 1 3 0 v0.9" />
+              <path d="M16.2 13.3 a1.5 1.5 0 0 1 3 0" />
+              <path d="M19.2 13.3 V17 a4.8 4.8 0 0 1 -4.8 4.8 h-1.7 a4.6 4.6 0 0 1 -3.2 -1.3 L6.4 17.2 a1.6 1.6 0 0 1 2.3 -2.2 l1.5 1.5" />
+            </g>
+          </svg>
+        </span>
       </div>
       <div className="venue-map-actions">
         <a href={VENUE_MAP_URL} target="_blank" rel="noopener">
