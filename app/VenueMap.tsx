@@ -76,11 +76,13 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
      štítku říká, že se dá klepnout, ale ukázat to je silnější než napsat —
      host uvidí na vlastní oči, že má mapa druhou stranu.
 
-     Běží na dotyku i na myši. S vypnutými animacemi se přeskočí. Spustí se
-     jednou za návštěvu a jakmile host sám klepne nebo najede myší, zbytek se
-     zruší — jinak by mu karta přeskočila pod rukou uprostřed jeho vlastního
-     otáčení. */
+     Jen na myši. Na dotyku ji nahrazuje štítek „Klepnutím zobrazíte hotel“,
+     který řekne totéž a nehýbe hostovi obsahem pod prstem. S vypnutými
+     animacemi se přeskočí. Spustí se jednou za návštěvu a jakmile host sám
+     najede myší, zbytek se zruší — jinak by se karta po doběhnutí časovače
+     otočila zpátky pod kurzorem, který ji zrovna drží otočenou. */
   useEffect(() => {
+    if (dotyk) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = scenaRef.current;
     if (!el) return;

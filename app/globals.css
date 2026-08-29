@@ -783,8 +783,17 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   position: absolute; inset: 0;
   border-radius: 6px; overflow: hidden;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  /* Na samotné backface-visibility spoléhat nejde: přední stranu tvoří WebGL
+     plátno mapy a to má vlastní vykreslovací vrstvu, přes kterou pravidlo
+     v řadě prohlížečů neprojde — mapa pak zůstala viditelná i po otočení
+     a teprve pak „přeblikla“ na fotku. Strany se proto ještě prohodí
+     průhledností, a to skokem v půlce otáčky (0.4s z 0.8s), kdy je karta
+     hranou k divákovi a výměnu není vidět. */
+  transition: opacity 0s linear .4s;
 }
-.venue-flip-back { transform: rotateY(180deg); }
+.venue-flip-back { transform: rotateY(180deg); opacity: 0; }
+.venue-map.je-otoceny .venue-flip-front { opacity: 0; }
+.venue-map.je-otoceny .venue-flip-back { opacity: 1; }
 .venue-flip-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* Pokyn, že se karta dá otočit. Na dotyku ruka („klepni“), na myši dvě šipky
    do kruhu („najeď a otočí se“) — každá se ukáže jen tam, kam patří. Obě
