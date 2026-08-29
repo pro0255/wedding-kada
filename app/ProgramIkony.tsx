@@ -75,20 +75,14 @@ function Bublina({
   );
 }
 
-/* Odstup ikony od konce textu v px. Většině stačí základních 8; snídaně
-   a přípitek mají víc, aby hrnek ani sklenky neseděly textu na paty.
-
-   Obě hodnoty jsou doladěné na konkrétní místo v textu nad nimi: hrnek má
-   stát pod „N“ ve slově DNE v nadpisu sekce, sklenky pod slovy „budeme
-   ukazovat“ o řádek výš. Měřeno na 1200px okně — mění se jen tehdy, když se
-   text přelomí jinak. */
-const MEZERA: Partial<Record<IkonaTyp, number>> = {
-  snidane: 58,
-  pripitek: 43,
-  dort: 68,
-  tanec: 38,
-  odpoledne: 38,
-  party: 38,
+/* Ruční doladění nad automatické srovnání. Automat vepíše každou kresbu do
+   společného rámečku, ale u pár ikon oko chce ještě něco navíc — sklenky
+   působí naducaně a k textu daleko, dort taky daleko. Posun je v jednotkách
+   viewBoxu a kladný znamená doprava, tedy blíž k nadpisu. */
+const DOLADENI: Partial<Record<IkonaTyp, { posun?: number; meritko?: number }>> = {
+  pripitek: { meritko: 0.88, posun: 7 },
+  dort: { posun: 13 },
+  tanec: { posun: -6 },
 };
 
 const IKONY: Record<IkonaTyp, React.ReactNode> = {
@@ -342,6 +336,16 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
               strokeWidth="2.6"
               strokeLinejoin="round"
             />
+            {/* Rukojeť musí být v masce taky, jinak jí při zajetí do dortu
+               prosvítají patra — vypadá to, jako by byla ze skla. Zaoblený
+               konec je navzorkovaný po čtvrtinách stejně jako ostří. */}
+            <polygon
+              points="170,40 178.5,31.5 180.4,31 182.1,32.4 183.1,34.8 182.8,37.2 175,45"
+              fill="#000"
+              stroke="#000"
+              strokeWidth="2.6"
+              strokeLinejoin="round"
+            />
           </g>
         </mask>
       </defs>
@@ -540,130 +544,136 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
   ),
 };
 
-/* Vypnutí právě hrající ikony — CSS :hover je při scrollu nespolehlivý
-   (prohlížeč ho bez pohybu myši nepřepočítá a ikony zůstávaly svítit přes
-   sebe), takže aktivaci řídí JS a hraje vždy nejvýš jedna. */
-let vypniAktivni: (() => void) | null = null;
+/* Obálka jen z prvků, které jsou v klidu opravdu vidět.
+
+   getBBox počítá i to, co má v klidové póze opacity 0 — bublinky v nápoji,
+   jiskry u přípitku, konfety u párty. U některých ikon je nejpravější právě
+   taková neviditelná tečka, takže srovnání podle getBBox posadí kresbu
+   podle něčeho, co oko nevidí, a ikona pak působí odsunutá od nadpisu.
+
+   Souřadnice se převádějí do soustavy .pi-kresba přes matice CTM; sečíst
+   getBBox potomků napřímo nejde, každý vnořený <g> má svůj vlastní posun. */
+function viditelnyBBox(kresba: SVGGElement) {
+  const zaklad = kresba.getScreenCTM();
+  if (!zaklad) return null;
+  const zpet = zaklad.inverse();
+  let x1 = Infinity;
+  let y1 = Infinity;
+  let x2 = -Infinity;
+  let y2 = -Infinity;
+
+  kresba.querySelectorAll<SVGGraphicsElement>("path,circle,rect,polygon,ellipse").forEach((el) => {
+    if (el.closest("defs")) return;
+    for (let uzel: Element | null = el; uzel && uzel !== kresba; uzel = uzel.parentElement) {
+      if (parseFloat(getComputedStyle(uzel).opacity) === 0) return;
+    }
+    const ctm = el.getScreenCTM();
+    if (!ctm) return;
+    const m = zpet.multiply(ctm);
+    const b = el.getBBox();
+    for (const [bx, by] of [
+      [b.x, b.y],
+      [b.x + b.width, b.y],
+      [b.x, b.y + b.height],
+      [b.x + b.width, b.y + b.height],
+    ]) {
+      const x = m.a * bx + m.c * by + m.e;
+      const y = m.b * bx + m.d * by + m.f;
+      if (x < x1) x1 = x;
+      if (x > x2) x2 = x;
+      if (y < y1) y1 = y;
+      if (y > y2) y2 = y;
+    }
+  });
+
+  if (!isFinite(x1) || x2 <= x1 || y2 <= y1) return null;
+  return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
+}
 
 export default function Ikona({ typ }: { typ: IkonaTyp }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hraje, setHraje] = useState(false);
 
-  /* Přisazení ikony těsně k textu jejího bodu programu.
+  /* Srovnání kresby uvnitř rámečku ikony — polohou i velikostí.
 
-     Měřit se to musí až v prohlížeči, a to dvakrát:
-     1) Kde doopravdy končí text. Nadpis i odstavec jsou bloky přes celých
-        560 px, takže jejich getBoundingClientRect() je k ničemu — skutečnou
-        šířku řádků dá až Range přes jejich obsah.
-     2) Kde uvnitř SVG začíná kresba. Každá ikona kreslí jinak široko (od
-        x=15 u tance po x=77 u přípitku), takže mezi textem a obrázkem
-        zbýval pruh prázdna dlouhý až 70 px. Posun ji přitáhne k okraji.
+     Každá ikona kreslí jinde ve svém viewBoxu a hlavně jinak velká: dort měl
+     56 jednotek na šířku, prstýnky 102. Vedle sebe pak jedna vypadala
+     poloviční a navíc přišoupnutá k nadpisu, protože jí zbývalo prázdno po
+     levé straně. Proto se každá kresba vepíše do společného rámečku.
 
-     Body programu mají různě dlouhé řádky, takže se ikony nesrovnají pod
-     sebe do jedné osy — jinak by u krátkých nadpisů („Večerní párty“)
-     zůstalo mezi textem a obrázkem skoro 500 px prázdna. */
+     Měřítko je min(šířka, výška), aby se vysoké ikony nevytáhly ven z boxu,
+     a je omezené shora — u nejužších kreseb by jinak vyšlo přes dvojnásobek
+     a linka by zhrubla i s vypnutým škálováním tahu.
+
+     Srovnává se PRAVÁ hrana, ta míří k nadpisu, takže odstup vyjde u všech
+     stejný. Levá kouká do prázdného okraje, kde na ní nezáleží.
+
+     Tah nezesílí, protože .program-ikona má vector-effect: non-scaling-stroke
+     — bez toho by zvětšené ikony měly viditelně tlustší čáru.
+
+     getBBox nepočítá vlastní transform prvku, takže je přepočet idempotentní. */
   useEffect(() => {
     const el = ref.current;
-    const event = el?.closest<HTMLElement>(".event");
+    const svg = el?.querySelector("svg");
     const kresba = el?.querySelector<SVGGElement>(".pi-kresba");
-    if (!el || !event || !kresba) return;
+    if (!el || !svg || !kresba) return;
+
+    const SIRKA = 116;
+    const VYSKA = 110;
+    const OKRAJ = 6;
+    const CIL_S = SIRKA - 2 * OKRAJ;
+    const CIL_V = VYSKA - 2 * OKRAJ;
+    const MAX_ZVETSENI = 1.55;
 
     const srovnej = () => {
-      // v úzkém rozvržení sedí ikona nad textem a napevno se neposouvá
-      if (getComputedStyle(el).position !== "absolute") {
-        el.style.left = "";
-        return;
-      }
-      // getBBox nepočítá vlastní transform elementu, takže je to idempotentní
-      const bb = kresba.getBBox();
-      if (bb.width)
-        kresba.setAttribute(
-          "transform",
-          `translate(${(6 - bb.x).toFixed(1)} 0)`,
-        );
-
-      const eb = event.getBoundingClientRect();
-      let konec = eb.left;
-      for (const dite of Array.from(event.children)) {
-        if (dite === el) continue;
-        const r = document.createRange();
-        r.selectNodeContents(dite);
-        const b = r.getBoundingClientRect();
-        if (b.width) konec = Math.max(konec, b.right);
-      }
-      el.style.left = `${Math.round(konec - eb.left + (MEZERA[typ] ?? 8))}px`;
+      // pozor: musí se počítat PŘED nastavením transformu, jinak se posun
+      // sčítá — CTM potomků totiž vlastní transform .pi-kresba už obsahuje
+      kresba.removeAttribute("transform");
+      const bb = viditelnyBBox(kresba);
+      if (!bb || !bb.width || !bb.height) return;
+      const d = DOLADENI[typ] ?? {};
+      const k =
+        Math.min(CIL_S / bb.width, CIL_V / bb.height, MAX_ZVETSENI) * (d.meritko ?? 1);
+      const px = SIRKA - OKRAJ + (d.posun ?? 0) - k * (bb.x + bb.width);
+      const py = VYSKA / 2 - k * (bb.y + bb.height / 2);
+      kresba.setAttribute(
+        "transform",
+        `translate(${px.toFixed(1)} ${py.toFixed(1)}) scale(${k.toFixed(3)})`,
+      );
+      svg.setAttribute("viewBox", `0 0 ${SIRKA} ${VYSKA}`);
     };
 
     srovnej();
-    window.addEventListener("resize", srovnej);
-    // po dopadu webfontu se řádky přelomí jinak, tak přeměříme
     document.fonts?.ready.then(srovnej).catch(() => {});
-    return () => window.removeEventListener("resize", srovnej);
+    // typ je pro danou ikonu konstantní po celou dobu jejího života, takže
+    // prázdné pole závislostí je správně — s [typ] React v dev režimu hlásí
+    // změnu velikosti pole mezi rendery
   }, []);
 
+  /* Kreslení spouští scroll, ne najetí myší ani klepnutí. Dřív se ikona
+     ukázala až po najetí na kartu — jenže kdo web jen projede, neuvidí ani
+     jednu, a na dotyku bylo potřeba klepat na každý řádek zvlášť.
+
+     S tím padla i exkluzivita „hraje vždycky nejvýš jedna“: ta dávala smysl,
+     dokud ikony visely absolutně vedle textu a mohly se překrývat. Teď mají
+     každá své místo v mřížce a viditelných je klidně několik naráz.
+
+     Observer se po prvním spuštění odpojí — ikona zůstane dokreslená. */
   useEffect(() => {
-    const el = ref.current;
-    const event = el?.closest(".event");
-    if (!el || !event) return;
+    const event = ref.current?.closest(".event");
+    if (!event) return;
 
-    let zapnuto = false;
-    const vypni = () => {
-      zapnuto = false;
-      setHraje(false);
-    };
-
-    // dotyková zařízení: ikona je sbalená a rozbalí se až klepnutím na kartu
-    // (další klepnutí, nebo klepnutí na jinou kartu, ji zase zavře)
-    if (window.matchMedia("(hover: none)").matches) {
-      const prepni = () => {
-        if (zapnuto) {
-          vypni();
-          return;
+    const io = new IntersectionObserver(
+      (zaznamy) => {
+        if (zaznamy.some((z) => z.isIntersecting)) {
+          setHraje(true);
+          io.disconnect();
         }
-        if (vypniAktivni && vypniAktivni !== vypni) vypniAktivni();
-        vypniAktivni = vypni;
-        zapnuto = true;
-        setHraje(true);
-      };
-      event.addEventListener("click", prepni);
-      return () => {
-        event.removeEventListener("click", prepni);
-        if (vypniAktivni === vypni) vypniAktivni = null;
-      };
-    }
-
-    // myš: aktivace na najetí do karty, exkluzivně
-    let mysY = -1;
-    const zapni = (e: MouseEvent) => {
-      mysY = e.clientY;
-      if (vypniAktivni && vypniAktivni !== vypni) vypniAktivni();
-      vypniAktivni = vypni;
-      setHraje(true);
-    };
-    const pohyb = (e: MouseEvent) => {
-      mysY = e.clientY;
-    };
-    const opusti = () => {
-      mysY = -1;
-      vypni();
-    };
-    // při scrollu pod kurzorem mouseleave nepřijde — ohlídáme polohu ručně
-    const scroll = () => {
-      if (mysY < 0) return;
-      const r = event.getBoundingClientRect();
-      if (mysY < r.top || mysY > r.bottom) opusti();
-    };
-    event.addEventListener("mouseenter", zapni as EventListener);
-    event.addEventListener("mousemove", pohyb as EventListener);
-    event.addEventListener("mouseleave", opusti);
-    window.addEventListener("scroll", scroll, { passive: true });
-    return () => {
-      event.removeEventListener("mouseenter", zapni as EventListener);
-      event.removeEventListener("mousemove", pohyb as EventListener);
-      event.removeEventListener("mouseleave", opusti);
-      window.removeEventListener("scroll", scroll);
-      if (vypniAktivni === vypni) vypniAktivni = null;
-    };
+      },
+      { rootMargin: "0px 0px -15% 0px" },
+    );
+    io.observe(event);
+    return () => io.disconnect();
   }, []);
 
   return (

@@ -172,6 +172,18 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
             </g>
           </svg>
         </span>
+        {/* Na myši stačí otočku naznačit dvěma šipkami do kruhu — hover ji
+           spustí sám, není na co klepat. Ikona ruky by tu byla matoucí. */}
+        <span className={`venue-flip-otocka${otoceno ? " je-skryty" : ""}`} aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <g fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 10 A7.6 7.6 0 0 1 17.5 6.6" />
+              <path d="M13.4 7.4 L17.5 6.6 L16.8 10.7" />
+              <path d="M19 14 A7.6 7.6 0 0 1 6.5 17.4" />
+              <path d="M10.6 16.6 L6.5 17.4 L7.2 13.3" />
+            </g>
+          </svg>
+        </span>
       </div>
       <div className="venue-map-actions">
         <a href={VENUE_MAP_URL} target="_blank" rel="noopener">

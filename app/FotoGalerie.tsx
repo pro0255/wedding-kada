@@ -122,6 +122,11 @@ export default function FotoGalerie() {
   const [prubeh, setPrubeh] = useState<{ hotovo: number; celkem: number; procento: number } | null>(null);
   const [hlaska, setHlaska] = useState(0);
   const [chyba, setChyba] = useState<string | null>(null);
+  /* Selhání PRVNÍHO načtení. Odděleně od chyby nahrávání a odděleně od
+     selhání průběžné obnovy: když už galerie fotky má, výpadek se přejde
+     mlčky a zobrazené fotky zůstanou. Bez tohohle stavu zůstalo fotky = null
+     napořád a host koukal na donekonečna pulzující skeletony. */
+  const [nacteniSelhalo, setNacteniSelhalo] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [nacitaVelkou, setNacitaVelkou] = useState(false);
   const device = useRef<string>("");
@@ -136,7 +141,11 @@ export default function FotoGalerie() {
   const nacti = useCallback(async () => {
     try {
       const odpoved = await fetch(`/api/fotky?device=${device.current}`);
-      if (!odpoved.ok) return;
+      if (!odpoved.ok) {
+        setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
+        return;
+      }
+      setNacteniSelhalo(false);
       const data = (await odpoved.json()) as { fotky: Fotka[] };
       // server nese pravdu o lajcích ostatních; vlastní rozjednané se přes ni přeloží
       setFotky(
@@ -151,7 +160,8 @@ export default function FotoGalerie() {
         })
       );
     } catch {
-      /* galerie zůstane, jak byla */
+      /* galerie zůstane, jak byla; hlásíme jen když ještě nic nemáme */
+      setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
     }
   }, []);
 
@@ -376,7 +386,21 @@ export default function FotoGalerie() {
         </div>
       )}
 
-      {fotky === null ? (
+      {fotky === null && nacteniSelhalo ? (
+        <div className="galerie-nenacteno">
+          <p>Galerie se teď nenačetla — nejspíš slabý signál.</p>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setNacteniSelhalo(false);
+              nacti();
+            }}
+          >
+            Zkusit znovu
+          </button>
+        </div>
+      ) : fotky === null ? (
         <div className="galerie-mrizka" aria-hidden="true">
           {Array.from({ length: 8 }, (_, i) => (
             <span key={i} className="galerie-skeleton" style={{ animationDelay: `${i * 0.12}s` }} />

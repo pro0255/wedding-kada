@@ -546,9 +546,18 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
      je. order: 1 ho posune na konec mřížky — ostatní položky mají výchozí 0. */
   .doodle-obal-srdce {
     position: static; order: 1;
-    width: 150px; margin: 1.4rem auto 0;
+    width: 150px; margin: 1.2rem auto 0;
     transform: rotate(-7deg);
   }
+  /* Pod kresbou srdce zbývá uvnitř viewBoxu ~34 px prázdna, které se počítá
+     do výšky obalu — záporný okraj ho ukousne, ať mezera pod srdcem odpovídá
+     tomu, co je vidět, ne rozměru souboru. */
+  .doodle-obal-srdce { margin-bottom: -1.6rem; }
+  /* Mezi srdcem a „Místo konání“ vycházelo 201 px, z toho 176 px dělala
+     jen sousedící odsazení obou sekcí. Na telefonu je stahuju; nad 760 px
+     zůstává původní vzdušnost, tam je na ni místo. */
+  .story { padding-bottom: 3.4rem; }
+  .location { padding-top: 3.4rem; }
 }
 
 /* schedule */
@@ -572,40 +581,65 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .event:last-child .meta,
 .event .meta:last-child { margin-bottom: 0; }
 
-/* Linkové ikony u programu — v klidu neviditelné, při najetí na kartu se
-   dokreslí v pravém okraji vedle textu a rozpohybují se. Aktivaci řídí
-   výhradně třída .hraje z JS (na myši mouseenter/leave + kontrola při
-   scrollu, na dotyku klepnutí) — CSS :hover je při scrollu nespolehlivý
-   a nechával ikony svítit přes sebe. */
+/* Linkové ikony u programu. Bod programu je dvousloupcová mřížka: vlevo
+   ikona, vpravo text. Dřív ikony visely absolutně vpravo od textu a ukázaly
+   se až po najetí myší — jenže kdo web jen projede, neuvidí ani jednu, což
+   je škoda u osmi ručně kreslených obrázků. Teď mají své místo a dokreslí
+   se samy, jakmile bod dojede do viewportu (IntersectionObserver
+   v ProgramIkony.tsx); .hraje už jen odemyká kreslení.
+
+   align-self: start drží ikonu v rovině s nadpisem — na střed celého bodu
+   by u delších popisků sklouzla až pod něj. Řádek span 10 pokryje i body,
+   které mají odstavec navíc. */
 .event { position: relative; }
-.event .program-ikona {
-  /* left je jen záloha, než se spustí JS — ten ho v ProgramIkony.tsx přepíše
-     na skutečný konec textu daného bodu, aby ikona seděla těsně u něj.
-     Řádky jsou různě dlouhé, takže ikony nestojí pod sebou v jedné ose. */
-  position: absolute; top: 50%; left: calc(100% + 1.5rem);
+/* Mřížka platí JEN pro program. Třídu .event nesou i chody ve svatebním menu
+   a ty žádnou ikonu nemají — dostaly by prázdný levý sloupec a text by se
+   jim odsunul doprava. */
+.schedule .event {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  column-gap: 1.1rem;
+}
+.schedule .event > *:not(.program-ikona) { grid-column: 2; }
+.schedule .event .program-ikona {
+  grid-column: 1; grid-row: 1 / span 10; align-self: start;
+  margin-top: -.2rem;
   /* stejná barva jako nadpis bodu programu */
   color: var(--palette-blue-text); pointer-events: none;
-  transform: translateY(-50%) scale(.94);
+  transform: scale(.94);
   transition: transform .55s cubic-bezier(.34, 1.56, .64, 1);
 }
-.event .program-ikona.hraje { transform: translateY(-50%) scale(1); }
-.program-ikona svg { display: block; width: 208px; height: auto; overflow: visible; }
-
-/* užší okna s myší: na ikonu vedle textu není místo */
-@media (hover: hover) and (max-width: 1023px) {
-  .event .program-ikona { display: none; }
-}
-/* dotyk bez místa po straně: ikona je sbalená (nezabírá místo) a rozbalí se
-   nad textem až klepnutím na kartu */
+.schedule .event .program-ikona.hraje { transform: scale(1); }
+.program-ikona svg { display: block; width: 72px; height: auto; overflow: visible; }
+/* Kresby se srovnávají do společného rámečku, tedy se různě zvětšují. Bez
+   tohohle by spolu s nimi zhrubla i linka a menší ikony by měly tlustší tah
+   než velké. */
+.program-ikona path,
+.program-ikona circle,
+.program-ikona polygon { vector-effect: non-scaling-stroke; }
+/* Dotyk bez místa po straně: ikona sedí nad textem a má své místo rovnou.
+   Dřív byla sbalená na výšku 0 a rozbalovala se klepnutím — nikdo nebude
+   klepat na osm řádků, a rozbalování během scrollu navíc posouvalo obsah
+   pod prstem. Kreslení teď spouští scroll (IntersectionObserver
+   v ProgramIkony.tsx), .hraje už jen odemyká animaci, ne výšku. */
 @media (hover: none) and (max-width: 1023px) {
-  .event .program-ikona {
-    position: relative; top: auto; left: auto; transform: none;
-    margin: 0 auto; width: 200px;
-    height: 0; overflow: hidden;
-    transition: height .45s ease;
+  /* Bod programu je dvousloupcová mřížka: vlevo ikona, vpravo text. Sloupec
+     je 72 px úzký schválně — každý pixel navíc ubírá textu a čas se pak láme
+     na dva řádky. align-self: start drží ikonu v rovině s nadpisem; na střed
+     celého bodu by u delších popisků sklouzla až pod něj. */
+  .schedule .event {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    column-gap: .75rem;
   }
-  .event .program-ikona svg { width: 200px; }
-  .event .program-ikona.hraje { transform: none; height: 104px; }
+  .schedule .event > *:not(.program-ikona) { grid-column: 2; }
+  .schedule .event .program-ikona {
+    position: relative; top: auto; left: auto; transform: none;
+    grid-column: 1; grid-row: 1 / span 10; align-self: start;
+    width: 56px; height: auto; margin: -.1rem 0 0;
+  }
+  .schedule .event .program-ikona svg { width: 56px; }
+  .schedule .event .program-ikona.hraje { transform: none; }
 }
 
 /* měkký „papírový" podklad, aby kresba četla i na květinovém dekoru */
@@ -745,9 +779,24 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 .venue-flip-back { transform: rotateY(180deg); }
 .venue-flip-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* Pokyn k otočení jen na dotykových zařízeních — na myši stačí hover a ikonka
-   by tam jen překážela. Stojí mimo rotující kartu, aby se s ní neodtočila. */
-.venue-flip-pokyn { display: none; }
+/* Pokyn, že se karta dá otočit. Na dotyku ruka („klepni“), na myši dvě šipky
+   do kruhu („najeď a otočí se“) — každá se ukáže jen tam, kam patří. Obě
+   stojí mimo rotující kartu, aby se s ní neodtočily. */
+.venue-flip-pokyn,
+.venue-flip-otocka { display: none; }
+@media (hover: hover) {
+  .venue-flip-otocka {
+    display: block; position: absolute; right: .8rem; bottom: .8rem; z-index: 2;
+    width: 36px; height: 36px; padding: 7px; border-radius: 50%;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    color: var(--palette-rose-text);
+    box-shadow: 0 2px 10px rgba(158, 71, 80, .24);
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .venue-flip-otocka svg { display: block; width: 100%; height: 100%; }
+  .venue-flip-otocka.je-skryty { opacity: 0; }
+}
 @media (hover: none) {
   .venue-flip-pokyn {
     display: block; position: absolute; right: .7rem; bottom: .7rem; z-index: 2;
@@ -1109,6 +1158,14 @@ footer { background: var(--ruzova-jemna); position: relative; z-index: 1; paddin
 .galerie-upload input { position: absolute; left: -9999px; width: 1px; height: 1px; }
 .galerie-upload-bezi { opacity: .55; pointer-events: none; }
 .galerie-chyba { margin-top: 1.1rem; font-size: .85rem; color: var(--palette-rose-text); }
+/* Hláška, když se první načtení galerie nepovede — místo skeletonů, které
+   se jinak točily donekonečna a host nepoznal, jestli se to načítá, nebo
+   je to rozbité. */
+.galerie-nenacteno { margin: 2.4rem auto 0; max-width: 32ch; text-align: center; }
+.galerie-nenacteno p { color: var(--ink-soft); font-size: .95rem; margin-bottom: 1.4rem; }
+.galerie-nenacteno .btn { border-color: var(--palette-blue-text); color: var(--palette-blue-text); }
+.galerie-nenacteno .btn:hover { background: var(--palette-blue-text); border-color: var(--palette-blue-text); color: #fff; }
+
 .galerie-prazdna { margin-top: 2.2rem; color: var(--ink-soft); font-style: italic; font-size: .95rem; }
 
 .galerie-filtr { margin-top: 1.8rem; display: flex; justify-content: center; gap: 1.6rem; }
@@ -1300,4 +1357,10 @@ footer { background: var(--ruzova-jemna); position: relative; z-index: 1; paddin
   .fotky-odkaz,
   .faq,
   footer { background: var(--bg); }
+  /* .galerie tu schválně není: na /fotky ji přebíjí .galerie-stranka .galerie
+     s vyšší specificitou, takže tam modrý přechod nikdy nebyl a prosvítá
+     béžové tělo stránky. */
+  /* Rozcestník na fotky je před svatbou krátký (bez tlačítka), a plné
+     odsazení pod ním dělalo prázdnou plochu skoro na půl obrazovky. */
+  .fotky-odkaz { padding-top: 3.4rem; padding-bottom: 3.4rem; }
 }
