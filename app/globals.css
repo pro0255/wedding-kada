@@ -2,7 +2,11 @@
   --bg: #f5f2ec;
   --bg-alt: #ece7de;
   --ink: #2b2925;
-  --ink-soft: #6d675e;
+  /* O odstín tmavší, než býval (#6d675e). Podklad se ztmavil na --bg-alt,
+     aby vynikl světlý pruh středem, a tím kontrast tlumeného textu spadl na
+     4,54 při hranici 4,5 — čtyři setiny rezervy. Tenhle odstín vrací 5,28
+     a je to barva většiny odstavců na webu. */
+  --ink-soft: #635d55;
   --dark: #1c1a17;
   --dark-ink: #efeae1;
   --accent: #9a8158;
@@ -335,6 +339,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   --kv-tile: 640px;
   /* síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu */
   --kv-zavoj: .36;
+  /* barva závoje jako složky RGB, aby šla přebarvit bez přepisu celého
+     background — ten drží i posun vrstev, který schovává svislé švy */
+  --kv-zavoj-rgb: 245, 242, 236;
   /* Pevná výška místo bottom: 0 — dekor tak nemění geometrii, když obsah
      roste (rozbalené FAQ), a prohlížeč ho nepřekresluje každý frame animace.
      Přesah ořízne overflow: hidden na .obsah-ramec. */
@@ -369,7 +376,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   content: ""; position: absolute; inset: 0;
   /* béžový závoj drží květiny v pozadí; sílu ladí --kv-zavoj výš */
   background:
-    linear-gradient(rgba(245, 242, 236, var(--kv-zavoj)), rgba(245, 242, 236, var(--kv-zavoj))),
+    linear-gradient(rgba(var(--kv-zavoj-rgb), var(--kv-zavoj)), rgba(var(--kv-zavoj-rgb), var(--kv-zavoj))),
     url("/fotky/kvetiny-2-blur.jpg") repeat-y center top / 100% var(--kv-tile);
   /* Blur a saturaci má fotka zapečené v sobě (viz kvetiny-2-blur.jpg).
      CSS filter tady dřív nutil prohlížeč překreslovat rozostření přes celou
@@ -399,11 +406,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   /* translateZ(0) = vlastní kompozitní vrstva, stejný důvod jako u květin */
   transform: translateX(-50%) translateZ(0);
   pointer-events: none;
+  /* Pruh zůstává jemný; vidět je proto, že okolí je ztmavené na --bg-alt,
+     ne proto, že by byl sám bělejší. Rozdíl proti podkladu vyjde kolem
+     patnácti hodnot na kanál. */
   background: linear-gradient(to right,
     transparent 0,
     rgba(250, 248, 243, .55) 8%,
-    rgba(250, 248, 243, .88) 18%,
-    rgba(250, 248, 243, .88) 82%,
+    rgba(250, 248, 243, .92) 18%,
+    rgba(250, 248, 243, .92) 82%,
     rgba(250, 248, 243, .55) 92%,
     transparent 100%);
   /* nahoře doznívá, ať pod hero nevznikne vodorovná hrana; dolů jde až na konec
@@ -422,10 +432,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    Místo nich je celá stránka béžová se světlým pruhem středem, stejně jako
    ho má desktop nad květinami. Barevné střídání sekcí se tím na mobilu ruší;
    barvy nadpisů, eyebrow ani tlačítek se nemění, ty zůstávají podle sekcí. */
-@media (max-width: 700px) {
-  .kvetiny { display: none; }
-  .stred-pruh { display: block; }
-}
+/* skrytí květin na mobilu řeší blok na konci souboru */
 /* obsah sekcí drží nad rámečkem i horami */
 .reveal { position: relative; z-index: 1; }
 
@@ -1342,24 +1349,45 @@ footer { background: var(--ruzova-jemna); position: relative; z-index: 1; paddin
 }
 
 
-/* ---------- mobil: béžové pozadí místo střídání barev ----------
-   Musí stát až na konci souboru. Definice pozadí jednotlivých sekcí mají
-   stejnou specificitu, takže rozhoduje pořadí — dřív v souboru by je tenhle
-   přepis neporazil. Mění se výhradně pozadí; barvy nadpisů, eyebrow ani
-   tlačítek zůstávají podle sekcí, jak byly. */
+/* ---------- ztmavené pozadí se světlým pruhem středem ----------
+   Sekce nemají každá svou barvu, ale společnou tmavší béžovou (--bg-alt);
+   světlý pruh středem tím dostane od čeho se odrazit. Boční květiny
+   zůstávají.
+
+   Smazáním tohohle bloku se střídání růžové a modré vrátí — je pořád
+   definované výš v souboru, tohle ho jen přebíjí. Musí stát na konci:
+   definice pozadí sekcí mají stejnou specificitu, takže rozhoduje pořadí.
+
+   Mění se výhradně pozadí. Barvy nadpisů, eyebrow ani tlačítek zůstávají
+   podle sekcí, jak byly. */
+body,
+.loader,
+.hero-full,
+.countdown,
+.story,
+.location,
+.schedule,
+.menu,
+.fotky-odkaz,
+.faq,
+footer { background: var(--bg-alt); }
+/* Boční pruhy s květinami jsou KRYCÍ (aby jimi neprosvítalo pozadí sekcí),
+   takže musí ztmavnout taky — jinak by z tmavšího podkladu svítily jako dvě
+   světlé záplaty. Závoj přebarvuje jen proměnná: přepsat u obou vrstev celý
+   background nejde, shodilo by to posun druhé vrstvy o půl dlaždice a odhalily
+   by se svislé švy. */
+.kvetiny-pas { background: var(--bg-alt); }
+.kvetiny { --kv-zavoj-rgb: 236, 231, 222; }
+/* .galerie tu schválně není: na /fotky ji přebíjí .galerie-stranka .galerie
+   s vyšší specificitou, takže tam modrý přechod nikdy nebyl a prosvítá
+   béžové tělo stránky. */
+
 @media (max-width: 700px) {
-  .hero-full,
-  .countdown,
-  .story,
-  .location,
-  .schedule,
-  .menu,
-  .fotky-odkaz,
-  .faq,
-  footer { background: var(--bg); }
-  /* .galerie tu schválně není: na /fotky ji přebíjí .galerie-stranka .galerie
-     s vyšší specificitou, takže tam modrý přechod nikdy nebyl a prosvítá
-     béžové tělo stránky. */
+  /* Na telefonu květiny zůstávají skryté: pruh je tam ~128 px široký
+     a dlaždice se svisle opakuje po 300 px, takže na 8500 px dlouhé stránce
+     vyšla ta samá fotka skoro třicetkrát pod sebou a četlo se to jako
+     laciná tapeta, ne jako fotografie. */
+  .kvetiny { display: none; }
   /* Rozcestník na fotky je před svatbou krátký (bez tlačítka), a plné
      odsazení pod ním dělalo prázdnou plochu skoro na půl obrazovky. */
   .fotky-odkaz { padding-top: 3.4rem; padding-bottom: 3.4rem; }

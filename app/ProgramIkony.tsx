@@ -82,7 +82,7 @@ function Bublina({
 const DOLADENI: Partial<Record<IkonaTyp, { posun?: number; meritko?: number }>> = {
   pripitek: { meritko: 0.88, posun: 7 },
   dort: { posun: 13 },
-  tanec: { posun: -6 },
+  tanec: { posun: -12 },
 };
 
 const IKONY: Record<IkonaTyp, React.ReactNode> = {
