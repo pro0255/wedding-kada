@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Map as MaplibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { VENUE_COORDS as VENUE, VENUE_MAP_URL, VENUE_NAV_URL } from "./venue";
@@ -53,8 +53,14 @@ const VLASTNOST: Record<string, string> = {
   "fill-extrusion": "fill-extrusion-color",
 };
 
-export default function VenueMap() {
+export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: boolean) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // tlačítka jsou teď pod rámečkem, mimo kartu, takže na ně otáčení nedosáhne
+  const [otoceno, setOtoceno] = useState(false);
+
+  useEffect(() => {
+    onFlipChange?.(otoceno);
+  }, [otoceno, onFlipChange]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -115,10 +121,25 @@ export default function VenueMap() {
     };
   }, []);
 
-  // statický náhled (kde to je) + dvě akce: zobrazit detail / navigovat
+  // statický náhled (kde to je) + dvě akce pod ním: zobrazit detail / navigovat.
+  // Při najetí myší se karta otočí a odhalí Hotel Rekovice, kde se koná
+  // samotný obřad.
   return (
-    <div className="venue-map">
-      <div ref={containerRef} style={{ width: "100%", height: "100%", pointerEvents: "none" }} />
+    <>
+      <div
+        className="venue-map-scene"
+        onMouseEnter={() => setOtoceno(true)}
+        onMouseLeave={() => setOtoceno(false)}
+      >
+        <div className={`venue-map${otoceno ? " je-otoceny" : ""}`}>
+          <div className="venue-flip-front">
+            <div ref={containerRef} style={{ width: "100%", height: "100%", pointerEvents: "none" }} />
+          </div>
+          <div className="venue-flip-back">
+            <img src="/fotky/rekovice.png" alt="Hotel Rekovice" className="venue-flip-photo" />
+          </div>
+        </div>
+      </div>
       <div className="venue-map-actions">
         <a href={VENUE_MAP_URL} target="_blank" rel="noopener">
           Zobrazit v mapách
@@ -127,6 +148,6 @@ export default function VenueMap() {
           Navigovat
         </a>
       </div>
-    </div>
+    </>
   );
 }

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
-  loading: () => <div className="venue-map venue-map-loading" />,
+  loading: () => <div className="venue-map-scene venue-map-loading" />,
 });
 
 import Ring3D from "./Ring3D";
@@ -368,6 +368,7 @@ export default function Home() {
   // loading → done (loader pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
   const [quote, setQuote] = useState<string | null>(null);
+  const [mapaOtocena, setMapaOtocena] = useState(false);
   // po doznění fade-outu loader úplně odmountujeme — jinak by three.js
   // prsten (requestAnimationFrame + WebGL) běžel skrytý celou návštěvu
   const [loaderGone, setLoaderGone] = useState(false);
@@ -517,8 +518,15 @@ export default function Home() {
         <Reveal className="wrap">
           <p className="eyebrow">Kde se to stane</p>
           <h2>Místo konání</h2>
-          <p className="lead">Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm</p>
-          <VenueMap />
+          <p className="lead venue-address">
+            <span className={`venue-address-main${mapaOtocena ? " je-schovany" : ""}`}>
+              Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm
+            </span>
+            <span className={`venue-address-alt${mapaOtocena ? " je-videt" : ""}`} aria-hidden="true">
+              Hotel Rekovice
+            </span>
+          </p>
+          <VenueMap onFlipChange={setMapaOtocena} />
           <Ubytovani />
         </Reveal>
       </section>
