@@ -76,11 +76,11 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
      štítku říká, že se dá klepnout, ale ukázat to je silnější než napsat —
      host uvidí na vlastní oči, že má mapa druhou stranu.
 
-     Jen na dotyku: na myši stačí najet a stane se to samo. S vypnutými
-     animacemi se ukázka přeskočí. Spustí se jednou za návštěvu a když host
-     mezitím klepne sám, zbytek se zruší, ať mu karta nepřeskočí pod prstem. */
+     Běží na dotyku i na myši. S vypnutými animacemi se přeskočí. Spustí se
+     jednou za návštěvu a jakmile host sám klepne nebo najede myší, zbytek se
+     zruší — jinak by mu karta přeskočila pod rukou uprostřed jeho vlastního
+     otáčení. */
   useEffect(() => {
-    if (!dotyk) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = scenaRef.current;
     if (!el) return;
@@ -181,7 +181,14 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
       <div
         ref={scenaRef}
         className="venue-map-scene"
-        onMouseEnter={dotyk ? undefined : () => setOtoceno(true)}
+        onMouseEnter={
+          dotyk
+            ? undefined
+            : () => {
+                zasahHosta.current = true;
+                setOtoceno(true);
+              }
+        }
         onMouseLeave={dotyk ? undefined : () => setOtoceno(false)}
         onClick={
           dotyk
