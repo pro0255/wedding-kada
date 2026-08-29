@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
 
@@ -13,7 +13,37 @@ type Stav = { obsazeno: number; celkem: number; volno: number };
    na spodní hraně karoserie (y = 30) a spodkem přesahují pod ni, takže po
    lince opravdu jedou, ne aby se vznášela.
 
-   Pohyb i mlhu na koncích řídí .auto-drah v globals.css. */
+   Pohyb i mlhu na koncích řídí .auto-drah v globals.css. Animace stojí,
+   dokud linka nedojede do viewportu — jinak auto běží na volnoběh od načtení
+   stránky a host, který k mapě doscrolluje později, chytne zrovna tu část
+   cyklu, kdy je auto pryč, a čeká i patnáct vteřin. */
+function AutoDrah({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // Sleduje se okolní blok, ne samotná dráha: ta je absolutní a nulově
+    // vysoká, a takový cíl IntersectionObserver spolehlivě nehlásí.
+    const cil = el.closest(".ubytovani") ?? el;
+    const io = new IntersectionObserver(
+      (zaznamy) => {
+        if (zaznamy.some((z) => z.isIntersecting)) {
+          el.classList.add("jede");
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    io.observe(cil);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <span ref={ref} className="auto-drah" aria-hidden="true">
+      {children}
+    </span>
+  );
+}
+
 function AutoNaLince() {
   const T = {
     fill: "none",
@@ -23,7 +53,7 @@ function AutoNaLince() {
     strokeLinejoin: "round" as const,
   };
   return (
-    <span className="auto-drah" aria-hidden="true">
+    <AutoDrah>
       <svg viewBox="0 0 72 36" focusable="false">
         {/* karoserie jedním tahem: zaoblená záď, střecha, čelní sklo, kapota */}
         <path
@@ -42,7 +72,7 @@ function AutoNaLince() {
         <circle {...T} cx="55" cy="30" r="4.6" />
         <circle {...T} cx="55" cy="30" r="1.5" />
       </svg>
-    </span>
+    </AutoDrah>
   );
 }
 

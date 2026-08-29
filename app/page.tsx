@@ -13,9 +13,8 @@ import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
 import Link from "next/link";
 import Ikona from "./ProgramIkony";
-import { SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
+import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
 
-const ENVELOPE_KEY = "kj-envelope-opened";
 
 // hlášky z Pána prstenů, lehce svatebně upravené
 /* V hlášce jsou mezi částmi data nezlomitelné mezery (U+00A0, v editoru
@@ -29,12 +28,13 @@ const LOTR_QUOTES = [
 
 /* Majáky Gondoru na hřebenech panoramatu: [x, y, zpoždění v s]. Souřadnice
    jsou skutečné vrcholy hory.svg (lokální minima jeho polyline), ne odhad —
-   plamínek musí stát na hřebeni, ne vedle něj. Rozhořívají se zleva doprava.
+   plamínek musí stát na hřebeni, ne vedle něj. Rozhořívají se zleva doprava a všechny leží mezi x≈300 a x≈1100, aby
+   přežily i oříznutí panoramatu na telefonu.
    Nejvyšší vrchol (760, 111) je schválně vynechaný — stojí na něm zvonička. */
 const MAJAKY: [number, number, number][] = [
-  [115, 153, 0.6],
+  [325, 138, 0.6],
   [525, 157, 1.5],
-  [1275, 150, 2.4],
+  [1065, 170, 2.4],
 ];
 
 // TODO: skutečné datum svatby
@@ -267,6 +267,14 @@ const PRIBEH_FOTKY = [
   { src: "/fotky/11.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/16.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/20.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/21.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/22.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/23.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/24.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/25.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/26.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/27.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/28.jpeg", alt: "Kateřina a Jakub" },
 ];
 
 // jak leží jednotlivé fotky na hromádce (0 = úplně navrchu)
@@ -335,9 +343,10 @@ function FotoHromadka() {
         <SipkaKlikni />
       </span>
       {/* popisky patří ke konkrétním fotkám a ukážou se jen když jsou navrchu:
-          „zásnuby na Troskách“ k první, „první společná fotka“ k zimní druhé */}
+          „zásnuby na Troskách“ k první, „první společná fotka“ k zimní druhé,
+          „první Chorvatsko jako rodina“ k fotce z krčského přístavu */}
       <AnimatePresence>
-        {(aktivni === 0 || aktivni === 1) && (
+        {(aktivni === 0 || aktivni === 1 || aktivni === 8) && (
           <motion.span
             key={aktivni}
             className="doodle-obal doodle-obal-zasnuby"
@@ -347,7 +356,7 @@ function FotoHromadka() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35 }}
           >
-            {aktivni === 0 ? <SipkaZasnuby /> : <SipkaPrvniFotka />}
+            {aktivni === 0 ? <SipkaZasnuby /> : aktivni === 1 ? <SipkaPrvniFotka /> : <SipkaChorvatsko />}
           </motion.span>
         )}
       </AnimatePresence>
@@ -356,10 +365,8 @@ function FotoHromadka() {
 }
 
 export default function Home() {
-  // loading → closed → opening (běží animace) → done (overlay pryč)
-  const [stage, setStage] = useState<"loading" | "closed" | "opening" | "done">("loading");
-  // obálka se mountne jen při první návštěvě — žádné bliknutí při opakované
-  const [envelopeActive, setEnvelopeActive] = useState(false);
+  // loading → done (loader pryč, web odemčený)
+  const [stage, setStage] = useState<"loading" | "done">("loading");
   const [quote, setQuote] = useState<string | null>(null);
   // po doznění fade-outu loader úplně odmountujeme — jinak by three.js
   // prsten (requestAnimationFrame + WebGL) běžel skrytý celou návštěvu
@@ -376,31 +383,19 @@ export default function Home() {
      tak počká, dokud host sám nechce dál. */
   const vstup = () => {
     if (stage !== "loading") return;
-    if (localStorage.getItem(ENVELOPE_KEY)) {
-      setStage("done");
-    } else {
-      setEnvelopeActive(true);
-      setStage("closed");
-    }
+    setStage("done");
     // 1s = rezerva na .9s opacity transition loaderu; teprve pak ho
     // odmountujeme, jinak by three.js prsten běžel skrytý celou návštěvu
     setTimeout(() => setLoaderGone(true), 1000);
   };
 
-  // dokud je obálka na obrazovce, stránka pod ní nescrolluje
+  // dokud je na obrazovce loader, stránka pod ním nescrolluje
   useEffect(() => {
     document.body.style.overflow = stage === "done" ? "" : "hidden";
     return () => {
       document.body.style.overflow = "";
     };
   }, [stage]);
-
-  const openEnvelope = () => {
-    if (stage !== "closed") return;
-    setStage("opening");
-    localStorage.setItem(ENVELOPE_KEY, "1");
-    setTimeout(() => setStage("done"), 3200);
-  };
 
   return (
     <>
@@ -472,41 +467,6 @@ export default function Home() {
           {quote && <p className="loader-quote">{quote}</p>}
           <p className="loader-vyzva">Klepněte na prsten</p>
         </div>
-      )}
-
-      {/* intro obálka — jen při první návštěvě */}
-      {envelopeActive && (
-      <div
-        className={`envelope ${stage !== "closed" ? "opening" : ""} ${stage === "done" ? "open" : ""}`}
-        onClick={openEnvelope}
-        aria-label="Otevřít pozvánku"
-      >
-        <div className="env-names">
-          Kateřina <span style={{ fontSize: ".6em" }}>&amp;</span> Jakub
-        </div>
-
-        <div className="env-scene">
-          <div className="env3d">
-            <div className="env-shadow" />
-            <div className="env-back" />
-            <div className="env-card">
-              <div className="env-card-inner">
-                <div className="env-card-mono">K &amp; J</div>
-                <div className="env-card-date">18 · 09 · 2027</div>
-                <div className="env-card-note">Zveme vás na naši svatbu</div>
-              </div>
-            </div>
-            <div className="env-pocket" />
-            <div className="env-flap">
-              <div className="env-flap-face env-flap-front" />
-              <div className="env-flap-face env-flap-inside" />
-              <div className="wax">K·J</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="env-hint">Klepnutím otevřete pozvánku</div>
-      </div>
       )}
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}

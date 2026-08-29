@@ -73,6 +73,20 @@ export function SipkaPrvniFotka() {
   );
 }
 
+/* „první Chorvatsko jako rodina“ + stejná šipka jako u předchozích dvou —
+   patří k fotce z krčského přístavu se synkem v náručí. */
+export function SipkaChorvatsko() {
+  return (
+    <svg className="story-doodle doodle-chorvatsko" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
+      <text {...PISMO} x="14" y="40" fontSize="30">první Chorvatsko</text>
+      <text {...PISMO} x="14" y="82" fontSize="30">jako rodina</text>
+      <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
+      <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
+      <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
+    </svg>
+  );
+}
+
 /* srdce probodnuté šípem, uvnitř iniciály a datum zásnub.
    Dřevec je rozdělený na dva kusy — vlevo z něj vyčnívá hrot, vpravo opeřený
    konec; prostředek „schovaný uvnitř“ se nekreslí, aby čára nešla přes srdce.
