@@ -356,7 +356,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
        verze 2  kvetiny-motyl-bez.jpg     600 × 2048   poměr 3.413
        verze 3  kvetiny-posledni-bez.jpg  800 × 2048   poměr 2.56
 
-     (verze 1 = původní rozmazané fotky, ta se nedělala přes tuhle proměnnou) */
+     Verze 1 byly rozmazané fotky (kvetiny-1.jpg, kvetiny-2.jpg). Nešly přes
+     tuhle proměnnou a soubory jsou smazané, protože se na telefonu rozpadaly
+     do barevného šumu — kdyby se pro ně někdo vracel, jsou v historii. */
   --kv-obrazek: url("/fotky/kvetiny-motyl-bez.jpg");
   --kv-tile: calc(var(--kv-sirka) * 3.413);
   /* ====================================================================== */
