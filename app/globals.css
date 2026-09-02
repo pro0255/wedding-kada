@@ -1073,7 +1073,67 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   .menu-masle { width: 116px; height: 80px; top: -38px; }
 }
 
-footer { background: var(--ruzova-jemna); position: relative; z-index: 1; padding: 4rem 1.5rem; text-align: center; color: var(--ink-soft); font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; }
+/* Patička. Dřív to byla jedna řádka písma o velikosti 11 px, kde měla jména,
+   rok i vzkaz stejnou váhu — četlo se to jako drobný tisk, ne jako rozloučení.
+   Teď má tři úrovně a nahoře kreslenou snítku, která stránku uzavře. */
+footer {
+  position: relative; z-index: 1;
+  /* těsné odsazení — výšku patičky nese samo kolečko, nemá smysl kolem něj
+     nechávat další prázdno */
+  padding: 1.2rem 1.5rem 1.6rem; text-align: center; color: var(--ink-soft);
+}
+/* Medailonek s fotkou zvoničky uvnitř. Stránka končí tím, čím začala.
+   Rozměr je v min(), aby se kolečko vešlo i na úzký telefon. */
+.paticka-kolecko {
+  width: min(272px, 76vw); aspect-ratio: 1; border-radius: 50%;
+  margin: 0 auto; padding: 1.4rem;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border: 1.5px solid var(--palette-rose);
+  /* Fotka zvoničky uvnitř kolečka, pod silným béžovým závojem — pod textem
+     má jen prosvítat, jinak by se jména na fotografii ztratila. */
+  background:
+    linear-gradient(rgba(236, 231, 222, .88), rgba(236, 231, 222, .88)),
+    url("/fotky/kaplicka.png") center / cover no-repeat;
+  box-shadow: 0 10px 30px rgba(158, 71, 80, .14);
+}
+/* uvnitř kolečka je míň místa, tak je typografie o stupeň drobnější */
+.paticka-kolecko .paticka-jmena { font-size: clamp(1.1rem, 3.4vw, 1.3rem); margin-bottom: .4rem; }
+.paticka-kolecko .paticka-datum { font-size: .8rem; margin-bottom: .8rem; }
+.paticka-kolecko .paticka-vzkaz { font-size: .62rem; }
+.paticka-kolecko .paticka-kytka { margin-bottom: .8rem; }
+/* Datum a vzkaz tmavší než jinde na webu. Nad tmavými místy fotky měl tlumený
+   odstín kontrast 3,51 při hranici 4,5 — tenhle dává 5,84. */
+.paticka-kolecko .paticka-datum,
+.paticka-kolecko .paticka-vzkaz { color: #4f4941; }
+
+/* Snítka položená bokem. Otáčí se samotné svg, ne obal — obal proto drží
+   rozměr AŽ PO otočení (86 × 46), jinak by po sobě nechal svislou díru
+   vysokou 86 px, protože transform rozvržení nemění. */
+.paticka-kytka {
+  display: block; position: relative;
+  width: 86px; height: 46px; margin: 0 auto 1.5rem;
+  color: var(--palette-rose-text); opacity: .55; line-height: 0;
+}
+.paticka-kytka svg {
+  display: block; position: absolute; left: 50%; top: 50%;
+  width: 46px; height: auto; overflow: visible;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.paticka-jmena {
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: clamp(1.35rem, 4vw, 1.75rem); letter-spacing: .1em;
+  color: var(--ink); margin-bottom: .7rem;
+}
+.paticka-datum {
+  font-family: var(--serif), Georgia, serif;
+  font-size: .95rem; letter-spacing: .26em; color: var(--ink-soft);
+  margin-bottom: 1.4rem;
+}
+.paticka-vzkaz {
+  font-size: .68rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
 
 /* reveal on scroll */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease, filter .8s ease; }

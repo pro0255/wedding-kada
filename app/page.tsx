@@ -13,6 +13,7 @@ import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
 import Link from "next/link";
 import Ikona from "./ProgramIkony";
+import { SnitkaKvet } from "./Kytky";
 import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
 
 
@@ -400,9 +401,18 @@ export default function Home() {
 
   return (
     <>
-      {/* loading — zlatý prsten + hláška, mezitím se rozhodne obálka vs. web */}
+      {/* Úvodní obrazovka: zlatý prsten a hláška.
+
+         Klepnout jde kamkoli, nejen na prsten — kdo netrefí kroužek o 170 px,
+         zůstal by na úvodní obrazovce stát a dál se nedostal. Tlačítko pod
+         prstenem zůstává kvůli klávesnici a čtečkám; jeho klepnutí probublá
+         na obal, ale vstup() druhé volání ignoruje. */}
       {!loaderGone && (
-        <div className={`loader ${stage !== "loading" ? "loader-hide" : ""}`} aria-hidden={stage !== "loading"}>
+        <div
+          className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
+          aria-hidden={stage !== "loading"}
+          onClick={vstup}
+        >
           {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
              druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
              kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
@@ -466,7 +476,7 @@ export default function Home() {
             <Ring3D />
           </button>
           {quote && <p className="loader-quote">{quote}</p>}
-          <p className="loader-vyzva">Klepněte na prsten</p>
+          <p className="loader-vyzva">Klepněte</p>
         </div>
       )}
 
@@ -689,7 +699,16 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <footer>Kateřina &amp; Jakub · 2027 · Těšíme se na vás</footer>
+      <footer>
+        {/* Medailonek: fotka kapličky z hera pod béžovým závojem, růžová linka
+           po obvodu a uvnitř rozloučení. Uzavírá stránku tím, čím začala. */}
+        <div className="paticka-kolecko">
+          <SnitkaKvet className="paticka-kytka" />
+          <p className="paticka-jmena">Kateřina &amp; Jakub</p>
+          <p className="paticka-datum">18 · 09 · 2027</p>
+          <p className="paticka-vzkaz">Těšíme se na vás</p>
+        </div>
+      </footer>
 
         {/* až za sekcemi, aby ležely nad jejich pozadím (obsah má z-index 1, zůstává navrchu) */}
         <span className="kvetiny" aria-hidden="true">
