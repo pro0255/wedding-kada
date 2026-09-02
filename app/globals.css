@@ -335,10 +335,36 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    barevná pozadí, ale pod obsah (.reveal má z-index 1).
    Pořadí vrstev: květiny → světlý pruh → obsah. */
 .kvetiny {
-  /* výška jedné dlaždice fotky; na ní stojí i perioda masky níž */
-  --kv-tile: 640px;
-  /* síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu */
-  --kv-zavoj: .36;
+  /* Šířka pruhu a z ní dopočítaná výška jedné dlaždice. Poměr 3.413 je
+     převrácený poměr stran podkladu (600 × 2048), takže se obrázek nikde
+     nedeformuje — s pevnou výškou 640px byl vodorovně natažený o 41 % a
+     kresba se rozpíjela. Na výšce dlaždice stojí i perioda masky níž,
+     proto je to jedna proměnná pro obojí. Když se podklad vymění, musí se
+     poměr přepočítat, jinak se kresba roztáhne.
+
+     Podklad kvetiny-motyl-bez.jpg vznikl z kvetiny-motyl.png (1152 × 2048):
+     za 46 % šířky byl původní obrázek úplně prázdný, takže je oříznutý na
+     600px. Pak je kresba nasycená na 1.4 a teprve potom je papír pronásobený
+     barvou --bg-alt — v tomhle pořadí, protože saturace nechá bílou bílou,
+     takže se prázdná plocha pořád trefí přesně na pozadí stránky. Obráceně by
+     se nasytila i béžová a po stranách by vznikl barevný pruh. Barevnost samotné
+     kresby to zvedlo o 25 %, velikost souboru srazilo z 1227 kB na 177 kB. */
+  /* ==== VÝMĚNA PODKLADU: mění se jen tyhle dva řádky ====================
+     Poměr je vždy výška ÷ šířka oříznutého souboru. Když nesedí, kresba se
+     roztáhne — nehádat, přeměřit.
+
+       verze 2  kvetiny-motyl-bez.jpg     600 × 2048   poměr 3.413
+       verze 3  kvetiny-posledni-bez.jpg  800 × 2048   poměr 2.56
+
+     (verze 1 = původní rozmazané fotky, ta se nedělala přes tuhle proměnnou) */
+  --kv-obrazek: url("/fotky/kvetiny-motyl-bez.jpg");
+  --kv-tile: calc(var(--kv-sirka) * 3.413);
+  /* ====================================================================== */
+  --kv-sirka: clamp(175px, 27vw, 400px);
+  /* Síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu.
+     Nula proto, že béžová je teď zapečená přímo v podkladu; páčka zůstává
+     pro případ, že by kresba potřebovala ještě ztlumit. */
+  --kv-zavoj: 0;
   /* barva závoje jako složky RGB, aby šla přebarvit bez přepisu celého
      background — ten drží i posun vrstev, který schovává svislé švy */
   --kv-zavoj-rgb: 245, 242, 236;
@@ -355,30 +381,43 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .kvetiny-pas {
   position: absolute; top: -6%; bottom: -6%;
   /* široké pruhy — květiny mají zabrat celou boční plochu, ne jen lem */
-  width: clamp(210px, 44vw, 700px);
+  width: var(--kv-sirka);
   /* Pruh je záměrně KRYCÍ. Kdyby byl průsvitný, prosvítalo by skrz něj
      střídání pozadí sekcí a předěly by řezaly vodorovnou čáru přes květiny.
      Sílu květin proto řídí --kv-zavoj, ne opacity. */
   background: var(--bg);
-  /* vodorovné doznění ke středu */
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 62%, transparent 100%);
-          mask-image: linear-gradient(to right, #000 0, #000 62%, transparent 100%);
+  /* Vodorovné doznění ke středu — zlom až v 94 %, ne v 62 %. Dřív se pruh
+     vytrácel skoro od poloviny své šířky a větve s motýly zůstávaly schované
+     u kraje obrazovky. Čitelnost textu hlídá světlý pruh středem, ne tohle. */
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 94%, transparent 100%);
+          mask-image: linear-gradient(to right, #000 0, #000 94%, transparent 100%);
 }
-.kvetiny-l { left: -6%; }
-/* zrcadlení, ať pravá strana není zjevná kopie levé */
-.kvetiny-r { right: -6%; transform: scaleX(-1); }
+.kvetiny-l { left: 0; }
+/* Převrácení, ať pravá strana není zjevná kopie levé — jenže samotné
+   převrácení dělá dokonalou osovou souměrnost, a to je na pohled to nejmíň
+   přirozené, co může být: na každé výškové úrovni sedí vlevo i vpravo tentýž
+   květ. Svislý posun o 0.37 dlaždice tu symetrii rozbije. Zlomek je schválně
+   nesoudělný s 0.5, kterou používají vrstvy ::before / ::after — kdyby byl
+   půlkový, strany by se srovnaly o dlaždici níž a bylo by to nastejno.
+   Posun se vejde do přesahu top/bottom -6 %, takže dole nevznikne díra. */
+.kvetiny-r { right: 0; transform: scaleX(-1) translateY(calc(var(--kv-tile) * -.37)); }
 
 /* Dvě totožné vrstvy fotky posunuté o půl dlaždice. Maska každé z nich doznívá
    přesně tam, kde má ta vrstva šev — šev tak padne do místa, kde je druhá vrstva
-   plně krycí, a svislé opakování není při malém rozostření vidět. */
+   plně krycí, a svislé opakování není při malém rozostření vidět.
+
+   Prolínací pás je záměrně úzký (6 % / 94 %, ne 25 % / 75 %). Při čtvrtinovém
+   doznívání byla každá kopie obrázku plná jen ve své prostřední polovině a
+   horní i dolní část kresby se nikdy neukázala celá. Takhle je z každé dlaždice
+   vidět celá květina a měkký přechod si vezme jen pár procent u okraje. */
 .kvetiny-pas::before,
 .kvetiny-pas::after {
   content: ""; position: absolute; inset: 0;
   /* béžový závoj drží květiny v pozadí; sílu ladí --kv-zavoj výš */
   background:
     linear-gradient(rgba(var(--kv-zavoj-rgb), var(--kv-zavoj)), rgba(var(--kv-zavoj-rgb), var(--kv-zavoj))),
-    url("/fotky/kvetiny-2-blur.jpg") repeat-y center top / 100% var(--kv-tile);
-  /* Blur a saturaci má fotka zapečené v sobě (viz kvetiny-2-blur.jpg).
+    var(--kv-obrazek) repeat-y center top / 100% var(--kv-tile);
+  /* Blur a saturaci má fotka zapečené v sobě (viz kvetiny-motyl.png).
      CSS filter tady dřív nutil prohlížeč překreslovat rozostření přes celou
      výšku stránky při každé změně layoutu (např. rozbalení FAQ) a web se sekal. */
   /* vlastní kompozitní vrstva — bez ní se květiny překreslují s každým
@@ -386,13 +425,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   transform: translateZ(0);
 }
 .kvetiny-pas::before {
-  -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .25), #000 calc(var(--kv-tile) * .75), transparent var(--kv-tile));
-          mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .25), #000 calc(var(--kv-tile) * .75), transparent var(--kv-tile));
+  -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .06), #000 calc(var(--kv-tile) * .94), transparent var(--kv-tile));
+          mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .06), #000 calc(var(--kv-tile) * .94), transparent var(--kv-tile));
 }
 .kvetiny-pas::after {
   background-position: center calc(var(--kv-tile) / 2);
-  -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .25), #000 calc(var(--kv-tile) * .75), transparent var(--kv-tile));
-          mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .25), #000 calc(var(--kv-tile) * .75), transparent var(--kv-tile));
+  -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .06), #000 calc(var(--kv-tile) * .94), transparent var(--kv-tile));
+          mask-image: repeating-linear-gradient(to bottom, transparent 0, #000 calc(var(--kv-tile) * .06), #000 calc(var(--kv-tile) * .94), transparent var(--kv-tile));
   -webkit-mask-position: 0 calc(var(--kv-tile) / 2);
           mask-position: 0 calc(var(--kv-tile) / 2);
 }
