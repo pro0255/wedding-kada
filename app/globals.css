@@ -450,12 +450,16 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   /* Pruh zůstává jemný; vidět je proto, že okolí je ztmavené na --bg-alt,
      ne proto, že by byl sám bělejší. Rozdíl proti podkladu vyjde kolem
      patnácti hodnot na kanál. */
+  /* Okraje doznívají dlouze (do 36 % šířky, ne do 18 %) — s krátkým
+     náběhem pruh vypadal jako ostře ohraničený bílý pás položený na béžové. */
   background: linear-gradient(to right,
     transparent 0,
-    rgba(250, 248, 243, .55) 8%,
-    rgba(250, 248, 243, .92) 18%,
-    rgba(250, 248, 243, .92) 82%,
-    rgba(250, 248, 243, .55) 92%,
+    rgba(250, 248, 243, .18) 10%,
+    rgba(250, 248, 243, .55) 22%,
+    rgba(250, 248, 243, .92) 36%,
+    rgba(250, 248, 243, .92) 64%,
+    rgba(250, 248, 243, .55) 78%,
+    rgba(250, 248, 243, .18) 90%,
     transparent 100%);
   /* nahoře doznívá, ať pod hero nevznikne vodorovná hrana; dolů jde až na konec
      (v px, ne v % — procenta by se přepočítávala s každou změnou výšky) */
@@ -910,15 +914,123 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   display: flex; justify-content: center; gap: .6rem; flex-wrap: wrap;
   margin: 1.2rem auto 0; max-width: 720px;
 }
-.venue-map-actions a {
+.venue-map-actions > a,
+.akce-tlacitko {
+  display: inline-flex; align-items: center; gap: .55rem;
   background: var(--ruzova-jemna); color: var(--palette-rose-text);
   border: 1px solid var(--palette-rose-text);
-  padding: .8rem 1.6rem; font-size: .64rem;
-  letter-spacing: .28em; text-transform: uppercase;
-  text-decoration: none; transition: .3s; white-space: nowrap;
+  padding: .8rem 1.6rem; font-size: .64rem; font-family: inherit; font-weight: inherit;
+  letter-spacing: .28em; text-transform: uppercase; line-height: 1.2;
+  text-decoration: none; transition: .3s; white-space: nowrap; cursor: pointer;
 }
-.venue-map-actions a.primary { background: var(--palette-rose-text); color: var(--ruzova-jemna); }
-.venue-map-actions a:hover { background: var(--ruzova-syta); border-color: var(--ruzova-syta); color: #fff; }
+.venue-map-actions > a.primary,
+.akce-tlacitko.primary { background: var(--palette-rose-text); color: var(--ruzova-jemna); }
+.venue-map-actions > a:hover,
+.akce-tlacitko:hover,
+.vyber.je-otevreny .akce-tlacitko { background: var(--ruzova-syta); border-color: var(--ruzova-syta); color: #fff; }
+.akce-tlacitko:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ——— akce pro hosty (kalendář, navigace, kopírování, sdílení) ———
+   Řádek s tlačítky pod obsahem sekce. */
+.akce-radek { display: flex; justify-content: center; gap: .6rem; flex-wrap: wrap; margin-top: 2.2rem; }
+
+/* Možnosti se rozbalí NA MÍSTĚ jako řádek drobných odkazů pod tlačítkem —
+   žádné vyskakovací okno, které by leželo přes doodly vedlejší sekce. */
+.vyber { display: inline-flex; flex-direction: column; align-items: center; }
+.vyber-sipka {
+  width: .42em; height: .42em; margin-top: -.15em;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg); transition: transform .3s;
+}
+.vyber.je-otevreny .vyber-sipka { transform: rotate(225deg); margin-top: .15em; }
+/* Obal drží animovanou výšku (px z JS), seznam uvnitř se jen rozjasní. */
+.vyber-obal {
+  overflow: hidden; width: 100%;
+  transition: height .45s cubic-bezier(.2, .7, .2, 1);
+}
+.vyber-menu {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .2rem 1.6rem;
+  margin: 0; padding: 1rem 0 .2rem; list-style: none;
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity .35s ease .1s, transform .45s cubic-bezier(.2, .7, .2, 1);
+}
+.vyber.je-otevreny .vyber-menu { opacity: 1; transform: none; }
+.vyber-menu a {
+  display: inline-block; padding: .3rem 0; color: var(--ink-soft); text-decoration: none;
+  font-size: .82rem; letter-spacing: .04em; white-space: nowrap; transition: color .25s, border-color .25s;
+  border-bottom: 1px solid transparent;
+}
+.vyber-menu a:hover, .vyber-menu a:focus-visible { color: var(--palette-rose-text); border-bottom-color: currentColor; outline: none; }
+/* pod mapou je menu součástí řádku tlačítek — přeteče na vlastní řádek pod oba */
+.venue-map-actions .vyber { display: contents; }
+.venue-map-actions .vyber-obal { flex-basis: 100%; }
+.venue-map-actions .vyber-menu { padding-top: .6rem; }
+
+@media (max-width: 520px) {
+  /* na telefonu možnosti pod sebe — čtyři odkazy vedle sebe by se lámaly nahodile */
+  .vyber-menu { flex-direction: column; align-items: center; gap: .15rem; }
+  .vyber-menu a { padding: .45rem 0; font-size: .9rem; }
+  .akce-odkaz { font-size: .6rem; letter-spacing: .2em; }
+}
+
+/* Kopírovací tlačítko — nenápadné, textové s ikonkou; po kliknutí se ikona
+   změní na fajfku a popisek na potvrzení. */
+.kopirovat {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit;
+  font-size: .66rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft);
+  transition: color .3s;
+}
+.kopirovat svg { width: 1.05rem; height: 1.05rem; flex: none; }
+.kopirovat:hover { color: var(--ink); }
+.kopirovat.je-hotovo { color: var(--palette-sage-text); }
+.venue-kopirovat { margin-top: .9rem; color: var(--palette-rose-text); }
+.venue-kopirovat:hover { color: var(--ruzova-syta); }
+/* sdílení bez Web Share API — kopírování ve vzhledu tichého odkazu */
+.kopirovat.akce-odkaz { color: var(--palette-rose-text); }
+.kopirovat.akce-odkaz.je-hotovo { color: var(--palette-sage-text); }
+
+.ubytovani-hotel { margin-top: .9rem; font-size: .68rem; letter-spacing: .24em; text-transform: uppercase; }
+.ubytovani-hotel a { color: var(--palette-rose-text); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--palette-rose-text) 45%, transparent); padding-bottom: .2rem; transition: .3s; }
+.ubytovani-hotel a:hover { color: var(--ruzova-syta); border-bottom-color: var(--ruzova-syta); }
+
+/* Kontakty v FAQ: jméno vlevo, telefon a WhatsApp vpravo. */
+.faq-kontakty { list-style: none; margin: 1.1rem 0 0; padding: 0; max-width: 54ch; }
+.faq-kontakty li {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+  padding: .75rem 0; border-top: 1px solid rgba(0, 0, 0, .08);
+}
+.faq-kontakt-jmeno { color: var(--ink); font-size: .95rem; }
+.faq-kontakt-jmeno small { display: block; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); margin-top: .15rem; }
+.faq-kontakt-odkazy { display: flex; gap: 1.1rem; font-size: .84rem; }
+.faq-kontakt-odkazy a { color: var(--palette-rose-text); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--palette-rose-text) 40%, transparent); white-space: nowrap; transition: .3s; }
+.faq-kontakt-odkazy a:hover { color: var(--ruzova-syta); border-bottom-color: var(--ruzova-syta); }
+
+/* Odkazová varianta menu (pod odpočtem): žádný rámeček, jen kreslený
+   kalendářík, drobný text a linka, která se na hover dokreslí. Má být tichá —
+   odpočet je hlavní, tohle je poznámka pod ním. */
+.akce-odkaz {
+  display: inline-flex; align-items: center; gap: .65rem;
+  background: none; border: 0; padding: .2rem 0 .45rem; cursor: pointer;
+  font-family: inherit; font-size: .66rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--palette-rose-text); position: relative; transition: color .3s;
+}
+.akce-odkaz::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: currentColor; opacity: .35; transform: scaleX(.35); transform-origin: center;
+  transition: transform .45s cubic-bezier(.2, .7, .2, 1), opacity .3s;
+}
+.akce-odkaz:hover, .vyber.je-otevreny .akce-odkaz { color: var(--ruzova-syta); }
+.akce-odkaz:hover::after, .vyber.je-otevreny .akce-odkaz::after { transform: scaleX(1); opacity: .7; }
+.akce-odkaz:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.akce-odkaz svg { width: 1.35rem; height: 1.35rem; flex: none; }
+/* srdíčko v kalendáříku se při najetí zbarví */
+.akce-odkaz .kal-srdce { fill: transparent; transition: fill .4s; }
+.akce-odkaz:hover .kal-srdce, .vyber.je-otevreny .akce-odkaz .kal-srdce { fill: var(--palette-blush); }
+.countdown .akce-radek { margin-top: 1.7rem; }
+
+/* sdílení pod medailonkem v patičce */
+.paticka-sdilet { margin-top: 1.6rem; }
 .venue-map .maplibregl-map { background: var(--ruzova-jemna); }
 /* Žádný filtr — barvy si mapa nastavuje sama v VenueMap.tsx (googlovská
    paleta se šalvějovou zelení). Dřív tu byl grayscale, který ji odbarvil. */
@@ -1121,7 +1233,11 @@ footer {
   position: relative; z-index: 1;
   /* těsné odsazení — výšku patičky nese samo kolečko, nemá smysl kolem něj
      nechávat další prázdno */
-  padding: 1.2rem 1.5rem 1.6rem; text-align: center; color: var(--ink-soft);
+  padding: 1.6rem 1.5rem 2rem; text-align: center; color: var(--ink-soft);
+  /* Bez pozadí. Patička leží NAD dekorem (z-index 1) a s krycí béžovou řezala
+     přes květiny i střední pruh vodorovnou hranu — takhle jdou obě vrstvy
+     až na úplný konec stránky a kolečko sedí na nich. */
+  background: none;
 }
 /* Medailonek s fotkou zvoničky uvnitř. Stránka končí tím, čím začala.
    Rozměr je v min(), aby se kolečko vešlo i na úzký telefon. */
@@ -1488,8 +1604,8 @@ body,
 .schedule,
 .menu,
 .fotky-odkaz,
-.faq,
-footer { background: var(--bg-alt); }
+.faq { background: var(--bg-alt); }
+/* footer tu schválně není — je průhledný, dekor jde až na konec stránky */
 /* Boční pruhy s květinami jsou KRYCÍ (aby jimi neprosvítalo pozadí sekcí),
    takže musí ztmavnout taky — jinak by z tmavšího podkladu svítily jako dvě
    světlé záplaty. Závoj přebarvuje jen proměnná: přepsat u obou vrstev celý

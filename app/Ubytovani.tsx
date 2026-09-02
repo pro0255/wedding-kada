@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { VENUE_WEB_URL } from "./venue";
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
 
@@ -159,6 +160,9 @@ export default function Ubytovani() {
         <strong>1&nbsp;150&nbsp;Kč za osobu, se snídaní</strong>. Kapacita je
         omezená, místa přidělujeme postupně podle toho, jak se hlásíte. Dejte nám
         vědět, kolik vás přijede.
+      </p>
+      <p className="ubytovani-hotel">
+        <a href={VENUE_WEB_URL} target="_blank" rel="noopener">Web hotelu Rekovice</a>
       </p>
 
       {stav && (

@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Map as MaplibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { VENUE_COORDS as VENUE, VENUE_MAP_URL, VENUE_NAV_URL } from "./venue";
+import { VENUE_COORDS as VENUE, VENUE_MAP_URL } from "./venue";
+import { Navigace } from "./Akce";
 
 // Turbopack rozbije cestu k maplibre workeru (import.meta.url míří do chunku),
 // worker se tiše nespustí a mapa zůstane prázdná. Proto kopie workeru
@@ -248,9 +249,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
         <a href={VENUE_MAP_URL} target="_blank" rel="noopener">
           Zobrazit v mapách
         </a>
-        <a href={VENUE_NAV_URL} target="_blank" rel="noopener" className="primary">
-          Navigovat
-        </a>
+        <Navigace />
       </div>
     </>
   );

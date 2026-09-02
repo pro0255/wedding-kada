@@ -14,6 +14,9 @@ import Ubytovani from "./Ubytovani";
 import Link from "next/link";
 import Ikona from "./ProgramIkony";
 import { SnitkaKvet } from "./Kytky";
+import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
+import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
+import { VENUE_ADDRESS } from "./venue";
 import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
 
 
@@ -142,7 +145,7 @@ function usePoSvatbe() {
 type Barva = { nazev: string; hex: string };
 
 /* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama. */
-const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
+const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }[] = [
   {
     q: "Je na svatbě nějaký dresscode?",
     a: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost — hlavně ať vám je v tom, co si vezmete, dobře.",
@@ -169,6 +172,11 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
     a: "Na svatbě bude vyvěšený QR kód. Načtete ho foťákem v telefonu a otevře se stránka, kam nahrajete, co jste během dne nafotili — fotky i videa. Nemusíte nic instalovat ani se nikam přihlašovat.\n\nVšechno se sejde na jednom místě, kde si to všichni můžou prohlédnout, dát tomu srdíčko nebo si to stáhnout. Když něco nahrajete omylem, můžete to sami smazat.\n\nJen prosíme: během obřadu telefony do kapsy, fotíme až po jeho skončení. Stejnou galerii pak najdete i tady na webu, takže se k ní vrátíte, i když už QR kód po ruce mít nebudete.",
   },
   {
+    q: "Na koho se obrátit v den svatby?",
+    a: "Novomanželé budou mít telefon nejspíš někde v kabelce nebo v saku. Když se ztratíte, zpozdíte nebo budete cokoli potřebovat, volejte nebo pište svědkům:",
+    kontakty: KONTAKTY,
+  },
+  {
     q: "Co si přejete za dar?",
     a: "Nejradši bychom místo věcí, které stejně brzy skončí v šuplíku, přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A pokud byste přece jen chtěli něco přinést, mysleli jsme na naše chlupaté kamarády: místo kytice nebo lahve rádi odvezeme granule, deky nebo hračky do jednoho ze dvou útulků, se kterými jsme domluveni.",
   },
@@ -176,7 +184,7 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[] }[] = [
 
 /* Jeden dotaz. Výšku odpovědi měříme a nastavujeme v px — do `auto` se plynule
    animovat nedá, tak ji po každém přepnutí změříme z obsahu. */
-function Dotaz({ q, a, barvy }: { q: string; a: string; barvy?: Barva[] }) {
+function Dotaz({ q, a, barvy, kontakty }: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }) {
   const [otevreno, setOtevreno] = useState(false);
   const [vyska, setVyska] = useState(0);
   const obsah = useRef<HTMLDivElement>(null);
@@ -208,6 +216,23 @@ function Dotaz({ q, a, barvy }: { q: string; a: string; barvy?: Barva[] }) {
           {a.split("\n\n").map((odstavec, i) => (
             <p key={i}>{odstavec}</p>
           ))}
+          {kontakty && (
+            <ul className="faq-kontakty">
+              {kontakty.map((k) => (
+                <li key={k.jmeno}>
+                  <span className="faq-kontakt-jmeno">
+                    {k.jmeno} <small>{k.role}</small>
+                  </span>
+                  <span className="faq-kontakt-odkazy">
+                    <a href={`tel:${k.tel}`}>{formatTel(k.tel)}</a>
+                    <a href={`https://wa.me/${k.tel.replace("+", "")}`} target="_blank" rel="noopener">
+                      WhatsApp
+                    </a>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           {barvy && (
             <ul className="faq-barvy">
               {barvy.map((b) => (
@@ -253,6 +278,10 @@ function Odpocet() {
             <b>{left ? pad(left.s) : "–"}</b>
             <span>vteřin</span>
           </div>
+        </div>
+        {/* ať si datum nemusí nikdo přepisovat ručně */}
+        <div className="akce-radek">
+          <PridatDoKalendare />
         </div>
       </Reveal>
     </section>
@@ -536,6 +565,8 @@ export default function Home() {
               Hotel Rekovice
             </span>
           </p>
+          {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
+          <Kopirovat className="venue-kopirovat" text={VENUE_ADDRESS} popisek="Kopírovat adresu" />
           <VenueMap onFlipChange={setMapaOtocena} />
           <Ubytovani />
         </Reveal>
@@ -693,8 +724,8 @@ export default function Home() {
           <p className="lead">Klepnutím na otázku se rozbalí odpověď.</p>
         </Reveal>
         <Reveal className="faq-list">
-          {DOTAZY.map(({ q, a, barvy }) => (
-            <Dotaz key={q} q={q} a={a} barvy={barvy} />
+          {DOTAZY.map(({ q, a, barvy, kontakty }) => (
+            <Dotaz key={q} q={q} a={a} barvy={barvy} kontakty={kontakty} />
           ))}
         </Reveal>
       </section>
@@ -707,6 +738,9 @@ export default function Home() {
           <p className="paticka-jmena">Kateřina &amp; Jakub</p>
           <p className="paticka-datum">18 · 09 · 2027</p>
           <p className="paticka-vzkaz">Těšíme se na vás</p>
+        </div>
+        <div className="akce-radek paticka-sdilet">
+          <SdiletWeb />
         </div>
       </footer>
 
