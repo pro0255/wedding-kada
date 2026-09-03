@@ -344,25 +344,57 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 
      Podklad kvetiny-motyl-bez.jpg vznikl z kvetiny-motyl.png (1152 × 2048):
      za 46 % šířky byl původní obrázek úplně prázdný, takže je oříznutý na
-     600px. Pak je kresba nasycená na 1.4 a teprve potom je papír pronásobený
-     barvou --bg-alt — v tomhle pořadí, protože saturace nechá bílou bílou,
-     takže se prázdná plocha pořád trefí přesně na pozadí stránky. Obráceně by
-     se nasytila i béžová a po stranách by vznikl barevný pruh. Barevnost samotné
-     kresby to zvedlo o 25 %, velikost souboru srazilo z 1227 kB na 177 kB. */
+     600px. Pak je kresba nasycená a teprve potom je papír obarvený na --bg-alt
+     — v tomhle pořadí, protože saturace nechá bílou bílou, takže se prázdná
+     plocha trefí přesně na pozadí stránky. Obráceně by se nasytila i béžová
+     a po stranách by vznikl barevný pruh.
+
+     Obarvení papíru NENÍ prosté pronásobení béžovou. To ztlumí i světla, celý
+     obrázek zežloutne a vypadá jako vybledlá pohlednice — fyzikálně správně,
+     opticky mrtvě. Multiplikátor je proto pro každý pixel jiný: papír (nulová
+     kresba) se násobí béžovou naplno, plná kresba jen ze 40 %, mezi tím se to
+     lineárně prolne podle toho, kolik barvy na pixelu je. Pozadí tak sedí
+     přesně na --bg-alt a květiny si drží vlastní jas. U girlandy to zvedlo
+     barevnost kresby z 36.9 na 50.7 a jas ze 181 na 187. */
   /* ==== VÝMĚNA PODKLADU: mění se jen tyhle dva řádky ====================
      Poměr je vždy výška ÷ šířka oříznutého souboru. Když nesedí, kresba se
      roztáhne — nehádat, přeměřit.
 
-       verze 2  kvetiny-motyl-bez.jpg     600 × 2048   poměr 3.413
-       verze 3  kvetiny-posledni-bez.jpg  800 × 2048   poměr 2.56
+       hlavní   kvetiny-motyl-bez.jpg     600 × 2048   poměr 3.413
+       verze 1  kvetiny-louka-bez.jpg     520 ×  800   poměr 1.538
+       na zkoušku kvetiny-girlanda-bez.jpg 700 × 1635   poměr 2.336
+       odložené kvetiny-posledni-bez.jpg  800 × 2048   poměr 2.56
 
-     Verze 1 byly rozmazané fotky (kvetiny-1.jpg, kvetiny-2.jpg). Nešly přes
-     tuhle proměnnou a soubory jsou smazané, protože se na telefonu rozpadaly
-     do barevného šumu — kdyby se pro ně někdo vracel, jsou v historii. */
+     Úplně první pokus byly rozmazané fotky (kvetiny-1.jpg, kvetiny-2.jpg).
+     Nešly přes tuhle proměnnou a soubory jsou smazané, protože se na telefonu
+     rozpadaly do barevného šumu — kdyby se pro ně někdo vracel, jsou v historii.
+
+     Pozor na to, kolik má předloha materiálu ve SVISLÉM směru pruhu. Motýli
+     i pivoňky byly původně svislé pásy, takže mají 2048 px původní kresby
+     tam, kde se pruh táhne, a opakují se po celé výšce stránky jen sedmkrát.
+     Naproti tomu "pozadi mozna.png" je horní bordura: po otočení do svislice
+     jí zbylo jen asi 1150 px vlastního materiálu, což je skoro čtverec.
+     Zkoušel se z toho udělat pruh přes svislé zrcadlo — šev sice zmizel, ale
+     každý květ se v zrcadle potkal sám se sebou a dělal symetrické patvary.
+     Takový podklad se na svislý pruh nehodí a jiná úprava to nespraví; leda
+     ho použít vodorovně, jak byl navržený. Výsledek je smazaný, zdroj zůstal
+     jako "pozadi mozna.png".
+
+     Verze 1 je stock náhled, který měl šachovnici průhlednosti zapečenou
+     v pixelech (čtverce 27.5 px, odstíny 238 a 255). Ta se dá dopočítat
+     z mřížky a odečíst; navíc je to spodní bordura, takže je otočená o 90°
+     doprava, aby zem stála na okraji obrazovky a květiny mířily dovnitř.
+     Pozor, ten podklad je nízký (800 px), takže se svisle opakuje asi
+     dvakrát častěji než dvojka. */
   --kv-obrazek: url("/fotky/kvetiny-motyl-bez.jpg");
   --kv-tile: calc(var(--kv-sirka) * 3.413);
   /* ====================================================================== */
-  --kv-sirka: clamp(175px, 27vw, 400px);
+  /* Šířka pruhu není odhad v jednotkách vw, ale to, co po stranách reálně
+     zbyde vedle textového sloupce. Ten je široký 640px a je na střed, takže
+     volno na jedné straně je (100vw - 640px) / 2; odečtených 60px navíc drží
+     odstup, aby se kresba textu ani nedotkla. S pevným 27vw pruh v 1280px
+     zasahoval 33px do nadpisů a v širším okně by odstup zase zbytečně rostl. */
+  --kv-sirka: clamp(40px, calc((100vw - 820px) / 2), 400px);
   /* Síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu.
      Nula proto, že béžová je teď zapečená přímo v podkladu; páčka zůstává
      pro případ, že by kresba potřebovala ještě ztlumit. */
@@ -1626,4 +1658,98 @@ body,
   /* Rozcestník na fotky je před svatbou krátký (bez tlačítka), a plné
      odsazení pod ním dělalo prázdnou plochu skoro na půl obrazovky. */
   .fotky-odkaz { padding-top: 3.4rem; padding-bottom: 3.4rem; }
+}
+
+/* ---------- poletující motýli nad květinovými pruhy ---------- */
+/* Vyříznutí z podkladu a jeho vymazání dělá scripts/pruh-kvetin.mjs.
+   Poloha se váže na --kv-sirka, tedy na skutečnou šířku pruhu — v jednotkách
+   vw by nad 1600px odletěli doprostřed stránky, protože pruh se tam zastaví. */
+.motyl {
+  position: absolute;
+  top: var(--motyl-vyska);
+  width: var(--motyl-sirka);
+  line-height: 0;
+  will-change: transform;
+  animation: motyl-let var(--motyl-doba) ease-in-out var(--motyl-zpozdeni) infinite;
+}
+/* obal pro křídla, aby absolutně posazená pravá půlka měla k čemu se vztáhnout */
+.motyl { display: block; }
+.motyl-l { left: calc(var(--kv-sirka) * var(--motyl-odsazeni)); }
+.motyl-r { right: calc(var(--kv-sirka) * var(--motyl-odsazeni)); }
+
+/* Mávání.
+
+   Předloha NENÍ motýl shora, ale ze tří čtvrtin: tělo běží šikmo asi 30° od
+   svislice, jedno křídlo je blíž a větší, druhé menší vzadu. Dvě souměrné
+   poloviny, které by šlo sklápět zvlášť, tam prostě nejsou — dělení obrázku
+   v půlce otáčelo náhodné kusy kolem místa, kde tělo vůbec neleží (naměřeno:
+   nejhustší sloupec sedí na 24-44 % šířky, ne na 50 %).
+
+   Proto se otáčí celý motýl kolem osy vlastního těla. Rotace je 3D
+   s perspektivou, takže se křídla skutečně zvedají nad rovinu a zkracují se
+   tím, jak se od diváka odklánějí. Ploché zúžení tenhle dojem nedá, oko to
+   čte jako naklánění.
+
+   Zdvih končí na 62°, ne na 90° — kolmo postavené křídlo je nekonečně tenké
+   a při třiceti pixelech na okamžik zmizí, což vypadá jako blikání. */
+.motyl-kridlo {
+  display: block; width: 100%; height: auto;
+  backface-visibility: hidden;
+  transform-origin: 42% 46%;   /* těžiště těla, průměr přes všech šest předloh */
+  animation: motyl-kridlo var(--motyl-tempo) cubic-bezier(.4, 0, .7, 1) infinite alternate;
+  /* Fáze mávnutí, ne zpoždění letu. Dřív tu bylo --motyl-zpozdeni s hodnotami
+     až 9 s: bez fill-mode motýl do vypršení zpoždění nemával vůbec, takže po
+     otevření stránky většina z nich několik vteřin nehybně visela. */
+  animation-delay: var(--motyl-faze);
+}
+
+
+
+@keyframes motyl-let {
+  0%   { transform: translate(0, 0) rotate(calc(var(--motyl-uhel) - 5deg)) scaleX(var(--motyl-zrcadlo)); }
+  25%  { transform: translate(var(--x1), var(--y1)) rotate(calc(var(--motyl-uhel) + 4deg)) scaleX(var(--motyl-zrcadlo)); }
+  50%  { transform: translate(var(--x2), var(--y2)) rotate(calc(var(--motyl-uhel) - 2deg)) scaleX(var(--motyl-zrcadlo)); }
+  75%  { transform: translate(var(--x3), var(--y3)) rotate(calc(var(--motyl-uhel) + 6deg)) scaleX(var(--motyl-zrcadlo)); }
+  100% { transform: translate(0, 0) rotate(calc(var(--motyl-uhel) - 5deg)) scaleX(var(--motyl-zrcadlo)); }
+}
+/* Osa (0.5, -0.87) je směr těla, tedy 30° od svislice — tak leží na všech
+   šesti předlohách. Zdvih nese motýla o pár pixelů výš, jako doopravdy. */
+/* Perspektiva 120px a zdvih 80° jsou naměřená kombinace, ne odhad. Silueta
+   se při mávnutí mění o 34 % šířky, ale výška naroste jen o 19 % — motýl tedy
+   mává a nenafukuje se. Ostřejší perspektiva 46px dala sice 40 % šířky, ale
+   taky 74 % nárůstu výšky a vypadalo to, jako by se přibližoval. */
+@keyframes motyl-kridlo {
+  from { transform: translateY(3px) perspective(120px) rotate3d(.5, -.87, 0, -26deg); }
+  to   { transform: translateY(-4px) perspective(120px) rotate3d(.5, -.87, 0, 80deg); }
+}
+
+/* Kdo si vypnul animace, dostane motýly stojící na místě — ne zmizelé. */
+@media (prefers-reduced-motion: reduce) {
+  .motyl, .motyl-kridlo { animation: none; }
+}
+
+/* ---------- obrázek vedle odpovědi v dotazech ---------- */
+/* Odpověď se rozdělí na text a obrázek vedle sebe. Obrázek se natáhne přes
+   celou výšku textu — je tedy přesně tak vysoký, kolik má odpověď řádků,
+   a při zúžení okna se přizpůsobí sám. Leží uvnitř .faq-odpoved, takže se
+   odkrývá tou samou animací výšky jako text. */
+.faq-odpoved-s-obrazkem { display: flex; align-items: stretch; gap: 1.6rem; }
+.faq-odpoved-s-obrazkem .faq-text { flex: 1 1 auto; min-width: 0; }
+
+/* Strop šířky je nutný. Obrázek se natahuje na výšku textu a bez stropu si
+   vezme, kolik mu vyjde z poměru stran — naměřeno 500 px, textu zbyl proužek
+   114 px a odpověď se lámala do 22 řádků. */
+.faq-obrazek {
+  flex: 0 0 auto; align-self: stretch;
+  display: flex; align-items: center; justify-content: center;
+  max-width: min(200px, 30%);
+}
+.faq-obrazek img { height: 100%; width: 100%; object-fit: contain; }
+
+/* Na telefonu se dva sloupce nevejdou, pejsek jde pod text a dostane pevnou
+   výšku — natažení podle textu tam ztrácí smysl. */
+@media (max-width: 700px) {
+  .faq-odpoved-s-obrazkem { flex-direction: column; gap: 1rem; }
+  .faq-obrazek { align-self: center; max-width: 150px; }
+  .faq-obrazek img { height: 130px; }
 }

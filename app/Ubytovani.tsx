@@ -157,7 +157,7 @@ export default function Ubytovani() {
       <h3>Ubytování</h3>
       <p className="lead">
         Máme pro vás zamluvená lůžka přímo v místě konání —{" "}
-        <strong>1&nbsp;150&nbsp;Kč za osobu, se snídaní</strong>. Kapacita je
+        <strong>1&nbsp;150&nbsp;Kč za osobu se snídaní</strong>. Kapacita je
         omezená, místa přidělujeme postupně podle toho, jak se hlásíte. Dejte nám
         vědět, kolik vás přijede.
       </p>

@@ -21,7 +21,7 @@ export function GET(req: Request) {
     `DTEND:${utc(SVATBA_END)}`,
     `SUMMARY:${esc(SVATBA_NAZEV)}`,
     `LOCATION:${esc(VENUE_ADDRESS)}`,
-    `DESCRIPTION:${esc(`Obřad ve 12:00 u Zvoničky v Rekovicích. Program a podrobnosti: ${web}`)}`,
+    `DESCRIPTION:${esc(`Obřad ve 12:00 u zvoničky v Rekovicích. Program a podrobnosti: ${web}`)}`,
     `URL:${web}`,
     "BEGIN:VALARM",
     "TRIGGER:-P1D",

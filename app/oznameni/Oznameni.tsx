@@ -14,7 +14,7 @@ const T = {
   zenich: "Jakub",
   datum: "18. září 2027",
   cas: "ve 12 hodin",
-  misto: "u Zvoničky v Rekovicích",
+  misto: "u zvoničky v Rekovicích",
 };
 
 export default function Oznameni() {

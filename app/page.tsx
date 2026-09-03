@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
+import Motyli from "./Motyli";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
@@ -26,7 +27,7 @@ import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceInici
    „18.“ a „09.“ na dva řádky. */
 const LOTR_QUOTES = [
   "Jeden prsten vládne všem. Od 18. 09. 2027 budou dva.",
-  "You shall not pass!… teda, bez pozvánky.",
+  "You shall not pass!… teda bez pozvánky.",
   "Ani Frodo nenesl nic tak vzácného, jako jsou tyhle prstýnky.",
 ];
 
@@ -145,7 +146,7 @@ function usePoSvatbe() {
 type Barva = { nazev: string; hex: string };
 
 /* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama. */
-const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }[] = [
+const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obrazek?: string }[] = [
   {
     q: "Je na svatbě nějaký dresscode?",
     a: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost — hlavně ať vám je v tom, co si vezmete, dobře.",
@@ -165,7 +166,7 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }[] 
   },
   {
     q: "Můžeme vzít děti?",
-    a: "S vašimi dětmi počítáme a vzít je samozřejmě můžete. Asi si ale všichni — vy i vaše děti — večer užijeme víc, pokud je necháte na pár hodin u prarodičů nebo příbuzných. Pokud se nakonec rozhodnete je nevzít, dejte nám prosím vědět.",
+    a: "Děti jsou vítané a počítáme s nimi. Ať už je vezmete s sebou, nebo je necháte na pár hodin u babičky, dejte nám prosím vědět — ať víme, kolik nás u stolu bude.",
   },
   {
     q: "Jak to bude s fotkami od hostů?",
@@ -173,18 +174,19 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }[] 
   },
   {
     q: "Na koho se obrátit v den svatby?",
-    a: "Novomanželé budou mít telefon nejspíš někde v kabelce nebo v saku. Když se ztratíte, zpozdíte nebo budete cokoli potřebovat, volejte nebo pište svědkům:",
+    a: "Telefony budeme mít nejspíš někde v kabelce nebo v saku. Když se ztratíte, zpozdíte nebo budete cokoli potřebovat, volejte nebo pište svědkům:",
     kontakty: KONTAKTY,
   },
   {
     q: "Co si přejete za dar?",
+    obrazek: "/fotky/pluto-kytice.png",
     a: "Nejradši bychom místo věcí, které stejně brzy skončí v šuplíku, přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A pokud byste přece jen chtěli něco přinést, mysleli jsme na naše chlupaté kamarády: místo kytice nebo lahve rádi odvezeme granule, deky nebo hračky do jednoho ze dvou útulků, se kterými jsme domluveni.",
   },
 ];
 
 /* Jeden dotaz. Výšku odpovědi měříme a nastavujeme v px — do `auto` se plynule
    animovat nedá, tak ji po každém přepnutí změříme z obsahu. */
-function Dotaz({ q, a, barvy, kontakty }: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[] }) {
+function Dotaz({ q, a, barvy, kontakty, obrazek }: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obrazek?: string }) {
   const [otevreno, setOtevreno] = useState(false);
   const [vyska, setVyska] = useState(0);
   const obsah = useRef<HTMLDivElement>(null);
@@ -210,7 +212,8 @@ function Dotaz({ q, a, barvy, kontakty }: { q: string; a: string; barvy?: Barva[
         <span className="faq-znak" aria-hidden="true" />
       </button>
       <div className="faq-obal" style={{ height: vyska }}>
-        <div className="faq-odpoved" ref={obsah}>
+        <div className={`faq-odpoved ${obrazek ? "faq-odpoved-s-obrazkem" : ""}`} ref={obsah}>
+          <div className="faq-text">
           {/* Delší odpovědi se dají v textu rozdělit prázdným řádkem a vysází
              se jako samostatné odstavce — jeden dlouhý blok se čte hůř. */}
           {a.split("\n\n").map((odstavec, i) => (
@@ -243,6 +246,14 @@ function Dotaz({ q, a, barvy, kontakty }: { q: string; a: string; barvy?: Barva[
                 </li>
               ))}
             </ul>
+          )}
+          </div>
+          {/* Obrázek leží uvnitř .faq-odpoved, takže se odkrývá tou samou
+             animací výšky jako text — neobjeví se dřív ani zvlášť. */}
+          {obrazek && (
+            <span className="faq-obrazek" aria-hidden="true">
+              <img src={obrazek} alt="" />
+            </span>
           )}
         </div>
       </div>
@@ -546,7 +557,7 @@ export default function Home() {
               největší společné dobrodružství. Poznali jsme se, zamilovali se,
               prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
               plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-              jít životem bok po boku – a proto si 18. září 2027 řekneme své „ano“.
+              jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
             </p>
           </div>
         </Reveal>
@@ -583,19 +594,19 @@ export default function Home() {
             <Ikona typ="snidane" />
             <h3>Snídaně</h3>
             <div className="meta">9:00 · U ženicha a nevěsty</div>
-            <p>Poslední klidné sousto před tím, než to celé začne.</p>
+            <p>Poslední klidné sousto předtím, než to celé začne.</p>
           </div>
           <div className="event">
             <Ikona typ="obrad" />
             <h3>Obřad</h3>
-            <div className="meta">12:00 · U Zvoničky v Rekovicích</div>
+            <div className="meta">12:00 · U zvoničky v Rekovicích</div>
             <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
           </div>
           <div className="event">
             <Ikona typ="foceni" />
             <h3>Společné focení</h3>
             <div className="meta">13:00</div>
-            <p>Chvilka pro novomanžele a pár fotek, které budeme ukazovat ještě za dvacet let.</p>
+            <p>Pár fotek s vámi všemi, s rodinou i s přáteli, které budeme ukazovat ještě za dvacet let.</p>
           </div>
           <div className="event">
             <Ikona typ="pripitek" />
@@ -650,7 +661,7 @@ export default function Home() {
           </div>
           <div className="event">
             <div className="meta">Hlavní chod</div>
-            <h3>Vepřová panenka v sous-vide s pečenými grenaille a pepřovou omáčkou</h3>
+            <h3>Vepřová panenka v sous-vide s pečenými brambory grenaille a pepřovou omáčkou</h3>
           </div>
           <div className="event">
             <div className="meta">Dezert</div>
@@ -671,7 +682,7 @@ export default function Home() {
             </div>
             <div className="event">
               <div className="meta">Hlavní chod</div>
-              <h3>Kuřecí smažený řízek s bramborovým pyré</h3>
+              <h3>Smažený kuřecí řízek s bramborovým pyré</h3>
             </div>
           </div>
         </Reveal>
@@ -724,8 +735,8 @@ export default function Home() {
           <p className="lead">Klepnutím na otázku se rozbalí odpověď.</p>
         </Reveal>
         <Reveal className="faq-list">
-          {DOTAZY.map(({ q, a, barvy, kontakty }) => (
-            <Dotaz key={q} q={q} a={a} barvy={barvy} kontakty={kontakty} />
+          {DOTAZY.map(({ q, a, barvy, kontakty, obrazek }) => (
+            <Dotaz key={q} q={q} a={a} barvy={barvy} kontakty={kontakty} obrazek={obrazek} />
           ))}
         </Reveal>
       </section>
@@ -748,6 +759,7 @@ export default function Home() {
         <span className="kvetiny" aria-hidden="true">
           <span className="kvetiny-pas kvetiny-l" />
           <span className="kvetiny-pas kvetiny-r" />
+          <Motyli />
         </span>
         <span className="stred-pruh" aria-hidden="true" />
       </div>

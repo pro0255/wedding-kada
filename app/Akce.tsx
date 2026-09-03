@@ -122,7 +122,7 @@ export function PridatDoKalendare({ className = "" }: { className?: string }) {
   const [web, setWeb] = useState("");
   useEffect(() => setWeb(location.origin), []);
 
-  const popis = `Obřad ve 12:00 u Zvoničky v Rekovicích. Program a podrobnosti: ${web}`;
+  const popis = `Obřad ve 12:00 u zvoničky v Rekovicích. Program a podrobnosti: ${web}`;
   const google =
     "https://calendar.google.com/calendar/render?" +
     new URLSearchParams({
