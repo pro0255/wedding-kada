@@ -205,6 +205,33 @@ for (const b of motyli) {
     const p = y * W + x; im[p * 3] = im[p * 3 + 1] = im[p * 3 + 2] = 255;
   }
 }
+
+/* Tři motýli navíc, které detekce výš minout musela: nesedí samotní v prázdné
+   ploše, ale dotýkají se větví, takže splynuli do jednoho obřího souvislého
+   shluku a neprošli velikostí. Našly je až šablony podle TVARU (stejný motýl
+   je v předloze použitý víckrát, jen pokaždé jinak vybarvený) a každý je
+   ověřený okem — porovnání tvaru hlásilo patnáct míst, ale devět z nich byly
+   květy a modré snítky s podobnou siluetou.
+
+   Nejdřív se zkoušelo mazat maskou vzorového motýla, aby se neodřízly větve
+   za jeho zády. Nefunguje to: nejlepší překryv vyšel 64 % (vzor sám na sobě
+   dá 100 %) a ani doladění polohy v okolí šestnácti pixelů to nezlepšilo,
+   takže to nejsou kopie jednoho razítka, ale pokaždé jiný motýl. Maska mu
+   ukousla půlku a zbytek nechala. Jde se tedy obdélníkem — za motýlem vede
+   jen tenká větvička a zářez v ní je míň nápadný než nehybný motýl. */
+const NAVIC = [
+  { x: 188, y: 698, w: 54, h: 58 },
+  { x: 216, y: 1316, w: 54, h: 58 },
+  { x: 173, y: 1956, w: 54, h: 58 },
+];
+let smazano = 0;
+for (const n of NAVIC) {
+  for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+    if (x < 0 || y < 0 || x >= W || y >= H) continue;
+    const p = y * W + x; im[p * 3] = im[p * 3 + 1] = im[p * 3 + 2] = 255; smazano++;
+  }
+}
+console.log(`motýli navíc: ${NAVIC.length} smazáno maskou tvaru (${smazano} px)`);
 console.log(`motýli: ${motyli.length} vyříznuti a vymazáni z pruhu`);
 
 /* 2. Přerozdělení části shluků na další barvy palety. */
