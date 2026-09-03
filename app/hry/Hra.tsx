@@ -6,29 +6,37 @@ import type { HraSlug } from "@/lib/hra";
 import { HRY_REGISTR } from "./hry";
 import type { Barvy, Vstup } from "./hry/typy";
 import { Zvuky } from "./zvuk";
+import Jmeno from "./Jmeno";
 import s from "./hra.module.css";
 
 type Faze = "start" | "hra" | "konec";
 
-/** Plátno + smyčka pro libovolnou hru z registru. Hra sama je čistý modul. */
+/** Plátno + smyčka pro libovolnou hru z registru. Plátno vyplní svůj obal
+    (na telefonu celou obrazovku, na výšku i na šířku); při změně rozměru se
+    hra nastartuje znovu. Hra sama je čistý modul. */
 export default function Hra({
   hra,
   onKonec,
+  onJmeno,
 }: {
   hra: HraSlug;
   onKonec?: (skore: number) => void;
+  onJmeno?: (jmeno: string) => void;
 }) {
   const def = HRY_REGISTR[hra];
+  const obalRef = useRef<HTMLDivElement>(null);
   const platnoRef = useRef<HTMLCanvasElement>(null);
   const skoreRef = useRef<HTMLElement>(null);
   const rekordRef = useRef<HTMLElement>(null);
   const onKonecRef = useRef(onKonec);
   onKonecRef.current = onKonec;
   const zvukyRef = useRef<Zvuky | null>(null);
+  const znovuRef = useRef<() => void>(() => {});
   const [faze, setFaze] = useState<Faze>("start");
   const [vysledek, setVysledek] = useState({ skore: 0, novy: false });
   const [dotyk, setDotyk] = useState(false);
   const [ticho, setTicho] = useState(false);
+  const [jmenoOtevrene, setJmenoOtevrene] = useState(false);
 
   useEffect(() => {
     setDotyk(matchMedia("(pointer: coarse)").matches);
@@ -36,9 +44,10 @@ export default function Hra({
     zvukyRef.current = zvuky;
     setTicho(zvuky.ztlumeno);
 
+    const obal = obalRef.current;
     const platno = platnoRef.current;
     const ctx2d = platno?.getContext("2d");
-    if (!platno || !ctx2d) return;
+    if (!obal || !platno || !ctx2d) return;
     const ctx: CanvasRenderingContext2D = ctx2d;
     const css = getComputedStyle(document.documentElement);
     const barvy: Barvy = {
@@ -54,17 +63,36 @@ export default function Hra({
     } catch {}
     if (rekordRef.current) rekordRef.current.textContent = String(rekord);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 3);
-    platno.width = def.W * dpr;
-    platno.height = def.H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-
-    let stav = def.start();
+    let W = 0;
+    let H = 0;
+    let stav = def.start({ W: 1, H: 1 });
     let fazeHry: Faze = "start";
     let casKonce = 0;
     let cas = 0;
     let skore = 0;
+
+    function nastavRozmer() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      W = Math.max(1, Math.round(obal!.clientWidth));
+      H = Math.max(1, Math.round(obal!.clientHeight));
+      platno!.width = W * dpr;
+      platno!.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      // pozice ve stavu jsou v px — po otočení telefonu začínáme znovu
+      stav = def.start({ W, H });
+      skore = 0;
+      if (skoreRef.current) skoreRef.current.textContent = "0";
+      if (fazeHry === "hra") {
+        fazeHry = "start";
+        setFaze("start");
+      }
+    }
+    nastavRozmer();
+    const ro = new ResizeObserver(() => {
+      if (Math.abs(obal.clientWidth - W) > 2 || Math.abs(obal.clientHeight - H) > 2) nastavRozmer();
+    });
+    ro.observe(obal);
 
     function konec() {
       fazeHry = "konec";
@@ -78,6 +106,7 @@ export default function Hra({
         if (rekordRef.current) rekordRef.current.textContent = String(rekord);
       }
       setVysledek({ skore, novy });
+      setJmenoOtevrene(false);
       setFaze("konec");
       fetch("/api/hra", {
         method: "POST",
@@ -88,6 +117,19 @@ export default function Hra({
         .finally(() => onKonecRef.current?.(skore));
     }
 
+    function znovu(v: Vstup = { typ: "tap" }) {
+      stav = def.start({ W, H });
+      skore = 0;
+      if (skoreRef.current) skoreRef.current.textContent = "0";
+      fazeHry = "hra";
+      setFaze("hra");
+      def.vstup(stav, v);
+    }
+    znovuRef.current = () => {
+      zvuky.odemkni();
+      znovu();
+    };
+
     function posli(v: Vstup) {
       if (fazeHry === "start") {
         fazeHry = "hra";
@@ -96,17 +138,12 @@ export default function Hra({
       } else if (fazeHry === "hra") {
         def.vstup(stav, v);
       } else if (v.typ === "tap" && performance.now() - casKonce > 450) {
-        stav = def.start();
-        skore = 0;
-        if (skoreRef.current) skoreRef.current.textContent = "0";
-        fazeHry = "hra";
-        setFaze("hra");
-        def.vstup(stav, v);
+        znovu(v);
       }
     }
     function logX(e: PointerEvent) {
       const r = platno!.getBoundingClientRect();
-      return ((e.clientX - r.left) / r.width) * def.W;
+      return ((e.clientX - r.left) / r.width) * W;
     }
 
     let posledni = performance.now();
@@ -130,7 +167,10 @@ export default function Hra({
     // Když host píše jméno (nebo je na tlačítku), klávesy patří jemu, ne hře.
     const vPoli = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
-      return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "BUTTON" || t.isContentEditable);
+      return (
+        !!t &&
+        (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "BUTTON" || t.isContentEditable)
+      );
     };
     const naKlavesu = (e: KeyboardEvent) => {
       if (vPoli(e)) return;
@@ -170,6 +210,7 @@ export default function Hra({
     platno.addEventListener("pointermove", naPohyb);
     return () => {
       cancelAnimationFrame(raf);
+      ro.disconnect();
       window.removeEventListener("keydown", naKlavesu);
       window.removeEventListener("keyup", naPusteni);
       platno.removeEventListener("pointerdown", naDolu);
@@ -179,7 +220,7 @@ export default function Hra({
 
   const napoveda = dotyk ? def.napoveda.dotyk : def.napoveda.mys;
   return (
-    <div className={s.hriste} style={{ aspectRatio: `${def.W} / ${def.H}` }}>
+    <div className={s.hriste} ref={obalRef}>
       <canvas
         ref={platnoRef}
         className={s.platno}
@@ -213,15 +254,39 @@ export default function Hra({
       {faze === "start" && (
         <div className={s.zprava}>
           <h2 className="serif">{def.nazev}</h2>
-          <p>{napoveda}</p>
+          <p>{def.popis}</p>
+          <p className={s.napoveda}>{napoveda}</p>
         </div>
       )}
       {faze === "konec" && (
         <div className={s.zprava} role="status">
-          <h2 className="serif">{vysledek.novy ? "Nový rekord!" : "Konec hry"}</h2>
-          <p>
-            {vysledek.skore} {def.jednotka} · znovu {dotyk ? "klepnutím" : "mezerníkem"}
-          </p>
+          <div className={s.panel}>
+            <h2 className="serif">{vysledek.novy ? "Nový rekord!" : "Konec hry"}</h2>
+            <p className={s.vysledek}>
+              <strong>{vysledek.skore}</strong> {def.jednotka}
+            </p>
+            {jmenoOtevrene ? (
+              <Jmeno
+                kompaktni
+                onZmena={(j) => {
+                  setJmenoOtevrene(false);
+                  onJmeno?.(j);
+                }}
+              />
+            ) : (
+              <div className={s.akce}>
+                <button type="button" className={s.primarni} onClick={() => znovuRef.current()}>
+                  Hrát znovu
+                </button>
+                <button type="button" className={s.sekundarni} onClick={() => setJmenoOtevrene(true)}>
+                  Uložit jméno
+                </button>
+              </div>
+            )}
+            <a href="#zebricek" className={s.odkazDolu}>
+              Žebříček ↓
+            </a>
+          </div>
         </div>
       )}
     </div>

@@ -1,13 +1,29 @@
 /* Plátno hry, HUD, hlášky, žebříček a pole na jméno. Stránkové layouty jsou
    v hry.module.css a not-found.module.css. */
 
+.hraObal { width: min(100%, 720px); margin-top: 18px; }
+
+/* Plátno vyplní obal; rozměr si hra přečte sama (ResizeObserver). */
 .hriste {
   position: relative;
-  width: min(100%, 720px);
-  margin-top: 18px;
+  width: 100%;
+  height: min(62vh, 480px);
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+/* Telefon: hra jako první a přes celou obrazovku, na výšku i na šířku.
+   Stránka pod ní zůstane — žebříček a jméno jsou o jedno odscrollování níž. */
+@media (max-width: 768px) {
+  .hraObal {
+    order: -1;
+    width: 100vw;
+    margin: -40px 0 0 calc(50% - 50vw);
+  }
+  .hriste { height: 100dvh; border-radius: 0; }
 }
 
 .platno {
@@ -57,10 +73,43 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
+  padding: 16px;
   padding-bottom: 28px;
   pointer-events: none;
   text-align: center;
 }
+.napoveda { margin-top: 10px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Panel po dohrání — jediná část překryvu, která bere kliky (jinak tap = znovu). */
+.panel {
+  pointer-events: auto;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  width: min(100%, 360px);
+  padding: 18px 20px;
+  border: 1px solid var(--menu-ramecek);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(4px);
+}
+.vysledek { font-family: var(--serif), Georgia, serif; font-size: 18px; color: var(--ink-soft); }
+.vysledek strong { font-size: 34px; color: var(--ink); font-weight: 500; }
+.akce { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.primarni, .sekundarni {
+  padding: 10px 20px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.primarni { background: var(--ink); color: var(--bg); }
+.sekundarni { background: none; color: var(--ink); }
+.odkazDolu { font-size: 13px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
+.panel .jmenoForm { margin-top: 0; width: 100%; }
 .zprava h2 {
   font-size: clamp(20px, 3.4vw, 28px);
   font-weight: 500;
@@ -141,3 +190,6 @@
 @keyframes preliv { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .kostra { animation: none; } }
 .radky li .kostra { height: 0.9em; align-self: center; }
+
+/* globální h2 má margin-bottom 1.6rem — v panelu ne */
+.panel h2 { margin-bottom: 0; font-size: clamp(20px, 3.4vw, 26px); }

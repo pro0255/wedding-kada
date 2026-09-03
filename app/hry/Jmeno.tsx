@@ -8,10 +8,17 @@ const KLIC = "kj-jmeno";
 
 /** Jméno k zařízení — v žebříčku místo „Neznámý host“. Cache v localStorage,
     pravda v Airtable (Hoste). */
-export default function Jmeno({ onZmena }: { onZmena?: (jmeno: string) => void }) {
+export default function Jmeno({
+  onZmena,
+  kompaktni = false,
+}: {
+  onZmena?: (jmeno: string) => void;
+  kompaktni?: boolean;
+}) {
   const [jmeno, setJmeno] = useState("");
   const [ulozene, setUlozene] = useState("");
   const [stav, setStav] = useState<"klid" | "ukladam" | "ok" | "chyba">("klid");
+  const id = kompaktni ? "jmeno-hosta-panel" : "jmeno-hosta";
 
   useEffect(() => {
     let cache = "";
@@ -70,10 +77,11 @@ export default function Jmeno({ onZmena }: { onZmena?: (jmeno: string) => void }
 
   return (
     <form className={s.jmenoForm} onSubmit={uloz}>
-      <label htmlFor="jmeno-hosta">Tvoje jméno v žebříčku</label>
+      <label htmlFor={id}>{kompaktni ? "Jméno do žebříčku" : "Tvoje jméno v žebříčku"}</label>
       <div className={s.jmenoRadek}>
         <input
-          id="jmeno-hosta"
+          id={id}
+          autoFocus={kompaktni}
           value={jmeno}
           maxLength={30}
           autoComplete="nickname"

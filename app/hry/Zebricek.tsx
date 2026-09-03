@@ -37,7 +37,7 @@ export default function Zebricek({ hra, obnovit }: { hra: HraSlug; obnovit: numb
   }, [hra, obnovit]);
 
   return (
-    <section className={s.zebricek} aria-label="Žebříček">
+    <section id="zebricek" className={s.zebricek} aria-label="Žebříček">
       <h3 className="serif">Žebříček</h3>
       {chyba && <p className={s.tlumene}>Žebříček se teď nenačetl.</p>}
       {!data && !chyba && (
