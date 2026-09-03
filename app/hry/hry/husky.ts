@@ -1,7 +1,7 @@
 import type { Barvy, Hra, Krok, Vstup, Zvuk } from "./typy";
 import { HUSKY, KYTICE, PRSTEN, SRDCE, TCHYNE, kresli, sirka, vyska } from "./sprity";
 
-/* Yuka (husky) běhá po zemi, shora padají věci. Prstýnek +1, kytice +5, tchýně
+/* Pluto (husky) běhá po zemi, shora padají věci. Prstýnek +1, kytice +5, tchýně
    bere život. Bez tří životů je konec. */
 
 const W = 640;
@@ -49,7 +49,7 @@ type Stav = {
 
 export const husky: Hra<Stav> = {
   slug: "husky",
-  nazev: "Yuka chytá prstýnky",
+  nazev: "Pluto chytá prstýnky",
   popis: "Prstýnek +1, kytice +5, tchýně bere život. Máš tři.",
   napoveda: { mys: "šipky ← → nebo tažení myší", dotyk: "táhni prstem po plátně" },
   jednotka: "bodů",

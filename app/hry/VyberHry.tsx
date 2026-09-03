@@ -7,6 +7,7 @@ import type { Lidr } from "@/lib/hra";
 import { HRY_REGISTR } from "./hry";
 import IkonaHry from "./IkonaHry";
 import s from "./hry.module.css";
+import h2 from "./hra.module.css";
 
 type Lidri = Partial<Record<HraSlug, Lidr>>;
 

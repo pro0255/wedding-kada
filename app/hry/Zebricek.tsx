@@ -40,6 +40,17 @@ export default function Zebricek({ hra, obnovit }: { hra: HraSlug; obnovit: numb
     <section className={s.zebricek} aria-label="Žebříček">
       <h3 className="serif">Žebříček</h3>
       {chyba && <p className={s.tlumene}>Žebříček se teď nenačetl.</p>}
+      {!data && !chyba && (
+        <ol className={s.radky} aria-busy="true" aria-label="Načítám žebříček">
+          {[0, 1, 2].map((i) => (
+            <li key={i}>
+              <span className={s.kostra} style={{ width: "1.4em" }} />
+              <span className={s.kostra} style={{ width: `${55 - i * 12}%` }} />
+              <span className={s.kostra} style={{ width: "2.2em" }} />
+            </li>
+          ))}
+        </ol>
+      )}
       {data && data.radky.length === 0 && (
         <p className={s.tlumene}>Ještě nikdo nehrál. Buď první.</p>
       )}

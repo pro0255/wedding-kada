@@ -49,7 +49,7 @@ type Stav = {
 export const zenich: Hra<Stav> = {
   slug: "zenich",
   nazev: "Ženich běží k oltáři",
-  popis: "Skákej přes dort, Yuku, kytici a tchýni. Čím dál doběhneš, tím líp.",
+  popis: "Skákej přes dort, Pluta, kytici a tchýni. Čím dál doběhneš, tím líp.",
   napoveda: { mys: "mezerník nebo klik = skok", dotyk: "klepnutí = skok" },
   jednotka: "m",
   W,
