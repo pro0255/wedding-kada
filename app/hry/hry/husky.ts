@@ -64,7 +64,8 @@ export const husky: Hra<Stav> = {
   jednotka: "bodů",
   start: (r) => ({
     ...r,
-    zem: r.H - OKRAJ_DOLE,
+    // na výšku je země ve dvou třetinách (jako u ženicha) — palec dole, hra u očí
+    zem: r.H > r.W ? Math.round(r.H * 0.7) : r.H - OKRAJ_DOLE,
     x: r.W / 2 - PES_W / 2,
     cil: null,
     smer: 0,
@@ -101,7 +102,7 @@ export const husky: Hra<Stav> = {
 
     // pád trvá stejně dlouho na výšku i na šířku — rychlost roste s výškou plátna
     const tempo = 1 + s.cas / 40;
-    const vyskovyFaktor = s.H / 320;
+    const vyskovyFaktor = s.zem / 300;
     s.dalsi -= dt;
     if (s.dalsi <= 0) {
       const druh = vyberDruh();

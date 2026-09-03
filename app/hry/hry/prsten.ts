@@ -15,6 +15,8 @@ const PRSTEN_H = vyska(PRSTEN);
 
 type Svicky = { x: number; mezeraY: number; pocitano: boolean };
 type Stav = Rozmer & {
+  strop: number; // horní hranice hracího pole (na výšku není u samého okraje)
+  podlaha: number; // y čáry podlahy
   prstenX: number;
   y: number;
   vy: number;
@@ -25,8 +27,20 @@ type Stav = Rozmer & {
   zvuky: Zvuk[];
 };
 
-function novaSvicka(r: Rozmer, x: number): Svicky {
-  return { x, mezeraY: 60 + Math.random() * Math.max(20, r.H - 120 - MEZERA), pocitano: false };
+function hraciPole(r: Rozmer) {
+  // na výšku hrajeme mezi 12 % a 75 % výšky, ať je akce u očí i u palce
+  return r.H > r.W
+    ? { strop: Math.round(r.H * 0.12), podlaha: Math.round(r.H * 0.75) }
+    : { strop: 0, podlaha: r.H - PODLAHA };
+}
+
+function novaSvicka(pole: { strop: number; podlaha: number }, x: number): Svicky {
+  const vyskaPole = pole.podlaha - pole.strop;
+  return {
+    x,
+    mezeraY: pole.strop + 50 + Math.random() * Math.max(20, vyskaPole - 100 - MEZERA),
+    pocitano: false,
+  };
 }
 
 export const prsten: Hra<Stav> = {
@@ -35,17 +49,21 @@ export const prsten: Hra<Stav> = {
   popis: "Proleť Jedním prstenem mezi svíčkami. Každá dvojice je bod.",
   napoveda: { mys: "mezerník nebo klik = mávnutí", dotyk: "klepnutí = mávnutí" },
   jednotka: "svíček",
-  start: (r) => ({
-    ...r,
-    prstenX: Math.round(Math.min(150, r.W * 0.25)),
-    y: r.H / 2,
-    vy: 0,
-    body: 0,
-    konec: false,
-    svicky: [novaSvicka(r, r.W + 100), novaSvicka(r, r.W + 100 + ROZESTUP)],
-    srdce: novaSrdce(r, 4),
-    zvuky: [],
-  }),
+  start: (r) => {
+    const pole = hraciPole(r);
+    return {
+      ...r,
+      ...pole,
+      prstenX: Math.round(Math.min(150, r.W * 0.25)),
+      y: (pole.strop + pole.podlaha) / 2,
+      vy: 0,
+      body: 0,
+      konec: false,
+      svicky: [novaSvicka(pole, r.W + 100), novaSvicka(pole, r.W + 100 + ROZESTUP)],
+      srdce: novaSrdce(r, 4),
+      zvuky: [],
+    };
+  },
   vstup(s, v: Vstup) {
     if (v.typ === "tap") {
       s.vy = MAVNUTI;
@@ -65,7 +83,7 @@ export const prsten: Hra<Stav> = {
     const x2 = s.prstenX + PRSTEN_W - 3;
     const y1 = s.y + 3;
     const y2 = s.y + PRSTEN_H - 3;
-    let narazil = y2 >= s.H - PODLAHA || y1 <= 0;
+    let narazil = y2 >= s.podlaha || y1 <= s.strop;
     for (const sv of s.svicky) {
       const vX = x2 > sv.x && x1 < sv.x + SVICKA_W;
       if (vX && (y1 < sv.mezeraY || y2 > sv.mezeraY + MEZERA)) narazil = true;
@@ -90,13 +108,14 @@ export const prsten: Hra<Stav> = {
     for (const h of s.srdce) kresli(ctx, SRDCE, h.x, h.y, b.zlata, b.zlata, 2);
     ctx.globalAlpha = 1;
     ctx.fillStyle = b.ink;
-    ctx.fillRect(0, s.H - PODLAHA, s.W, PODLAHA);
+    ctx.fillRect(0, s.podlaha, s.W, PODLAHA);
+    if (s.strop > 0) ctx.fillRect(0, s.strop - 2, s.W, 2); // strop jen na výšku
     for (const sv of s.svicky) {
       const x = Math.round(sv.x);
       // horní svíčka visí, dolní stojí — plamínek zlatý a mihotá
       ctx.fillStyle = b.ink;
-      ctx.fillRect(x, 0, SVICKA_W, sv.mezeraY - 14);
-      ctx.fillRect(x, sv.mezeraY + MEZERA + 14, SVICKA_W, s.H - PODLAHA - (sv.mezeraY + MEZERA + 14));
+      ctx.fillRect(x, s.strop, SVICKA_W, sv.mezeraY - 14 - s.strop);
+      ctx.fillRect(x, sv.mezeraY + MEZERA + 14, SVICKA_W, s.podlaha - (sv.mezeraY + MEZERA + 14));
       ctx.fillStyle = b.zlata;
       const plamen = 6 + Math.round(Math.sin(cas * 14 + x) * 2);
       ctx.fillRect(x + SVICKA_W / 2 - 3, sv.mezeraY - 14, 6, plamen);
