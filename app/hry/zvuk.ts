@@ -4,8 +4,16 @@ import type { Zvuk } from "./hry/typy";
  * Zvuky syntetizované Web Audio API — žádné soubory, pár oscilátorů.
  * AudioContext vzniká až po prvním gestu (autoplay pravidla). Ztlumení
  * si pamatujeme v localStorage, ať host nemusí mlčet web pokaždé znovu.
+ * Ke zvuku patří i vibrace (kde telefon umí) — ztlumení vypne obojí.
  */
 const KLIC = "kj-zvuk";
+
+const VIBRACE: Partial<Record<Zvuk, number | number[]>> = {
+  bonus: 20,
+  zasah: 60,
+  konec: [60, 40, 90],
+  rekord: [30, 30, 30, 30, 120],
+};
 
 export class Zvuky {
   private ctx: AudioContext | null = null;
@@ -39,7 +47,14 @@ export class Zvuky {
   }
 
   prehraj(z: Zvuk) {
-    if (this.ztlumeno || !this.ctx) return;
+    if (this.ztlumeno) return;
+    const v = VIBRACE[z];
+    if (v !== undefined) {
+      try {
+        navigator.vibrate?.(v);
+      } catch {}
+    }
+    if (!this.ctx) return;
     const t = this.ctx.currentTime;
     switch (z) {
       case "skok":
@@ -60,6 +75,14 @@ export class Zvuky {
         this.ton("triangle", 440, 440, t, 0.14, 0.07);
         this.ton("triangle", 330, 330, t + 0.15, 0.14, 0.07);
         this.ton("triangle", 220, 160, t + 0.3, 0.35, 0.07);
+        break;
+      case "rekord":
+        // krátká fanfára: C E G C'
+        this.ton("square", 523, 523, t, 0.12, 0.05);
+        this.ton("square", 659, 659, t + 0.12, 0.12, 0.05);
+        this.ton("square", 784, 784, t + 0.24, 0.12, 0.05);
+        this.ton("square", 1046, 1046, t + 0.36, 0.4, 0.06);
+        this.ton("sine", 1046, 1046, t + 0.36, 0.4, 0.04);
         break;
     }
   }

@@ -193,3 +193,9 @@
 
 /* globální h2 má margin-bottom 1.6rem — v panelu ne */
 .panel h2 { margin-bottom: 0; font-size: clamp(20px, 3.4vw, 26px); }
+
+.vyzva { margin-top: 6px; font-size: 14px; color: var(--ink); }
+.vyzva strong { font-weight: 500; color: var(--accent); }
+.vyzvaVysledek { font-size: 14px; color: var(--ink-soft); margin-top: -4px; }
+.poznamka { font-size: 12px; color: var(--ink-soft); }
+.sekundarni:disabled { opacity: 0.45; cursor: default; }

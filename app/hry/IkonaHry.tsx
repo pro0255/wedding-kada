@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type { HraSlug } from "@/lib/schemata";
 import { HUSKY, PRSTEN, ZENICH_BEH, kresli, type Sprite } from "./hry/sprity";
 
-const IKONY: Record<HraSlug, Sprite> = { zenich: ZENICH_BEH[0], husky: HUSKY[0], prsten: PRSTEN };
+export const IKONY: Record<HraSlug, Sprite> = { zenich: ZENICH_BEH[0], husky: HUSKY[0], prsten: PRSTEN };
 
 /** Pixel-art ikona hry pro kartu v knihovně — stejný sprite jako ve hře. */
 export default function IkonaHry({ hra, className }: { hra: HraSlug; className?: string }) {

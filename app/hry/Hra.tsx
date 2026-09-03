@@ -7,6 +7,9 @@ import { HRY_REGISTR } from "./hry";
 import type { Barvy, Vstup } from "./hry/typy";
 import { Zvuky } from "./zvuk";
 import Jmeno from "./Jmeno";
+import { Konfety } from "./konfety";
+import { sdilejSkore, type VysledekSdileni } from "./sdileni";
+import { IKONY } from "./IkonaHry";
 import s from "./hra.module.css";
 
 type Faze = "start" | "hra" | "konec";
@@ -37,6 +40,9 @@ export default function Hra({
   const [dotyk, setDotyk] = useState(false);
   const [ticho, setTicho] = useState(false);
   const [jmenoOtevrene, setJmenoOtevrene] = useState(false);
+  const [sdileni, setSdileni] = useState<"klid" | "pracuji" | VysledekSdileni>("klid");
+  const [vyzva, setVyzva] = useState<{ od: string; skore: number } | null>(null);
+  const barvyRef = useRef({ ink: "#2b2925", inkJemny: "#635d55", zlata: "#9a8158", pozadi: "#ece7de", bg: "#f5f2ec" });
 
   useEffect(() => {
     setDotyk(matchMedia("(pointer: coarse)").matches);
@@ -56,6 +62,16 @@ export default function Hra({
       zlata: css.getPropertyValue("--accent").trim() || "#9a8158",
       pozadi: css.getPropertyValue("--bg-alt").trim() || "#ece7de",
     };
+    barvyRef.current = { ...barvy, bg: css.getPropertyValue("--bg").trim() || "#f5f2ec" };
+    const konfety = new Konfety();
+
+    // výzva z odkazu: /hry/<hra>?od=Karel&skore=131
+    const q = new URLSearchParams(window.location.search);
+    const od = q.get("od");
+    const vyzvaSkore = Number(q.get("skore"));
+    if (od && Number.isInteger(vyzvaSkore) && vyzvaSkore > 0 && od.length <= 30) {
+      setVyzva({ od, skore: vyzvaSkore });
+    }
     const KLIC = `kj-${def.slug}-rekord`;
     let rekord = 0;
     try {
@@ -97,8 +113,10 @@ export default function Hra({
     function konec() {
       fazeHry = "konec";
       casKonce = performance.now();
-      const novy = skore > rekord;
+      const novy = skore > rekord && skore > 0;
       if (novy) {
+        konfety.spust({ W, H });
+        zvuky.prehraj("rekord");
         rekord = skore;
         try {
           localStorage.setItem(KLIC, String(rekord));
@@ -107,6 +125,7 @@ export default function Hra({
       }
       setVysledek({ skore, novy });
       setJmenoOtevrene(false);
+      setSdileni("klid");
       setFaze("konec");
       fetch("/api/hra", {
         method: "POST",
@@ -160,6 +179,10 @@ export default function Hra({
         if (k.konec) konec();
       }
       def.vykresli(ctx, stav, barvy, cas, fazeHry === "hra");
+      if (konfety.aktivni) {
+        konfety.krok(dt, { W, H });
+        konfety.vykresli(ctx, barvy.ink, barvy.zlata);
+      }
       raf = requestAnimationFrame(smycka);
     }
     raf = requestAnimationFrame(smycka);
@@ -218,6 +241,27 @@ export default function Hra({
     };
   }, [def]);
 
+  async function sdilej() {
+    setSdileni("pracuji");
+    let jmeno = "";
+    try {
+      jmeno = localStorage.getItem("kj-jmeno") ?? "";
+    } catch {}
+    const url = new URL(`/hry/${def.slug}`, window.location.origin);
+    url.searchParams.set("od", jmeno || "Někdo ze svatby");
+    url.searchParams.set("skore", String(vysledek.skore));
+    const v = await sdilejSkore({
+      nazev: def.nazev,
+      jmeno: jmeno || "Někdo ze svatby",
+      skore: vysledek.skore,
+      jednotka: def.jednotka,
+      url: url.toString(),
+      sprite: IKONY[def.slug],
+      barvy: barvyRef.current,
+    });
+    setSdileni(v);
+  }
+
   const napoveda = dotyk ? def.napoveda.dotyk : def.napoveda.mys;
   return (
     <div className={s.hriste} ref={obalRef}>
@@ -255,6 +299,11 @@ export default function Hra({
         <div className={s.zprava}>
           <h2 className="serif">{def.nazev}</h2>
           <p>{def.popis}</p>
+          {vyzva && (
+            <p className={s.vyzva}>
+              <strong>{vyzva.od}</strong> tě vyzývá: {vyzva.skore} {def.jednotka}. Překonáš to?
+            </p>
+          )}
           <p className={s.napoveda}>{napoveda}</p>
         </div>
       )}
@@ -265,6 +314,13 @@ export default function Hra({
             <p className={s.vysledek}>
               <strong>{vysledek.skore}</strong> {def.jednotka}
             </p>
+            {vyzva && (
+              <p className={s.vyzvaVysledek}>
+                {vysledek.skore > vyzva.skore
+                  ? `Překonal(a) jsi ${vyzva.od}!`
+                  : `${vyzva.od} má ${vyzva.skore}. Ještě jednou?`}
+              </p>
+            )}
             {jmenoOtevrene ? (
               <Jmeno
                 kompaktni
@@ -281,8 +337,20 @@ export default function Hra({
                 <button type="button" className={s.sekundarni} onClick={() => setJmenoOtevrene(true)}>
                   Uložit jméno
                 </button>
+                <button
+                  type="button"
+                  className={s.sekundarni}
+                  disabled={sdileni === "pracuji" || vysledek.skore === 0}
+                  onClick={sdilej}
+                >
+                  {sdileni === "pracuji" ? "Připravuji…" : "Sdílet"}
+                </button>
               </div>
             )}
+            {sdileni === "otevreno" && (
+              <p className={s.poznamka}>Obrázek se otevřel v novém okně, odkaz je ve schránce.</p>
+            )}
+            {sdileni === "chyba" && <p className={s.poznamka}>Sdílení se nepovedlo.</p>}
             <a href="#zebricek" className={s.odkazDolu}>
               Žebříček ↓
             </a>

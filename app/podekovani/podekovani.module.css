@@ -1,0 +1,26 @@
+/* Poděkování po svatbě. Hero a typografie bere z globals (hero-full, wrap,
+   eyebrow, lead), tady jen rozestupy a podklady sekcí. */
+
+.stranka { background: var(--bg); }
+
+.text { background: var(--ruzova-jemna); padding-top: 3rem; }
+
+.galerie { background: none; }
+
+.hry { background: var(--zelena-jemna); }
+.karty {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+.karty > ul { width: min(100%, 720px); }
+
+.paticka {
+  padding: 3rem 1.5rem 4rem;
+  text-align: center;
+  display: grid;
+  gap: 0.6rem;
+}
+.paticka p { font-size: 1.3rem; letter-spacing: 0.1em; }
+.paticka a { font-size: 0.85rem; color: var(--ink-soft); text-underline-offset: 3px; }
+.paticka a:hover { color: var(--ink); }

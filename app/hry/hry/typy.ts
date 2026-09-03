@@ -12,7 +12,7 @@ export type Vstup =
   | { typ: "pohyb"; x: number } // x v logických px plátna (prst nebo tažení myší)
   | { typ: "klavesa"; smer: -1 | 0 | 1 }; // ← → držení, 0 = puštění
 
-export type Zvuk = "skok" | "bod" | "bonus" | "zasah" | "konec";
+export type Zvuk = "skok" | "bod" | "bonus" | "zasah" | "konec" | "rekord";
 
 export type Krok = { skore: number; konec: boolean; zvuky?: Zvuk[] };
 
