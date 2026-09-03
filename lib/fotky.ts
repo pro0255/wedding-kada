@@ -9,42 +9,15 @@ import { createHash } from "crypto";
  * Hosté nemají účty — každý prohlížeč se pozná podle náhodného deviceId
  * v localStorage. Přes něj se párují „moje fotky“, mazání i lajky.
  */
-const BASE_ID = "appw1s9BtzlKCPous";
-const API_FOTKY = `https://api.airtable.com/v0/${BASE_ID}/Fotky`;
-const API_LAJKY = `https://api.airtable.com/v0/${BASE_ID}/Lajky`;
+import { apiTabulky, doFormule, hlavicky, nactiZaznamy as nactiObecne } from "./airtable.ts";
+import type { Zaznam as ZaznamObecny } from "./airtable.ts";
 
-function hlavicky(): Record<string, string> {
-  const klic = process.env.AIRTABLE_KEY;
-  if (!klic) throw new Error("Chybí AIRTABLE_KEY v prostředí.");
-  return {
-    Authorization: `Bearer ${klic}`,
-    "Content-Type": "application/json",
-  };
-}
+const API_FOTKY = apiTabulky("Fotky");
+const API_LAJKY = apiTabulky("Lajky");
 
-type Zaznam = { id: string; fields: Record<string, string | undefined> };
-
-async function nactiZaznamy(api: string, filtr?: string): Promise<Zaznam[]> {
-  const zaznamy: Zaznam[] = [];
-  let offset: string | undefined;
-
-  do {
-    const url = new URL(api);
-    url.searchParams.set("pageSize", "100");
-    if (filtr) url.searchParams.set("filterByFormula", filtr);
-    if (offset) url.searchParams.set("offset", offset);
-
-    const odpoved = await fetch(url, { headers: hlavicky(), cache: "no-store" });
-    if (!odpoved.ok) {
-      throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
-    }
-    const data = (await odpoved.json()) as { records: Zaznam[]; offset?: string };
-    zaznamy.push(...data.records);
-    offset = data.offset;
-  } while (offset);
-
-  return zaznamy;
-}
+type Zaznam = ZaznamObecny<Record<string, string | undefined>>;
+const nactiZaznamy = (api: string, filtr?: string) =>
+  nactiObecne<Record<string, string | undefined>>(api, filtr);
 
 /** Jedna fotka tak, jak ji vidí konkrétní zařízení (lajky, vlastnictví). */
 export type FotkaVypis = {
@@ -111,11 +84,6 @@ export async function pridejFotku(
   }
   const data = (await odpoved.json()) as { records: { id: string }[] };
   return data.records[0].id;
-}
-
-/** Do formule jde deviceId/recordId — jen naše vygenerované hodnoty, ale pro jistotu. */
-function doFormule(hodnota: string): string {
-  return hodnota.replace(/'/g, "\\'");
 }
 
 /** Přepne lajk zařízení na fotce. Vrací, jestli po přepnutí lajk je. */

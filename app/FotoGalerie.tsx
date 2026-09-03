@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { deviceId } from "@/lib/deviceId";
 
 /**
  * Galerie fotek od hostů. Hosté nemají účty — prohlížeč se pozná podle
@@ -11,7 +12,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * server letí jen malá registrace do Airtable. Před uploadem se fotka
  * zmenší na canvasu — šetří data hostů i free tier.
  */
-const DEVICE_KEY = "kj-device-id";
 const MAX_STRANA = 2000;
 const KVALITA = 0.85;
 const OBNOVA_MS = 20_000;
@@ -33,20 +33,6 @@ type Fotka = {
   lajklJsem: boolean;
   moje: boolean;
 };
-
-function deviceId(): string {
-  try {
-    let id = localStorage.getItem(DEVICE_KEY);
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(DEVICE_KEY, id);
-    }
-    return id;
-  } catch {
-    // soukromé okno — id nepřežije zavření, ale upload i lajky fungují
-    return crypto.randomUUID();
-  }
-}
 
 function jeVideo(url: string): boolean {
   return url.includes("/video/upload/");
