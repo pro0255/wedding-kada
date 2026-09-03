@@ -1,0 +1,90 @@
+/* Stránky /hry a /hry/[hra]. */
+
+.stranka {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 16px 56px;
+  text-align: center;
+}
+
+.drobky {
+  width: min(100%, 720px);
+  text-align: left;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.drobky a { color: var(--ink-soft); text-decoration: none; }
+.drobky a:hover, .drobky a:focus-visible { color: var(--ink); }
+
+.nadpis {
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.15;
+}
+
+.popis {
+  max-width: 48ch;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.karty {
+  list-style: none;
+  width: min(100%, 720px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.karta {
+  display: grid;
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  gap: 6px;
+  height: 100%;
+  padding: 22px 18px;
+  border: 1px solid var(--menu-ramecek);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--bg-alt) 50%, var(--bg));
+  transition: transform 0.15s, border-color 0.15s;
+}
+.karta:hover, .karta:focus-visible { transform: translateY(-2px); border-color: var(--accent); }
+
+.kartaIkona { display: block; height: 72px; margin: 0 auto 6px; image-rendering: pixelated; }
+
+.kartaNazev {
+  font-family: var(--serif), Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.kartaPopis { font-size: 13px; color: var(--ink-soft); }
+.kartaLidr {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--menu-ramecek);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.kartaLidr strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.kartaLidrPopisek { text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; color: var(--accent); }
+
+.tlacitko {
+  margin-top: 28px;
+  padding: 12px 28px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+}
+.tlacitko:hover, .tlacitko:focus-visible { background: var(--ink); color: var(--bg); }
