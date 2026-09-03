@@ -127,7 +127,13 @@ export default function Hra({
     }
     raf = requestAnimationFrame(smycka);
 
+    // Když host píše jméno (nebo je na tlačítku), klávesy patří jemu, ne hře.
+    const vPoli = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "BUTTON" || t.isContentEditable);
+    };
     const naKlavesu = (e: KeyboardEvent) => {
+      if (vPoli(e)) return;
       if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") {
         e.preventDefault();
         zvuky.odemkni();
@@ -143,6 +149,7 @@ export default function Hra({
       }
     };
     const naPusteni = (e: KeyboardEvent) => {
+      if (vPoli(e)) return;
       if (["ArrowLeft", "KeyA", "ArrowRight", "KeyD"].includes(e.code)) {
         posli({ typ: "klavesa", smer: 0 });
       }
