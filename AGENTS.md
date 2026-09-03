@@ -10,6 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Pravidla projektu
 
+- Hotovou práci rovnou commitni a pushni na `main` — žádné branche ani PR, nečekej na pokyn. Deploy na Vercel jde automaticky z `main` (GitHub Actions).
 - Před každým `git push` spusť `npm run check` (tsc + testy + build). Když neprojde, nepushuj.
 - Všechno, co přichází z klienta (route handlery, server actions, query parametry), validuj přes zod schémata v `lib/schemata.ts`. Žádné ruční `typeof` kontroly.
 - Jednotkové testy: `lib/*.test.ts`, `node --test` (Node stripuje typy nativně, relativní importy v `lib/` proto mají příponu `.ts`).
