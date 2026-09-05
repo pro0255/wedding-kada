@@ -522,7 +522,7 @@ export default function Home() {
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}
       <section className="hero-full" id="hero">
-        <img className="hero-bg" src="/fotky/kaplicka.png" alt="Kaplička" />
+        <img className="hero-bg" src="/fotky/kaplicka.jpg" alt="Kaplička" />
         <div className={`hero-content ${stage === "done" ? "in" : ""}`}>
           <p className="hero-eyebrow">Bereme se</p>
           <h1 className="hero-title">Kateřina &amp; Jakub</h1>

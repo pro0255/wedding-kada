@@ -11,11 +11,11 @@ export const contentType = "image/png";
 
 export default async function Image() {
   const [fotka, serif, sans] = await Promise.all([
-    readFile(join(process.cwd(), "public/fotky/kaplicka.png")),
+    readFile(join(process.cwd(), "public/fotky/kaplicka.jpg")),
     readFile(join(process.cwd(), "app/fonty/CormorantGaramond-500.ttf")),
     readFile(join(process.cwd(), "app/fonty/Jost-400.ttf")),
   ]);
-  const fotkaSrc = `data:image/png;base64,${fotka.toString("base64")}`;
+  const fotkaSrc = `data:image/jpeg;base64,${fotka.toString("base64")}`;
 
   return new ImageResponse(
     (

@@ -1283,7 +1283,7 @@ footer {
      má jen prosvítat, jinak by se jména na fotografii ztratila. */
   background:
     linear-gradient(rgba(236, 231, 222, .88), rgba(236, 231, 222, .88)),
-    url("/fotky/kaplicka.png") center / cover no-repeat;
+    url("/fotky/kaplicka.jpg") center / cover no-repeat;
   box-shadow: 0 10px 30px rgba(158, 71, 80, .14);
 }
 /* uvnitř kolečka je míň místa, tak je typografie o stupeň drobnější */

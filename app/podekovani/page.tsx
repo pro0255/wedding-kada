@@ -15,7 +15,7 @@ export default function Podekovani() {
   return (
     <main className={s.stranka}>
       <section className="hero-full">
-        <img className="hero-bg" src="/fotky/kaplicka.png" alt="Kaplička" />
+        <img className="hero-bg" src="/fotky/kaplicka.jpg" alt="Kaplička" />
         <div className="hero-content in">
           <p className="hero-eyebrow">Bylo to krásné</p>
           <h1 className="hero-title">Děkujeme</h1>
