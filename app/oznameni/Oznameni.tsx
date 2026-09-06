@@ -38,7 +38,11 @@ type KartaKlic = "hlavni" | "info" | "pasek" | "obrad" | "vizitka";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
-  { klic: "info", nazev: "Informace (A6)", sirka: 105, vyska: 148, zona: 8 },
+  /* Informační karta je široká jako A6, ale vysoká jako A5. Na 148 mm výšky se
+     text prostě nevešel — přetékal o 23 mm a stlačit ho šlo jen na písmo kolem
+     šesti bodů, což se na papíře čte mizerně. Šířka zůstala, aby seděly řádky
+     i řada kuliček; přibyla jen výška. Z archu A4 se vyřízne stejně snadno. */
+  { klic: "info", nazev: "Informace (105 × 210)", sirka: 105, vyska: 210, zona: 8 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
@@ -136,13 +140,26 @@ const KYTKY_MALE = rozsyp(96, 56, 5, 4, [
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
    (DOTAZY v app/page.tsx) — je to jedna svatba, tak i jeden vzorník.
    Vlastní typ kvůli tomu, že barvy má jen jeden blok ze dvou. */
-type InfoBlok = { nadpis: string; text: string; barvy?: string[] };
+type InfoBlok = {
+  nadpis: string;
+  text: string;
+  adresa?: string[];
+  poznamka?: string;
+  barvy?: string[];
+};
 
 const BLOKY: InfoBlok[] = [
   {
+    nadpis: "Místo konání",
+    text:
+      "Milí svatebčané, celý náš svatební den včetně obřadu se bude konat v krásném lesním hotelu Rekovice.",
+    adresa: ["Hotel Rekovice", "Trojanovice 2", "744 01 Trojanovice"],
+    poznamka: "Doražte na obřad prosím s předstihem a dejte nám vědět, že dorazíte.",
+  },
+  {
     nadpis: "Svatební dary",
     text:
-      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti. A kdybyste přece jen chtěli něco přinést — místo kytice rádi odvezeme granule nebo deky do útulku.",
+      "Největší dar je pro nás to, že s námi ten den strávíte. Kdybyste nám přesto chtěli něco věnovat, nejradši uvítáme příspěvek do naší společné budoucnosti — obálku nám můžete předat kdykoliv během dne. A jestli radši nosíte něco hmatatelného: místo kytice rádi odvezeme granule, deky nebo hračky do útulku.",
   },
   {
     nadpis: "Dress code",
@@ -169,8 +186,6 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   info: {
-    uvodni:
-      "Obřad, oběd i večerní párty se konají na jednom místě. Sejdeme se ve dvanáct u zvoničky, od tří hodin vás dva řidiči odvezou domů.",
     bloky: BLOKY,
     podpis: "Děkujeme,",
     zaver: "že budete součástí našeho velkého dne.",
@@ -337,11 +352,18 @@ function Info() {
   const t = T.info;
   return (
     <>
-      <p className={s.infoUvod}>{t.uvodni}</p>
       {t.bloky.map((b) => (
         <section key={b.nadpis} className={s.infoBlok}>
           <h2 className={s.infoNadpis}>{b.nadpis}</h2>
           <p className={s.infoText}>{b.text}</p>
+          {b.adresa && (
+            <p className={s.infoAdresa}>
+              {b.adresa.map((r) => (
+                <span key={r}>{r}</span>
+              ))}
+            </p>
+          )}
+          {b.poznamka && <p className={s.infoPoznamka}>{b.poznamka}</p>}
           {b.barvy && (
             <ul className={s.barvy}>
               {/* Názvy odstínů tu nejsou schválně — na papíře je vedle sebe

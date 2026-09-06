@@ -254,15 +254,13 @@
    širší a s prostrkáním zaberou skoro o třetinu víc místa než malá písmena,
    takže je písmo o něco menší — na krátkých větách v kapitálkách to nevadí,
    ty se čtou po řádcích, ne po slovech. */
-.infoUvod,
 .infoText,
+.infoAdresa,
+.infoPoznamka,
 .karta .infoZaver {
   text-transform: uppercase;
   letter-spacing: .14em;
   line-height: 1.85;
-}
-.infoUvod {
-  font-size: 3mm;
 }
 .infoBlok { margin-top: 7mm; }
 .karta .infoNadpis {
@@ -274,6 +272,20 @@
 }
 .infoText {
   margin: 0;
+  font-size: 2.9mm;
+}
+/* Adresa je pod textem jako samostatný odstavec a o stupeň těžší — na kartě
+   je to jediný údaj, který si někdo bude opisovat do navigace. */
+.karta .infoAdresa {
+  margin: 3mm 0 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 2.9mm;
+  font-weight: 500;
+  letter-spacing: .18em;
+}
+.karta .infoPoznamka {
+  margin: 3mm 0 0;
   font-size: 2.9mm;
 }
 /* Vzorník pastelů k dress code, stejné kuličky jako na webu. Obrys je border,
@@ -295,13 +307,15 @@
 }
 
 .karta .podpis {
-  margin: 11mm 0 0;
+  margin: 7mm 0 0;
   font-family: var(--kaligrafie), cursive;
-  font-size: 10mm;
+  font-size: 7mm;
   line-height: 1;
 }
-.infoZaver {
-  margin-top: 3mm;
+/* Musí začínat .karta, jinak mezeru přebije reset `.stranka p { margin: 0 }`
+   a závěrečná věta se nalepí pod „Děkujeme“. */
+.karta .infoZaver {
+  margin-top: 2.5mm;
   font-size: 2.9mm;
 }
 
