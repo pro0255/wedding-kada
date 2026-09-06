@@ -163,7 +163,7 @@ const BLOKY: InfoBlok[] = [
   {
     nadpis: "Svatební dary",
     text:
-      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule a deky našim chlupatým kamarádům do útulku.",
+      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule, deky nebo hračky našim chlupatým kamarádům do útulku.",
   },
   {
     nadpis: "Dress code",

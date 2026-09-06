@@ -233,10 +233,13 @@
 /* Karta je růžová jen po obvodu, uvnitř je bílý papír. Pruh sahá až na okraj
    spadu, takže po ořezu zůstanou 4 mm — kdyby končil na ořezu, po posunu
    řezačky by na kraji svítil bílý proužek. */
+/* Text nese černá, růžová jen rámeček, nadpisy, adresa a poděkování. Když
+   růžová nesla i běžný text, byla karta růžová skrz naskrz a odstavce navíc
+   bledší, než se na papíře čte pohodlně. Takhle růžová akcentuje a nepřekáží. */
 .k-info,
 .k-rub {
   background: var(--ramecek-ruzova);
-  color: var(--ruzove-pismo);
+  color: var(--inkoust);
 }
 .k-info::before,
 .k-rub::before {
@@ -257,6 +260,7 @@
   padding-top: 18mm;
 }
 .rubNadpis {
+  color: var(--ruzove-pismo);
   font-family: var(--serif), Georgia, serif;
   font-size: 9mm;
   line-height: 1.2;
@@ -290,6 +294,7 @@
 .infoBlok:first-child { margin-top: 0; }
 .karta .infoNadpis {
   margin: 0 0 3mm;
+  color: var(--ruzove-pismo);
   font-size: 3.1mm;
   font-weight: 500;
   letter-spacing: .22em;
@@ -305,6 +310,7 @@
    nadpis. Podtržení je odsazené od účaří, jinak by se zaseklo do háčků a čárek. */
 .karta .infoAdresa {
   margin: 2.5mm 0 0;
+  color: var(--ruzove-pismo);
   font-size: 2.9mm;
   text-decoration: underline;
   text-decoration-thickness: .05em;
@@ -334,6 +340,7 @@
 
 .karta .podpis {
   margin: 7mm 0 0;
+  color: var(--ruzove-pismo);
   font-family: var(--kaligrafie), cursive;
   font-size: 7mm;
   line-height: 1;
