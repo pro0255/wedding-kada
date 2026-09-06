@@ -38,15 +38,12 @@ type KartaKlic = "hlavni" | "info" | "pasek" | "obrad" | "vizitka";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
-  /* Informační karta je široká jako A6, ale vyšší. Na 148 mm výšky se text
-     nevešel — přetékal o 23 mm a stlačit ho šlo jen na písmo kolem šesti bodů,
-     což se na papíře čte mizerně. Šířka zůstala, aby seděly řádky i řada
-     kuliček; přibyla jen výška.
-
-     Výška je odměřená na text, ne na formát: obsah má 160 mm, plocha uvnitř
-     bezpečné zóny 168. Při 210 mm zbývalo 27 mm, a protože je text vystředěný,
-     visela půlka toho vzduchu nad nadpisem. */
-  { klic: "info", nazev: "Informace (105 × 190)", sirka: 105, vyska: 190, zona: 8 },
+  /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
+     Výška je ale odměřená na text, ne na formát A5: na 128 mm šířky sazby má
+     obsah 139 mm a s bezpečnou zónou z toho vyjde 165. Do plné A5 by zbylo přes
+     čtyři centimetry vzduchu, a protože je text vystředěný, půlka by ho visela
+     nad nadpisem. Sedm milimetrů rezervy je na doplnění věty, ne na vzhled. */
+  { klic: "info", nazev: "Informace (148 × 172)", sirka: 148, vyska: 172, zona: 10 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
