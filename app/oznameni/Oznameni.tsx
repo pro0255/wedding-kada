@@ -135,27 +135,20 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
 
-/* Na pozvánkách rozsyp přes celou plochu nefunguje: karta je nízká, text jí
-   projde středem a kytky pak zbydou v tenkém proužku nahoře a dole, kde
-   vypadají jako rozsypaný čaj. Místo toho jsou dvě kytice na koncích pruhu
-   a mezi nimi čistý papír s textem.
+/* Na pozvánkách stejný rozsyp jako na hlavní kartě — pravidelná mřížka, jedna
+   snítka na buňku, takže mají všude podobné rozestupy a žádná nepřekrývá
+   druhou. Ručně skládané kytice na koncích pruhu vypadaly rozsypaně a půlka
+   snítek končila useknutá krajem.
 
-   Pravá kytice je otočená kolem 180°, aby stonky mířily ke kraji a květy
-   dovnitř — zrcadlí levou, není to jen posunutá kopie. */
-const KYTKY_MALE = [
-  // levá kytice
-  { snitka: "07", x: 2, y: -3, v: 18, uhel: 14 },
-  { snitka: "13", x: 15, y: 3, v: 14, uhel: -16 },
-  { snitka: "34", x: 5, y: 22, v: 13, uhel: 32 },
-  { snitka: "29", x: 21, y: 31, v: 11, uhel: -6 },
-  { snitka: "05", x: 32, y: 12, v: 12, uhel: 22 },
-  // pravá kytice
-  { snitka: "11", x: 126, y: 34, v: 18, uhel: 194 },
-  { snitka: "23", x: 138, y: 22, v: 14, uhel: 164 },
-  { snitka: "12", x: 122, y: 8, v: 13, uhel: 212 },
-  { snitka: "18", x: 137, y: 2, v: 11, uhel: 174 },
-  { snitka: "31", x: 112, y: 26, v: 12, uhel: 202 },
-];
+   Zakázaná plocha je odměřená těsně na text (20,1 až 35,9 mm), ne od oka:
+   při větší rezervě vypadly i buňky nad textem a pod ním a v pruhu zůstaly
+   díry. Takhle vypadne jen prostřední řada uprostřed pruhu.
+
+   Snítky jsou drobnější než na A5 — dvaadvacet milimetrů je na pruhu vysokém
+   padesát skoro polovina výšky. */
+const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
+  { x1: 43.5, y1: 19, x2: 110.5, y2: 37 },
+], 8, 12);
 
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
    (DOTAZY v app/page.tsx) — je to jedna svatba, tak i jeden vzorník.

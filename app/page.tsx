@@ -180,7 +180,7 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obr
   {
     q: "Co si přejete za dar?",
     obrazek: "/fotky/pluto-kytice.png",
-    a: "Nejradši bychom místo věcí, které stejně brzy skončí v šuplíku, přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A pokud byste přece jen chtěli něco přinést, mysleli jsme na naše chlupaté kamarády: místo kytice nebo lahve rádi odvezeme granule, deky nebo hračky do jednoho ze dvou útulků, se kterými jsme domluveni.",
+    a: "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule, deky nebo hračky našim chlupatým kamarádům do útulku.",
   },
 ];
 
