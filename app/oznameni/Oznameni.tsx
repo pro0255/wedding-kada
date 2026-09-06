@@ -144,19 +144,20 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
    pozvánky se tisknou po čtyřech na jeden arch a řežou se z něj, takže mezi
    nimi žádný spad není.
 
+   Kytky jsou jen na obou koncích pruhu. Uprostřed je text a nad ním i pod ním
+   zbývá sotva centimetr — když se tam kytky pustily, zmáčkly se do dvou pásů
+   natěsno kolem písma a kraje pruhu zůstaly holé. Na koncích je naopak volná
+   celá výška, takže tam vyjdou v klidu pod sebou. Zakázaná plocha proto není
+   jen obdélník kolem textu, ale celý střed pruhu.
+
    Nahoře a dole zůstávají čtyři milimetry bez kytek. Řeže se jedním řezem pro
    obě sousední pozvánky, a kdyby kytky sahaly až k němu, musel by sedět na
    desetinu milimetru. Takhle se řeže do bílého a pár milimetrů úletu není
-   poznat. Rozsyp proto počítá s výškou 42 mm a výsledek se posune o ty čtyři
-   dolů.
-
-   Zakázaná plocha je svisle odměřená těsně na text, ne od oka — při větší
-   svislé rezervě vypadnou i buňky nad textem a pod ním a v pruhu zůstanou díry.
-   Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy a snítka,
-   která končila tři milimetry před „ke“, se ho opticky dotýkala. */
+   poznat — rozsyp proto počítá s výškou 42 mm a výsledek se posune o ty čtyři
+   dolů. */
 const ODSTUP_REZU = 4;
-const KYTKY_PRUH = rozsyp(148, 50 - ODSTUP_REZU * 2, 6, 3, [
-  { x1: 35, y1: 16 - ODSTUP_REZU, x2: 113, y2: 34 - ODSTUP_REZU },
+const KYTKY_PRUH = rozsyp(148, 50 - ODSTUP_REZU * 2, 10, 3, [
+  { x1: 30, y1: 0, x2: 118, y2: 50 },
 ], 8, 12).map((k) => ({ ...k, y: k.y + ODSTUP_REZU }));
 
 /* Samostatná pozvánka je tentýž proužek, jen na kartě se spadem — proto se
