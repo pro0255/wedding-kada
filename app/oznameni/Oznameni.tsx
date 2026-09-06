@@ -40,10 +40,10 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
      Výška je ale odměřená na text, ne na formát A5: na 128 mm šířky sazby má
-     obsah 139 mm a s bezpečnou zónou z toho vyjde 165. Do plné A5 by zbylo přes
+     obsah 134 mm a s bezpečnou zónou z toho vyjde 160. Do plné A5 by zbylo přes
      čtyři centimetry vzduchu, a protože je text vystředěný, půlka by ho visela
      nad nadpisem. Sedm milimetrů rezervy je na doplnění věty, ne na vzhled. */
-  { klic: "info", nazev: "Informace (148 × 172)", sirka: 148, vyska: 172, zona: 10 },
+  { klic: "info", nazev: "Informace (148 × 168)", sirka: 148, vyska: 168, zona: 10 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
@@ -161,7 +161,7 @@ const BLOKY: InfoBlok[] = [
   {
     nadpis: "Svatební dary",
     text:
-      "Největší dar je pro nás to, že s námi ten den strávíte. Kdybyste nám přesto chtěli něco věnovat, nejradši uvítáme příspěvek do naší společné budoucnosti — obálku nám můžete předat kdykoliv během dne. A jestli radši nosíte něco hmatatelného: místo kytice rádi odvezeme granule, deky nebo hračky do útulku.",
+      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule nebo deky našim chlupatým kamarádům do útulku.",
   },
   {
     nadpis: "Dress code",
