@@ -51,8 +51,10 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
      obsah má sahat až k ořezu a dělí se přesně na třetiny. */
   { klic: "pasek", nazev: "Pásky s fotkami (A5)", sirka: 148, vyska: 210, zona: 0 },
-  { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 90, vyska: 50, zona: 6 },
-  { klic: "vizitka", nazev: "Pozvánka ke stolu", sirka: 90, vyska: 50, zona: 6 },
+  /* Obě pozvánky jsou široké jako A5, aby se v sadě srovnaly s ostatními.
+     Z pruhu 148 x 50 mm vyjde z jedné A4 rovnou několik kusů. */
+  { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 148, vyska: 50, zona: 6 },
+  { klic: "vizitka", nazev: "Pozvánka ke stolu", sirka: 148, vyska: 50, zona: 6 },
 ];
 
 /* Kolik snítek vyrobil scripts/kyticky-oznameni.mjs. Soubory jsou 01..NN. */
@@ -133,12 +135,27 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
 
-/* Čtyři řady schválně: text zabírá 21 mm z padesáti šesti, takže při třech
-   řadách zasahoval do každé a kytky zbyly jen po stranách. Se čtyřmi je horní
-   i spodní pruh volný celý. */
-const KYTKY_MALE = rozsyp(96, 56, 5, 4, [
-  { x1: 15, y1: 17.5, x2: 81, y2: 38.5 },
-], 8, 13);
+/* Na pozvánkách rozsyp přes celou plochu nefunguje: karta je nízká, text jí
+   projde středem a kytky pak zbydou v tenkém proužku nahoře a dole, kde
+   vypadají jako rozsypaný čaj. Místo toho jsou dvě kytice na koncích pruhu
+   a mezi nimi čistý papír s textem.
+
+   Pravá kytice je otočená kolem 180°, aby stonky mířily ke kraji a květy
+   dovnitř — zrcadlí levou, není to jen posunutá kopie. */
+const KYTKY_MALE = [
+  // levá kytice
+  { snitka: "07", x: 2, y: -3, v: 18, uhel: 14 },
+  { snitka: "13", x: 15, y: 3, v: 14, uhel: -16 },
+  { snitka: "34", x: 5, y: 22, v: 13, uhel: 32 },
+  { snitka: "29", x: 21, y: 31, v: 11, uhel: -6 },
+  { snitka: "05", x: 32, y: 12, v: 12, uhel: 22 },
+  // pravá kytice
+  { snitka: "11", x: 126, y: 34, v: 18, uhel: 194 },
+  { snitka: "23", x: 138, y: 22, v: 14, uhel: 164 },
+  { snitka: "12", x: 122, y: 8, v: 13, uhel: 212 },
+  { snitka: "18", x: 137, y: 2, v: 11, uhel: 174 },
+  { snitka: "31", x: 112, y: 26, v: 12, uhel: 202 },
+];
 
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
    (DOTAZY v app/page.tsx) — je to jedna svatba, tak i jeden vzorník.

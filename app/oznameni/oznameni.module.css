@@ -260,7 +260,11 @@
   padding-top: 18mm;
 }
 .rubNadpis {
-  color: var(--ruzove-pismo);
+  /* Černá, ne růžová. Kartička leží na hlavním oznámení právě touhle stranou,
+     takže se slovo potká s „KATEŘINA“ hned nad sebou — stejné písmo, stejná
+     barva, čte se to jako jeden celek. Růžové vypadalo jako popiska. Barvu
+     drží rámeček. */
+  color: var(--inkoust);
   font-family: var(--serif), Georgia, serif;
   font-size: 9mm;
   line-height: 1.2;
