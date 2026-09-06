@@ -114,38 +114,23 @@
   font-family: var(--serif), Georgia, serif;
 }
 
-/* Zvonička stojí v pravém dolním rohu a jde odspodu nahoru až k „Kateřině“.
-   Sedí na okraji spadu, ne bezpečné zóny — vpravo a dole vybíhá přes ořez ven
-   z karty, takže tam po oříznutí není žádná hrana. Vlevo a nahoře je malba
-   rozpuštěná do průhledna (dělá to scripts/zvonicka-oznameni.mjs), proto se
-   text nemusí uhýbat víc, než je potřeba. Text je navíc nad ní (.text má
-   z-index), kdyby se přece jen dotkly. */
-.obrazek {
+/* Snítky leží pod textem (.text má z-index) a pozice si nesou v inline stylu
+   z pole KYTKY. Výška je zadaná, šířku dopočítá poměr stran, takže všechny
+   vypadají stejně velké bez ohledu na to, jak jsou široké. */
+.kytka {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 62mm;
-  height: auto;
+  width: auto;
+  pointer-events: none;
 }
 
 /* ---------- hlavní karta (A5) ---------- */
-/* Rytmus je z předlohy: úvod nahoře, pak velká pauza, jména, a pod nimi
-   natěsno datum s místem. Dole zůstává volný pruh. Proto pevné mezery a ne
-   space-between — to rozdělí místo rovnoměrně a předloha rovnoměrná není. */
+/* Všechno na střed, jako na předloze. Odsazení shora drží text pod horním
+   pásem kytek. */
 .k-hlavni .text {
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
-  text-align: left;
-}
-
-/* Jména se naklánějí o daný úhel, ne přes font-style: italic. Parisienne
-   kurzivní řez nemá vůbec, prohlížeč by si ho dopočítal sám a každý trochu
-   jinak — u PDF do tiskárny chci mít úhel jistý. Točí se kolem účaří, aby
-   písmo neodskočilo z řádku. */
-.krestni {
-  display: inline-block;
-  transform: skewX(-8deg);
-  transform-origin: 0 100%;
+  text-align: center;
+  padding-top: 16mm;
 }
 
 /* „navždy“ uprostřed řádku kapitálek je psacím písmem, ne nakloněnou
@@ -171,46 +156,30 @@
   color: var(--tlumene);
 }
 
-.jmena { margin-top: 35mm; }
-/* Jméno je řádek: křestní kaligrafií, příjmení drobnými verzálkami. Zarovnání
-   na účaří je schválně — příjmení má sedět na stejné lince jako konec tahu,
-   ne plavat uprostřed výšky. */
+.jmena { margin-top: 24mm; }
+/* Jména jsou patkové verzálky s velkým prostrkáním, jako na předloze.
+   Příjmení tam nejsou schválně. */
 .jmeno {
-  display: flex;
-  align-items: baseline;
-  gap: 3mm;
   margin: 0;
-}
-/* Velikost je kompromis se zvoničkou: při 20 mm dosahovalo „PYTLÍKOVÁ“ až na
-   její stříšku. Sedmnáct milimetrů je pořád velké psací písmo a řádek se
-   zvonice nedotkne. */
-.krestni {
-  font-family: var(--kaligrafie), cursive;
-  font-size: 17mm;
-  line-height: 1.05;
-  font-weight: 400;
-}
-.prijmeni {
-  font-family: var(--sans), system-ui, sans-serif;
-  font-size: 2.6mm;
-  letter-spacing: .28em;
+  font-size: 10mm;
+  line-height: 1.2;
+  letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--tlumene);
+  /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
+  text-indent: .2em;
 }
+/* Spojka je psacím písmem, aby mezi verzálkami nebyla další verzálka. */
 .karta .spojka {
   font-family: var(--kaligrafie), cursive;
-  font-size: 8mm;
-  margin: -2mm 0 -2mm 6mm;
+  font-size: 7mm;
+  line-height: 1;
+  margin: 3mm 0;
   color: var(--tlumene);
 }
 
-/* Blok data a místa je na předloze vysázený na střed, i když jména jsou vlevo
-   — ale na střed jmen, ne na střed karty. Tady to navíc musí být: vpravo dole
-   stojí zvonička a vystředěný přes celou zónu by do ní datum zajelo. */
 .udaje {
-  margin-top: 36mm;
-  align-self: flex-start;
-  margin-left: 26mm;
+  margin-top: 26mm;
+  align-self: center;
   display: flex;
   flex-direction: column;
   align-items: center;

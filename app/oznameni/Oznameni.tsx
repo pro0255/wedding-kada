@@ -15,8 +15,10 @@ import s from "./oznameni.module.css";
    takže se velikost stránky přepíná podle vybrané karty. Tři formáty najednou
    by prohlížeč zmenšil na jeden a spad by přestal sedět na milimetr.
 
-   Akvarel zvoničky vyrábí scripts/zvonicka-oznameni.mjs z malby, kterou dodala
-   Káťa. Na 42 mm šířky vychází na 375 dpi, takže tisk projde. */
+   Kytky kolem textu vyřezává scripts/kyticky-oznameni.mjs z archu, který dodala
+   Káťa. Každá snítka je vlastní soubor, aby se daly rozházet po kartě jednotlivě
+   a v různých velikostech a natočeních. Rozmístění je psané ručně v KYTKY —
+   náhoda dělá shluky a prázdná místa, tohle má být rovnoměrný věnec. */
 
 /* Kaligrafie na jména a na „Děkujeme“. Web žádné takové písmo nemá, Caveat je
    fixa, ne kaligrafie. latin-ext kvůli české diakritice. */
@@ -36,6 +38,39 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
   { klic: "vizitka", nazev: "Pozvánka ke stolu", sirka: 90, vyska: 50, zona: 6 },
 ];
 
+/* Rozmístění snítek na hlavní kartě. Souřadnice jsou v milimetrech od rohu
+   karty VČETNĚ spadu (154 x 216 mm), ne od ořezu — kytky u kraje mají vybíhat
+   ven a po ořezu se nakousnout, jako na předloze.
+
+   x, y = levý horní roh, v = výška (šířka dopočítá poměr stran), uhel = natočení.
+   Je to psané ručně, ne náhodně: náhoda dělá shluky a holá místa, tohle má být
+   pravidelný věnec kolem textu. Střed karty zůstává prázdný, text je tam. */
+const KYTKY = [
+  // horní pás
+  { snitka: "03", x: 22, y: 6, v: 22, uhel: -12 },
+  { snitka: "09", x: 52, y: 2, v: 18, uhel: 15 },
+  { snitka: "22", x: 84, y: 5, v: 20, uhel: -6 },
+  { snitka: "05", x: 112, y: 2, v: 19, uhel: 20 },
+  { snitka: "13", x: 132, y: 12, v: 21, uhel: -16 },
+  // levý sloupec
+  { snitka: "07", x: 6, y: 32, v: 26, uhel: 8 },
+  { snitka: "11", x: 12, y: 64, v: 22, uhel: -10 },
+  { snitka: "19", x: 6, y: 96, v: 22, uhel: 12 },
+  { snitka: "01", x: 10, y: 128, v: 24, uhel: -18 },
+  { snitka: "32", x: 4, y: 162, v: 16, uhel: 6 },
+  // pravý sloupec
+  { snitka: "16", x: 126, y: 42, v: 22, uhel: -14 },
+  { snitka: "10", x: 134, y: 72, v: 20, uhel: 10 },
+  { snitka: "24", x: 124, y: 102, v: 22, uhel: -8 },
+  { snitka: "12", x: 132, y: 134, v: 22, uhel: 16 },
+  { snitka: "21", x: 122, y: 164, v: 20, uhel: -12 },
+  // dolní pás
+  { snitka: "02", x: 26, y: 184, v: 24, uhel: 10 },
+  { snitka: "15", x: 58, y: 194, v: 18, uhel: -14 },
+  { snitka: "31", x: 86, y: 188, v: 20, uhel: 18 },
+  { snitka: "26", x: 112, y: 192, v: 20, uhel: -8 },
+];
+
 /* Všechny texty na jednom místě, ať se ladí bez hledání v JSX.
 
    Texty informační karty jsou schválně krátké. Delší verze se na A6 nevešla
@@ -45,8 +80,8 @@ const T = {
   hlavni: {
     /* „navždy“ je psacím písmem uprostřed řádku kapitálek, proto zvlášť. */
     uvod: { prvni: "ty a já,", druhy: "teď a ", psaci: "navždy" },
-    nevesta: { krestni: "Kateřina", prijmeni: "Pytlíková" },
-    zenich: { krestni: "Jakub", prijmeni: "Jisl" },
+    nevesta: "Kateřina",
+    zenich: "Jakub",
     spojka: "a",
     datum: "18. 9. 2027",
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
@@ -152,11 +187,18 @@ export default function Oznameni() {
         }
       >
         <section className={`${s.karta} ${s[`k-${klic}`]}`} aria-label={`Karta: ${karta.nazev}`}>
-          {/* Zvonička je vpravo, mimo sloupec textu. Okraje má rozpuštěné do
-              průhledna, takže se do papíru vpije a nedělá obdélník. */}
-          {klic === "hlavni" && (
-            <img className={s.obrazek} src="/oznameni/zvonicka.png" alt="" aria-hidden="true" />
-          )}
+          {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
+              některé nakousnou, přesně jak to má předloha. */}
+          {klic === "hlavni" && KYTKY.map((k, i) => (
+            <img
+              key={i}
+              className={s.kytka}
+              src={`/oznameni/kyticky/${k.snitka}.png`}
+              alt=""
+              aria-hidden="true"
+              style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+            />
+          ))}
 
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
@@ -190,15 +232,9 @@ function Hlavni() {
       </p>
 
       <div className={s.jmena}>
-        <p className={s.jmeno}>
-          <span className={s.krestni}>{t.nevesta.krestni}</span>
-          <span className={s.prijmeni}>{t.nevesta.prijmeni}</span>
-        </p>
+        <p className={s.jmeno}>{t.nevesta}</p>
         <p className={s.spojka}>{t.spojka}</p>
-        <p className={s.jmeno}>
-          <span className={s.krestni}>{t.zenich.krestni}</span>
-          <span className={s.prijmeni}>{t.zenich.prijmeni}</span>
-        </p>
+        <p className={s.jmeno}>{t.zenich}</p>
       </div>
 
       {/* Datum a místo jsou na předloze jeden blok na střed, ne pokračování
