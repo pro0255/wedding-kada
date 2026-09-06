@@ -11,7 +11,9 @@
  * s pěti milimetry mezi sebou a nahoře i dole vyplnily 210 mm.
  *
  * Výřez je na 300 dpi. Předlohy jsou fotky z mobilu, takže rozlišení mají
- * s rezervou; ořezává se přes `fit: cover` na nejzajímavější část.
+ * s rezervou. Ořezává se `fit: cover` na střed — ne přes `position: attention`.
+ * Ta hledá místo s nejvíc detailem a u fotky páru na šířku se zakousne do
+ * jednoho obličeje a druhého ustřihne. Na střed jsou oba.
  *
  * Jiné fotky = jiná čísla v POUZITE. Soubory se přepíšou, komponenta na ně
  * odkazuje pořadím, ne jménem. */
@@ -20,7 +22,7 @@ import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
 /* Čísla z public/fotky. Pořadí je pořadí na pásku, shora dolů. */
-const POUZITE = ["15", "16", "6"];
+const POUZITE = ["7", "12", "13"];
 
 const KAM = "public/oznameni/pasek";
 const SIRKA_MM = 41.33;
@@ -34,7 +36,7 @@ await mkdir(KAM, { recursive: true });
 for (let i = 0; i < POUZITE.length; i++) {
   const cil = `${KAM}/${i + 1}.jpg`;
   const info = await sharp(`public/fotky/${POUZITE[i]}.jpeg`)
-    .resize(px(SIRKA_MM), px(VYSKA_MM), { fit: "cover", position: "attention" })
+    .resize(px(SIRKA_MM), px(VYSKA_MM), { fit: "cover" })
     /* Mírné zesvětlení a měkčí kontrast: tisk sytí stíny víc než obrazovka
      * a bez toho by v tmavých místech zmizel detail. */
     .linear(0.94, 10)

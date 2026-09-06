@@ -37,10 +37,11 @@
   --ramecek-ruzova: #f4d3d9;
   --ruzove-pismo: #9e4750;    /* --palette-rose-text */
 
-  /* Jména a datum na hlavní kartě. Baby blue z plochy (#dbe7f4) je barva na
-     pozadí, ne na písmo — na bílém papíře by se ztratila úplně. Tohle je stejný
-     modrý tón ztmavený tak, aby se na papíře udržel a pořád byl světle modrý. */
-  --modre-pismo: #8fb0c8;
+  /* Modrá na doprovodný text. Baby blue z plochy (#dbe7f4) je barva na pozadí,
+     ne na písmo — na bílém papíře by se ztratila úplně. Tohle je stejný modrý
+     tón ztmavený tak, aby se udržel i na prostrkaných kapitálkách o velikosti
+     sedmi bodů, a pořád byl světle modrý. */
+  --modre-pismo: #7fa3bd;
 
   min-height: 100dvh;
   padding: 2rem 1rem 4rem;
@@ -160,18 +161,16 @@
   line-height: 1.9;
   letter-spacing: .3em;
   text-transform: uppercase;
-  color: var(--tlumene);
+  color: var(--modre-pismo);
 }
 
 .jmena { margin-top: 24mm; }
 /* Jména jsou patkové verzálky s velkým prostrkáním, jako na předloze.
-   Příjmení tam nejsou schválně. Modrá je stejná jako u data; o půl stupně
-   těžší řez proto, že tenké patkové verzálky v pastelové barvě na papíře
-   zeslábnou dvakrát — jednou písmem a podruhé barvou. */
+   Příjmení tam nejsou schválně. Jména a datum jsou černá, všechno kolem nich
+   modré — tak drží karta hierarchii i bez rozdílu ve velikosti. */
 .jmeno {
   margin: 0;
-  color: var(--modre-pismo);
-  font-weight: 500;
+  color: var(--inkoust);
   font-size: 10mm;
   line-height: 1.2;
   letter-spacing: .2em;
@@ -185,7 +184,7 @@
   font-size: 7mm;
   line-height: 1;
   margin: 3mm 0;
-  color: var(--tlumene);
+  color: var(--modre-pismo);
 }
 
 /* Věta pod jmény je patková kurziva — Cormorant má skutečný kurzivní řez,
@@ -197,7 +196,7 @@
   font-style: italic;
   font-size: 4.4mm;
   letter-spacing: .05em;
-  color: var(--tlumene);
+  color: var(--modre-pismo);
 }
 
 .udaje {
@@ -208,13 +207,13 @@
   align-items: center;
   text-align: center;
 }
-/* Datum je světle modré a v nejtěžším řezu, jaký se pro Cormorant načítá —
-   tenké patkové písmo v pastelové barvě by na papíře zesláblo dvakrát. */
+/* Datum je černé a v nejtěžším řezu, jaký se pro Cormorant načítá — má nést
+   stránku stejně jako jména. */
 .datum {
   font-size: 9.5mm;
   font-weight: 600;
   letter-spacing: .08em;
-  color: var(--modre-pismo);
+  color: var(--inkoust);
 }
 
 .karta .detail {
@@ -227,7 +226,7 @@
   line-height: 2;
   letter-spacing: .26em;
   text-transform: uppercase;
-  color: var(--tlumene);
+  color: var(--modre-pismo);
 }
 
 /* ---------- informační karta (A6, růžový rámeček) ---------- */
@@ -354,7 +353,7 @@
   font-size: 2.4mm;
   letter-spacing: .3em;
   text-transform: uppercase;
-  color: var(--tlumene);
+  color: var(--modre-pismo);
 }
 .karta .vizitkaHlavni {
   margin-top: 1mm;
