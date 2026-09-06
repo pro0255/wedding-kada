@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Parisienne } from "next/font/google";
 import s from "./oznameni.module.css";
 
-/* Svatební oznámení k tisku — sada tří karet.
+/* Svatební oznámení k tisku — sada pěti karet.
 
    Stavěné jako TISKOVINA, ne jako stránka, která se dá vytisknout. Každá karta
    je o 3 mm větší na každou stranu, než jak se ořízne (spad), aby po ořezu
@@ -12,8 +12,12 @@ import s from "./oznameni.module.css";
    nesmí ke kraji — drží se v bezpečné zóně.
 
    Tiskne se po JEDNÉ kartě: @page umí jen jeden rozměr na celý dokument,
-   takže se velikost stránky přepíná podle vybrané karty. Tři formáty najednou
+   takže se velikost stránky přepíná podle vybrané karty. Víc formátů najednou
    by prohlížeč zmenšil na jeden a spad by přestal sedět na milimetr.
+
+   Fotky na pásku jsou černobílé už v souboru (scripts/pasek-fotek.mjs), ne přes
+   CSS filtr — filtrovaný obrázek prohlížeč při tisku rasterizuje v rozlišení,
+   které si zvolí sám, a to u tiskoviny nechci hádat.
 
    Kytky kolem textu vyřezává scripts/kyticky-oznameni.mjs z archu, který dodala
    Káťa. Každá snítka je vlastní soubor, aby se daly rozházet po kartě jednotlivě
@@ -30,45 +34,122 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "vizitka";
+type KartaKlic = "hlavni" | "info" | "pasek" | "obrad" | "vizitka";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   { klic: "info", nazev: "Informace (A6)", sirka: 105, vyska: 148, zona: 8 },
+  /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
+     ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
+     a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
+     obsah má sahat až k ořezu a dělí se přesně na třetiny. */
+  { klic: "pasek", nazev: "Pásky s fotkami (A5)", sirka: 148, vyska: 210, zona: 0 },
+  { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 90, vyska: 50, zona: 6 },
   { klic: "vizitka", nazev: "Pozvánka ke stolu", sirka: 90, vyska: 50, zona: 6 },
 ];
 
-/* Rozmístění snítek na hlavní kartě. Souřadnice jsou v milimetrech od rohu
-   karty VČETNĚ spadu (154 x 216 mm), ne od ořezu — kytky u kraje mají vybíhat
-   ven a po ořezu se nakousnout, jako na předloze.
+/* Kolik snítek vyrobil scripts/kyticky-oznameni.mjs. Soubory jsou 01..NN. */
+const SNITEK = 34;
 
-   x, y = levý horní roh, v = výška (šířka dopočítá poměr stran), uhel = natočení.
-   Je to psané ručně, ne náhodně: náhoda dělá shluky a holá místa, tohle má být
-   pravidelný věnec kolem textu. Střed karty zůstává prázdný, text je tam. */
-const KYTKY = [
-  // horní pás
-  { snitka: "03", x: 22, y: 6, v: 22, uhel: -12 },
-  { snitka: "09", x: 52, y: 2, v: 18, uhel: 15 },
-  { snitka: "22", x: 84, y: 5, v: 20, uhel: -6 },
-  { snitka: "05", x: 112, y: 2, v: 19, uhel: 20 },
-  { snitka: "13", x: 132, y: 12, v: 21, uhel: -16 },
-  // levý sloupec
-  { snitka: "07", x: 6, y: 32, v: 26, uhel: 8 },
-  { snitka: "11", x: 12, y: 64, v: 22, uhel: -10 },
-  { snitka: "19", x: 6, y: 96, v: 22, uhel: 12 },
-  { snitka: "01", x: 10, y: 128, v: 24, uhel: -18 },
-  { snitka: "32", x: 4, y: 162, v: 16, uhel: 6 },
-  // pravý sloupec
-  { snitka: "16", x: 126, y: 42, v: 22, uhel: -14 },
-  { snitka: "10", x: 134, y: 72, v: 20, uhel: 10 },
-  { snitka: "24", x: 124, y: 102, v: 22, uhel: -8 },
-  { snitka: "12", x: 132, y: 134, v: 22, uhel: 16 },
-  { snitka: "21", x: 122, y: 164, v: 20, uhel: -12 },
-  // dolní pás
-  { snitka: "02", x: 26, y: 184, v: 24, uhel: 10 },
-  { snitka: "15", x: 58, y: 194, v: 18, uhel: -14 },
-  { snitka: "31", x: 86, y: 188, v: 20, uhel: 18 },
-  { snitka: "26", x: 112, y: 192, v: 20, uhel: -8 },
+/* Deterministická náhoda ze souřadnic buňky. Math.random tu být nesmí: server
+   a klient by vykreslily jinou kartu a React by na tom spadl. Sinusový hash
+   dává pokaždé stejné číslo a přitom to nevypadá pravidelně. */
+function sum(a: number, b: number) {
+  const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+type Zona = { x1: number; y1: number; x2: number; y2: number };
+type Kytka = { snitka: string; x: number; y: number; v: number; uhel: number };
+
+/* Rozsyp snítek po kartě.
+
+   Karta se rozdělí na stejně velké buňky a do každé padne jedna kytka,
+   posunutá uvnitř buňky o kus stranou. Rozestupy jsou tím pádem všude zhruba
+   stejné — ručně skládaný rozsyp dělal dvojice nalepené na sobě a vedle nich
+   prázdno. Velikost a natočení se střídají, aby to nevypadalo jako tapeta.
+
+   Buňky, které by zasáhly do textu, vypadnou. Kytky proto nejsou jen po
+   obvodu: kde je mezi odstavci volno, prostrčí se i doprostřed karty.
+
+   Souřadnice jsou v milimetrech od rohu karty VČETNĚ spadu — kytky u kraje
+   mají po ořezu vybíhat ven, jako na předloze. */
+function rozsyp(
+  sirka: number, vyska: number,
+  sloupcu: number, radku: number,
+  zony: Zona[],
+  /* Rozsah výšky snítek. Na malé pozvánce musí být drobnější — dvaadvacet
+     milimetrů je na kartě vysoké padesát skoro polovina výšky. */
+  nejmensi = 13, nejvetsi = 22,
+): Kytka[] {
+  const bunkaX = sirka / sloupcu;
+  const bunkaY = vyska / radku;
+  const kytky: Kytka[] = [];
+  let poradi = 0;
+
+  for (let r = 0; r < radku; r++) {
+    for (let c = 0; c < sloupcu; c++) {
+      const v = nejmensi + sum(c, r) * (nejvetsi - nejmensi);
+      const sirkaKytky = v * 0.55;      // snítky jsou zhruba 1 : 1,8
+      const x = c * bunkaX + (bunkaX - sirkaKytky) * (0.15 + sum(c + 10, r) * 0.7);
+      const y = r * bunkaY + (bunkaY - v) * (0.15 + sum(c, r + 10) * 0.7);
+
+      const zasahujeText = zony.some((z) =>
+        x < z.x2 && x + sirkaKytky > z.x1 && y < z.y2 && y + v > z.y1);
+      if (zasahujeText) continue;
+
+      /* Krok sedmi místo pořadí: sousední buňky tak nedostanou sousední
+         snítky a stejná kytka se nesejde sama se sebou. Sedmička je nesoudělná
+         s 34, takže se vystřídají všechny. */
+      /* Zaokrouhleno na setiny milimetru. Nezaokrouhlené číslo jde do inline
+         stylu s patnácti ciframi, server a klient ho vypíšou každý jinak
+         a React na tom ohlásí neshodu hydratace — a tiskárna z desetitisícin
+         milimetru stejně nic nemá. */
+      const nadva = (n: number) => Math.round(n * 100) / 100;
+      kytky.push({
+        snitka: String(((poradi * 7) % SNITEK) + 1).padStart(2, "0"),
+        x: nadva(x), y: nadva(y), v: nadva(v),
+        uhel: Math.round(-22 + sum(c + 20, r + 20) * 44),
+      });
+      poradi++;
+    }
+  }
+  return kytky;
+}
+
+/* Místa, kam kytky nesmí. Odměřené z hotové karty a o 3 mm rozšířené, ať se
+   nedotýkají písmen. */
+const KYTKY = rozsyp(154, 216, 6, 9, [
+  { x1: 61, y1: 26, x2: 93, y2: 42 },      // ty a já, teď a navždy
+  { x1: 40, y1: 60, x2: 114, y2: 103 },    // jména
+  { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
+  { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
+]);
+
+/* Čtyři řady schválně: text zabírá 21 mm z padesáti šesti, takže při třech
+   řadách zasahoval do každé a kytky zbyly jen po stranách. Se čtyřmi je horní
+   i spodní pruh volný celý. */
+const KYTKY_MALE = rozsyp(96, 56, 5, 4, [
+  { x1: 15, y1: 17.5, x2: 81, y2: 38.5 },
+], 8, 13);
+
+/* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
+   (DOTAZY v app/page.tsx) — je to jedna svatba, tak i jeden vzorník.
+   Vlastní typ kvůli tomu, že barvy má jen jeden blok ze dvou. */
+type InfoBlok = { nadpis: string; text: string; barvy?: string[] };
+
+const BLOKY: InfoBlok[] = [
+  {
+    nadpis: "Svatební dary",
+    text:
+      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti. A kdybyste přece jen chtěli něco přinést — místo kytice rádi odvezeme granule nebo deky do útulku.",
+  },
+  {
+    nadpis: "Dress code",
+    text:
+      "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost.",
+    barvy: ["#c3d7ec", "#f6c396", "#f5a3a8", "#f4d3d9", "#a8c8ec", "#f8e4a3", "#b7d3ab"],
+  },
 ];
 
 /* Všechny texty na jednom místě, ať se ladí bez hledání v JSX.
@@ -83,26 +164,20 @@ const T = {
     nevesta: "Kateřina",
     zenich: "Jakub",
     spojka: "a",
+    slib: "si řeknou své „ano“",
     datum: "18. 9. 2027",
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   info: {
     uvodni:
       "Obřad, oběd i večerní párty se konají na jednom místě. Sejdeme se ve dvanáct u zvoničky, od tří hodin vás dva řidiči odvezou domů.",
-    bloky: [
-      {
-        nadpis: "Svatební dary",
-        text:
-          "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti. A kdybyste přece jen chtěli něco přinést — místo kytice rádi odvezeme granule nebo deky do útulku.",
-      },
-      {
-        nadpis: "Dress code",
-        text:
-          "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost.",
-      },
-    ],
+    bloky: BLOKY,
     podpis: "Děkujeme,",
     zaver: "že budete součástí našeho velkého dne.",
+  },
+  obrad: {
+    uvod: "srdečně vás zveme",
+    hlavni: "na svatební obřad",
   },
   vizitka: {
     uvod: "srdečně vás zveme",
@@ -189,7 +264,10 @@ export default function Oznameni() {
         <section className={`${s.karta} ${s[`k-${klic}`]}`} aria-label={`Karta: ${karta.nazev}`}>
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
-          {klic === "hlavni" && KYTKY.map((k, i) => (
+          {(klic === "hlavni" ? KYTKY
+            : klic === "info" || klic === "pasek" ? []
+            : KYTKY_MALE
+          ).map((k, i) => (
             <img
               key={i}
               className={s.kytka}
@@ -203,7 +281,9 @@ export default function Oznameni() {
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
-            {klic === "vizitka" && <Vizitka />}
+            {klic === "pasek" && <Pasek voditka={ukazVoditka} />}
+            {klic === "obrad" && <Zvani {...T.obrad} />}
+            {klic === "vizitka" && <Zvani {...T.vizitka} />}
           </div>
 
           {/* Vodítka jen na obrazovce: červená je řez, modrá bezpečná zóna.
@@ -237,6 +317,8 @@ function Hlavni() {
         <p className={s.jmeno}>{t.zenich}</p>
       </div>
 
+      <p className={s.slib}>{t.slib}</p>
+
       {/* Datum a místo jsou na předloze jeden blok na střed, ne pokračování
           zarovnání jmen doleva. */}
       <div className={s.udaje}>
@@ -260,6 +342,15 @@ function Info() {
         <section key={b.nadpis} className={s.infoBlok}>
           <h2 className={s.infoNadpis}>{b.nadpis}</h2>
           <p className={s.infoText}>{b.text}</p>
+          {b.barvy && (
+            <ul className={s.barvy}>
+              {/* Názvy odstínů tu nejsou schválně — na papíře je vedle sebe
+                  nikdo neluští a čtečka obrazovky se sem nedostane. */}
+              {b.barvy.map((h) => (
+                <li key={h} className={s.kulicka} style={{ background: h }} />
+              ))}
+            </ul>
+          )}
         </section>
       ))}
       <p className={s.podpis}>{t.podpis}</p>
@@ -268,12 +359,48 @@ function Info() {
   );
 }
 
-function Vizitka() {
-  const t = T.vizitka;
+/* Arch se třemi proužky vedle sebe. Každý proužek je třetina šířky A5, tedy
+   49,33 mm, a je vysoký přes celou stránku — po vytisknutí stačí dva svislé
+   řezy a jsou z toho tři pásky.
+
+   Všechny tři jsou stejné, ne tři různé sady fotek: jde o to mít víc kusů
+   téhož pásku, ne tři varianty.
+
+   Rozestupy mezi fotkami dělá space-between, takže sedí i po změně rozměru
+   fotek — stačí přegenerovat scripts/pasek-fotek.mjs a nesahat na styly. */
+function Pasek({ voditka }: { voditka: boolean }) {
+  return (
+    <div className={s.pasekArch}>
+      {[0, 1, 2].map((proužek) => (
+        <div key={proužek} className={s.pasekProuzek}>
+          {[1, 2, 3].map((n) => (
+            <img
+              key={n}
+              className={s.pasekFotka}
+              src={`/oznameni/pasek/${n}.jpg`}
+              alt=""
+              aria-hidden="true"
+            />
+          ))}
+        </div>
+      ))}
+
+      {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
+      {voditka && [1, 2].map((i) => (
+        <i key={i} className={s.pasekRez} style={{ left: `${(i * 100) / 3}%` }} aria-hidden="true" />
+      ))}
+    </div>
+  );
+}
+
+/* Obě malé pozvánky — ke stolu i na obřad. Liší se jen textem, tak ať se
+   neduplikuje rozvržení. */
+function Zvani({ uvod, hlavni, detail }: { uvod: string; hlavni: string; detail?: string }) {
   return (
     <>
-      <p className={s.vizitkaUvod}>{t.uvod}</p>
-      <p className={s.vizitkaHlavni}>{t.hlavni}</p>
+      <p className={s.vizitkaUvod}>{uvod}</p>
+      <p className={s.vizitkaHlavni}>{hlavni}</p>
+      {detail && <p className={s.vizitkaDetail}>{detail}</p>}
     </>
   );
 }

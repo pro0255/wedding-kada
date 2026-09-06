@@ -32,8 +32,15 @@
   --papir: #fbfaf8;
   --inkoust: #3a3a38;
   --tlumene: #6f6d69;
-  --karta-modra: #dbe7f4;     /* --modra z webu (#c3d7ec) naředěná bílou na baby blue */
-  --karta-modra-inkoust: #33556b;  /* --modra-syta; bílá by se na světlé modré ztratila */
+  /* Rámeček informační karty: --ruzova z webu. Naředěná baby pink by ve čtyřech
+     milimetrech pruhu skoro nebyla vidět. */
+  --ramecek-ruzova: #f4d3d9;
+  --ruzove-pismo: #9e4750;    /* --palette-rose-text */
+
+  /* Jména a datum na hlavní kartě. Baby blue z plochy (#dbe7f4) je barva na
+     pozadí, ne na písmo — na bílém papíře by se ztratila úplně. Tohle je stejný
+     modrý tón ztmavený tak, aby se na papíře udržel a pořád byl světle modrý. */
+  --modre-pismo: #8fb0c8;
 
   min-height: 100dvh;
   padding: 2rem 1rem 4rem;
@@ -158,9 +165,13 @@
 
 .jmena { margin-top: 24mm; }
 /* Jména jsou patkové verzálky s velkým prostrkáním, jako na předloze.
-   Příjmení tam nejsou schválně. */
+   Příjmení tam nejsou schválně. Modrá je stejná jako u data; o půl stupně
+   těžší řez proto, že tenké patkové verzálky v pastelové barvě na papíře
+   zeslábnou dvakrát — jednou písmem a podruhé barvou. */
 .jmeno {
   margin: 0;
+  color: var(--modre-pismo);
+  font-weight: 500;
   font-size: 10mm;
   line-height: 1.2;
   letter-spacing: .2em;
@@ -177,17 +188,33 @@
   color: var(--tlumene);
 }
 
+/* Věta pod jmény je patková kurziva — Cormorant má skutečný kurzivní řez,
+   nemusí se naklánět uměle. Kurziva ji odliší od verzálek nad ní i od
+   prostrkaných kapitálek pod ní, aniž by přibylo další písmo. */
+.karta .slib {
+  margin-top: 9mm;
+  font-family: var(--serif), Georgia, serif;
+  font-style: italic;
+  font-size: 4.4mm;
+  letter-spacing: .05em;
+  color: var(--tlumene);
+}
+
 .udaje {
-  margin-top: 26mm;
+  margin-top: 19mm;
   align-self: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
+/* Datum je světle modré a v nejtěžším řezu, jaký se pro Cormorant načítá —
+   tenké patkové písmo v pastelové barvě by na papíře zesláblo dvakrát. */
 .datum {
-  font-size: 9mm;
-  letter-spacing: .06em;
+  font-size: 9.5mm;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--modre-pismo);
 }
 
 .karta .detail {
@@ -203,10 +230,19 @@
   color: var(--tlumene);
 }
 
-/* ---------- informační karta (A6, modrá) ---------- */
+/* ---------- informační karta (A6, růžový rámeček) ---------- */
+/* Karta je růžová jen po obvodu, uvnitř je bílý papír. Pruh sahá až na okraj
+   spadu, takže po ořezu zůstanou 4 mm — kdyby končil na ořezu, po posunu
+   řezačky by na kraji svítil bílý proužek. */
 .k-info {
-  background: var(--karta-modra);
-  color: var(--karta-modra-inkoust);
+  background: var(--ramecek-ruzova);
+  color: var(--ruzove-pismo);
+}
+.k-info::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--spad) + 4mm);
+  background: var(--papir);
 }
 .k-info .text {
   align-items: center;
@@ -241,6 +277,24 @@
   margin: 0;
   font-size: 2.9mm;
 }
+/* Vzorník pastelů k dress code, stejné kuličky jako na webu. Obrys je border,
+   ne box-shadow — v tiskovém PDF je border spolehlivější a nejsvětlejší
+   odstíny bez něj na papíře splynou. */
+.barvy {
+  display: flex;
+  justify-content: center;
+  gap: 2mm;
+  margin: 4mm 0 0;
+  padding: 0;
+  list-style: none;
+}
+.kulicka {
+  width: 4.5mm;
+  height: 4.5mm;
+  border-radius: 50%;
+  border: .2mm solid rgba(0, 0, 0, .1);
+}
+
 .karta .podpis {
   margin: 11mm 0 0;
   font-family: var(--kaligrafie), cursive;
@@ -252,8 +306,45 @@
   font-size: 2.9mm;
 }
 
-/* ---------- pozvánka ke stolu (vizitka) ---------- */
-.k-vizitka .text {
+/* ---------- arch s pásky fotek ---------- */
+/* Tři proužky vedle sebe na A5. Arch vyplní celou plochu ořezu (bezpečná zóna
+   je u téhle karty nulová) a rozdělí se na třetiny — proužek je 49,33 mm.
+   Uvnitř proužku drží fotky bílý okraj, takže na řezu nezáleží na desetině
+   milimetru: řeže se do bílého, ne do fotky. */
+.k-pasek .text { padding: 0; }
+.pasekArch {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.pasekProuzek {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5mm 4mm;
+}
+.pasekFotka {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Vodítka řezu mezi proužky. Do tisku nejdou. */
+.pasekRez {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: .3mm dashed rgba(200, 90, 90, .55);
+  pointer-events: none;
+}
+
+/* ---------- malé pozvánky (ke stolu, na obřad) ---------- */
+.k-vizitka .text,
+.k-obrad .text {
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -270,6 +361,16 @@
   font-family: var(--kaligrafie), cursive;
   font-size: 9mm;
   line-height: 1.2;
+}
+/* Datum a čas jen na pozvánce na obřad — ke stolu se nikdo neobjednává na
+   hodinu. */
+.karta .vizitkaDetail {
+  margin-top: 3mm;
+  font-family: var(--sans), system-ui, sans-serif;
+  font-size: 2.4mm;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--tlumene);
 }
 
 /* ---------- vodítka (jen na obrazovce) ---------- */
