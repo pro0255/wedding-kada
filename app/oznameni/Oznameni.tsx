@@ -15,8 +15,8 @@ import s from "./oznameni.module.css";
    takže se velikost stránky přepíná podle vybrané karty. Tři formáty najednou
    by prohlížeč zmenšil na jeden a spad by přestal sedět na milimetr.
 
-   Akvarelové kytky z webu tu schválně nejsou — přes celou šířku A5 mají 110 dpi
-   a tisk chce 300, na papíře by byly rozmazané. */
+   Akvarel zvoničky vyrábí scripts/zvonicka-oznameni.mjs z malby, kterou dodala
+   Káťa. Na 42 mm šířky vychází na 375 dpi, takže tisk projde. */
 
 /* Kaligrafie na jména a na „Děkujeme“. Web žádné takové písmo nemá, Caveat je
    fixa, ne kaligrafie. latin-ext kvůli české diakritice. */
@@ -152,6 +152,12 @@ export default function Oznameni() {
         }
       >
         <section className={`${s.karta} ${s[`k-${klic}`]}`} aria-label={`Karta: ${karta.nazev}`}>
+          {/* Zvonička je vpravo, mimo sloupec textu. Okraje má rozpuštěné do
+              průhledna, takže se do papíru vpije a nedělá obdélník. */}
+          {klic === "hlavni" && (
+            <img className={s.obrazek} src="/oznameni/zvonicka.png" alt="" aria-hidden="true" />
+          )}
+
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}

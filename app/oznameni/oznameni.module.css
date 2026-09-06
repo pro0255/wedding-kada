@@ -114,6 +114,20 @@
   font-family: var(--serif), Georgia, serif;
 }
 
+/* Zvonička stojí v pravém dolním rohu a jde odspodu nahoru až k „Kateřině“.
+   Sedí na okraji spadu, ne bezpečné zóny — vpravo a dole vybíhá přes ořez ven
+   z karty, takže tam po oříznutí není žádná hrana. Vlevo a nahoře je malba
+   rozpuštěná do průhledna (dělá to scripts/zvonicka-oznameni.mjs), proto se
+   text nemusí uhýbat víc, než je potřeba. Text je navíc nad ní (.text má
+   z-index), kdyby se přece jen dotkly. */
+.obrazek {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 62mm;
+  height: auto;
+}
+
 /* ---------- hlavní karta (A5) ---------- */
 /* Rytmus je z předlohy: úvod nahoře, pak velká pauza, jména, a pod nimi
    natěsno datum s místem. Dole zůstává volný pruh. Proto pevné mezery a ne
@@ -167,9 +181,12 @@
   gap: 3mm;
   margin: 0;
 }
+/* Velikost je kompromis se zvoničkou: při 20 mm dosahovalo „PYTLÍKOVÁ“ až na
+   její stříšku. Sedmnáct milimetrů je pořád velké psací písmo a řádek se
+   zvonice nedotkne. */
 .krestni {
   font-family: var(--kaligrafie), cursive;
-  font-size: 20mm;
+  font-size: 17mm;
   line-height: 1.05;
   font-weight: 400;
 }
@@ -182,16 +199,18 @@
 }
 .karta .spojka {
   font-family: var(--kaligrafie), cursive;
-  font-size: 9mm;
+  font-size: 8mm;
   margin: -2mm 0 -2mm 6mm;
   color: var(--tlumene);
 }
 
-/* Blok data a místa je na předloze vysázený na střed, i když jména jsou
-   vlevo. Střed se bere z celé bezpečné zóny. */
+/* Blok data a místa je na předloze vysázený na střed, i když jména jsou vlevo
+   — ale na střed jmen, ne na střed karty. Tady to navíc musí být: vpravo dole
+   stojí zvonička a vystředěný přes celou zónu by do ní datum zajelo. */
 .udaje {
   margin-top: 36mm;
-  align-self: center;
+  align-self: flex-start;
+  margin-left: 26mm;
   display: flex;
   flex-direction: column;
   align-items: center;
