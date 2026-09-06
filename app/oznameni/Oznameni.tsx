@@ -34,7 +34,7 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "rub" | "pasek" | "obrad" | "vizitka";
+type KartaKlic = "hlavni" | "info" | "rub" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
@@ -55,6 +55,11 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
      Z pruhu 148 x 50 mm vyjde z jedné A4 rovnou několik kusů. */
   { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 148, vyska: 50, zona: 6 },
   { klic: "vizitka", nazev: "Pozvánka ke stolu", sirka: 148, vyska: 50, zona: 6 },
+  /* Archy pozvánek. Pozvánka je 148 x 50 mm, takže se čtyři vejdou na výšku
+     200 mm a řežou se třemi vodorovnými řezy. Bezpečná zóna je nulová: obsah
+     sahá až k ořezu a dělí se přesně na čtvrtiny. */
+  { klic: "archObrad", nazev: "Pozvánky na obřad (arch)", sirka: 148, vyska: 200, zona: 0 },
+  { klic: "archStolu", nazev: "Pozvánky ke stolu (arch)", sirka: 148, vyska: 200, zona: 0 },
 ];
 
 /* Kolik snítek vyrobil scripts/kyticky-oznameni.mjs. Soubory jsou 01..NN. */
@@ -149,6 +154,13 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
    padesát skoro polovina výšky. */
 const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
   { x1: 38, y1: 19, x2: 116, y2: 37 },
+], 8, 12);
+
+/* Totéž pro proužek na archu. Souřadnice tam ale nejsou od kraje se spadem, ale
+   od ořezu — proužky se z archu řežou a mezi nimi žádný spad není. Proto vlastní
+   rozsyp na 148 x 50 a zakázaná plocha posunutá o ty tři milimetry. */
+const KYTKY_PRUH = rozsyp(148, 50, 6, 3, [
+  { x1: 35, y1: 16, x2: 113, y2: 34 },
 ], 8, 12);
 
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
@@ -298,8 +310,8 @@ export default function Oznameni() {
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
           {(klic === "hlavni" ? KYTKY
-            : klic === "info" || klic === "rub" || klic === "pasek" ? []
-            : KYTKY_MALE
+            : klic === "obrad" || klic === "vizitka" ? KYTKY_MALE
+            : []
           ).map((k, i) => (
             <img
               key={i}
@@ -317,6 +329,8 @@ export default function Oznameni() {
             {klic === "rub" && <p className={s.rubNadpis}>{T.rub.nadpis}</p>}
             {klic === "pasek" && <Pasek voditka={ukazVoditka} />}
             {klic === "obrad" && <Zvani {...T.obrad} />}
+            {klic === "archObrad" && <ArchPozvanek zvani={T.obrad} voditka={ukazVoditka} />}
+            {klic === "archStolu" && <ArchPozvanek zvani={T.vizitka} voditka={ukazVoditka} />}
             {klic === "vizitka" && <Zvani {...T.vizitka} />}
           </div>
 
@@ -423,6 +437,41 @@ function Pasek({ voditka }: { voditka: boolean }) {
       {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
       {voditka && [1, 2].map((i) => (
         <i key={i} className={s.pasekRez} style={{ left: `${(i * 100) / 3}%` }} aria-hidden="true" />
+      ))}
+    </div>
+  );
+}
+
+/* Arch čtyř stejných pozvánek pod sebou. Každý proužek má vlastní ořez
+   (overflow), takže kytka, která přeteče přes řez, se ustřihne přesně tam, kde
+   se bude řezat — na hotové pozvánce to vypadá stejně jako na samostatné kartě.
+
+   Všechny čtyři jsou stejné, ne čtyři varianty: jde o to mít víc kusů téhož. */
+function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: string }; voditka: boolean }) {
+  return (
+    <div className={s.archPozvanek}>
+      {[0, 1, 2, 3].map((poradi) => (
+        <div key={poradi} className={s.pozvankaProuzek}>
+          {KYTKY_PRUH.map((k, i) => (
+            <img
+              key={i}
+              className={s.kytka}
+              src={`/oznameni/kyticky/${k.snitka}.png`}
+              alt=""
+              aria-hidden="true"
+              style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+            />
+          ))}
+          <div className={s.pozvankaText}>
+            <p className={s.vizitkaUvod}>{zvani.uvod}</p>
+            <p className={s.vizitkaHlavni}>{zvani.hlavni}</p>
+          </div>
+        </div>
+      ))}
+
+      {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
+      {voditka && [1, 2, 3].map((i) => (
+        <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
       ))}
     </div>
   );

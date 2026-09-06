@@ -392,6 +392,42 @@
   pointer-events: none;
 }
 
+/* ---------- archy pozvánek ---------- */
+/* Čtyři proužky pod sebou na ploše ořezu. Každý má vlastní overflow, aby se
+   kytka přetékající přes řez ustřihla přesně na řezu — jinak by zasahovala
+   do sousední pozvánky. */
+.k-archObrad .text,
+.k-archStolu .text { display: block; padding: 0; }
+.archPozvanek {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.pozvankaProuzek {
+  position: relative;
+  height: 50mm;
+  overflow: hidden;
+}
+.pozvankaText {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/* Vodítka řezu mezi proužky. Do tisku nejdou. */
+.archRez {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: .3mm dashed rgba(200, 90, 90, .55);
+  pointer-events: none;
+}
+
 /* ---------- malé pozvánky (ke stolu, na obřad) ---------- */
 .k-vizitka .text,
 .k-obrad .text {
