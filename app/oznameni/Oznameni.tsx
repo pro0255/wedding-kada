@@ -140,28 +140,29 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
 
-/* Na pozvánkách stejný rozsyp jako na hlavní kartě — pravidelná mřížka, jedna
-   snítka na buňku, takže mají všude podobné rozestupy a žádná nepřekrývá
-   druhou. Ručně skládané kytice na koncích pruhu vypadaly rozsypaně a půlka
-   snítek končila useknutá krajem.
+/* Rozsyp snítek na pozvánce. Souřadnice jsou od ořezu, ne od kraje se spadem:
+   pozvánky se tisknou po čtyřech na jeden arch a řežou se z něj, takže mezi
+   nimi žádný spad není.
 
-   Zakázaná plocha je svisle odměřená těsně na text (20,1 až 35,9 mm), ne od
-   oka — při větší svislé rezervě vypadnou i buňky nad textem a pod ním a v pruhu
-   zůstanou díry. Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy
-   a snítka, která končila tři milimetry před „ke“, se ho opticky dotýkala.
+   Nahoře a dole zůstávají čtyři milimetry bez kytek. Řeže se jedním řezem pro
+   obě sousední pozvánky, a kdyby kytky sahaly až k němu, musel by sedět na
+   desetinu milimetru. Takhle se řeže do bílého a pár milimetrů úletu není
+   poznat. Rozsyp proto počítá s výškou 42 mm a výsledek se posune o ty čtyři
+   dolů.
 
-   Snítky jsou drobnější než na A5 — dvaadvacet milimetrů je na pruhu vysokém
-   padesát skoro polovina výšky. */
-const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
-  { x1: 38, y1: 19, x2: 116, y2: 37 },
-], 8, 12);
+   Zakázaná plocha je svisle odměřená těsně na text, ne od oka — při větší
+   svislé rezervě vypadnou i buňky nad textem a pod ním a v pruhu zůstanou díry.
+   Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy a snítka,
+   která končila tři milimetry před „ke“, se ho opticky dotýkala. */
+const ODSTUP_REZU = 4;
+const KYTKY_PRUH = rozsyp(148, 50 - ODSTUP_REZU * 2, 6, 3, [
+  { x1: 35, y1: 16 - ODSTUP_REZU, x2: 113, y2: 34 - ODSTUP_REZU },
+], 8, 12).map((k) => ({ ...k, y: k.y + ODSTUP_REZU }));
 
-/* Totéž pro proužek na archu. Souřadnice tam ale nejsou od kraje se spadem, ale
-   od ořezu — proužky se z archu řežou a mezi nimi žádný spad není. Proto vlastní
-   rozsyp na 148 x 50 a zakázaná plocha posunutá o ty tři milimetry. */
-const KYTKY_PRUH = rozsyp(148, 50, 6, 3, [
-  { x1: 35, y1: 16, x2: 113, y2: 34 },
-], 8, 12);
+/* Samostatná pozvánka je tentýž proužek, jen na kartě se spadem — proto se
+   celý rozsyp posune o ty tři milimetry. Počítat ho zvlášť by znamenalo dvě
+   pozvánky, které vypadají každá jinak. */
+const KYTKY_MALE = KYTKY_PRUH.map((k) => ({ ...k, x: k.x + 3, y: k.y + 3 }));
 
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
    (DOTAZY v app/page.tsx) — je to jedna svatba, tak i jeden vzorník.
