@@ -156,12 +156,12 @@ const BLOKY: InfoBlok[] = [
       "Milí svatebčané, celý náš svatební den včetně obřadu se bude konat v krásném lesním hotelu Rekovice.",
     /* Bez názvu hotelu — ten je o větu výš, dvakrát ho tam nikdo nepotřebuje. */
     adresa: "Trojanovice 2, 744 01 Trojanovice",
-    poznamka: "Doražte na obřad prosím s předstihem a dejte nám vědět, že dorazíte.",
+    poznamka: "Doražte prosím na obřad s předstihem.",
   },
   {
     nadpis: "Svatební dary",
     text:
-      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule nebo deky našim chlupatým kamarádům do útulku.",
+      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule a deky našim chlupatým kamarádům do útulku.",
   },
   {
     nadpis: "Dress code",
