@@ -140,14 +140,15 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
    druhou. Ručně skládané kytice na koncích pruhu vypadaly rozsypaně a půlka
    snítek končila useknutá krajem.
 
-   Zakázaná plocha je odměřená těsně na text (20,1 až 35,9 mm), ne od oka:
-   při větší rezervě vypadly i buňky nad textem a pod ním a v pruhu zůstaly
-   díry. Takhle vypadne jen prostřední řada uprostřed pruhu.
+   Zakázaná plocha je svisle odměřená těsně na text (20,1 až 35,9 mm), ne od
+   oka — při větší svislé rezervě vypadnou i buňky nad textem a pod ním a v pruhu
+   zůstanou díry. Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy
+   a snítka, která končila tři milimetry před „ke“, se ho opticky dotýkala.
 
    Snítky jsou drobnější než na A5 — dvaadvacet milimetrů je na pruhu vysokém
    padesát skoro polovina výšky. */
 const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
-  { x1: 43.5, y1: 19, x2: 110.5, y2: 37 },
+  { x1: 38, y1: 19, x2: 116, y2: 37 },
 ], 8, 12);
 
 /* Vzorník pastelů k dress code. Stejné odstíny jako kuličky na webu
