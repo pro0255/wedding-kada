@@ -43,7 +43,8 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
    čte špatně — na tiskovině je jednodušší ubrat slova než body. */
 const T = {
   hlavni: {
-    uvod: ["ty a já,", "teď a navždy"],
+    /* „navždy“ jde kurzivou zvlášť, proto je to vlastní kus textu. */
+    uvod: { prvni: "ty a já,", druhy: "teď a ", kurziva: "navždy" },
     nevesta: { krestni: "Kateřina", prijmeni: "Pytlíková" },
     zenich: { krestni: "Jakub", prijmeni: "Jisl" },
     spojka: "a",
@@ -176,9 +177,10 @@ function Hlavni() {
   return (
     <>
       <p className={s.uvod}>
-        {t.uvod[0]}
+        {t.uvod.prvni}
         <br />
-        {t.uvod[1]}
+        {t.uvod.druhy}
+        <span className={s.kurziva}>{t.uvod.kurziva}</span>
       </p>
 
       <div className={s.jmena}>

@@ -116,6 +116,18 @@
   text-align: left;
 }
 
+/* Kurzíva se dělá náklonem, ne font-style: italic. Jost se v layoutu načítá
+   jen v přímém řezu a Parisienne kurzivu nemá vůbec — prohlížeč by si ji
+   dopočítal sám a každý trochu jinak, což u tiskového PDF nechci. Náklon je
+   daný úhel a vypadá všude stejně. Otáčí se kolem účaří, aby písmo
+   neodskočilo z řádku. */
+.kurziva,
+.krestni {
+  display: inline-block;
+  transform: skewX(-8deg);
+  transform-origin: 0 100%;
+}
+
 .uvod {
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 2.6mm;
