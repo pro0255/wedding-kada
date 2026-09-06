@@ -34,7 +34,7 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "pasek" | "obrad" | "vizitka";
+type KartaKlic = "hlavni" | "info" | "rub" | "pasek" | "obrad" | "vizitka";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
@@ -44,6 +44,8 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
      čtyři centimetry vzduchu, a protože je text vystředěný, půlka by ho visela
      nad nadpisem. Sedm milimetrů rezervy je na doplnění věty, ne na vzhled. */
   { klic: "info", nazev: "Informace (148 × 168)", sirka: 148, vyska: 168, zona: 10 },
+  /* Rub informační karty. Stejný rozměr, jinak by po slepení přečnívala. */
+  { klic: "rub", nazev: "Detaily (rub)", sirka: 148, vyska: 168, zona: 10 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
@@ -187,6 +189,9 @@ const T = {
     datum: "18. 9. 2027",
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
+  rub: {
+    nadpis: "Detaily",
+  },
   info: {
     bloky: BLOKY,
     podpis: "Děkujeme,",
@@ -282,7 +287,7 @@ export default function Oznameni() {
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
           {(klic === "hlavni" ? KYTKY
-            : klic === "info" || klic === "pasek" ? []
+            : klic === "info" || klic === "rub" || klic === "pasek" ? []
             : KYTKY_MALE
           ).map((k, i) => (
             <img
@@ -298,6 +303,7 @@ export default function Oznameni() {
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
+            {klic === "rub" && <p className={s.rubNadpis}>{T.rub.nadpis}</p>}
             {klic === "pasek" && <Pasek voditka={ukazVoditka} />}
             {klic === "obrad" && <Zvani {...T.obrad} />}
             {klic === "vizitka" && <Zvani {...T.vizitka} />}

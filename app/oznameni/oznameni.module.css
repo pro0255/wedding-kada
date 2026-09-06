@@ -233,15 +233,37 @@
 /* Karta je růžová jen po obvodu, uvnitř je bílý papír. Pruh sahá až na okraj
    spadu, takže po ořezu zůstanou 4 mm — kdyby končil na ořezu, po posunu
    řezačky by na kraji svítil bílý proužek. */
-.k-info {
+.k-info,
+.k-rub {
   background: var(--ramecek-ruzova);
   color: var(--ruzove-pismo);
 }
-.k-info::before {
+.k-info::before,
+.k-rub::before {
   content: "";
   position: absolute;
   inset: calc(var(--spad) + 4mm);
   background: var(--papir);
+}
+
+/* Rub informační karty: jen slovo v horní třetině. Písmo je stejné jako
+   u jmen — patkové verzálky s prostrkáním — a barva růžová po zbytku karty.
+   Nesedí na střed schválně: jako nadpis strany patří nahoru, ne doprostřed
+   prázdné plochy. */
+.k-rub .text {
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding-top: 18mm;
+}
+.rubNadpis {
+  font-family: var(--serif), Georgia, serif;
+  font-size: 9mm;
+  line-height: 1.2;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
+  text-indent: .2em;
 }
 .k-info .text {
   align-items: center;
