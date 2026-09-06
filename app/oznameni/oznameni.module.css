@@ -262,7 +262,10 @@
   letter-spacing: .14em;
   line-height: 1.85;
 }
+/* Odstup od bloku nad sebou. První blok žádný nemá — nad ním je jen kraj
+   karty a sedm milimetrů navíc tam vypadalo jako chyba sazby. */
 .infoBlok { margin-top: 7mm; }
+.infoBlok:first-child { margin-top: 0; }
 .karta .infoNadpis {
   margin: 0 0 3mm;
   font-size: 3.1mm;
