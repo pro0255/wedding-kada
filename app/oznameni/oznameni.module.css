@@ -274,15 +274,16 @@
   margin: 0;
   font-size: 2.9mm;
 }
-/* Adresa je pod textem jako samostatný odstavec a o stupeň těžší — na kartě
-   je to jediný údaj, který si někdo bude opisovat do navigace. */
+/* Adresa je běžný odstavec jako text kolem, jen podtržený — je to jediný údaj,
+   který si někdo bude opisovat do navigace. Podtržení místo tučného řezu proto,
+   že na kartě psané celé kapitálkami vypadá každý ztučněný řádek jako další
+   nadpis. Podtržení je odsazené od účaří, jinak by se zaseklo do háčků a čárek. */
 .karta .infoAdresa {
-  margin: 3mm 0 0;
-  display: flex;
-  flex-direction: column;
+  margin: 2.5mm 0 0;
   font-size: 2.9mm;
-  font-weight: 500;
-  letter-spacing: .18em;
+  text-decoration: underline;
+  text-decoration-thickness: .05em;
+  text-underline-offset: .28em;
 }
 .karta .infoPoznamka {
   margin: 3mm 0 0;

@@ -143,7 +143,7 @@ const KYTKY_MALE = rozsyp(96, 56, 5, 4, [
 type InfoBlok = {
   nadpis: string;
   text: string;
-  adresa?: string[];
+  adresa?: string;
   poznamka?: string;
   barvy?: string[];
 };
@@ -153,7 +153,8 @@ const BLOKY: InfoBlok[] = [
     nadpis: "Místo konání",
     text:
       "Milí svatebčané, celý náš svatební den včetně obřadu se bude konat v krásném lesním hotelu Rekovice.",
-    adresa: ["Hotel Rekovice", "Trojanovice 2", "744 01 Trojanovice"],
+    /* Bez názvu hotelu — ten je o větu výš, dvakrát ho tam nikdo nepotřebuje. */
+    adresa: "Trojanovice 2, 744 01 Trojanovice",
     poznamka: "Doražte na obřad prosím s předstihem a dejte nám vědět, že dorazíte.",
   },
   {
@@ -356,13 +357,7 @@ function Info() {
         <section key={b.nadpis} className={s.infoBlok}>
           <h2 className={s.infoNadpis}>{b.nadpis}</h2>
           <p className={s.infoText}>{b.text}</p>
-          {b.adresa && (
-            <p className={s.infoAdresa}>
-              {b.adresa.map((r) => (
-                <span key={r}>{r}</span>
-              ))}
-            </p>
-          )}
+          {b.adresa && <p className={s.infoAdresa}>{b.adresa}</p>}
           {b.poznamka && <p className={s.infoPoznamka}>{b.poznamka}</p>}
           {b.barvy && (
             <ul className={s.barvy}>
