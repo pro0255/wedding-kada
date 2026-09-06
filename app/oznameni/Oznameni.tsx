@@ -43,8 +43,8 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
    čte špatně — na tiskovině je jednodušší ubrat slova než body. */
 const T = {
   hlavni: {
-    /* „navždy“ jde kurzivou zvlášť, proto je to vlastní kus textu. */
-    uvod: { prvni: "ty a já,", druhy: "teď a ", kurziva: "navždy" },
+    /* „navždy“ je psacím písmem uprostřed řádku kapitálek, proto zvlášť. */
+    uvod: { prvni: "ty a já,", druhy: "teď a ", psaci: "navždy" },
     nevesta: { krestni: "Kateřina", prijmeni: "Pytlíková" },
     zenich: { krestni: "Jakub", prijmeni: "Jisl" },
     spojka: "a",
@@ -180,7 +180,7 @@ function Hlavni() {
         {t.uvod.prvni}
         <br />
         {t.uvod.druhy}
-        <span className={s.kurziva}>{t.uvod.kurziva}</span>
+        <span className={s.psaci}>{t.uvod.psaci}</span>
       </p>
 
       <div className={s.jmena}>
@@ -195,12 +195,16 @@ function Hlavni() {
         </p>
       </div>
 
-      <p className={s.datum}>{t.datum}</p>
-      <p className={s.detail}>
-        {t.detail.map((r) => (
-          <span key={r}>{r}</span>
-        ))}
-      </p>
+      {/* Datum a místo jsou na předloze jeden blok na střed, ne pokračování
+          zarovnání jmen doleva. */}
+      <div className={s.udaje}>
+        <p className={s.datum}>{t.datum}</p>
+        <p className={s.detail}>
+          {t.detail.map((r) => (
+            <span key={r}>{r}</span>
+          ))}
+        </p>
+      </div>
     </>
   );
 }

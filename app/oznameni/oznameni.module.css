@@ -8,10 +8,19 @@
 /* Reset proti stylům webu. globals.css má `section { padding: 5.5rem 1.5rem }`
    a vlastní vzhled h2 — v oznámení to dělalo z každého bloku 88 mm vysokou
    krabici a text přetékal přes ořez. Tiskovina má vlastní pravidla, tak se
-   sem globální styly nepouštějí. */
+   sem globální styly nepouštějí.
+
+   Reset musí být specifičtější než holé `section` a `h2` z globals, jinak
+   neplatí. Tím se ale dostane i nad vlastní pravidla karty psaná jednou
+   třídou — nadpisy na informační kartě se kvůli tomu kreslily serifem
+   a malými písmeny a odstavcům mizely mezery. Pravidla, kterých se to týká,
+   proto začínají `.karta` a mají navrch nad resetem. */
 .stranka section { padding: 0; }
 .stranka h2 {
   margin: 0;
+  /* globals dává h1-h3 serif; nadpisy na kartě mají být stejným písmem jako
+     text kolem nich, jen těžším řezem. */
+  font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
   letter-spacing: inherit;
@@ -106,26 +115,37 @@
 }
 
 /* ---------- hlavní karta (A5) ---------- */
-/* Obsah se rozprostře po celé výšce, ne aby se nakupil nahoru a dole zbylo
-   pět centimetrů prázdna. Marginy zůstávají jen jako rozlišení — mezera
-   pod úvodem má být větší než mezera nad místem konání; zbytek dorovná
-   space-between. */
+/* Rytmus je z předlohy: úvod nahoře, pak velká pauza, jména, a pod nimi
+   natěsno datum s místem. Dole zůstává volný pruh. Proto pevné mezery a ne
+   space-between — to rozdělí místo rovnoměrně a předloha rovnoměrná není. */
 .k-hlavni .text {
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-start;
   text-align: left;
 }
 
-/* Kurzíva se dělá náklonem, ne font-style: italic. Jost se v layoutu načítá
-   jen v přímém řezu a Parisienne kurzivu nemá vůbec — prohlížeč by si ji
-   dopočítal sám a každý trochu jinak, což u tiskového PDF nechci. Náklon je
-   daný úhel a vypadá všude stejně. Otáčí se kolem účaří, aby písmo
-   neodskočilo z řádku. */
-.kurziva,
+/* Jména se naklánějí o daný úhel, ne přes font-style: italic. Parisienne
+   kurzivní řez nemá vůbec, prohlížeč by si ho dopočítal sám a každý trochu
+   jinak — u PDF do tiskárny chci mít úhel jistý. Točí se kolem účaří, aby
+   písmo neodskočilo z řádku. */
 .krestni {
   display: inline-block;
   transform: skewX(-8deg);
   transform-origin: 0 100%;
+}
+
+/* „navždy“ uprostřed řádku kapitálek je psacím písmem, ne nakloněnou
+   kapitálkou. Nulová výška řádku je schválně: bez ní by kvůli velkému písmu
+   narostl celý dvouřádkový úvod. Písmo přeteče nahoru i dolů přes svůj řádek,
+   přesně jak to má být — sedí na stejném účaří jako kapitálky kolem. */
+.psaci {
+  display: inline-block;
+  vertical-align: baseline;
+  font-family: var(--kaligrafie), cursive;
+  font-size: 5.5mm;
+  line-height: 0;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .uvod {
@@ -137,7 +157,7 @@
   color: var(--tlumene);
 }
 
-.jmena { margin-top: 6mm; }
+.jmena { margin-top: 35mm; }
 /* Jméno je řádek: křestní kaligrafií, příjmení drobnými verzálkami. Zarovnání
    na účaří je schválně — příjmení má sedět na stejné lince jako konec tahu,
    ne plavat uprostřed výšky. */
@@ -160,23 +180,33 @@
   text-transform: uppercase;
   color: var(--tlumene);
 }
-.spojka {
+.karta .spojka {
   font-family: var(--kaligrafie), cursive;
   font-size: 9mm;
   margin: -2mm 0 -2mm 6mm;
   color: var(--tlumene);
 }
 
-.datum {
-  margin-top: 5mm;
-  font-size: 8mm;
-  letter-spacing: .02em;
-}
-
-.detail {
-  margin-top: 3mm;
+/* Blok data a místa je na předloze vysázený na střed, i když jména jsou
+   vlevo. Střed se bere z celé bezpečné zóny. */
+.udaje {
+  margin-top: 36mm;
+  align-self: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.datum {
+  font-size: 9mm;
+  letter-spacing: .06em;
+}
+
+.karta .detail {
+  margin-top: 9mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 2.9mm;
   line-height: 2;
@@ -197,39 +227,41 @@
   font-family: var(--sans), system-ui, sans-serif;
 }
 
-/* Přetečení dělal globální `section { padding: 5.5rem }` z webu, ne délka
-   textu — po resetu nahoře zbylo v ploše 89 × 132 mm přes 70 mm volna.
-   Písmo je proto na normální tiskové velikosti kolem devíti bodů, ne na
-   šesti, do kterých se to předtím marně mačkalo. */
+/* Celá karta je v kapitálkách a prostrkaná, jako na předloze. Kapitálky jsou
+   širší a s prostrkáním zaberou skoro o třetinu víc místa než malá písmena,
+   takže je písmo o něco menší — na krátkých větách v kapitálkách to nevadí,
+   ty se čtou po řádcích, ne po slovech. */
+.infoUvod,
+.infoText,
+.karta .infoZaver {
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  line-height: 1.85;
+}
 .infoUvod {
-  font-size: 3.8mm;
-  line-height: 1.6;
-  letter-spacing: .03em;
+  font-size: 3mm;
 }
 .infoBlok { margin-top: 7mm; }
-.infoNadpis {
-  margin: 0 0 2mm;
-  font-size: 3.3mm;
+.karta .infoNadpis {
+  margin: 0 0 3mm;
+  font-size: 3.1mm;
   font-weight: 500;
   letter-spacing: .22em;
   text-transform: uppercase;
 }
 .infoText {
   margin: 0;
-  font-size: 3.7mm;
-  line-height: 1.6;
-  letter-spacing: .03em;
+  font-size: 2.9mm;
 }
-.podpis {
+.karta .podpis {
   margin: 11mm 0 0;
   font-family: var(--kaligrafie), cursive;
   font-size: 10mm;
   line-height: 1;
 }
 .infoZaver {
-  margin-top: 2mm;
-  font-size: 3.4mm;
-  letter-spacing: .08em;
+  margin-top: 3mm;
+  font-size: 2.9mm;
 }
 
 /* ---------- pozvánka ke stolu (vizitka) ---------- */
@@ -245,7 +277,7 @@
   text-transform: uppercase;
   color: var(--tlumene);
 }
-.vizitkaHlavni {
+.karta .vizitkaHlavni {
   margin-top: 1mm;
   font-family: var(--kaligrafie), cursive;
   font-size: 9mm;
