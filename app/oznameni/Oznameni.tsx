@@ -225,7 +225,10 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   qr: {
-    popis: "Bližší informace naleznete na našem svatebním webu.",
+    /* Jmenovitě to, co na webu doopravdy je: ubytování s rezervací, svatební
+       i dětské menu, program dne a sekce „Ptáte se“. Obecné „bližší informace“
+       nikoho nedonutí kód naskenovat. */
+    popis: "Ubytování, svatební menu, program dne i odpovědi na další otázky najdete na našem svatebním webu.",
   },
   rub: {
     /* Ampersand, ne plus — web má všude „Kateřina & Jakub“ a „K & J“. Plus
