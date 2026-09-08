@@ -92,9 +92,10 @@ function rozsyp(
   sirka: number, vyska: number,
   sloupcu: number, radku: number,
   zony: Zona[],
-  /* Rozsah výšky snítek. Na malé pozvánce musí být drobnější — dvaadvacet
-     milimetrů je na kartě vysoké padesát skoro polovina výšky. */
-  nejmensi = 13, nejvetsi = 22,
+  /* Rozsah výšky snítek. Stejný na všech kusech sady: karty se skládají na sebe
+     a kdyby měla každá jinak velké kytky, je ten rozdíl na hromádce hned vidět.
+     Sedmnáct milimetrů je strop — na pozvánce vysoké padesát je víc už moc. */
+  nejmensi = 11, nejvetsi = 17,
 ): Kytka[] {
   const bunkaX = sirka / sloupcu;
   const bunkaY = vyska / radku;
@@ -140,7 +141,7 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
 
-/* Na pozvánkách stejný rozsyp jako na hlavní kartě — pravidelná mřížka, jedna
+/* Na pozvánkách stejný rozsyp i stejná velikost snítek jako na hlavní kartě — pravidelná mřížka, jedna
    snítka na buňku, takže mají všude podobné rozestupy a žádná nepřekrývá
    druhou. Ručně skládané kytice na koncích pruhu vypadaly rozsypaně a půlka
    snítek končila useknutá krajem.
@@ -150,11 +151,12 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
    zůstanou díry. Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy
    a snítka, která končila tři milimetry před „ke“, se ho opticky dotýkala.
 
-   Snítky jsou drobnější než na A5 — dvaadvacet milimetrů je na pruhu vysokém
-   padesát skoro polovina výšky. */
+   Velikost snítek je schválně stejná jako na A5. Dřív byly na pozvánce menší
+   (8 až 12 mm proti 13 až 22 mm) a samo o sobě to vypadalo dobře — jenže když
+   se karty položí na sebe, jde ten rozdíl vidět na první pohled. */
 const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
   { x1: 38, y1: 19, x2: 116, y2: 37 },
-], 8, 12);
+]);
 
 /* Proužek na archu má tytéž kytky, jen posunuté o spad: na kartě jsou
    souřadnice od kraje se spadem, na archu od ořezu, protože mezi proužky žádný
