@@ -386,13 +386,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
      doprava, aby zem stála na okraji obrazovky a květiny mířily dovnitř.
      Pozor, ten podklad je nízký (800 px), takže se svisle opakuje asi
      dvakrát častěji než dvojka. */
-  /* Pásy jsou ze stejných snítek, jaké jsou na tištěném oznámení — vyrábí je
-     scripts/pruh-snitek.mjs. Poměr stran zůstal, takže --kv-tile níž sedí
-     beze změny.
-
-     Tohle je výchozí hodnota; každá strana si ji níž přepíše na svůj vlastní
-     pás, aby vlevo a vpravo nebyla tatáž kresba. */
-  --kv-obrazek: url("/fotky/kvetiny-snitky-l.jpg");
+  --kv-obrazek: url("/fotky/kvetiny-motyl-bez.jpg");
   --kv-tile: calc(var(--kv-sirka) * 3.413);
   /* ====================================================================== */
   /* Šířka pruhu není odhad v jednotkách vw, ale to, co po stranách reálně
@@ -401,9 +395,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
      odstup, aby se kresba textu ani nedotkla. S pevným 27vw pruh v 1280px
      zasahoval 33px do nadpisů a v širším okně by odstup zase zbytečně rostl. */
   --kv-sirka: clamp(40px, calc((100vw - 820px) / 2), 400px);
-  /* Síla světlého závoje nad kresbou — tlumí květiny místo průhlednosti pruhu.
-     Nula: na velké obrazovce mají být kytky vidět naplno. Na užších displejích
-     se neztlumují, ale rovnou skrývají — viz media query dole. */
+  /* Síla béžového závoje nad fotkou — tlumí květiny místo průhlednosti pruhu.
+     Nula proto, že béžová je teď zapečená přímo v podkladu; páčka zůstává
+     pro případ, že by kresba potřebovala ještě ztlumit. */
   --kv-zavoj: 0;
   /* barva závoje jako složky RGB, aby šla přebarvit bez přepisu celého
      background — ten drží i posun vrstev, který schovává svislé švy */
@@ -429,13 +423,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   /* Vodorovné doznění ke středu — zlom až v 94 %, ne v 62 %. Dřív se pruh
      vytrácel skoro od poloviny své šířky a větve s motýly zůstávaly schované
      u kraje obrazovky. Čitelnost textu hlídá světlý pruh středem, ne tohle. */
-  /* Dlouhé doznění, ne zlom v 94 %: pruh se zhruba od poloviny své šířky
-     plynule vytrácí směrem k textu, místo aby končil hranou. Se šesti řídce
-     rozsypanými snítkami už ostrý okraj nemá co držet. */
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 42%, transparent 100%);
-          mask-image: linear-gradient(to right, #000 0, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 94%, transparent 100%);
+          mask-image: linear-gradient(to right, #000 0, #000 94%, transparent 100%);
 }
-.kvetiny-l { left: 0; --kv-obrazek: url("/fotky/kvetiny-snitky-l.jpg"); }
+.kvetiny-l { left: 0; }
 /* Převrácení, ať pravá strana není zjevná kopie levé — jenže samotné
    převrácení dělá dokonalou osovou souměrnost, a to je na pohled to nejmíň
    přirozené, co může být: na každé výškové úrovni sedí vlevo i vpravo tentýž
@@ -443,14 +434,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    nesoudělný s 0.5, kterou používají vrstvy ::before / ::after — kdyby byl
    půlkový, strany by se srovnaly o dlaždici níž a bylo by to nastejno.
    Posun se vejde do přesahu top/bottom -6 %, takže dole nevznikne díra. */
-.kvetiny-r {
-  right: 0;
-  transform: scaleX(-1) translateY(calc(var(--kv-tile) * -.37));
-  /* Vlastní pás, ne jen zrcadlo levého. Zrcadlení se svislým posunem sice
-     symetrii rozbije, ale kresba zůstane tatáž — na obou stranách by se pod
-     sebou opakovaly stejné květiny. */
-  --kv-obrazek: url("/fotky/kvetiny-snitky-p.jpg");
-}
+.kvetiny-r { right: 0; transform: scaleX(-1) translateY(calc(var(--kv-tile) * -.37)); }
 
 /* Dvě totožné vrstvy fotky posunuté o půl dlaždice. Maska každé z nich doznívá
    přesně tam, kde má ta vrstva šev — šev tak padne do místa, kde je druhá vrstva
@@ -1665,15 +1649,12 @@ body,
    s vyšší specificitou, takže tam modrý přechod nikdy nebyl a prosvítá
    béžové tělo stránky. */
 
-/* Květiny se skrývají do 1000 px, ne do 700.
-   --kv-sirka je clamp(40px, (100vw - 820px) / 2, 400px), takže pod 900 px je
-   pruh na svém minimu 40 px — tenký sliver nalepený těsně na text, který jen
-   ruší. Nad 1000 px má pruh přes 90 px a je z něj dekor, ne šmouha. */
-@media (max-width: 1000px) {
-  .kvetiny { display: none; }
-}
-
 @media (max-width: 700px) {
+  /* Na telefonu květiny zůstávají skryté: pruh je tam ~128 px široký
+     a dlaždice se svisle opakuje po 300 px, takže na 8500 px dlouhé stránce
+     vyšla ta samá fotka skoro třicetkrát pod sebou a četlo se to jako
+     laciná tapeta, ne jako fotografie. */
+  .kvetiny { display: none; }
   /* Rozcestník na fotky je před svatbou krátký (bez tlačítka), a plné
      odsazení pod ním dělalo prázdnou plochu skoro na půl obrazovky. */
   .fotky-odkaz { padding-top: 3.4rem; padding-bottom: 3.4rem; }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
+import Motyli from "./Motyli";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
@@ -758,9 +759,7 @@ export default function Home() {
         <span className="kvetiny" aria-hidden="true">
           <span className="kvetiny-pas kvetiny-l" />
           <span className="kvetiny-pas kvetiny-r" />
-          {/* Motýli tu byli do té doby, než pruhy dostaly kytky z oznámení.
-              Komponenta app/Motyli.tsx i její styly zůstávají pro případný
-              návrat — smazané nejsou, jen se nevykreslují. */}
+          <Motyli />
         </span>
         <span className="stred-pruh" aria-hidden="true" />
       </div>
