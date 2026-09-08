@@ -34,10 +34,17 @@
  * cizí kytky.
  *
  * Vedle toho vzniká přehledový arch nahled.png se všemi snítkami, aby se dalo
- * vybrat okem, co půjde na kartu. */
+ * vybrat okem, co půjde na kartu.
+ *
+ * A app/oznameni/vahy.ts s váhou každé snítky. Karty zadávají velikost jako
+ * výšku obrázku, jenže ta zahrnuje i prázdno kolem kresby: snítka, která je
+ * z devíti desetin tenký stonek, vypadá při stejné výšce mnohem drobnější než
+ * kompaktní květ. Váha je poměr, kolik z obdélníku je doopravdy kresba, přepočtený
+ * na násobek výšky — řídké snítky se tím zvětší, husté zmenší, a na kartě pak
+ * vypadají stejně velké. */
 
 import sharp from "sharp";
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 
 const PREDLOHA = "public/fotky/oznámení/kytičky.jpg";
 const KAM = "public/oznameni/kyticky";
@@ -243,7 +250,8 @@ for (let i = 0; i < vybrane.length; i++) {
     .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
   await sharp(vyrez).toFile(`${KAM}/${jmeno}`);
 
-  nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet });
+  /* Hustota kresby: kolik z obdélníku výřezu je neprůhledné. */
+  nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet, hustota: p.pocet / (width * height) });
   console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
 }
 
@@ -269,4 +277,28 @@ await sharp({
   },
 }).composite(vrstvy).png().toFile(`${KAM}/nahled.png`);
 
-console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${KAM}/nahled.png`);
+/* Váhy do komponenty. Střed je medián, aby se rozsah nerozjel podle jedné
+ * extrémní snítky; odmocnina proto, že hustota je plocha, ale škáluje se délka.
+ * Meze drží korekci v rozumném rozsahu — bez nich by z nejřidší metličky byla
+ * na kartě dvakrát tak velká věc než ze zbytku. */
+const hustoty = nahledy.map((n) => n.hustota).sort((a, b) => a - b);
+const stred = hustoty[Math.floor(hustoty.length / 2)];
+const vahy = Object.fromEntries(nahledy.map((n) => [
+  n.jmeno.replace(".png", ""),
+  Math.round(Math.min(1.35, Math.max(0.82, Math.sqrt(stred / n.hustota))) * 100) / 100,
+]));
+
+await writeFile("app/oznameni/vahy.ts", [
+  "/* VYGENEROVANÝ SOUBOR — mění ho scripts/kyticky-oznameni.mjs, needituj ručně.",
+  "",
+  "   Násobek výšky pro každou snítku. Karty zadávají velikost jako výšku obrázku,",
+  "   jenže ta zahrnuje i prázdno kolem kresby: snítka, která je z devíti desetin",
+  "   tenký stonek, vypadá při stejné výšce mnohem drobnější než kompaktní květ.",
+  "   Váha to srovnává — řídké se zvětší, husté zmenší. */",
+  "export const VAHY: Record<string, number> = {",
+  ...Object.entries(vahy).map(([k, v]) => `  "${k}": ${v},`),
+  "};",
+  "",
+].join("\n"));
+
+console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${KAM}/nahled.png, váhy v app/oznameni/vahy.ts`);

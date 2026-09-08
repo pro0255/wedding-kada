@@ -1,0 +1,42 @@
+/* VYGENEROVANÝ SOUBOR — mění ho scripts/kyticky-oznameni.mjs, needituj ručně.
+
+   Násobek výšky pro každou snítku. Karty zadávají velikost jako výšku obrázku,
+   jenže ta zahrnuje i prázdno kolem kresby: snítka, která je z devíti desetin
+   tenký stonek, vypadá při stejné výšce mnohem drobnější než kompaktní květ.
+   Váha to srovnává — řídké se zvětší, husté zmenší. */
+export const VAHY: Record<string, number> = {
+  "10": 1.1,
+  "11": 0.92,
+  "12": 0.96,
+  "13": 0.94,
+  "14": 0.9,
+  "15": 1,
+  "16": 0.86,
+  "17": 0.99,
+  "18": 1.13,
+  "19": 1.11,
+  "20": 1.02,
+  "21": 1.11,
+  "22": 1.11,
+  "23": 1.05,
+  "24": 0.87,
+  "25": 1.01,
+  "26": 1.35,
+  "27": 0.96,
+  "28": 0.87,
+  "29": 0.82,
+  "30": 1.35,
+  "31": 1.1,
+  "32": 0.82,
+  "33": 0.83,
+  "34": 1.04,
+  "01": 0.94,
+  "02": 0.83,
+  "03": 1.01,
+  "04": 1.04,
+  "05": 1,
+  "06": 0.85,
+  "07": 1.19,
+  "08": 1.02,
+  "09": 0.96,
+};
