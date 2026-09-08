@@ -226,8 +226,8 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   qr: {
-    nadpis: "Pro bližší informace omrkněte prosím náš svatební web",
-    navod: "Naskenujte QR přes fotoaparát v mobilu, nebo zadejte do prohlížeče:",
+    nadpis: "Pro více informací navštivte prosím náš svatební web",
+    navod: "Naskenujte QR kód mobilem, nebo zadejte adresu do prohlížeče:",
   },
   rub: {
     /* Ampersand, ne plus — web má všude „Kateřina & Jakub“ a „K & J“. Plus
