@@ -324,6 +324,10 @@
 .karta .qrPopis {
   margin: 0;
   max-width: 88mm;
+  /* Písmo explicitně, ne zděděné. Samostatná karta ho dědí ze své .text jako
+     bezpatkové, arch ale tu deklaraci nemá a spadl by na patkové ze základního
+     .text — tentýž popisek by pak byl na kartě a na archu jiným písmem. */
+  font-family: var(--sans), system-ui, sans-serif;
   font-size: 3mm;
   line-height: 1.7;
   letter-spacing: .1em;
