@@ -34,17 +34,18 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "rub" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
+type KartaKlic = "hlavni" | "info" | "infoQr" | "rub" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
-     Výška je ale odměřená na text, ne na formát A5: na 128 mm šířky sazby má
-     obsah 134 mm a s bezpečnou zónou z toho vyjde 160. Do plné A5 by zbylo přes
-     čtyři centimetry vzduchu, a protože je text vystředěný, půlka by ho visela
-     nad nadpisem. Sedm milimetrů rezervy je na doplnění věty, ne na vzhled. */
+     Existuje ve dvou verzích a KAŽDÁ JE JINAK VYSOKÁ. Bez QR má 168 mm a text
+     na střed; QR kód potřebuje přes tři centimetry navíc, které se do té výšky
+     nevejdou, a natáhnout kvůli němu i verzi bez QR by na ní udělalo mezeru přes
+     půl karty. Rub je zatím na 168, tedy k verzi bez QR — kdyby se tiskla ta
+     s QR, musí se srovnat na 196. */
   { klic: "info", nazev: "Informace (148 × 168)", sirka: 148, vyska: 168, zona: 10 },
-  /* Rub informační karty. Stejný rozměr, jinak by po slepení přečnívala. */
+  { klic: "infoQr", nazev: "Informace s QR (148 × 196)", sirka: 148, vyska: 196, zona: 10 },
   { klic: "rub", nazev: "Detaily (rub)", sirka: 148, vyska: 168, zona: 10 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
@@ -213,6 +214,9 @@ const T = {
     datum: "18. 9. 2027",
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
+  qr: {
+    popis: "Bližší informace naleznete na našem svatebním webu.",
+  },
   rub: {
     /* Ampersand, ne plus — web má všude „Kateřina & Jakub“ a „K & J“. Plus
        zůstává jen v kresleném srdci u „Náš příběh“, tam je jako vyrytina do
@@ -331,6 +335,7 @@ export default function Oznameni() {
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
+            {klic === "infoQr" && <Info qr />}
             {klic === "rub" && (
               <>
                 {/* Iniciály a datum nahoře, ať strana není jen jedno slovo na
@@ -394,7 +399,7 @@ function Hlavni() {
   );
 }
 
-function Info() {
+function Info({ qr = false }: { qr?: boolean }) {
   const t = T.info;
   return (
     <>
@@ -415,8 +420,21 @@ function Info() {
           )}
         </section>
       ))}
-      <p className={s.podpis}>{t.podpis}</p>
-      <p className={s.infoZaver}>{t.zaver}</p>
+      {qr && (
+        /* QR je vektor (scripts/qr-oznameni.mjs), takže v tiskovém PDF zůstane
+           ostrý při jakékoli velikosti. */
+        <div className={s.qrBlok}>
+          <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
+          <p className={s.qrPopis}>{T.qr.popis}</p>
+        </div>
+      )}
+
+      {/* Poděkování se drží u dolního okraje karty — margin-top: auto v CSS.
+          Tím vyjde stejně, ať už QR na kartě je, nebo není. */}
+      <div className={s.infoPata}>
+        <p className={s.podpis}>{t.podpis}</p>
+        <p className={s.infoZaver}>{t.zaver}</p>
+      </div>
     </>
   );
 }

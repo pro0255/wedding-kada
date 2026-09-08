@@ -238,7 +238,8 @@
 /* Text nese černá, růžová jen rámeček, nadpisy, adresa a poděkování. Když
    růžová nesla i běžný text, byla karta růžová skrz naskrz a odstavce navíc
    bledší, než se na papíře čte pohodlně. Takhle růžová akcentuje a nepřekáží. */
-.k-info {
+.k-info,
+.k-infoQr {
   background: var(--ramecek-ruzova);
   color: var(--inkoust);
 }
@@ -247,6 +248,7 @@
   color: var(--inkoust);
 }
 .k-info::before,
+.k-infoQr::before,
 .k-rub::before {
   content: "";
   position: absolute;
@@ -294,12 +296,41 @@
   font-size: 15mm;
   line-height: 1.2;
 }
-.k-info .text {
+.k-info .text,
+.k-infoQr .text {
   align-items: center;
-  justify-content: center;
   text-align: center;
   font-family: var(--sans), system-ui, sans-serif;
 }
+/* Bez QR je text na střed jako dřív. S QR začíná nahoře a poděkování si drží
+   dolní okraj (.infoPata níž) — jinak by QR blok text posunul tak, že by dole
+   zbyla díra. */
+.k-info .text { justify-content: center; }
+.k-infoQr .text { justify-content: flex-start; }
+
+/* QR blok. Kód je vektor, takže se dá zvětšit na cokoli; dvacet milimetrů je
+   dost na to, aby ho telefon přečetl z ruky, a málo na to, aby přebil text. */
+.qrBlok {
+  margin-top: 9mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.qrKod {
+  display: block;
+  width: 20mm;
+  height: 20mm;
+}
+.karta .qrPopis {
+  margin-top: 3mm;
+  font-size: 2.7mm;
+  /* Jen barva jako nadpisy — velikost i řez zůstávají jako u běžného textu. */
+  color: var(--ruzove-pismo);
+}
+
+/* Poděkování u dolního okraje — jen na verzi s QR. Na té bez QR by auto margin
+   sebral volné místo a zrušil vystředění textu. */
+.k-infoQr .infoPata { margin-top: auto; }
 
 /* Celá karta je v kapitálkách a prostrkaná, jako na předloze. Kapitálky jsou
    širší a s prostrkáním zaberou skoro o třetinu víc místa než malá písmena,
@@ -308,6 +339,7 @@
 .infoText,
 .infoAdresa,
 .infoPoznamka,
+.qrPopis,
 .karta .infoZaver {
   text-transform: uppercase;
   letter-spacing: .14em;
