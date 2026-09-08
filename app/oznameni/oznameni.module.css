@@ -35,6 +35,8 @@
   /* Rámeček informační karty: --ruzova z webu. Naředěná baby pink by ve čtyřech
      milimetrech pruhu skoro nebyla vidět. */
   --ramecek-ruzova: #f4d3d9;
+  /* Rub má rámeček baby blue, líc růžový — schválně, ne omylem. */
+  --ramecek-modra: #dbe7f4;
   --ruzove-pismo: #9e4750;    /* --palette-rose-text */
 
   /* Modrá na doprovodný text. Baby blue z plochy (#dbe7f4) je barva na pozadí,
@@ -236,9 +238,12 @@
 /* Text nese černá, růžová jen rámeček, nadpisy, adresa a poděkování. Když
    růžová nesla i běžný text, byla karta růžová skrz naskrz a odstavce navíc
    bledší, než se na papíře čte pohodlně. Takhle růžová akcentuje a nepřekáží. */
-.k-info,
-.k-rub {
+.k-info {
   background: var(--ramecek-ruzova);
+  color: var(--inkoust);
+}
+.k-rub {
+  background: var(--ramecek-modra);
   color: var(--inkoust);
 }
 .k-info::before,
@@ -257,21 +262,17 @@
   align-items: center;
   justify-content: flex-start;
   text-align: center;
-  padding-top: 18mm;
+  padding-top: 42mm;
 }
 .rubNadpis {
-  /* Černá, ne růžová. Kartička leží na hlavním oznámení právě touhle stranou,
-     takže se slovo potká s „KATEŘINA“ hned nad sebou — stejné písmo, stejná
-     barva, čte se to jako jeden celek. Růžové vypadalo jako popiska. Barvu
-     drží rámeček. */
+  /* Psacím písmem, stejně jako „ke svatebnímu stolu“ a „navždy“ — a černě.
+     Barvu drží rámeček, písmo ji nepotřebuje. Patnáct milimetrů proto, že psací
+     písmo má menší optickou velikost než verzálky: devět milimetrů, na kterých
+     stály verzálky, by tady vyšlo drobně. */
   color: var(--inkoust);
-  font-family: var(--serif), Georgia, serif;
-  font-size: 9mm;
+  font-family: var(--kaligrafie), cursive;
+  font-size: 15mm;
   line-height: 1.2;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
-  text-indent: .2em;
 }
 .k-info .text {
   align-items: center;
