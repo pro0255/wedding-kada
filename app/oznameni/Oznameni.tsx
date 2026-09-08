@@ -214,7 +214,10 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   rub: {
-    iniciály: "K + J",
+    /* Ampersand, ne plus — web má všude „Kateřina & Jakub“ a „K & J“. Plus
+       zůstává jen v kresleném srdci u „Náš příběh“, tam je jako vyrytina do
+       stromu na místě. */
+    iniciály: "K & J",
     nadpis: "Detaily",
   },
   info: {
