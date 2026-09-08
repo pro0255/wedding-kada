@@ -29,7 +29,7 @@ import { mkdir } from "node:fs/promises";
  * tím její pravou stranu, kladný naopak. -1 a 1 jsou krajní polohy, 0 je střed.
  * Výřez uvnitř se proto posouvá opačným směrem, než jak je znaménko psané. */
 const POUZITE = [
-  { foto: "7", posun: -0.25 },
+  { foto: "7", posun: -0.5 },
   { foto: "12", posun: 0.9 },
   { foto: "13", posun: 0.6 },
 ];
