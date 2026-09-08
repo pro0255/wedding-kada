@@ -321,19 +321,35 @@
   width: 20mm;
   height: 20mm;
 }
-.karta .qrPopis {
-  margin: 0;
-  max-width: 88mm;
-  /* Písmo explicitně, ne zděděné. Samostatná karta ho dědí ze své .text jako
-     bezpatkové, arch ale tu deklaraci nemá a spadl by na patkové ze základního
-     .text — tentýž popisek by pak byl na kartě a na archu jiným písmem. */
+/* Texty vedle kódu. Písmo je všude explicitní, ne zděděné: samostatná kartička
+   ho dědí ze své .text jako bezpatkové, arch tu deklaraci nemá a spadl by na
+   patkové ze základního .text — tentýž popisek by pak byl na kartičce a na
+   archu jiným písmem. */
+.qrText {
+  max-width: 92mm;
   font-family: var(--sans), system-ui, sans-serif;
-  font-size: 3mm;
-  line-height: 1.7;
-  letter-spacing: .1em;
   text-transform: uppercase;
-  /* Jen barva jako nadpisy — velikost i řez zůstávají jako u běžného textu. */
+}
+.karta .qrNadpis {
+  margin: 0;
+  font-size: 3mm;
+  line-height: 1.6;
+  letter-spacing: .12em;
   color: var(--ruzove-pismo);
+}
+.karta .qrPopis {
+  margin: 2.5mm 0 0;
+  font-size: 2.5mm;
+  line-height: 1.6;
+  letter-spacing: .08em;
+}
+/* Adresa je to jediné, co si někdo bude opisovat, tak je zvýrazněná řezem —
+   ne barvou, aby si nekonkurovala s nadpisem nad sebou. */
+.karta .qrAdresa {
+  margin: 1.5mm 0 0;
+  font-size: 2.9mm;
+  font-weight: 500;
+  letter-spacing: .14em;
 }
 
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Parisienne } from "next/font/google";
 import s from "./oznameni.module.css";
+import { WEB_ADRESA } from "./adresa";
 
 /* Svatební oznámení k tisku — sada pěti karet.
 
@@ -225,7 +226,8 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   qr: {
-    popis: "Bližší informace naleznete na našem svatebním webu.",
+    nadpis: "Pro bližší informace omrkněte prosím náš svatební web",
+    navod: "Naskenujte QR přes fotoaparát v mobilu, nebo zadejte do prohlížeče:",
   },
   rub: {
     /* Ampersand, ne plus — web má všude „Kateřina & Jakub“ a „K & J“. Plus
@@ -515,11 +517,21 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
    Kód je vektor (scripts/qr-oznameni.mjs), takže v tiskovém PDF zůstane ostrý
    při jakékoli velikosti a nemusí se hlídat 300 dpi. */
 function KartaQr() {
+  return <div className={s.qrBlok}>{qrObsah()}</div>;
+}
+
+/* Obsah kartičky. Sdílený, aby samostatná kartička a arch nemohly nikdy
+   vypadat jinak. */
+function qrObsah() {
   return (
-    <div className={s.qrBlok}>
+    <>
       <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
-      <p className={s.qrPopis}>{T.qr.popis}</p>
-    </div>
+      <div className={s.qrText}>
+        <p className={s.qrNadpis}>{T.qr.nadpis}</p>
+        <p className={s.qrPopis}>{T.qr.navod}</p>
+        <p className={s.qrAdresa}>{WEB_ADRESA}</p>
+      </div>
+    </>
   );
 }
 
@@ -534,10 +546,7 @@ function ArchQr({ voditka }: { voditka: boolean }) {
     <div className={s.archPozvanek}>
       {[0, 1, 2, 3].map((poradi) => (
         <div key={poradi} className={s.qrProuzek}>
-          <div className={s.qrBlok}>
-            <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
-            <p className={s.qrPopis}>{T.qr.popis}</p>
-          </div>
+          <div className={s.qrBlok}>{qrObsah()}</div>
         </div>
       ))}
 
