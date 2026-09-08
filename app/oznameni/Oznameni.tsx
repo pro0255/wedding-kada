@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Parisienne } from "next/font/google";
 import s from "./oznameni.module.css";
-import { VAHY } from "./vahy";
 
 /* Svatební oznámení k tisku — sada pěti karet.
 
@@ -104,11 +103,7 @@ function rozsyp(
 
   for (let r = 0; r < radku; r++) {
     for (let c = 0; c < sloupcu; c++) {
-      /* Snítka se vybírá dřív než velikost, protože si nese vlastní váhu:
-         výška obrázku zahrnuje i prázdno kolem kresby, takže samý stonek by při
-         stejné výšce vypadal drobněji než kompaktní květ. */
-      const snitka = String(((poradi * 7) % SNITEK) + 1).padStart(2, "0");
-      const v = (nejmensi + sum(c, r) * (nejvetsi - nejmensi)) * (VAHY[snitka] ?? 1);
+      const v = nejmensi + sum(c, r) * (nejvetsi - nejmensi);
       const sirkaKytky = v * 0.55;      // snítky jsou zhruba 1 : 1,8
       const x = c * bunkaX + (bunkaX - sirkaKytky) * (0.15 + sum(c + 10, r) * 0.7);
       const y = r * bunkaY + (bunkaY - v) * (0.15 + sum(c, r + 10) * 0.7);
@@ -117,13 +112,16 @@ function rozsyp(
         x < z.x2 && x + sirkaKytky > z.x1 && y < z.y2 && y + v > z.y1);
       if (zasahujeText) continue;
 
+      /* Krok sedmi místo pořadí: sousední buňky tak nedostanou sousední
+         snítky a stejná kytka se nesejde sama se sebou. Sedmička je nesoudělná
+         s 34, takže se vystřídají všechny. */
       /* Zaokrouhleno na setiny milimetru. Nezaokrouhlené číslo jde do inline
          stylu s patnácti ciframi, server a klient ho vypíšou každý jinak
          a React na tom ohlásí neshodu hydratace — a tiskárna z desetitisícin
          milimetru stejně nic nemá. */
       const nadva = (n: number) => Math.round(n * 100) / 100;
       kytky.push({
-        snitka,
+        snitka: String(((poradi * 7) % SNITEK) + 1).padStart(2, "0"),
         x: nadva(x), y: nadva(y), v: nadva(v),
         uhel: Math.round(-22 + sum(c + 20, r + 20) * 44),
       });
