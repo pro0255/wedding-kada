@@ -262,9 +262,29 @@
   align-items: center;
   justify-content: flex-start;
   text-align: center;
-  padding-top: 42mm;
+  padding-top: 2mm;
 }
-.rubNadpis {
+
+/* Iniciály hned pod rámečkem, patkové verzálky jako jména na hlavní kartě. */
+.rubJmena {
+  font-family: var(--serif), Georgia, serif;
+  font-size: 8mm;
+  line-height: 1.2;
+  letter-spacing: .2em;
+  /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
+  text-indent: .2em;
+}
+/* Datum je pod nimi drobné a růžové — nese ho hlavní karta, tady je to jen
+   připomínka, ne hlavní údaj. */
+.karta .rubDatum {
+  margin-top: 3mm;
+  font-family: var(--sans), system-ui, sans-serif;
+  font-size: 2.8mm;
+  letter-spacing: .26em;
+  color: var(--ruzove-pismo);
+}
+.karta .rubNadpis {
+  margin-top: 34mm;
   /* Psacím písmem, stejně jako „ke svatebnímu stolu“ a „navždy“ — a černě.
      Barvu drží rámeček, písmo ji nepotřebuje. Patnáct milimetrů proto, že psací
      písmo má menší optickou velikost než verzálky: devět milimetrů, na kterých

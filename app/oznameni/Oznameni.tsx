@@ -214,6 +214,7 @@ const T = {
     detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
   },
   rub: {
+    iniciály: "K + J",
     nadpis: "Detaily",
   },
   info: {
@@ -327,7 +328,15 @@ export default function Oznameni() {
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
-            {klic === "rub" && <p className={s.rubNadpis}>{T.rub.nadpis}</p>}
+            {klic === "rub" && (
+              <>
+                {/* Iniciály a datum nahoře, ať strana není jen jedno slovo na
+                    prázdné ploše — kartička leží na oznámení touhle stranou. */}
+                <p className={s.rubJmena}>{T.rub.iniciály}</p>
+                <p className={s.rubDatum}>{T.hlavni.datum}</p>
+                <p className={s.rubNadpis}>{T.rub.nadpis}</p>
+              </>
+            )}
             {klic === "pasek" && <Pasek voditka={ukazVoditka} />}
             {klic === "obrad" && <Zvani {...T.obrad} />}
             {klic === "archObrad" && <ArchPozvanek zvani={T.obrad} voditka={ukazVoditka} />}
