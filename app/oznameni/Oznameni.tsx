@@ -34,19 +34,20 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "infoQr" | "rub" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
+type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
-     Existuje ve dvou verzích a KAŽDÁ JE JINAK VYSOKÁ. Bez QR má 168 mm a text
-     na střed; QR kód potřebuje přes tři centimetry navíc, které se do té výšky
-     nevejdou, a natáhnout kvůli němu i verzi bez QR by na ní udělalo mezeru přes
-     půl karty. Rub je zatím na 168, tedy k verzi bez QR — kdyby se tiskla ta
-     s QR, musí se srovnat na 196. */
+     QR kód na ní není. Vešel by se, ale karta by tím byla zaplněná na 99 %
+     a kód by v jinak vystředěné sazbě působil dolepeně. Má proto vlastní
+     kartičku — a hlavně: rub i líc téhle karty host přečte a odloží, kdežto
+     samostatný kus musí vzít do ruky. */
   { klic: "info", nazev: "Informace (148 × 168)", sirka: 148, vyska: 168, zona: 10 },
-  { klic: "infoQr", nazev: "Informace s QR (148 × 196)", sirka: 148, vyska: 196, zona: 10 },
   { klic: "rub", nazev: "Detaily (rub)", sirka: 148, vyska: 168, zona: 10 },
+  /* Kartička s QR. Formát pozvánek, aby se tiskla po čtyřech na A5 stejně jako
+     ony, ale vzhled karty s detaily — růžový rámeček a bílý střed. */
+  { klic: "qr", nazev: "QR na web", sirka: 148, vyska: 50, zona: 6 },
   /* Arch proužků s fotkami. Proužky jsou samostatné, přikládají se ke kartě —
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
@@ -335,7 +336,7 @@ export default function Oznameni() {
           <div className={s.text}>
             {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
-            {klic === "infoQr" && <Info qr />}
+            {klic === "qr" && <KartaQr />}
             {klic === "rub" && (
               <>
                 {/* Iniciály a datum nahoře, ať strana není jen jedno slovo na
@@ -399,7 +400,7 @@ function Hlavni() {
   );
 }
 
-function Info({ qr = false }: { qr?: boolean }) {
+function Info() {
   const t = T.info;
   return (
     <>
@@ -420,21 +421,8 @@ function Info({ qr = false }: { qr?: boolean }) {
           )}
         </section>
       ))}
-      {qr && (
-        /* QR je vektor (scripts/qr-oznameni.mjs), takže v tiskovém PDF zůstane
-           ostrý při jakékoli velikosti. */
-        <div className={s.qrBlok}>
-          <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
-          <p className={s.qrPopis}>{T.qr.popis}</p>
-        </div>
-      )}
-
-      {/* Poděkování se drží u dolního okraje karty — margin-top: auto v CSS.
-          Tím vyjde stejně, ať už QR na kartě je, nebo není. */}
-      <div className={s.infoPata}>
-        <p className={s.podpis}>{t.podpis}</p>
-        <p className={s.infoZaver}>{t.zaver}</p>
-      </div>
+      <p className={s.podpis}>{t.podpis}</p>
+      <p className={s.infoZaver}>{t.zaver}</p>
     </>
   );
 }
@@ -504,6 +492,20 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
       {voditka && [1, 2, 3].map((i) => (
         <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
       ))}
+    </div>
+  );
+}
+
+/* Kartička s QR kódem na svatební web. QR je vedle popisku, ne nad ním — na
+   pruhu vysokém padesát milimetrů by nad sebou nebylo místo na obojí.
+
+   Kód je vektor (scripts/qr-oznameni.mjs), takže v tiskovém PDF zůstane ostrý
+   při jakékoli velikosti a nemusí se hlídat 300 dpi. */
+function KartaQr() {
+  return (
+    <div className={s.qrBlok}>
+      <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
+      <p className={s.qrPopis}>{T.qr.popis}</p>
     </div>
   );
 }
