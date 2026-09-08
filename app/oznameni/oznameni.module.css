@@ -414,8 +414,14 @@
 /* ---------- arch s pásky fotek ---------- */
 /* Tři proužky vedle sebe na A5. Arch vyplní celou plochu ořezu (bezpečná zóna
    je u téhle karty nulová) a rozdělí se na třetiny — proužek je 49,33 mm.
-   Uvnitř proužku drží fotky bílý okraj, takže na řezu nezáleží na desetině
-   milimetru: řeže se do bílého, ne do fotky. */
+
+   Bílým okrajem vede baby blue linka. Bílý pásek se mezi bílými kartami sady
+   ztrácel; linka z něj dělá vlastní objekt.
+
+   Okraj je široký 6 mm a linka vede jeho středem: 3 mm od kraje proužku a 3 mm
+   od fotky. Tři milimetry jsou tolerance na řez — při užším okraji by ji ujetý
+   řez zasáhl. Fotky se kvůli tomu zmenšily na 37,33 mm a jsou přegenerované na
+   nový poměr stran, aby mezi nimi nezůstaly zbytečně velké mezery. */
 .k-pasek .text { padding: 0; }
 .pasekArch {
   position: relative;
@@ -429,7 +435,17 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 5mm 4mm;
+  /* Odsazení je všude stejné, aby linka vedla přesně středem okraje i nahoře
+     a dole, nejen po stranách. */
+  padding: 6mm;
+  position: relative;
+}
+.pasekProuzek::before {
+  content: "";
+  position: absolute;
+  inset: 3mm;
+  border: .8mm solid var(--ramecek-modra);
+  pointer-events: none;
 }
 .pasekFotka {
   display: block;
@@ -452,7 +468,30 @@
    kytka přetékající přes řez ustřihla přesně na řezu — jinak by zasahovala
    do sousední pozvánky. */
 .k-archObrad .text,
-.k-archStolu .text { display: block; padding: 0; }
+.k-archStolu .text,
+.k-archQr .text { display: block; padding: 0; }
+
+/* Růžovou nese celá karta včetně spadu, ne jednotlivé proužky — na vnějším
+   okraji archu by jinak po ořezu mohl svítit bílý papír. Proužek kreslí jen
+   bílý vnitřek. */
+.k-archQr { background: var(--ramecek-ruzova); }
+.qrProuzek {
+  position: relative;
+  height: 50mm;
+  overflow: hidden;
+}
+.qrProuzek::before {
+  content: "";
+  position: absolute;
+  inset: 4mm;
+  background: var(--papir);
+}
+.qrProuzek > * {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  justify-content: center;
+}
 .archPozvanek {
   position: relative;
   width: 100%;

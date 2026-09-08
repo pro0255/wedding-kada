@@ -34,9 +34,17 @@ const kaligrafie = Parisienne({
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
 
-type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu";
+/* Archy spad nemají: řežou se z nich jen linie MEZI kartami, vnější okraj
+   zůstane, jak vyjel z tiskárny. Se spadem by první kartička dostala navíc
+   3 mm nahoře, poslední 3 mm dole a všechny 3 mm po stranách — a rámeček nebo
+   okraj kolem obsahu by na krajních kusech seděl jinak než na prostředních.
+   Bez spadu je list přesně 148 x 200 a tři řezy z něj udělají čtyři stejné
+   kartičky. */
+const SPAD_ARCHU = 0;
 
-const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number }[] = [
+type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
+
+const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number; spad?: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
      QR kód na ní není. Vešel by se, ale karta by tím byla zaplněná na 99 %
@@ -52,7 +60,7 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
      obsah má sahat až k ořezu a dělí se přesně na třetiny. */
-  { klic: "pasek", nazev: "Pásky s fotkami (A5)", sirka: 148, vyska: 210, zona: 0 },
+  { klic: "pasek", nazev: "Pásky s fotkami (A5)", sirka: 148, vyska: 210, zona: 0, spad: SPAD_ARCHU },
   /* Obě pozvánky jsou široké jako A5, aby se v sadě srovnaly s ostatními.
      Z pruhu 148 x 50 mm vyjde z jedné A4 rovnou několik kusů. */
   { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 148, vyska: 50, zona: 6 },
@@ -60,8 +68,9 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
   /* Archy pozvánek. Pozvánka je 148 x 50 mm, takže se čtyři vejdou na výšku
      200 mm a řežou se třemi vodorovnými řezy. Bezpečná zóna je nulová: obsah
      sahá až k ořezu a dělí se přesně na čtvrtiny. */
-  { klic: "archObrad", nazev: "Pozvánky na obřad (arch)", sirka: 148, vyska: 200, zona: 0 },
-  { klic: "archStolu", nazev: "Pozvánky ke stolu (arch)", sirka: 148, vyska: 200, zona: 0 },
+  { klic: "archObrad", nazev: "Pozvánky na obřad (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
+  { klic: "archStolu", nazev: "Pozvánky ke stolu (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
+  { klic: "archQr", nazev: "QR na web (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
 ];
 
 /* Kolik snítek vyrobil scripts/kyticky-oznameni.mjs. Soubory jsou 01..NN. */
@@ -247,8 +256,9 @@ export default function Oznameni() {
   const [ukazVoditka, setUkazVoditka] = useState(true);
 
   const karta = KARTY.find((k) => k.klic === klic)!;
-  const spadSirka = karta.sirka + SPAD * 2;
-  const spadVyska = karta.vyska + SPAD * 2;
+  const spad = karta.spad ?? SPAD;
+  const spadSirka = karta.sirka + spad * 2;
+  const spadVyska = karta.vyska + spad * 2;
 
   /* Na úzké obrazovce se karta zmenší, aby se vešla; ladí se ale v 1:1.
      Transform nezmenší místo v toku, výšku proto drží obal přes --skala. */
@@ -273,9 +283,11 @@ export default function Oznameni() {
         <div className={s.listaInfo}>
           <strong>Svatební oznámení</strong>
           <span className={s.napoveda}>
-            {karta.nazev}: ořez {karta.sirka} × {karta.vyska} mm, se spadem{" "}
-            {spadSirka} × {spadVyska} mm. Tiskne se po jedné kartě — v dialogu
-            zvolte „Uložit jako PDF“, okraje „Žádné“ a zapněte grafiku pozadí.
+            {karta.nazev}: {spad
+              ? `ořez ${karta.sirka} × ${karta.vyska} mm, se spadem ${spadSirka} × ${spadVyska} mm`
+              : `${karta.sirka} × ${karta.vyska} mm bez spadu — řeže se jen mezi kartičkami`}. Tiskne
+            se po jedné kartě — v dialogu zvolte „Uložit jako PDF“, okraje
+            „Žádné“ a zapněte grafiku pozadí.
           </span>
         </div>
 
@@ -311,7 +323,7 @@ export default function Oznameni() {
             "--skala": skala,
             "--karta-sirka": `${spadSirka}mm`,
             "--karta-vyska": `${spadVyska}mm`,
-            "--spad": `${SPAD}mm`,
+            "--spad": `${spad}mm`,
             "--zona": `${karta.zona}mm`,
           } as React.CSSProperties
         }
@@ -350,6 +362,7 @@ export default function Oznameni() {
             {klic === "obrad" && <Zvani {...T.obrad} />}
             {klic === "archObrad" && <ArchPozvanek zvani={T.obrad} voditka={ukazVoditka} />}
             {klic === "archStolu" && <ArchPozvanek zvani={T.vizitka} voditka={ukazVoditka} />}
+            {klic === "archQr" && <ArchQr voditka={ukazVoditka} />}
             {klic === "vizitka" && <Zvani {...T.vizitka} />}
           </div>
 
@@ -506,6 +519,32 @@ function KartaQr() {
     <div className={s.qrBlok}>
       <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
       <p className={s.qrPopis}>{T.qr.popis}</p>
+    </div>
+  );
+}
+
+/* Arch čtyř QR kartiček. Růžový rámeček nese celá karta včetně spadu, proto se
+   v proužku kreslí jen bílý vnitřek — kdyby měl růžovou každý proužek zvlášť,
+   na vnějším okraji archu by po ořezu mohl svítit bílý proužek papíru.
+
+   Mezi dvěma sousedními proužky se tím potkají dva čtyřmilimetrové rámečky do
+   osmimilimetrového pruhu, který se řezem rozdělí na půl. */
+function ArchQr({ voditka }: { voditka: boolean }) {
+  return (
+    <div className={s.archPozvanek}>
+      {[0, 1, 2, 3].map((poradi) => (
+        <div key={poradi} className={s.qrProuzek}>
+          <div className={s.qrBlok}>
+            <img className={s.qrKod} src="/oznameni/qr.svg" alt="" aria-hidden="true" />
+            <p className={s.qrPopis}>{T.qr.popis}</p>
+          </div>
+        </div>
+      ))}
+
+      {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
+      {voditka && [1, 2, 3].map((i) => (
+        <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
+      ))}
     </div>
   );
 }
