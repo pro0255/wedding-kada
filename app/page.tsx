@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
@@ -16,7 +16,7 @@ import { SnitkaKvet } from "./Kytky";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby } from "./StoryDoodles";
+import { IkonaKlik } from "./StoryDoodles";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -377,29 +377,48 @@ function FotoHromadka() {
           />
         );
       })}
-      {/* ručně psaná šipka — zve k listování a zůstává vidět pořád */}
-      <span className="doodle-obal doodle-obal-klikni" aria-hidden="true">
-        <SipkaKlikni />
+      {/* Odznak s kurzorem v rohu — zve k listování a zůstává vidět pořád.
+          Popisky konkrétních fotek („zásnuby na Troskách“ a spol.) tu byly nad
+          hromádkou a šly pryč; komponenty v StoryDoodles.tsx zůstávají. */}
+      <span className="doodle-obal ikona-klik-obal" aria-hidden="true">
+        <IkonaKlik />
       </span>
-      {/* popisky patří ke konkrétním fotkám a ukážou se jen když jsou navrchu:
-          „zásnuby na Troskách“ k první, „první společná fotka“ k zimní druhé,
-          „první Chorvatsko jako rodina“ k fotce z krčského přístavu */}
-      <AnimatePresence>
-        {(aktivni === 0 || aktivni === 1 || aktivni === 8) && (
-          <motion.span
-            key={aktivni}
-            className="doodle-obal doodle-obal-zasnuby"
-            aria-hidden="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-          >
-            {aktivni === 0 ? <SipkaZasnuby /> : aktivni === 1 ? <SipkaPrvniFotka /> : <SipkaChorvatsko />}
-          </motion.span>
-        )}
-      </AnimatePresence>
     </button>
+  );
+}
+
+/* Světle modrá obálka s příběhem. Leží nakřivo přes hromádku fotek, zapečetěná
+   zlatým voskem s iniciálami — klepnutím se papír s textem vysune ven.
+
+   Klikací je celá kapsa obálky, ne jen pečeť: pečeť je malý terč a host míří
+   na obálku jako na celek. Papír klikací není, aby se text dal označit a číst
+   bez rizika, že se obálka pod rukou zavře.
+
+   Výška papíru se animuje přes grid-template-rows 0fr → 1fr. Je to jediný
+   způsob, jak plynule přejít do „auto“ výšky bez měření v JS — a měřit by se
+   muselo znovu při každé změně šířky okna. Obsah zůstává v DOMu i zavřený,
+   ořezává ho overflow rodiče. */
+function ObalkaPribeh({ children }: { children: React.ReactNode }) {
+  const [otevrena, setOtevrena] = useState(false);
+  return (
+    <div className={"obalka" + (otevrena ? " je-otevrena" : "")}>
+      <div className="obalka-vysuv">
+        <div className="obalka-vysuv-ram">
+          <div className="obalka-papir">{children}</div>
+        </div>
+      </div>
+      <button
+        type="button"
+        className="obalka-kapsa"
+        onClick={() => setOtevrena((o) => !o)}
+        aria-expanded={otevrena}
+      >
+        <span className="obalka-pecet" aria-hidden="true">
+          <span className="obalka-pecet-text">K&nbsp;&amp;&nbsp;J</span>
+        </span>
+        <span className="obalka-popisek">{otevrena ? "Zavřít" : "Klepněte na pečeť"}</span>
+      </button>
+    </div>
   );
 }
 
@@ -546,13 +565,15 @@ export default function Home() {
           <div className="story-text">
             <p className="eyebrow">Náš příběh</p>
             <h2>Jak to celé začalo</h2>
-            <p className="lead">
-              Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
-              největší společné dobrodružství. Poznali jsme se, zamilovali se,
-              prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
-              plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-              jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
-            </p>
+            <ObalkaPribeh>
+              <p className="lead">
+                Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
+                největší společné dobrodružství. Poznali jsme se, zamilovali se,
+                prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
+                plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
+                jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
+              </p>
+            </ObalkaPribeh>
           </div>
         </Reveal>
       </section>
@@ -595,12 +616,7 @@ export default function Home() {
             <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
           </div>
           <div className="event">
-            <h3>Společné focení</h3>
-            <div className="meta">13:00</div>
-            <p>Pár fotek s vámi všemi, s rodinou i s přáteli, které budeme ukazovat ještě za dvacet let.</p>
-          </div>
-          <div className="event">
-            <h3>Přípitek &amp; oběd</h3>
+            <h3>Přípitek &amp; svatební oběd</h3>
             <div className="meta">13:30</div>
             <p>Na zdraví, na lásku a na pořádný hlad.</p>
           </div>

@@ -27,20 +27,31 @@ const T = {
    viewBoxu a jsou spočítané tak, aby se prostrkaný text vešel před šipku. */
 const PISMO = { className: "doodle-napis" };
 
-/* „klikni“ + šipka stáčející se vzhůru doprava — sedí pod hromádkou fotek
-   a míří špičkou zpět do fotky */
-export function SipkaKlikni() {
+/* Odznáček „tady klikni“ v rohu hromádky fotek. Dřív tu byl ručně psaný nápis
+   „klikni“ se šipkou; ikona kurzoru s jiskřičkami řekne totéž beze slov a
+   nezabere šířku půlky fotky.
+
+   Kolečko je plné bílé, protože odznak leží přes fotku — samotný obrys by se
+   na světlém snímku ztratil. Pozici a velikost řídí .ikona-klik-obal v CSS. */
+export function IkonaKlik() {
   return (
-    <svg className="story-doodle doodle-klikni" viewBox="0 0 220 150" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="2" y="128" fontSize="24">KLIKNI</text>
-      <path {...T} d="M 130 116 C 160 108, 178 90, 187 46" />
-      <path {...T} className="doodle-hrot" d="M 187 46 L 171 63" />
-      <path {...T} className="doodle-hrot" d="M 187 46 L 196 66" />
+    <svg className="ikona-klik" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+      <circle className="ikona-klik-kruh" cx="22" cy="22" r="20" />
+      {/* jiskřičky nad kurzorem — značí ťuknutí */}
+      <g className="ikona-klik-jiskry">
+        <path d="M15.4 13 L13.4 10.4" />
+        <path d="M21 10.8 L21 7.6" />
+        <path d="M26.6 13 L28.6 10.4" />
+      </g>
+      <path className="ikona-klik-sipka" d="M16.6 15.6 L30.6 27 L24.2 27.7 L27.4 33.8 L24.6 35.2 L21.4 29 L16.6 33 Z" />
     </svg>
   );
 }
 
-/* „zásnuby na Troskách“ + šipka dolů doleva — visí nad hromádkou a ukazuje
+/* NEPOUŽITÉ — popisky nad hromádkou fotek jsou pryč, zůstávají tu pro případ,
+   že by se měly vrátit. Vykreslovaly se podle toho, která fotka je navrchu.
+
+   „zásnuby na Troskách“ + šipka dolů doleva — visí nad hromádkou a ukazuje
    na fotku z Trosek, tak se zobrazuje jen když je zrovna navrchu.
    Nápis je na dvě řádky, druhá menší jako dopsaná dovětkem; šipka je proto
    o 40 jednotek níž než dřív (viewBox povyrostl ze 130 na 170) a obal se

@@ -1848,3 +1848,154 @@ body,
 @media (max-width: 760px) {
   .obsah-ramec > section.story { padding-top: 9rem; }
 }
+
+/* ---------- odznak „klikni“ na hromádce fotek ----------
+   Nahradil ručně psaný nápis se šipkou. Sedí v pravém dolním rohu hromádky
+   a kouskem přesahuje ven, ať je vidět i na tmavé fotce. Pohupování zdědil
+   po šipce — bez pohybu si ho oko na fotce nevšimne. */
+.ikona-klik-obal {
+  width: 54px; right: -16px; bottom: -18px;
+  animation: doodle-pohup 2.6s ease-in-out 1.4s infinite;
+  transform-origin: 50% 50%;
+}
+.ikona-klik { display: block; width: 100%; height: auto; }
+/* Kolečko je plné bílé — odznak leží přes fotku a samotný obrys by se ztratil. */
+.ikona-klik-kruh { fill: #fff; stroke: var(--ink); stroke-width: 1.1; }
+.ikona-klik-sipka { fill: var(--ink); }
+.ikona-klik-jiskry path { fill: none; stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; }
+@media (prefers-reduced-motion: reduce) {
+  .ikona-klik-obal { animation: none; }
+}
+@media (max-width: 760px) {
+  .ikona-klik-obal { width: 46px; right: -10px; bottom: -14px; }
+}
+
+/* ---------- obálka s příběhem ----------
+   Světle modrá obálka leží nakřivo přes hromádku fotek. Po klepnutí se
+   narovná, poposkočí a vysune se z ní bílý papír s textem.
+
+   Záporný levý okraj ji posune přes sousední sloupec s fotkami. Obálka je
+   v textovém sloupci, ne ve fotkovém — patří k textu, jen na fotky zaléhá.
+
+   Rotace i posun jsou na obalu, ne na kapse: kdyby se otáčela jen kapsa,
+   papír by z ní vyjížděl rovně a odhalil by, že to není jeden kus papíru. */
+.obalka {
+  --obalka-modra: #d9e6f3;
+  --obalka-modra-tmava: #c3d7ea;
+  --vosk: #c69b3f;
+  position: relative;
+  z-index: 5;
+  width: min(100%, 440px);
+  /* Mezera mezi sloupci je 6rem; záporný okraj ji musí nejdřív celou sníst
+     a teprve zbytek je skutečný přesah přes fotky. 9rem tedy znamená 3rem
+     zálehu, a to na každé šířce okna stejně — mezera se nemění. */
+  margin-left: -9rem;
+  transform: rotate(-3.4deg);
+  /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
+     někdo pohnul rukou */
+  transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
+}
+.obalka.je-otevrena { transform: rotate(-.9deg) translate(1.6rem, -.5rem); }
+
+/* Papír. Zavřený má nulovou výšku řádku mřížky, otevřený plnou. */
+.obalka-vysuv {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .8s cubic-bezier(.4, 0, .2, 1);
+}
+.obalka.je-otevrena .obalka-vysuv { grid-template-rows: 1fr; }
+/* min-height: 0 je nutné — položka mřížky má ve výchozím stavu min-height: auto
+   a řádek 0fr by se kvůli tomu nesmrskl na nulu, ale na výšku prvního řádku. */
+.obalka-vysuv-ram { overflow: hidden; min-height: 0; }
+.obalka-papir {
+  background: #fff;
+  /* Sekce má bílé pozadí, takže papír musí mít vlastní hranu — bez linky
+     a stínu by text jen visel ve vzduchu a žádný papír by z něj nebyl. */
+  border: 1px solid rgba(31, 64, 104, .14);
+  box-shadow: 0 18px 40px rgba(31, 64, 104, .16), 0 2px 6px rgba(31, 64, 104, .08);
+  padding: 2.2rem 2rem 3.2rem;
+  /* spodek papíru mizí v kapse, ať vypadá zasunutý a ne položený nad ní */
+  margin-bottom: -2.4rem;
+  text-align: left;
+  transform: translateY(1.6rem);
+  opacity: 0;
+  transition: transform .8s cubic-bezier(.4, 0, .2, 1), opacity .45s ease;
+}
+.obalka.je-otevrena .obalka-papir { transform: none; opacity: 1; }
+.obalka-papir .lead { max-width: none; }
+
+/* Kapsa obálky = tlačítko. */
+.obalka-kapsa {
+  position: relative; z-index: 1;
+  display: block; width: 100%; aspect-ratio: 1.62 / 1;
+  border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit;
+  background: var(--obalka-modra);
+  border-radius: 4px;
+  box-shadow: 0 16px 38px rgba(31, 64, 104, .22);
+}
+/* Přední švy: dvě úhlopříčky z horních rohů, které se potkají ve výšce 68 % —
+   pohled na zalepenou obálku. Každý přechod kreslí jednu, proto dvě poloviny. */
+.obalka-kapsa::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - .5px), var(--obalka-modra-tmava) calc(50% - .5px), var(--obalka-modra-tmava) calc(50% + .5px), transparent calc(50% + .5px)) left top / 50% 68% no-repeat,
+    linear-gradient(to bottom left, transparent calc(50% - .5px), var(--obalka-modra-tmava) calc(50% - .5px), var(--obalka-modra-tmava) calc(50% + .5px), transparent calc(50% + .5px)) right top / 50% 68% no-repeat;
+}
+
+/* Pečeť sedí přesně ve špičce švů. */
+.obalka-pecet {
+  position: absolute; left: 50%; top: 68%;
+  transform: translate(-50%, -50%);
+  width: 84px; height: 84px;
+  display: grid; place-items: center;
+  /* Nepravidelné poloměry dělají rozteklý okraj vosku — pravidelný kruh
+     vypadá jako knoflík. Čtyři různé hodnoty vodorovně i svisle stačí;
+     pravidelnější tvar už si oko přečte jako kruh. */
+  border-radius: 44% 56% 52% 48% / 53% 44% 56% 47%;
+  background: radial-gradient(circle at 33% 28%, #efd695, var(--vosk) 52%, #8d6a1b);
+  box-shadow:
+    0 4px 12px rgba(80, 58, 10, .42),
+    inset 0 -3px 7px rgba(0, 0, 0, .3),
+    inset 0 3px 6px rgba(255, 255, 255, .5);
+  transition: transform .45s cubic-bezier(.34, 1.25, .5, 1);
+}
+/* Vyražený prstenec kolem iniciál — otisk razítka do vosku. */
+.obalka-pecet::before {
+  content: ""; position: absolute; inset: 11px;
+  border-radius: inherit;
+  border: 1px solid rgba(88, 63, 12, .45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28);
+}
+.obalka-pecet-text {
+  position: relative;
+  font-family: var(--serif), Georgia, serif;
+  font-size: 1.32rem; letter-spacing: .06em;
+  color: #5b420f;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+}
+.obalka-kapsa:hover .obalka-pecet,
+.obalka-kapsa:focus-visible .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
+.obalka-kapsa:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+/* otevřená obálka: pečeť je „odklopená“ stranou, ne rozlomená — dá se zavřít zpátky */
+.obalka.je-otevrena .obalka-pecet { transform: translate(-50%, -50%) rotate(-11deg); }
+
+.obalka-popisek {
+  position: absolute; left: 0; right: 0; bottom: -1.9rem;
+  font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  transition: opacity .4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obalka, .obalka-vysuv, .obalka-papir, .obalka-pecet { transition: none; }
+}
+
+/* Jednosloupcové rozvržení: není přes co ležet, obálka se srovná doprostřed. */
+@media (max-width: 760px) {
+  .obalka {
+    width: min(100%, 380px);
+    margin-left: auto; margin-right: auto;
+    transform: rotate(-2.2deg);
+  }
+  .obalka.je-otevrena { transform: rotate(-.6deg) translateY(-.3rem); }
+  .obalka-papir { padding: 1.8rem 1.4rem 2.8rem; }
+}
