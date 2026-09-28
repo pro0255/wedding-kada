@@ -17,6 +17,7 @@ import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
 import { IkonaKlik } from "./StoryDoodles";
+import { OznameniHlavni } from "./oznameni/Oznameni";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -414,31 +415,42 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
+/* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
+   listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
+type StavObalky = "zavreno" | "dopis" | "oznameni";
+
 function ObalkaPribeh({ children }: { children: React.ReactNode }) {
-  const [otevrena, setOtevrena] = useState(false);
+  const [stav, setStav] = useState<StavObalky>("zavreno");
+  const otevrena = stav !== "zavreno";
+  const dalsi = () => setStav(stav === "dopis" ? "oznameni" : "zavreno");
   return (
-    <div className={"obalka" + (otevrena ? " je-otevrena" : "")}>
+    <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
       {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
           grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
           „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
           změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
           spodek papíru, takže papír končí schovaný v kapse. */}
-      {/* Klepnutí na papír obálku zavře. Otevřít se jím nedá — zavřený papír
-          není vidět a tělo obálky je pod ním. Ovládat se to dá pořád i z
-          tlačítka níž, takže klávesnici ani odečítači tohle nic nebere; proto
-          je to obyčejný div bez role. */}
-      <div
-        className="obalka-vysuv"
-        onClick={otevrena ? () => setOtevrena(false) : undefined}
-      >
+      {/* Klepnutí na listy je posouvá dál: z dopisu na oznámení, z oznámení
+          zpátky do obálky. Otevřít se jimi nedá — zavřené listy nejsou vidět
+          a tělo obálky je pod nimi. Ovládat se to dá pořád i z tlačítka níž,
+          takže klávesnici ani odečítači tohle nic nebere; proto je to obyčejný
+          div bez role. */}
+      <div className="obalka-vysuv" onClick={otevrena ? dalsi : undefined}>
         <div className="obalka-vysuv-ram">
-          <div className="obalka-papir">{children}</div>
+          <div className="obalka-listy">
+            {/* Oznámení je z obou listů vyšší, takže drží výšku obalu a dopis
+                na něm leží. Kouká za ním ven; po klepnutí si místa prohodí. */}
+            <span className="obalka-oznameni" aria-hidden="true">
+              <OznameniHlavni />
+            </span>
+            <div className="obalka-papir">{children}</div>
+          </div>
         </div>
       </div>
       <button
         type="button"
         className="obalka-telo"
-        onClick={() => setOtevrena((o) => !o)}
+        onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
         aria-expanded={otevrena}
       >
         <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
@@ -447,9 +459,7 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
             chlopně, takže musí mizet spolu s ní. */}
         <span className="obalka-zavrena-obal" aria-hidden="true">
           <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
-          <span className="obalka-pecet">
-            <span className="obalka-pecet-text">K&nbsp;&amp;&nbsp;J</span>
-          </span>
+          <img className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
         </span>
         <span className="obalka-popisek">{otevrena ? "Zavřít" : "Klepněte na pečeť"}</span>
       </button>

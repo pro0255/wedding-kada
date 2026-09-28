@@ -210,3 +210,44 @@ async function syrove(soubor) {
   const usta = Math.max(...sloupceSKartickou.map((x) => dno[x]));
   console.log(`  ústa od horní hrany výřezu = ${((usta - orez.top) / orez.width * 100).toFixed(1)} % šířky`);
 }
+
+/* ---------- pečeť ---------- */
+/* Vosková pečeť je fotka na bílém — klíčuje se stejně jako zavřená obálka, jen
+ * se hlídá i sytost: pečeť je zlatá, takže světlé, ale nevýrazné pixely jsou
+ * pozadí, a světlé barevné jsou odlesk na vosku, který musí zůstat.
+ *
+ * Ořez je na nejmenší obdélník kolem pečeti. Bez něj by kolem ní zůstal bílý
+ * rám a v CSS by se musel dopočítávat — takhle se dá obrázek posadit rovnou. */
+{
+  const ZDROJ = "public/vosk na obalku.jpg";
+  const { data, w, h } = await syrove(ZDROJ);
+  let minX = w, maxX = 0, minY = h, maxY = 0;
+
+  for (let p = 0; p < w * h; p++) {
+    const r = data[p * 4], g = data[p * 4 + 1], b = data[p * 4 + 2];
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    /* Vzdálenost od bílé i sytost — čím dál od bílé nebo čím barevnější,
+     * tím neprůhlednější. Bere se to větší z obou, ať projde jak tmavý
+     * obrys, tak bledý zlatý odlesk. */
+    const odBile = Math.hypot(255 - r, 255 - g, 255 - b);
+    const a = Math.max(prah(odBile, 18, 42), prah(max - min, 8, 22));
+    data[p * 4 + 3] = Math.round(255 * a);
+    if (a > 0.5) {
+      const x = p % w, y = (p / w) | 0;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+
+  const sirkaOrez = maxX - minX + 1, vyskaOrez = maxY - minY + 1;
+  await sharp(data, { raw: { width: w, height: h, channels: 4 } })
+    .extract({ left: minX, top: minY, width: sirkaOrez, height: vyskaOrez })
+    .resize({ width: 400 })
+    .webp({ quality: 92, alphaQuality: 100 })
+    .toFile(`${CIL}/vosk.webp`);
+
+  console.log(`vosk.webp  ořez ${minX},${minY} ${sirkaOrez}x${vyskaOrez}`);
+  console.log(`  poměr výška/šířka = ${(vyskaOrez / sirkaOrez * 100).toFixed(1)} %`);
+}

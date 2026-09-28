@@ -15,8 +15,8 @@
    třídou — nadpisy na informační kartě se kvůli tomu kreslily serifem
    a malými písmeny a odstavcům mizely mezery. Pravidla, kterých se to týká,
    proto začínají `.karta` a mají navrch nad resetem. */
-.stranka section { padding: 0; }
-.stranka h2 {
+.zaklad section { padding: 0; }
+.zaklad h2 {
   margin: 0;
   /* globals dává h1-h3 serif; nadpisy na kartě mají být stejným písmem jako
      text kolem nich, jen těžším řezem. */
@@ -26,9 +26,12 @@
   letter-spacing: inherit;
   text-transform: none;
 }
-.stranka p { margin: 0; }
+.zaklad p { margin: 0; }
 
-.stranka {
+/* Proměnné a resety, bez kterých se karta nevykreslí správně. Jsou zvlášť od
+   .stranka, protože kartu používá i web — přední strana oznámení leží v obálce
+   v sekci s příběhem — a ten nechce nic z rozvržení tiskové stránky. */
+.zaklad {
   --papir: #fbfaf8;
   --inkoust: #3a3a38;
   --tlumene: #6f6d69;
@@ -44,7 +47,11 @@
      tón ztmavený tak, aby se udržel i na prostrkaných kapitálkách o velikosti
      sedmi bodů, a pořád byl světle modrý. */
   --modre-pismo: #7fa3bd;
+}
 
+/* Tisková stránka: podklad, na kterém karta leží, a vystředění. */
+.stranka {
+  composes: zaklad;
   min-height: 100dvh;
   padding: 2rem 1rem 4rem;
   display: flex;
