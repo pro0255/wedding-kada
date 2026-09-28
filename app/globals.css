@@ -931,11 +931,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   .venue-map { transition: none; }
 }
 /* adresa nad mapou se přepne na „Rekovice“ zároveň s otočením karty */
-.venue-address { position: relative; }
-.venue-address-main, .venue-address-alt { transition: opacity .3s; }
-.venue-address-alt { position: absolute; inset: 0; opacity: 0; }
-.venue-address-main.je-schovany { opacity: 0; }
-.venue-address-alt.je-videt { opacity: 1; }
+/* Název místa pod nadpisem sekce. Menší než h2 — je to podtitulek, ne
+   druhý nadpis — ale výraznější než adresa pod ním. */
+.venue-nazev {
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  letter-spacing: .2em; text-transform: uppercase;
+  margin: -.7rem 0 .9rem;
+}
 /* růžová linka po obvodu — stejný odstín jako zbytek sekce; sedí na rotující
    kartě, takže se otočí spolu s ní */
 .venue-map::before {
@@ -1802,32 +1805,34 @@ body,
   --pin-ruzova: var(--ink);
 }
 
-/* ---------- okna sekcí ----------
-   Každá sekce je vlastní karta ležící na bílé ploše. Odlišuje ji jen rámeček —
-   podklad pod kartami je stejně bílý jako ony, takže okno dělá linka, ne barva.
+/* ---------- šířka sekcí ----------
+   Sekce jen drží šířku a odsazení, jinak plynou pod sebou jako každý jiný
+   obsah. Rámečky kolem nich tu chvíli byly a šly pryč; celoobrazovkové sekce
+   se zaskakováním scrollu taky — scroll se má chovat normálně.
 
-   Pravidlo sedí na `.obsah-ramec > section`, tedy na přímých potomcích rámce.
-   Hero je mimo něj a zůstává celoplošné: fotka přes celou šířku je pravý opak
-   okna.
-
-   Vnitřní rozvržení sekcí se nemění. Karta je jen obálka: `section` dosud
-   nesla odsazení (5,5rem 1,5rem), teď nese odsazení, šířku, rámeček a mezeru
-   k sousední kartě. */
+   Sloupec je širší, než býval: šest set čtyřicet pixelů uprostřed prázdné bílé
+   plochy vypadalo jako sloupec v novinách, ne jako stránka. Odstavce si
+   čitelnou délku hlídají samy přes `.lead { max-width: 46ch }`. */
 .obsah-ramec > section {
-  width: min(1000px, 100% - 2.5rem);
+  width: min(1600px, 100% - 3rem);
   margin-inline: auto;
-  margin-block: 2.5rem;
-  padding: 4.5rem 2.5rem;
-  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-  /* Karta má vlastní podklad, ne průhledný: kdyby některá sekce dostala vlastní
-     barvu, rámeček by ji ořízl přesně na hraně okna. */
-  background: var(--bg);
+  padding: 5.5rem 2rem;
 }
+
+.wrap { max-width: 1000px; }
+.story-grid { max-width: 1240px; }
 
 @media (max-width: 640px) {
   .obsah-ramec > section {
-    width: min(1000px, 100% - 1.2rem);
-    margin-block: 1.2rem;
-    padding: 3.2rem 1.3rem;
+    width: min(1600px, 100% - 1.2rem);
+    padding: 3.2rem 1.2rem;
   }
 }
+
+/* Text „Jak to celé začalo“ dál od fotek. Mezera ve mřížce byla 3rem z doby,
+   kdy byl příběh široký 980 px; na roztažené stránce lepil text ke koláži. */
+.story-grid { gap: 6rem; }
+@media (max-width: 860px) {
+  .story-grid { gap: 2rem; }
+}
+

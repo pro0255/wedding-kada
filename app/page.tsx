@@ -12,7 +12,6 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
 import Link from "next/link";
-import Ikona from "./ProgramIkony";
 import { SnitkaKvet } from "./Kytky";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
@@ -408,7 +407,6 @@ export default function Home() {
   // loading → done (loader pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
   const [quote, setQuote] = useState<string | null>(null);
-  const [mapaOtocena, setMapaOtocena] = useState(false);
   // po doznění fade-outu loader úplně odmountujeme — jinak by three.js
   // prsten (requestAnimationFrame + WebGL) běžel skrytý celou návštěvu
   const [loaderGone, setLoaderGone] = useState(false);
@@ -564,17 +562,17 @@ export default function Home() {
         <Reveal className="wrap">
           <p className="eyebrow">Kde se to stane</p>
           <h2>Místo konání</h2>
+          {/* Jméno místa stojí natvrdo pod nadpisem. Dřív se objevovalo jen na
+              chvíli místo adresy, když host otočil mapu — kdo ji neotočil, název
+              hotelu nikde nenašel. Proto je teď vidět pořád a mapa se otáčí bez
+              toho, aby text pod ní přepínala. */}
+          <p className="venue-nazev">Hotel Rekovice</p>
           <p className="lead venue-address">
-            <span className={`venue-address-main${mapaOtocena ? " je-schovany" : ""}`}>
-              Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm
-            </span>
-            <span className={`venue-address-alt${mapaOtocena ? " je-videt" : ""}`} aria-hidden="true">
-              Hotel Rekovice
-            </span>
+            Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm
           </p>
           {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
           <Kopirovat className="venue-kopirovat" text={VENUE_ADDRESS} popisek="Kopírovat adresu" />
-          <VenueMap onFlipChange={setMapaOtocena} />
+          <VenueMap />
           <Ubytovani />
         </Reveal>
       </section>
@@ -587,49 +585,41 @@ export default function Home() {
         </Reveal>
         <Reveal className="events">
           <div className="event">
-            <Ikona typ="snidane" />
             <h3>Snídaně</h3>
             <div className="meta">9:00 · U ženicha a nevěsty</div>
             <p>Poslední klidné sousto předtím, než to celé začne.</p>
           </div>
           <div className="event">
-            <Ikona typ="obrad" />
             <h3>Obřad</h3>
             <div className="meta">12:00 · U zvoničky v Rekovicích</div>
             <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
           </div>
           <div className="event">
-            <Ikona typ="foceni" />
             <h3>Společné focení</h3>
             <div className="meta">13:00</div>
             <p>Pár fotek s vámi všemi, s rodinou i s přáteli, které budeme ukazovat ještě za dvacet let.</p>
           </div>
           <div className="event">
-            <Ikona typ="pripitek" />
             <h3>Přípitek &amp; oběd</h3>
             <div className="meta">13:30</div>
             <p>Na zdraví, na lásku a na pořádný hlad.</p>
           </div>
           <div className="event">
-            <Ikona typ="dort" />
             <h3>Krájení dortu</h3>
             <div className="meta">15:30</div>
             <p>První společný řez. Nůž držíme oba, vinu neseme napůl.</p>
           </div>
           <div className="event">
-            <Ikona typ="tanec" />
             <h3>První tanec</h3>
             <div className="meta">16:30</div>
             <p>Jeden tanec a žádné záruky elegance.</p>
           </div>
           <div className="event">
-            <Ikona typ="odpoledne" />
             <h3>Svatební odpoledne</h3>
             <div className="meta">Odpoledne</div>
             <p>Dobré jídlo, sklenka v ruce a čas užít si den naplno.</p>
           </div>
           <div className="event">
-            <Ikona typ="party" />
             <h3>Večerní párty</h3>
             <div className="meta">Od 19:00</div>
             <p>Boty dolů, hudbu nahoru.</p>
