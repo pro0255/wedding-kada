@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
-import Motyli from "./Motyli";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
@@ -18,7 +17,7 @@ import { SnitkaKvet } from "./Kytky";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby, SrdceIniciraly } from "./StoryDoodles";
+import { SipkaChorvatsko, SipkaKlikni, SipkaPrvniFotka, SipkaZasnuby } from "./StoryDoodles";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -546,9 +545,6 @@ export default function Home() {
           <div className="story-photo">
             <FotoHromadka />
           </div>
-          <span className="doodle-obal doodle-obal-srdce" aria-hidden="true">
-            <SrdceIniciraly />
-          </span>
           <div className="story-text">
             <p className="eyebrow">Náš příběh</p>
             <h2>Jak to celé začalo</h2>
@@ -755,13 +751,11 @@ export default function Home() {
         </div>
       </footer>
 
-        {/* až za sekcemi, aby ležely nad jejich pozadím (obsah má z-index 1, zůstává navrchu) */}
-        <span className="kvetiny" aria-hidden="true">
-          <span className="kvetiny-pas kvetiny-l" />
-          <span className="kvetiny-pas kvetiny-r" />
-          <Motyli />
-        </span>
-        <span className="stred-pruh" aria-hidden="true" />
+        {/* Boční květinové pruhy, motýli i světlý pruh středem tu byli do doby,
+            než se pozadí změnilo na bílé. Středový pruh byl vidět jen proto, že
+            okolí bylo ztmavené na béžovou — na bílém podkladu nemá co odlišovat,
+            a květiny bez něj lezly do textu. Komponenta app/Motyli.tsx i všechny
+            styly zůstávají, jen se nevykreslují. */}
       </div>
     </>
   );

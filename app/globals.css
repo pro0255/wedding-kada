@@ -1,6 +1,12 @@
 :root {
-  --bg: #f5f2ec;
-  --bg-alt: #ece7de;
+  /* Bílý podklad. Pastelové tóny sekcí (--ruzova-jemna a spol.) se z něj
+     míchají, takže se s ním samy zesvětlily — zůstávají jako náznak barvy,
+     ne jako plocha. */
+  --bg: #ffffff;
+  /* Dřív béžová, na které byl vidět světlý pruh středem. Ten je pryč spolu
+     s květinami, takže je i tahle bílá — zůstává jako páčka, kdyby některá
+     sekce měla dostat vlastní odstín. */
+  --bg-alt: #ffffff;
   --ink: #2b2925;
   /* O odstín tmavší, než býval (#6d675e). Podklad se ztmavil na --bg-alt,
      aby vynikl světlý pruh středem, a tím kontrast tlumeného textu spadl na
@@ -1638,13 +1644,7 @@ body,
 .fotky-odkaz,
 .faq { background: var(--bg-alt); }
 /* footer tu schválně není — je průhledný, dekor jde až na konec stránky */
-/* Boční pruhy s květinami jsou KRYCÍ (aby jimi neprosvítalo pozadí sekcí),
-   takže musí ztmavnout taky — jinak by z tmavšího podkladu svítily jako dvě
-   světlé záplaty. Závoj přebarvuje jen proměnná: přepsat u obou vrstev celý
-   background nejde, shodilo by to posun druhé vrstvy o půl dlaždice a odhalily
-   by se svislé švy. */
-.kvetiny-pas { background: var(--bg-alt); }
-.kvetiny { --kv-zavoj-rgb: 236, 231, 222; }
+
 /* .galerie tu schválně není: na /fotky ji přebíjí .galerie-stranka .galerie
    s vyšší specificitou, takže tam modrý přechod nikdy nebyl a prosvítá
    béžové tělo stránky. */
@@ -1752,4 +1752,52 @@ body,
   .faq-odpoved-s-obrazkem { flex-direction: column; gap: 1rem; }
   .faq-obrazek { align-self: center; max-width: 150px; }
   .faq-obrazek img { height: 130px; }
+}
+
+/* ---------- vše černě, žádná růžová ani modrá ----------
+   Barvy se přebíjejí v PROMĚNNÝCH, ne v jednotlivých pravidlech. Zkoušela jsem
+   to nejdřív přes selektory a prohrálo to na specificitě: `.eyebrow` je (0,1,0),
+   ale `.story .eyebrow` (0,2,0) vyhraje. Přes proměnné se změní všechna místa
+   najednou a nemusí se hlídat, kde která má navrch.
+
+   Je to mezikrok, než každá sekce dostane vlastní „okno“ a barvy se rozhodnou
+   znovu. Smazáním bloku se růžová s modrou vrátí — původní hodnoty jsou pořád
+   definované nahoře, tohle je jen přebíjí.
+
+   Syté pastely (--modra, --ruzova a spol.) se nechávají: nejsou to barvy webu,
+   ale kuličky vzorníku u dress code, které mají ukazovat barvy svatby.
+
+   Nedotčené zůstávají i --dark a --dark-ink: to je tmavá patička, ne růžová. */
+:root {
+  /* text a linky */
+  --palette-rose-text: var(--ink);
+  --palette-blue-text: var(--ink);
+  --palette-blush-text: var(--ink);
+  --palette-sage-text: var(--ink);
+  --palette-yellow-text: var(--ink);
+  --zluta-text: var(--ink);
+  --broskev-text: var(--ink);
+  --zelena-text: var(--ink);
+  --palette-wine: var(--ink);
+
+  /* syté varianty pro hover a aktivní stav */
+  --ruzova-syta: var(--ink);
+  --modra-syta: var(--ink);
+  --zelena-syta: var(--ink);
+
+  /* plochy: podklady sekcí, karet i tlačítek na bílou */
+  --zelena-jemna: var(--bg);
+  --modra-jemna: var(--bg);
+  --zluta-jemna: var(--bg);
+  --ruzova-jemna: var(--bg);
+  --broskev-jemna: var(--bg);
+  --tint-blue: var(--bg);
+  --tint-pink: var(--bg);
+  --tint-green: var(--bg);
+  --tint-yellow: var(--bg);
+
+  /* linky a drobný dekor */
+  --menu-ramecek: color-mix(in srgb, var(--ink) 20%, transparent);
+  --pin-svetla: var(--ink);
+  --pin-ruzova: var(--ink);
 }
