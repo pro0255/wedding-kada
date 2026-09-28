@@ -298,16 +298,18 @@ function Odpocet() {
 }
 
 /* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
-const PRIBEH_FOTKY = [
-  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách" },
-  { src: "/fotky/2.jpeg", alt: "První společná fotka" },
+/* `popis` se vypíše ručním písmem do bílého pruhu pod fotkou, jako by ho tam
+   někdo dopsal. Má ho jen pár fotek — u ostatních pruh zůstává prázdný. */
+const PRIBEH_FOTKY: { src: string; alt: string; popis?: string }[] = [
+  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách" },
+  { src: "/fotky/2.jpeg", alt: "První společná fotka", popis: "první společná fotka" },
   { src: "/fotky/4.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/6.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/11.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/16.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/20.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/21.jpeg", alt: "Kateřina a Jakub" },
-  { src: "/fotky/22.jpeg", alt: "Kateřina a Jakub" },
+  { src: "/fotky/22.jpeg", alt: "Kateřina a Jakub", popis: "první Chorvatsko jako rodina" },
   { src: "/fotky/23.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/24.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/25.jpeg", alt: "Kateřina a Jakub" },
@@ -377,6 +379,15 @@ function FotoHromadka() {
           />
         );
       })}
+      {/* Popisek leží ve stejném rámu jako vrchní fotka a otáčí se s ní stejně,
+          proto sedí v jejím bílém pruhu, ne vedle něj. */}
+      <span
+        className="foto-popis"
+        aria-hidden="true"
+        style={{ opacity: PRIBEH_FOTKY[aktivni].popis ? 1 : 0, zIndex: pocet + 1 }}
+      >
+        {PRIBEH_FOTKY[aktivni].popis}
+      </span>
       {/* Odznak s kurzorem v rohu — zve k listování a zůstává vidět pořád.
           Popisky konkrétních fotek („zásnuby na Troskách“ a spol.) tu byly nad
           hromádkou a šly pryč; komponenty v StoryDoodles.tsx zůstávají. */}
@@ -387,21 +398,31 @@ function FotoHromadka() {
   );
 }
 
-/* Světle modrá obálka s příběhem. Leží nakřivo přes hromádku fotek, zapečetěná
-   zlatým voskem s iniciálami — klepnutím se papír s textem vysune ven.
+/* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
+   modré obálky — zavřené a otevřené (public/fotky). Vrstvy pro web z nich
+   vyřezává scripts/obalka-web.mjs.
 
-   Klikací je celá kapsa obálky, ne jen pečeť: pečeť je malý terč a host míří
-   na obálku jako na celek. Papír klikací není, aby se text dal označit a číst
-   bez rizika, že se obálka pod rukou zavře.
+   Otevřená obálka je rozřezaná na dvě vrstvy, zadek a předek, a papír s textem
+   leží mezi nimi. Jinak by papír buď překryl celou obálku, nebo zmizel za ní —
+   dovnitř by se nedostal. Pořadí drží z-index: zadek 0, papír 1, předek 2,
+   zavřená obálka 3, pečeť 4.
 
-   Výška papíru se animuje přes grid-template-rows 0fr → 1fr. Je to jediný
-   způsob, jak plynule přejít do „auto“ výšky bez měření v JS — a měřit by se
-   muselo znovu při každé změně šířky okna. Obsah zůstává v DOMu i zavřený,
-   ořezává ho overflow rodiče. */
+   Aby to fungovalo, nesmí <button> kolem vrstev založit vlastní vrstvení —
+   proto má position: relative, ale žádný z-index. Papír je jeho sourozenec
+   a mezi obrázky se vejde jen díky tomu.
+
+   Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
+   obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
+   rizika, že se obálka pod rukou zavře. */
 function ObalkaPribeh({ children }: { children: React.ReactNode }) {
   const [otevrena, setOtevrena] = useState(false);
   return (
     <div className={"obalka" + (otevrena ? " je-otevrena" : "")}>
+      {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
+          grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
+          „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
+          změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
+          spodek papíru, takže papír končí schovaný v kapse. */}
       <div className="obalka-vysuv">
         <div className="obalka-vysuv-ram">
           <div className="obalka-papir">{children}</div>
@@ -409,19 +430,25 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
       </div>
       <button
         type="button"
-        className="obalka-kapsa"
+        className="obalka-telo"
         onClick={() => setOtevrena((o) => !o)}
         aria-expanded={otevrena}
       >
-        <span className="obalka-pecet" aria-hidden="true">
-          <span className="obalka-pecet-text">K&nbsp;&amp;&nbsp;J</span>
+        <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
+        <img className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
+        {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
+            chlopně, takže musí mizet spolu s ní. */}
+        <span className="obalka-zavrena-obal" aria-hidden="true">
+          <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
+          <span className="obalka-pecet">
+            <span className="obalka-pecet-text">K&nbsp;&amp;&nbsp;J</span>
+          </span>
         </span>
         <span className="obalka-popisek">{otevrena ? "Zavřít" : "Klepněte na pečeť"}</span>
       </button>
     </div>
   );
 }
-
 export default function Home() {
   // loading → done (loader pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
@@ -563,9 +590,9 @@ export default function Home() {
             <FotoHromadka />
           </div>
           <div className="story-text">
-            <p className="eyebrow">Náš příběh</p>
-            <h2>Jak to celé začalo</h2>
             <ObalkaPribeh>
+              <p className="eyebrow">Náš příběh</p>
+              <h2>Jak to celé začalo</h2>
               <p className="lead">
                 Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
                 největší společné dobrodružství. Poznali jsme se, zamilovali se,

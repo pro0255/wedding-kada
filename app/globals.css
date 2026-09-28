@@ -561,7 +561,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-list {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; background: #fff;
-  border: 9px solid #fff;
+  /* Polaroid: nahoře a po stranách úzký bílý okraj, dole široký. Je to místo
+     na popisek, který se tam může dopsat později — zatím je prázdné. Rámeček
+     ubírá z obrázku (box-sizing: border-box), vnější rozměr hromádky se tedy
+     nemění. */
+  border: 22px solid #fff;
+  border-bottom-width: 92px;
   box-shadow: 0 12px 34px rgba(0,0,0,.18);
   transition: box-shadow .3s ease; /* transform a opacity animuje motion */
 }
@@ -570,6 +575,21 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-hromadka:hover .foto-vrchni,
 .foto-hromadka:focus-visible .foto-vrchni { box-shadow: 0 18px 44px rgba(0,0,0,.28); }
 .foto-hromadka:focus-visible { outline: none; }
+/* Popisek v bílém pruhu polaroidu. Má stejný rám jako fotky (inset: 0) a stejné
+   natočení jako ta vrchní — díky tomu se otáčí kolem téhož středu a sedne do
+   pruhu přesně. Kdyby byl přisazený jen ke spodní hraně, natočení by ho od
+   pruhu odsunulo. */
+.foto-popis {
+  position: absolute; inset: 0;
+  transform: rotate(-1.5deg);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 26px 30px;
+  pointer-events: none;
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  font-size: 1.45rem; line-height: 1.15; text-align: center;
+  color: color-mix(in srgb, var(--ink) 82%, transparent);
+  transition: opacity .3s ease;
+}
 /* ——— ručně psané doodly u „Náš příběh" ———
    Kreslí se samy: každá čára má pathLength=1 a vyjede z mezery dash vzoru.
    Animace stojí, dokud sekci neodhalí <Reveal> (.reveal.in), aby si host
@@ -632,6 +652,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   /* width je potřeba — fotky v hromádce jsou absolutní, samy by šířku neurčily */
   .story-photo { width: 100%; max-width: 420px; margin: 0 auto 5rem; }
   .story-text .lead { margin: 0 auto; max-width: 46ch; }
+  /* Rámeček se zmenší s hromádkou — 22/92 px by na úzké obrazovce sežralo
+     půlku fotky. */
+  .foto-list { border-width: 14px; border-bottom-width: 58px; }
+  .foto-popis { font-size: 1.15rem; padding: 0 18px 18px; }
   /* doodly se zmenší a přisadí blíž — na úzké obrazovce není kam odskočit */
   .doodle-obal-klikni { width: 138px; left: 0; bottom: -96px; }
   .doodle-obal-zasnuby { width: 146px; right: 0; top: -119px; }
@@ -1841,28 +1865,26 @@ body,
 }
 
 
-/* Doodle „zásnuby na Troskách“ visí 160 px nad hromádkou fotek, tedy nad
-   horní hranou sekce — s běžným odsazením lezl rovnou pod odpočet. Sekce
-   příběhu má proto shora víc místa než ostatní. */
-.obsah-ramec > section.story { padding-top: 15rem; }
-@media (max-width: 760px) {
-  .obsah-ramec > section.story { padding-top: 9rem; }
-}
+/* Sekce příběhu měla shora 15rem kvůli doodlu „zásnuby na Troskách“, který
+   visel nad hromádkou fotek a lezl pod odpočet. Doodle je pryč — popisky jsou
+   teď v bílém pruhu polaroidu — takže platí běžné odsazení sekce. */
 
 /* ---------- odznak „klikni“ na hromádce fotek ----------
    Nahradil ručně psaný nápis se šipkou. Sedí v pravém dolním rohu hromádky
    a kouskem přesahuje ven, ať je vidět i na tmavé fotce. Pohupování zdědil
    po šipce — bez pohybu si ho oko na fotce nevšimne. */
 .ikona-klik-obal {
-  width: 54px; right: -16px; bottom: -18px;
+  width: 58px; right: -16px; bottom: -18px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .25));
   animation: doodle-pohup 2.6s ease-in-out 1.4s infinite;
   transform-origin: 50% 50%;
 }
-.ikona-klik { display: block; width: 100%; height: auto; }
-/* Kolečko je plné bílé — odznak leží přes fotku a samotný obrys by se ztratil. */
-.ikona-klik-kruh { fill: #fff; stroke: var(--ink); stroke-width: 1.1; }
-.ikona-klik-sipka { fill: var(--ink); }
-.ikona-klik-jiskry path { fill: none; stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; }
+.ikona-klik { display: block; width: 100%; height: auto; overflow: visible; }
+/* Podklad je plný bílý — odznak leží přes fotku a samotný obrys by se ztratil.
+   Zaoblený čtverec, ne kolečko: ruka je vysoká a do kruhu by se nevešla. */
+.ikona-klik-podklad { fill: #fff; }
+.ikona-klik-ruka { fill: var(--ink); }
+.ikona-klik-jiskry path { fill: none; stroke: var(--ink); stroke-width: 6.5; stroke-linecap: round; }
 @media (prefers-reduced-motion: reduce) {
   .ikona-klik-obal { animation: none; }
 }
@@ -1871,85 +1893,149 @@ body,
 }
 
 /* ---------- obálka s příběhem ----------
-   Světle modrá obálka leží nakřivo přes hromádku fotek. Po klepnutí se
-   narovná, poposkočí a vysune se z ní bílý papír s textem.
+   Není kreslená v CSS, ale složená ze dvou fotek světle modré obálky. Vrstvy
+   vyřezává scripts/obalka-web.mjs — poměry a poloha úst kapsy níž jsou jeho
+   naměřené hodnoty, ne odhad.
 
-   Záporný levý okraj ji posune přes sousední sloupec s fotkami. Obálka je
-   v textovém sloupci, ne ve fotkovém — patří k textu, jen na fotky zaléhá.
+   Obálka leží nakřivo a kouskem přes hromádku fotek. Po klepnutí se narovná,
+   poposkočí a vysune se z ní papír s celým textem příběhu.
 
-   Rotace i posun jsou na obalu, ne na kapse: kdyby se otáčela jen kapsa,
-   papír by z ní vyjížděl rovně a odhalil by, že to není jeden kus papíru. */
+   Vrstvení: zadek 0, papír 1, předek 2, zavřená obálka 3, pečeť 4. Tělo obálky
+   (<button>) proto nesmí mít z-index — jinak by založilo vlastní vrstvení a
+   papír, který je jeho sourozenec, by se mezi obrázky nedostal. */
 .obalka {
-  --obalka-modra: #d9e6f3;
-  --obalka-modra-tmava: #c3d7ea;
+  /* Naměřené poměry výška/šířka obou fotek. */
+  --pomer-zavrena: 61.5%;
+  --pomer-otevrena: 115.8%;
+  /* Ústa kapsy pod horní hranou otevřené obálky, v dílech šířky — naměřeno
+     skriptem. Papír z nich vyjíždí. */
+  --usta: 76.4%;
+  /* Kam až papír dojede: jeho spodní hrana skončí takhle hluboko pod horní
+     hranou obálky. Je to pod ústy, ale nad spodkem obálky — papír tedy leží
+     na kapse a kus obálky pod ním zůstane vidět. */
+  --zasun: 82%;
   --vosk: #c69b3f;
+
   position: relative;
   z-index: 5;
-  width: min(100%, 440px);
-  /* Mezera mezi sloupci je 6rem; záporný okraj ji musí nejdřív celou sníst
-     a teprve zbytek je skutečný přesah přes fotky. 9rem tedy znamená 3rem
-     zálehu, a to na každé šířce okna stejně — mezera se nemění. */
-  margin-left: -9rem;
-  transform: rotate(-3.4deg);
+  /* Obálka je širší než sloupec, do kterého patří — přebytek si bere vlevo,
+     kde leží na fotkách. */
+  width: min(calc(100% + 8rem), 660px);
+  /* Mezera mezi sloupci mřížky je 6rem; záporný okraj ji musí nejdřív celou
+     sníst a teprve zbytek je skutečný přesah přes fotky. Ze 14rem tedy leží
+     na hromádce 8rem. */
+  margin-left: -14rem;
   /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
      někdo pohnul rukou */
   transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
+  transform: rotate(-3.4deg);
 }
-.obalka.je-otevrena { transform: rotate(-.9deg) translate(1.6rem, -.5rem); }
+/* Otevřená obálka odstoupí od fotek doprava, aby papíru nic nepřekáželo.
+   Víc než 6,5rem nejde — obálka by vylezla ze sekce a .obsah-ramec ji ořízne. */
+.obalka.je-otevrena { transform: rotate(-.9deg) translate(6.5rem, -1rem); }
 
-/* Papír. Zavřený má nulovou výšku řádku mřížky, otevřený plnou. */
+/* --- papír --- */
 .obalka-vysuv {
+  position: relative;
   display: grid; grid-template-rows: 0fr;
-  transition: grid-template-rows .8s cubic-bezier(.4, 0, .2, 1);
+  margin-bottom: 0;
+  /* Papír vyjíždí zevnitř, ale skončí NA obálce — proto se během cesty
+     přehodí z-index z 1 (mezi zadkem a předkem) na 3 (nad vším). Zpoždění
+     0,55 s je zhruba dvě třetiny jízdy: do té doby papír vylézá z kapsy,
+     pak už na ní leží. Při zavírání se musí vrátit dozadu hned, jinak by
+     papír zajel do obálky přes ni. */
+  z-index: 1;
+  transition: grid-template-rows .85s cubic-bezier(.4, 0, .2, 1),
+              margin-bottom .85s cubic-bezier(.4, 0, .2, 1),
+              z-index 0s;
 }
-.obalka.je-otevrena .obalka-vysuv { grid-template-rows: 1fr; }
+.obalka.je-otevrena .obalka-vysuv {
+  grid-template-rows: 1fr;
+  /* Záporný okraj netahá papír dolů, ale obálku nahoru přes jeho spodek. */
+  margin-bottom: calc(-1 * var(--zasun));
+  z-index: 3;
+  transition: grid-template-rows .85s cubic-bezier(.4, 0, .2, 1),
+              margin-bottom .85s cubic-bezier(.4, 0, .2, 1),
+              z-index 0s .55s;
+}
 /* min-height: 0 je nutné — položka mřížky má ve výchozím stavu min-height: auto
-   a řádek 0fr by se kvůli tomu nesmrskl na nulu, ale na výšku prvního řádku. */
+   a řádek 0fr by se kvůli tomu nesmrskl na nulu. */
 .obalka-vysuv-ram { overflow: hidden; min-height: 0; }
 .obalka-papir {
+  /* Papír je na výšku, jako dopis — ne jako kartička z obálky. Poměr drží
+     aspect-ratio, ne obsah: text je krátký a sám by list nevytáhl tak vysoko,
+     aby koukal nad obálku. min-height: fit-content pojistí delší text, ten by
+     jinak z listu přetekl.
+
+     Užší než obálka (76 %), aby po stranách zůstala vidět. */
+  width: 76%; margin-left: 12%;
+  aspect-ratio: 1 / 1.28;
+  min-height: fit-content;
+  display: flex; flex-direction: column; justify-content: center;
   background: #fff;
-  /* Sekce má bílé pozadí, takže papír musí mít vlastní hranu — bez linky
+  /* Sekce má bílé pozadí, takže papír potřebuje vlastní hranu — bez linky
      a stínu by text jen visel ve vzduchu a žádný papír by z něj nebyl. */
   border: 1px solid rgba(31, 64, 104, .14);
-  box-shadow: 0 18px 40px rgba(31, 64, 104, .16), 0 2px 6px rgba(31, 64, 104, .08);
-  padding: 2.2rem 2rem 3.2rem;
-  /* spodek papíru mizí v kapse, ať vypadá zasunutý a ne položený nad ní */
-  margin-bottom: -2.4rem;
+  box-shadow: 0 18px 40px rgba(31, 64, 104, .17), 0 2px 6px rgba(31, 64, 104, .08);
+  padding: 2.6rem 2.6rem;
   text-align: left;
-  transform: translateY(1.6rem);
   opacity: 0;
-  transition: transform .8s cubic-bezier(.4, 0, .2, 1), opacity .45s ease;
+  /* Dopis položený na obálku není nikdy srovnaný do pravého úhlu. */
+  transform: rotate(0);
+  transition: opacity .45s ease, transform .85s cubic-bezier(.4, 0, .2, 1);
 }
-.obalka.je-otevrena .obalka-papir { transform: none; opacity: 1; }
-.obalka-papir .lead { max-width: none; }
+.obalka.je-otevrena .obalka-papir { opacity: 1; transform: rotate(1.1deg); }
+/* Hlavička dopisu na střed, text pod ní na praporek — jako v dopise. */
+.obalka-papir .eyebrow, .obalka-papir h2 { text-align: center; }
+.obalka-papir h2 {
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  margin-bottom: 1.4rem;
+}
+.obalka-papir .lead { max-width: none; font-size: 1.12rem; line-height: 2; }
 
-/* Kapsa obálky = tlačítko. */
-.obalka-kapsa {
-  position: relative; z-index: 1;
-  display: block; width: 100%; aspect-ratio: 1.62 / 1;
-  border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit;
-  background: var(--obalka-modra);
-  border-radius: 4px;
-  box-shadow: 0 16px 38px rgba(31, 64, 104, .22);
+/* --- tělo obálky --- */
+.obalka-telo {
+  position: relative;            /* bez z-index, viz komentář nahoře */
+  display: block; width: 100%;
+  border: 0; padding: 0 0 var(--pomer-zavrena); margin: 0;
+  background: none; cursor: pointer; font: inherit; color: inherit;
+  transition: padding-bottom .85s cubic-bezier(.4, 0, .2, 1);
 }
-/* Přední švy: dvě úhlopříčky z horních rohů, které se potkají ve výšce 68 % —
-   pohled na zalepenou obálku. Každý přechod kreslí jednu, proto dvě poloviny. */
-.obalka-kapsa::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit;
-  background:
-    linear-gradient(to bottom right, transparent calc(50% - .5px), var(--obalka-modra-tmava) calc(50% - .5px), var(--obalka-modra-tmava) calc(50% + .5px), transparent calc(50% + .5px)) left top / 50% 68% no-repeat,
-    linear-gradient(to bottom left, transparent calc(50% - .5px), var(--obalka-modra-tmava) calc(50% - .5px), var(--obalka-modra-tmava) calc(50% + .5px), transparent calc(50% + .5px)) right top / 50% 68% no-repeat;
-}
+.obalka.je-otevrena .obalka-telo { padding-bottom: var(--pomer-otevrena); }
+.obalka-telo:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
 
-/* Pečeť sedí přesně ve špičce švů. */
+/* Všechny vrstvy sedí na spodní hraně: zavřená obálka je nižší než otevřená
+   a shora zarovnané by při prolnutí poskočily. */
+.obalka-vrstva {
+  position: absolute; left: 0; bottom: 0;
+  width: 100%; height: auto; display: block;
+  pointer-events: none;
+}
+.obalka-zadek { z-index: 0; }
+.obalka-predek { z-index: 2; }
+.obalka-zadek, .obalka-predek { opacity: 0; transition: opacity .4s ease; }
+.obalka.je-otevrena .obalka-zadek,
+.obalka.je-otevrena .obalka-predek { opacity: 1; }
+
+/* Zavřená obálka a pečeť jako jeden celek — pečeť se tak polohuje vůči fotce,
+   ne vůči rostoucímu tělu obálky. */
+.obalka-zavrena-obal {
+  position: absolute; left: 0; bottom: 0; width: 100%;
+  z-index: 4; line-height: 0;
+  opacity: 1; transition: opacity .4s ease;
+}
+.obalka.je-otevrena .obalka-zavrena-obal { opacity: 0; }
+.obalka-zavrena { position: static; }
+
+/* Pečeť sedí ve špičce chlopně — 74,9 % výšky zavřené obálky. */
 .obalka-pecet {
-  position: absolute; left: 50%; top: 68%;
+  position: absolute; left: 50%; top: 74.9%;
   transform: translate(-50%, -50%);
-  width: 84px; height: 84px;
+  width: 15%; aspect-ratio: 1;
   display: grid; place-items: center;
+  z-index: 5; line-height: 1;
   /* Nepravidelné poloměry dělají rozteklý okraj vosku — pravidelný kruh
-     vypadá jako knoflík. Čtyři různé hodnoty vodorovně i svisle stačí;
-     pravidelnější tvar už si oko přečte jako kruh. */
+     vypadá jako knoflík. */
   border-radius: 44% 56% 52% 48% / 53% 44% 56% 47%;
   background: radial-gradient(circle at 33% 28%, #efd695, var(--vosk) 52%, #8d6a1b);
   box-shadow:
@@ -1960,7 +2046,7 @@ body,
 }
 /* Vyražený prstenec kolem iniciál — otisk razítka do vosku. */
 .obalka-pecet::before {
-  content: ""; position: absolute; inset: 11px;
+  content: ""; position: absolute; inset: 13%;
   border-radius: inherit;
   border: 1px solid rgba(88, 63, 12, .45);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28);
@@ -1968,34 +2054,31 @@ body,
 .obalka-pecet-text {
   position: relative;
   font-family: var(--serif), Georgia, serif;
-  font-size: 1.32rem; letter-spacing: .06em;
+  font-size: clamp(.85rem, 2vw, 1.15rem); letter-spacing: .06em;
   color: #5b420f;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
 }
-.obalka-kapsa:hover .obalka-pecet,
-.obalka-kapsa:focus-visible .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
-.obalka-kapsa:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-/* otevřená obálka: pečeť je „odklopená“ stranou, ne rozlomená — dá se zavřít zpátky */
-.obalka.je-otevrena .obalka-pecet { transform: translate(-50%, -50%) rotate(-11deg); }
+.obalka-telo:hover .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
 
 .obalka-popisek {
   position: absolute; left: 0; right: 0; bottom: -1.9rem;
   font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
   color: color-mix(in srgb, var(--ink) 55%, transparent);
-  transition: opacity .4s;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .obalka, .obalka-vysuv, .obalka-papir, .obalka-pecet { transition: none; }
+  .obalka, .obalka-vysuv, .obalka-telo, .obalka-papir,
+  .obalka-pecet, .obalka-vrstva, .obalka-zavrena-obal { transition: none; }
 }
 
 /* Jednosloupcové rozvržení: není přes co ležet, obálka se srovná doprostřed. */
 @media (max-width: 760px) {
   .obalka {
-    width: min(100%, 380px);
+    width: min(100%, 440px);
     margin-left: auto; margin-right: auto;
     transform: rotate(-2.2deg);
   }
+  /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
   .obalka.je-otevrena { transform: rotate(-.6deg) translateY(-.3rem); }
-  .obalka-papir { padding: 1.8rem 1.4rem 2.8rem; }
+  .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }

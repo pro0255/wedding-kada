@@ -35,19 +35,27 @@ const PISMO = { className: "doodle-napis" };
    na světlém snímku ztratil. Pozici a velikost řídí .ikona-klik-obal v CSS. */
 export function IkonaKlik() {
   return (
-    <svg className="ikona-klik" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
-      <circle className="ikona-klik-kruh" cx="22" cy="22" r="20" />
-      {/* jiskřičky nad kurzorem — značí ťuknutí */}
+    <svg className="ikona-klik" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <rect className="ikona-klik-podklad" x="0" y="0" width="100" height="100" rx="22" />
+      {/* čárky nad prstem — značí ťuknutí */}
       <g className="ikona-klik-jiskry">
-        <path d="M15.4 13 L13.4 10.4" />
-        <path d="M21 10.8 L21 7.6" />
-        <path d="M26.6 13 L28.6 10.4" />
+        <path d="M27 24 L20 12" />
+        <path d="M45 17 L45 4" />
+        <path d="M63 24 L70 12" />
       </g>
-      <path className="ikona-klik-sipka" d="M16.6 15.6 L30.6 27 L24.2 27.7 L27.4 33.8 L24.6 35.2 L21.4 29 L16.6 33 Z" />
+      {/* Ruka je poskládaná z prstů a dlaně, ne z jednoho obrysu: obdélníky se
+          zaoblenými konci dají tvar prstů rovnou a mezery mezi nimi se dají
+          nastavit po pixelu. Dlaň je natažená pod ně, aby se spoje neukázaly. */}
+      <g className="ikona-klik-ruka">
+        <rect x="34" y="30" width="16" height="48" rx="8" />
+        <rect x="53" y="47" width="14" height="31" rx="7" />
+        <rect x="66" y="50" width="14" height="28" rx="7" />
+        <rect x="77" y="54" width="13" height="24" rx="6.5" />
+        <path d="M34 56 C26 58, 21 67, 25 75 L35 90 C39 95, 45 97, 52 97 L76 97 C85 97, 90 91, 90 83 L90 62 L34 62 Z" />
+      </g>
     </svg>
   );
 }
-
 /* NEPOUŽITÉ — popisky nad hromádkou fotek jsou pryč, zůstávají tu pro případ,
    že by se měly vrátit. Vykreslovaly se podle toho, která fotka je navrchu.
 
