@@ -1848,7 +1848,6 @@ body,
 }
 
 .wrap { max-width: 1000px; }
-.story-grid { max-width: 1240px; }
 
 @media (max-width: 640px) {
   .obsah-ramec > section {
@@ -1857,11 +1856,62 @@ body,
   }
 }
 
-/* Text „Jak to celé začalo“ dál od fotek. Mezera ve mřížce byla 3rem z doby,
-   kdy byl příběh široký 980 px; na roztažené stránce lepil text ke koláži. */
-.story-grid { gap: 6rem; }
+/* ---------- scéna příběhu ----------
+   Hromádka fotek a obálka nejsou dva sloupce vedle sebe, ale jedna skupina
+   uprostřed stránky: obálka leží na hromádce. Po otevření se rozejdou —
+   obálka doprava, fotky doleva — aby si papír s textem udělal místo.
+
+   Rozměry jdou přes proměnné, protože se na užších obrazovkách musí zmenšit
+   všechny naráz a v poměru. Rozestup se počítá dvakrát: fotky se posunou
+   o −rozestup, obálka o +rozestup, takže se skupina roztáhne o dvojnásobek.
+
+   Fotky se posouvají přes :has() — stav otevření drží React uvnitř obálky
+   a nemá smysl ho kvůli posunu tahat o dvě úrovně výš. */
+.story-grid {
+  --foto-sirka: 560px;
+  --obalka-sirka: 620px;
+  --prekryv: 160px;
+  --rozestup: 115px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  max-width: none;
+  width: 100%;
+}
+.story-photo {
+  flex: none; width: var(--foto-sirka);
+  /* Vlastní vrstvení: odznak „klikni“ má uvnitř z-index 20 a bez toho by
+     přelezl i obálku, která leží na hromádce. */
+  position: relative; z-index: 1;
+  transition: transform .8s cubic-bezier(.34, 1.15, .5, 1);
+}
+.story-text {
+  flex: none; width: var(--obalka-sirka);
+  margin-left: calc(-1 * var(--prekryv));
+}
+.story-grid:has(.obalka.je-otevrena) .story-photo {
+  transform: translateX(calc(-1 * var(--rozestup)));
+}
+
+/* Zmenšuje se to po krocích tak, aby se rozložená skupina (šířka + 2× rozestup)
+   pořád vešla do obsahu sekce — .obsah-ramec má overflow: hidden a co přeteče,
+   to uřízne. */
+@media (max-width: 1200px) {
+  .story-grid { --foto-sirka: 440px; --obalka-sirka: 490px; --prekryv: 130px; --rozestup: 90px; }
+}
+@media (max-width: 980px) {
+  .story-grid { --foto-sirka: 350px; --obalka-sirka: 400px; --prekryv: 110px; --rozestup: 70px; }
+}
 @media (max-width: 860px) {
-  .story-grid { gap: 2rem; }
+  .story-grid { --foto-sirka: 290px; --obalka-sirka: 330px; --prekryv: 90px; --rozestup: 55px; }
+}
+@media (max-width: 760px) {
+  /* Pod sebe: na šířku telefonu není skupina kam rozložit. */
+  .story-grid { flex-direction: column; }
+  .story-photo, .story-text { width: 100%; }
+  .story-grid:has(.obalka.je-otevrena) .story-photo { transform: none; }
 }
 
 
@@ -1873,23 +1923,29 @@ body,
    Nahradil ručně psaný nápis se šipkou. Sedí v pravém dolním rohu hromádky
    a kouskem přesahuje ven, ať je vidět i na tmavé fotce. Pohupování zdědil
    po šipce — bez pohybu si ho oko na fotce nevšimne. */
+/* Podklad je plný bílý — odznak leží přes fotku a samotný obrys ikony by se
+   na světlém snímku ztratil. Zaoblený čtverec, ne kolečko: ruka je vysoká
+   a do kruhu by se nevešla. */
 .ikona-klik-obal {
-  width: 58px; right: -16px; bottom: -18px;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .25));
+  /* Vlevo dole: vpravo na odznak zaléhá zavřená obálka. */
+  width: 64px; left: -18px; right: auto; bottom: -20px;
+  background: #fff;
+  border-radius: 16px;
+  /* Odsazení v pixelech, ne v procentech: procenta u paddingu se počítají
+     z šířky RODIČE, a tím je celá hromádka fotek — odznak by z nich narostl
+     na dvojnásobek. */
+  box-sizing: border-box;
+  padding: 8px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .22);
   animation: doodle-pohup 2.6s ease-in-out 1.4s infinite;
   transform-origin: 50% 50%;
 }
-.ikona-klik { display: block; width: 100%; height: auto; overflow: visible; }
-/* Podklad je plný bílý — odznak leží přes fotku a samotný obrys by se ztratil.
-   Zaoblený čtverec, ne kolečko: ruka je vysoká a do kruhu by se nevešla. */
-.ikona-klik-podklad { fill: #fff; }
-.ikona-klik-ruka { fill: var(--ink); }
-.ikona-klik-jiskry path { fill: none; stroke: var(--ink); stroke-width: 6.5; stroke-linecap: round; }
+.ikona-klik { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
   .ikona-klik-obal { animation: none; }
 }
 @media (max-width: 760px) {
-  .ikona-klik-obal { width: 46px; right: -10px; bottom: -14px; }
+  .ikona-klik-obal { width: 52px; left: -12px; right: auto; bottom: -14px; padding: 6px; border-radius: 13px; }
 }
 
 /* ---------- obálka s příběhem ----------
@@ -1918,21 +1974,16 @@ body,
 
   position: relative;
   z-index: 5;
-  /* Obálka je širší než sloupec, do kterého patří — přebytek si bere vlevo,
-     kde leží na fotkách. */
-  width: min(calc(100% + 8rem), 660px);
-  /* Mezera mezi sloupci mřížky je 6rem; záporný okraj ji musí nejdřív celou
-     sníst a teprve zbytek je skutečný přesah přes fotky. Ze 14rem tedy leží
-     na hromádce 8rem. */
-  margin-left: -14rem;
+  /* Šířku i přesah přes fotky řídí scéna (.story-text), obálka vyplní, co
+     dostane. */
+  width: 100%;
   /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
      někdo pohnul rukou */
   transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
   transform: rotate(-3.4deg);
 }
-/* Otevřená obálka odstoupí od fotek doprava, aby papíru nic nepřekáželo.
-   Víc než 6,5rem nejde — obálka by vylezla ze sekce a .obsah-ramec ji ořízne. */
-.obalka.je-otevrena { transform: rotate(-.9deg) translate(6.5rem, -1rem); }
+/* Otevřená obálka odstoupí doprava; fotky jdou zrcadlově doleva (viz scéna). */
+.obalka.je-otevrena { transform: rotate(-.9deg) translate(var(--rozestup), -1rem); }
 
 /* --- papír --- */
 .obalka-vysuv {
@@ -1985,6 +2036,9 @@ body,
   transition: opacity .45s ease, transform .85s cubic-bezier(.4, 0, .2, 1);
 }
 .obalka.je-otevrena .obalka-papir { opacity: 1; transform: rotate(1.1deg); }
+/* Otevřený papír je zavírací plocha, zavřený nesmí brát kliknutí tělu obálky. */
+.obalka-vysuv { pointer-events: none; }
+.obalka.je-otevrena .obalka-vysuv { pointer-events: auto; cursor: pointer; }
 /* Hlavička dopisu na střed, text pod ní na praporek — jako v dopise. */
 .obalka-papir .eyebrow, .obalka-papir h2 { text-align: center; }
 .obalka-papir h2 {
@@ -2078,7 +2132,29 @@ body,
     margin-left: auto; margin-right: auto;
     transform: rotate(-2.2deg);
   }
+  .obalka-papir { }
   /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
   .obalka.je-otevrena { transform: rotate(-.6deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }
+
+/* ---------- baby blue ----------
+   Stejný tón jako rámeček na tištěné kartičce s detaily a jako obálka
+   v příběhu. Barvu nesou jen tři místa — odpočet, fotky od vás a rámeček
+   svatebního menu — zbytek stránky zůstává bílý, jinak by modrá přestala
+   být akcentem.
+
+   Musí to stát za blokem, který sráží pozadí sekcí na bílou: pravidla mají
+   stejnou specificitu, takže rozhoduje pořadí. */
+:root {
+  --baby-blue: #dbe7f4;
+  /* Na linku je plocha moc světlá — tohle je stejný tón o dva stupně sytější,
+     aby byl rámeček menu vidět. */
+  --baby-blue-linka: #b5cee4;
+}
+.countdown { background: var(--baby-blue); }
+.fotky-odkaz { background: var(--baby-blue); }
+/* Rámeček menu je border-image z public/ramecek.svg a barvu si nese uvnitř —
+   CSS do něj nesahá, takže baby blue je přepsaná přímo v tom souboru. Tahle
+   proměnná barví linky na stránkách her. */
+:root { --menu-ramecek: var(--baby-blue-linka); }

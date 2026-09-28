@@ -423,7 +423,14 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
           „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
           změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
           spodek papíru, takže papír končí schovaný v kapse. */}
-      <div className="obalka-vysuv">
+      {/* Klepnutí na papír obálku zavře. Otevřít se jím nedá — zavřený papír
+          není vidět a tělo obálky je pod ním. Ovládat se to dá pořád i z
+          tlačítka níž, takže klávesnici ani odečítači tohle nic nebere; proto
+          je to obyčejný div bez role. */}
+      <div
+        className="obalka-vysuv"
+        onClick={otevrena ? () => setOtevrena(false) : undefined}
+      >
         <div className="obalka-vysuv-ram">
           <div className="obalka-papir">{children}</div>
         </div>

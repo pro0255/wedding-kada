@@ -28,52 +28,13 @@ const T = {
 const PISMO = { className: "doodle-napis" };
 
 /* Odznáček „tady klikni“ v rohu hromádky fotek. Dřív tu byl ručně psaný nápis
-   „klikni“ se šipkou; ikona kurzoru s jiskřičkami řekne totéž beze slov a
-   nezabere šířku půlky fotky.
+   „klikni“ se šipkou; ikona řekne totéž beze slov a nezabere šířku půlky fotky.
 
-   Kolečko je plné bílé, protože odznak leží přes fotku — samotný obrys by se
-   na světlém snímku ztratil. Pozici a velikost řídí .ikona-klik-obal v CSS. */
+   Kresba je hotový obrázek (public/klik.png) s průhledným pozadím. Bílý
+   zaoblený čtverec pod ní dělá .ikona-klik-obal v CSS — odznak leží přes fotku
+   a samotný obrys by se na světlém snímku ztratil. */
 export function IkonaKlik() {
-  return (
-    <svg className="ikona-klik" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-      <rect className="ikona-klik-podklad" x="0" y="0" width="100" height="100" rx="22" />
-      {/* čárky nad prstem — značí ťuknutí */}
-      <g className="ikona-klik-jiskry">
-        <path d="M27 24 L20 12" />
-        <path d="M45 17 L45 4" />
-        <path d="M63 24 L70 12" />
-      </g>
-      {/* Ruka je poskládaná z prstů a dlaně, ne z jednoho obrysu: obdélníky se
-          zaoblenými konci dají tvar prstů rovnou a mezery mezi nimi se dají
-          nastavit po pixelu. Dlaň je natažená pod ně, aby se spoje neukázaly. */}
-      <g className="ikona-klik-ruka">
-        <rect x="34" y="30" width="16" height="48" rx="8" />
-        <rect x="53" y="47" width="14" height="31" rx="7" />
-        <rect x="66" y="50" width="14" height="28" rx="7" />
-        <rect x="77" y="54" width="13" height="24" rx="6.5" />
-        <path d="M34 56 C26 58, 21 67, 25 75 L35 90 C39 95, 45 97, 52 97 L76 97 C85 97, 90 91, 90 83 L90 62 L34 62 Z" />
-      </g>
-    </svg>
-  );
-}
-/* NEPOUŽITÉ — popisky nad hromádkou fotek jsou pryč, zůstávají tu pro případ,
-   že by se měly vrátit. Vykreslovaly se podle toho, která fotka je navrchu.
-
-   „zásnuby na Troskách“ + šipka dolů doleva — visí nad hromádkou a ukazuje
-   na fotku z Trosek, tak se zobrazuje jen když je zrovna navrchu.
-   Nápis je na dvě řádky, druhá menší jako dopsaná dovětkem; šipka je proto
-   o 40 jednotek níž než dřív (viewBox povyrostl ze 130 na 170) a obal se
-   v CSS o tolik nadzvedl, ať špička míří pořád na stejné místo. */
-export function SipkaZasnuby() {
-  return (
-    <svg className="story-doodle doodle-zasnuby" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="48" y="42" fontSize="24">ZÁSNUBY</text>
-      <text {...PISMO} x="48" y="74" fontSize="17">NA TROSKÁCH</text>
-      <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
-      <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
-      <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
-    </svg>
-  );
+  return <img className="ikona-klik" src="/klik.png" alt="" aria-hidden="true" width={512} height={512} />;
 }
 
 /* „první společná fotka“ + stejná šipka jako u zásnub — patří k zimní fotce
