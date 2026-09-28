@@ -594,7 +594,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* nápis nemá tah, jen se objeví — a to až když je kolem něj dokresleno */
 .story-doodle .doodle-napis {
   fill: currentColor; stroke: none;
-  font-family: var(--rukopis), "Segoe Script", cursive;
+  /* Versálky patkovým písmem s prostrkáním — stejný rejstřík jako .eyebrow
+     nad nadpisy sekcí. Rukopisné Caveat tu bylo do doby, než se stránka
+     srovnala na černou typografii na bílé. */
+  font-family: var(--serif), Georgia, serif;
+  font-weight: 500; letter-spacing: .18em;
   opacity: 0; animation: doodle-napis .55s ease-out both;
   animation-play-state: paused; animation-delay: .75s;
 }
@@ -1836,3 +1840,11 @@ body,
   .story-grid { gap: 2rem; }
 }
 
+
+/* Doodle „zásnuby na Troskách“ visí 160 px nad hromádkou fotek, tedy nad
+   horní hranou sekce — s běžným odsazením lezl rovnou pod odpočet. Sekce
+   příběhu má proto shora víc místa než ostatní. */
+.obsah-ramec > section.story { padding-top: 15rem; }
+@media (max-width: 760px) {
+  .obsah-ramec > section.story { padding-top: 9rem; }
+}

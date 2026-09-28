@@ -6,8 +6,9 @@
 
    Kreslí se stejnou technikou jako scénky u programu dne: každá čára má
    pathLength=1 a vyjede z mezery dash vzoru, takže se doodle „dopíše“ sám
-   (viz .story-doodle v globals.css). Nápisy sází Caveat (--rukopis), aby
-   vypadaly opravdu psané rukou, a naskočí až po dokreslení čar.
+   (viz .story-doodle v globals.css). Nápisy jsou versálky patkovým písmem
+   webu, prostrkané jako popisky u sekcí — ne rukopis, ten se s ostatní
+   typografií stránky nepotkával. Naskočí až po dokreslení čar.
 
    Souřadnice jsou v jednotkách viewBoxu — velikost a poloha se řídí v CSS
    přes obal .doodle-obal-*, ne tady. */
@@ -21,19 +22,17 @@ const T = {
   pathLength: 1,
 };
 
-/* společné vlastnosti nápisů — Caveat s fallbackem, ať to nikde nespadne do patky */
-const PISMO = {
-  className: "doodle-napis",
-  fontFamily: "var(--rukopis), \"Segoe Script\", cursive",
-  fontWeight: 600,
-};
+/* Písmo, prostrkání a barvu řídí .doodle-napis v globals.css — tady zůstává
+   jen třída, ať se styl mění na jednom místě. Velikosti jsou v jednotkách
+   viewBoxu a jsou spočítané tak, aby se prostrkaný text vešel před šipku. */
+const PISMO = { className: "doodle-napis" };
 
 /* „klikni“ + šipka stáčející se vzhůru doprava — sedí pod hromádkou fotek
    a míří špičkou zpět do fotky */
 export function SipkaKlikni() {
   return (
     <svg className="story-doodle doodle-klikni" viewBox="0 0 220 150" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="2" y="132" fontSize="46">klikni</text>
+      <text {...PISMO} x="2" y="128" fontSize="24">KLIKNI</text>
       <path {...T} d="M 130 116 C 160 108, 178 90, 187 46" />
       <path {...T} className="doodle-hrot" d="M 187 46 L 171 63" />
       <path {...T} className="doodle-hrot" d="M 187 46 L 196 66" />
@@ -49,8 +48,8 @@ export function SipkaKlikni() {
 export function SipkaZasnuby() {
   return (
     <svg className="story-doodle doodle-zasnuby" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="48" y="44" fontSize="46">zásnuby</text>
-      <text {...PISMO} x="48" y="84" fontSize="36">na Troskách</text>
+      <text {...PISMO} x="48" y="42" fontSize="24">ZÁSNUBY</text>
+      <text {...PISMO} x="48" y="74" fontSize="17">NA TROSKÁCH</text>
       <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
@@ -64,8 +63,8 @@ export function SipkaZasnuby() {
 export function SipkaPrvniFotka() {
   return (
     <svg className="story-doodle doodle-prvni-fotka" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="22" y="44" fontSize="46">první</text>
-      <text {...PISMO} x="22" y="84" fontSize="34">společná fotka</text>
+      <text {...PISMO} x="22" y="42" fontSize="24">PRVNÍ</text>
+      <text {...PISMO} x="22" y="74" fontSize="15">SPOLEČNÁ FOTKA</text>
       <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
