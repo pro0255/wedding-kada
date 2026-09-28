@@ -1801,3 +1801,33 @@ body,
   --pin-svetla: var(--ink);
   --pin-ruzova: var(--ink);
 }
+
+/* ---------- okna sekcí ----------
+   Každá sekce je vlastní karta ležící na bílé ploše. Odlišuje ji jen rámeček —
+   podklad pod kartami je stejně bílý jako ony, takže okno dělá linka, ne barva.
+
+   Pravidlo sedí na `.obsah-ramec > section`, tedy na přímých potomcích rámce.
+   Hero je mimo něj a zůstává celoplošné: fotka přes celou šířku je pravý opak
+   okna.
+
+   Vnitřní rozvržení sekcí se nemění. Karta je jen obálka: `section` dosud
+   nesla odsazení (5,5rem 1,5rem), teď nese odsazení, šířku, rámeček a mezeru
+   k sousední kartě. */
+.obsah-ramec > section {
+  width: min(1000px, 100% - 2.5rem);
+  margin-inline: auto;
+  margin-block: 2.5rem;
+  padding: 4.5rem 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  /* Karta má vlastní podklad, ne průhledný: kdyby některá sekce dostala vlastní
+     barvu, rámeček by ji ořízl přesně na hraně okna. */
+  background: var(--bg);
+}
+
+@media (max-width: 640px) {
+  .obsah-ramec > section {
+    width: min(1000px, 100% - 1.2rem);
+    margin-block: 1.2rem;
+    padding: 3.2rem 1.3rem;
+  }
+}
