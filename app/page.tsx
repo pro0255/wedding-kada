@@ -423,7 +423,14 @@ function FotoHromadka() {
 
    `maly` označuje ty, které zůstanou i na telefonu. Všech dvanáct by se na
    šířku mobilu nevešlo, aniž by zakryly fotky. */
-const KVETINY: { soubor: string; sirka: number; poloha: React.CSSProperties; uhel: number; maly?: boolean }[] = [
+const KVETINY: {
+  soubor: string; sirka: number; poloha: React.CSSProperties; uhel: number;
+  maly?: boolean;
+  /* `nad` položí květinu přes fotky i obálku, ne za ně. Na předloze jich pár
+     leží navrchu — bez toho vypadá věnec jako pozadí, ne jako kytice, do které
+     je kompozice položená. */
+  nad?: boolean;
+}[] = [
   /* Věnec odměřený z předlohy. Procenta jsou vůči skupině fotek s obálkou:
      nula vlevo nahoře na hromádce, sto procent na pravém kraji obálky a na
      spodní hraně fotek. Záporné hodnoty jsou tedy kus za skupinou, což je
@@ -432,26 +439,43 @@ const KVETINY: { soubor: string; sirka: number; poloha: React.CSSProperties; uhe
      Květiny jsou schválně velké a překrývají se — na předloze drží pohromadě
      jako kytice, ne jako rozsypané jednotlivosti. */
 
-  /* Horní oblouk zleva: světle modrý květ, hortenzie, karafiáty nad obálkou. */
-  { soubor: "02_modry_kvet", sirka: 31, poloha: { left: "-13%", top: "-24%" }, uhel: -8, maly: true },
-  { soubor: "06_hortenzie", sirka: 40, poloha: { left: "29%", top: "-32%" }, uhel: -4, maly: true },
-  { soubor: "13_karafiat", sirka: 28, poloha: { left: "63%", top: "-22%" }, uhel: 10, maly: true },
-  /* Levý bok shora dolů: karafiáty, krémové ibišky, krásenka, karafiáty. */
-  { soubor: "13_karafiat", sirka: 29, poloha: { left: "-41%", top: "-4%" }, uhel: -6 },
-  { soubor: "01_kvetiny_bile", sirka: 26, poloha: { left: "-20%", top: "10%" }, uhel: 4 },
-  { soubor: "08_krasenka", sirka: 23, poloha: { left: "-23%", top: "51%" }, uhel: -8 },
-  { soubor: "13_karafiat", sirka: 23, poloha: { left: "-32%", top: "55%" }, uhel: 8 },
-  /* Spodní okraj: bílý květ, krémová gerbera. */
-  { soubor: "01_kvetiny_bile", sirka: 24, poloha: { left: "-4%", top: "78%" }, uhel: 5, maly: true },
-  { soubor: "10_gerbera", sirka: 19, poloha: { left: "37%", top: "96%" }, uhel: -7 },
-  /* Pravý bok: velký trs krásenek u obálky. */
-  { soubor: "08_krasenka", sirka: 44, poloha: { left: "60%", top: "47%" }, uhel: 4, maly: true },
+  /* Vodorovné hodnoty jsou v procentech VRSTVY, která je o polovinu širší než
+     skupina fotek s obálkou — skupina v ní leží mezi 25 % a 75 %. Věnec totiž
+     přesahuje vlevo skoro o polovinu skupiny, ale vpravo jen o kousek (tam je
+     obálka), takže kdyby se procenta počítala od skupiny, visel by celý doleva
+     a na užším okně by se ořízl. Takhle se středí věnec, ne fotky.
+
+     Svislé hodnoty zůstávají v procentech výšky skupiny. */
+
+  /* Horní oblouk zleva: světle modrý květ, hortenzie, ještě kus hortenzie
+     a karafiáty nad obálkou. */
+  { soubor: "02_modry_kvet", sirka: 17, poloha: { left: "19%", top: "-19%" }, uhel: -8, maly: true },
+  { soubor: "06_hortenzie", sirka: 21, poloha: { left: "44%", top: "-24%" }, uhel: -4, maly: true },
+  { soubor: "06_hortenzie", sirka: 14, poloha: { left: "60%", top: "-19%" }, uhel: 9 },
+  { soubor: "13_karafiat", sirka: 17, poloha: { left: "68%", top: "-18%" }, uhel: 10, maly: true, nad: true },
+  /* Levý bok shora dolů. Karafiáty se překrývají, aby držely jako jeden trs. */
+  { soubor: "13_karafiat", sirka: 17, poloha: { left: "4%", top: "-2%" }, uhel: -6 },
+  { soubor: "13_karafiat", sirka: 14, poloha: { left: "11%", top: "26%" }, uhel: 12 },
+  { soubor: "01_kvetiny_bile", sirka: 15, poloha: { left: "16%", top: "12%" }, uhel: 4 },
+  { soubor: "08_krasenka", sirka: 13, poloha: { left: "14%", top: "50%" }, uhel: -8 },
+  { soubor: "13_karafiat", sirka: 14, poloha: { left: "8%", top: "52%" }, uhel: 8 },
+  /* Spodní okraj zleva doprava. */
+  { soubor: "08_krasenka", sirka: 12, poloha: { left: "21%", top: "72%" }, uhel: 6 },
+  { soubor: "01_kvetiny_bile", sirka: 13, poloha: { left: "31%", top: "78%" }, uhel: 5, maly: true, nad: true },
+  { soubor: "10_gerbera", sirka: 11, poloha: { left: "49%", top: "86%" }, uhel: -7 },
+  { soubor: "01_kvetiny_bile", sirka: 10, poloha: { left: "70%", top: "78%" }, uhel: 10 },
+  /* Pravý bok: karafiát pod horním trsem a chomáč krásenek u obálky. */
+  { soubor: "13_karafiat", sirka: 13, poloha: { left: "76%", top: "16%" }, uhel: -18, nad: true },
+  { soubor: "08_krasenka", sirka: 24, poloha: { left: "66%", top: "44%" }, uhel: 4, maly: true, nad: true },
 ];
 
+/* Dvě vrstvy se stejnou geometrií: jedna pod fotkami s obálkou, druhá nad
+   nimi. Jedna vrstva by nestačila — tvoří vlastní kontext vrstvení, takže
+   z-index jednotlivé květiny by se k obálce vůbec nedostal. */
 function KvetinyScena() {
-  return (
-    <span className="kvetiny-scena" aria-hidden="true">
-      {KVETINY.map((k, i) => (
+  const vrstva = (nad: boolean) => (
+    <span className={"kvetiny-scena" + (nad ? " kvetiny-scena-nad" : "")} aria-hidden="true">
+      {KVETINY.filter((k) => Boolean(k.nad) === nad).map((k, i) => (
         <img
           key={i}
           className={"kvetina" + (k.maly ? " kvetina-maly" : "")}
@@ -461,6 +485,12 @@ function KvetinyScena() {
         />
       ))}
     </span>
+  );
+  return (
+    <>
+      {vrstva(false)}
+      {vrstva(true)}
+    </>
   );
 }
 /* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
@@ -536,6 +566,7 @@ function SvatebniMenu() {
                 To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
                 na obřad — my víme svoje.
               </p>
+              <p className="menu-nadstrana">Menu</p>
               <ul className="menu-chody">
                 <li>
                   <span className="menu-kurz">Polévka</span>

@@ -154,6 +154,10 @@ export default function Ubytovani() {
   return (
     <div className="ubytovani">
       <AutoNaLince />
+      {/* Kresby po stranách bílého pruhu. Vyřezává je
+          scripts/ubytovani-kresby.mjs. */}
+      <img className="ubytovani-kresba ubytovani-kresba-vozik" src="/ubytovani/vozik.webp" alt="" aria-hidden="true" />
+      <img className="ubytovani-kresba ubytovani-kresba-snidane" src="/ubytovani/snidane.webp" alt="" aria-hidden="true" />
       <h3>Ubytování</h3>
       <p className="lead">
         Máme pro vás zamluvená lůžka přímo v místě konání —{" "}

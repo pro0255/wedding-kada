@@ -1882,9 +1882,12 @@ body,
      středem. Součet rozložené skupiny je 40 + 46 − 12 + 2 × 8 = 90 vw, takže
      se i po rozejití vejde vedle odsazení sekce. Krajní hodnoty clamp drží
      scénu čitelnou na malém okně a zastaví růst na velkém. */
-  --foto-sirka: clamp(290px, 40vw, 560px);
-  --obalka-sirka: clamp(330px, 42vw, 650px);
-  --prekryv: clamp(80px, 11vw, 170px);
+  /* Skupina zabírá 64 vw. Víc nejde: kolem ní stojí věnec z květin, který je
+     zhruba jeden a půlkrát širší než ona, takže při 71 vw už krajní květiny
+     vyjížděly z okna a .obsah-ramec je ořezal. */
+  --foto-sirka: clamp(240px, 33vw, 540px);
+  --obalka-sirka: clamp(280px, 35vw, 600px);
+  --prekryv: clamp(70px, 10vw, 160px);
   /* Rozestup smí růst dál než samotné listy: na širokém okně se skupina
      rozprostře po stránce, aniž by cokoli nabobtnalo. */
   --rozestup: clamp(38px, 9vw, 240px);
@@ -2369,7 +2372,17 @@ body,
   width: calc(var(--deska) * 2);
   height: calc(var(--deska) * var(--pomer));
   margin: 3.4rem auto 0;
+  /* Perspektiva je potřeba jen na tu chvíli, kdy se obálka otáčí. Otevřená
+     kniha ji mít nesmí: odklopená obálka leží v jiné hloubce než pravá deska
+     a perspektiva jí papír vykreslí o kus větší, i když mají obě strany
+     v rozvržení stejné rozměry. Vypíná se proto s odkladem, až otáčení
+     doběhne. */
   perspective: 2600px;
+  transition: perspective 0s;
+}
+.menu-kniha.je-otevrene {
+  perspective: none;
+  transition: perspective 0s 1.2s;
 }
 .menu-vnitrek {
   position: relative; width: 100%; height: 100%;
@@ -2385,7 +2398,12 @@ body,
 /* Deska: plátno s nadzvednutým středem a tmavšími kraji. */
 .menu-deska {
   position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
-  display: flex; padding: 6%;
+  display: flex;
+  /* Odsazení NESMÍ být v procentech: procenta se počítají z šířky rodiče
+     a desky mají každá jiného — pravá leží ve vnitřku knihy (dvě desky
+     široký), rub obálky uvnitř obálky (jedna deska). Pravá by tím dostala
+     dvojnásobek a papír by na ní byl znatelně menší. */
+  padding: calc(var(--deska) * .06);
   border: 0; font: inherit; text-align: inherit;
   background: radial-gradient(130% 95% at 50% 36%, #c9dcee 0%, var(--deska-modra) 58%, var(--deska-tmava) 100%);
   box-shadow: 0 22px 54px rgba(31, 64, 104, .3);
@@ -2534,9 +2552,18 @@ body,
 .kvetiny-scena {
   position: absolute; top: 0; bottom: 0;
   left: 50%; transform: translateX(-50%);
-  width: calc(var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv));
+  /* O polovinu širší než skupina fotek s obálkou: věnec kolem ní přesahuje
+     vlevo skoro o polovinu skupiny a vpravo jen o kousek, takže kdyby byla
+     vrstva široká jako skupina, visel by věnec doleva a na užším okně by se
+     ořízl. Takhle se středí věnec, ne fotky. */
+  width: calc((var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv)) * 1.5);
   z-index: 0; pointer-events: none;
 }
+/* Pár květin leží přes fotky i obálku, ne za nimi — bez toho vypadá věnec jako
+   pozadí, ne jako kytice, do které je kompozice položená. Musí to být druhá
+   vrstva se svým z-indexem: vrstva s věncem tvoří vlastní kontext vrstvení,
+   takže by se z-index jednotlivého obrázku k obálce vůbec nedostal. */
+.kvetiny-scena-nad { z-index: 6; }
 .kvetina {
   position: absolute; height: auto; display: block;
   /* Jemný stín usadí květinu na stránku, ať nevypadá nalepená. */
@@ -2546,22 +2573,13 @@ body,
 /* Věnec přesahuje skupinu asi o šestinu na každou stranu, takže sekce
    potřebuje shora i zdola víc místa — jinak se květiny ořežou o hranu bílé
    plochy a rozlezou se do modrých sekcí nad a pod. */
-.obsah-ramec > .story { padding-block: 11rem; }
+.obsah-ramec > .story { padding-block: 12rem; }
 
-/* Věnec je široký zhruba dvakrát tolik co skupina, kolem které stojí, takže se
-   musí s oknem zmenšovat — jinak krajní květiny vyjedou za okraj a .obsah-ramec
-   je ořízne. Posunout každou zvlášť nejde, polohy jsou v inline stylu z dat;
-   zmenšuje se proto celá vrstva. `scale` se skládá až za `transform`, takže
-   vystředění vrstvy zůstává v platnosti.
-
-   Hodnoty jsou spočítané tak, aby nejzazší květina měla od okraje okna pořád
-   aspoň pár desítek pixelů. */
-.kvetiny-scena { scale: .9; }
-@media (max-width: 1700px) { .kvetiny-scena { scale: .82; } }
-@media (max-width: 1500px) { .kvetiny-scena { scale: .76; } }
-@media (max-width: 1300px) { .kvetiny-scena { scale: .7; } }
-@media (max-width: 1100px) { .kvetiny-scena { scale: .62; } }
-@media (max-width: 950px) { .kvetiny-scena { scale: .55; } }
+/* Zmenšovat celou vrstvu s věncem NEJDE, i když se to nabízí: `scale` stahuje
+   krajní květiny ke středu, takže ty levé zalezou za hromádku fotek a věnec se
+   celý nahrne k obálce vpravo. Věnec se musí zmenšovat tím, že se zmenší
+   samotná skupina — polohy květin jsou v procentech scény, takže si tvar
+   udrží sám. O velikost skupiny se stará --foto-sirka a spol. ve scéně. */
 
 /* Na telefonu zůstane jen pět kusů — třináct by na té šířce zakrylo fotky. */
 @media (max-width: 760px) {
@@ -2613,6 +2631,22 @@ body,
 }
 .location .ubytovani .btn:disabled:hover { background: none; color: var(--modra-akcent); }
 .location .ubytovani-form input:focus { border-bottom-color: var(--modra-akcent); }
+
+/* Kresby po stranách bílého pruhu s ubytováním: vlevo hotelový vozík, vpravo
+   snídaně. Pruh jde přes celé okno a obsah v něm drží uprostřed jen 640 px,
+   takže po stranách je místa dost. */
+.ubytovani-kresba {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  height: auto; pointer-events: none;
+}
+.ubytovani-kresba-vozik { left: 10%; width: 9.5%; rotate: -5deg; }
+.ubytovani-kresba-snidane { right: 8%; width: 17%; rotate: 3deg; }
+
+/* Pod 1100 px už by kresby lezly do formuláře. */
+@media (max-width: 1100px) {
+  .ubytovani-kresba { display: none; }
+}
 
 /* Nadpis jen pro odečítače: z pohledu zmizí, ze struktury stránky ne. */
 .jen-pro-odecitace {
@@ -2710,16 +2744,24 @@ body,
    střed — viditelná deska tedy leží mezi 25 % a 75 % šířky knihy. Příbory
    sedí hned za těmi hranicemi. Otevřená kniha zabere celou šířku, takže
    uhnou do stran a zmizí. */
+/* Velikost se řídí VÝŠKOU, ne šířkou: vidlička, nůž a lžíce mají každá jiný
+   poměr stran, takže při stejné šířce vyjde pokaždé jiná délka a na stole to
+   vypadá jako nesourodý příbor. Vodorovně se umisťují středem, protože jejich
+   šířky se teď liší. */
 .menu-pribor {
-  position: absolute; top: 50%; height: auto;
-  transform: translateY(-50%);
+  /* display musí být výslovně: výš v souboru zůstal starý předpis, který
+     příbory schovával z doby, kdy se u menu nekreslily. */
+  display: block;
+  position: absolute; top: 50%;
+  height: 74%; width: auto;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   filter: drop-shadow(0 6px 14px rgba(53, 96, 127, .18));
   transition: opacity .5s ease, translate .9s cubic-bezier(.4, 0, .2, 1);
 }
-.menu-pribor-vidlicka { left: 11%; width: 8%; }
-.menu-pribor-nuz { left: 79%; width: 6.5%; }
-.menu-pribor-lzice { left: 88%; width: 9%; }
+.menu-pribor-vidlicka { left: 14%; }
+.menu-pribor-nuz { left: 81%; }
+.menu-pribor-lzice { left: 90%; }
 .menu-kniha.je-otevrene .menu-pribor { opacity: 0; }
 .menu-kniha.je-otevrene .menu-pribor-vidlicka { translate: -60% 0; }
 .menu-kniha.je-otevrene .menu-pribor-nuz,
@@ -2730,6 +2772,9 @@ body,
    ni, ne aby se celý sloupec vznášel uprostřed papíru. */
 .menu-list { justify-content: flex-start; }
 .menu-preji { margin-top: 10%; }
+/* Levá strana začíná níž: nahoře je na ní víc vzduchu než na pravé, protože
+   nemá nadpis nad úvodní větou. */
+.menu-obalka-rub .menu-list { padding-top: 17%; }
 
 /* Kresba prostřeného stolu mezi přáním a poznámkou o stravování. */
 .menu-kresba {
