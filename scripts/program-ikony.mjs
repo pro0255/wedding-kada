@@ -42,14 +42,11 @@ const VYREZY = [
   { zdroj: "prstynky a disko.jpg", klic: "dort",
     oblast: { left: 838, top: 610, width: 190, height: 172 } },
   { zdroj: "prstynky a disko.jpg", klic: "odpoledne",
-    oblast: { left: 440, top: 168, width: 215, height: 150 } },
+    oblast: { left: 440, top: 168, width: 215, height: 140 } },
   { zdroj: "prstynky a disko.jpg", klic: "party",
-    oblast: { left: 628, top: 772, width: 122, height: 146 } },
-  /* Tančící pár je na archu sotva devadesát pixelů široký a kreslený lehkou
-     rukou — ztenčovat ho nejde, zmizel by. Nižší práh papíru mu naopak pár
-     tahů zachrání. */
-  { zdroj: "prstynkyy.png", klic: "tanec", papir: 20, ztenceni: 0,
-    oblast: { left: 328, top: 706, width: 76, height: 92 } },
+    oblast: { left: 615, top: 764, width: 127, height: 144 } },
+  { zdroj: "prstynky a disko.jpg", klic: "tanec",
+    oblast: { left: 850, top: 40, width: 200, height: 180 } },
 ];
 
 /* Výchozí hodnoty pro výřezy z archů: textura papíru potřebuje vyšší práh

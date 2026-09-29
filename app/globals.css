@@ -2229,9 +2229,9 @@ body,
 }
 
 .osa {
-  --osa-mezera: .55rem;
+  --osa-mezera: .8rem;
   list-style: none; padding: 0;
-  margin: 3.6rem auto 0; max-width: 1320px;
+  margin: 3.6rem auto 0; max-width: 1640px;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
 }
 .osa-bod {
@@ -2247,7 +2247,7 @@ body,
 /* Pevná výška řádku s ikonkou: kresby mají různý poměr stran a bez ní by
    každá pilulka s časem seděla jinak vysoko. Ikonka stojí na spodní hraně. */
 .osa-ikona {
-  height: 104px; margin-bottom: 1.2rem;
+  height: 124px; margin-bottom: 1.3rem;
   display: flex; align-items: flex-end; justify-content: center;
 }
 .osa-ikona img { max-height: 100%; max-width: 100%; width: auto; display: block; }
@@ -2269,22 +2269,22 @@ body,
   /* position: relative stačí — pilulka se kreslí po ::before, takže linku
      překryje i bez z-indexu. */
   position: relative; display: inline-block;
-  padding: .32rem .8rem;
+  padding: .36rem .9rem;
   background: var(--baby-blue);
   border: 1px solid var(--osa-linka); border-radius: 999px;
   font-family: var(--serif), Georgia, serif; font-weight: 500;
-  font-size: .8rem; letter-spacing: .08em; white-space: nowrap;
+  font-size: .92rem; letter-spacing: .08em; white-space: nowrap;
 }
 
 .osa-nazev {
   display: block; margin-top: 1.1rem;
   font-family: var(--serif), Georgia, serif;
-  font-size: 1.02rem; letter-spacing: .08em; text-transform: uppercase;
+  font-size: 1.18rem; letter-spacing: .08em; text-transform: uppercase;
   line-height: 1.35;
 }
 .osa-misto, .osa-popis { display: block; color: var(--ink-soft); line-height: 1.55; }
-.osa-misto { margin-top: .45rem; font-size: .76rem; font-style: italic; }
-.osa-popis { margin-top: .5rem; font-size: .8rem; }
+.osa-misto { margin-top: .5rem; font-size: .86rem; font-style: italic; }
+.osa-popis { margin-top: .55rem; font-size: .92rem; }
 
 /* Pod 900 px se osa postaví na výšku: sedm sloupců vedle sebe už je užších než
    slovo „odpoledne“. Ikonka jde doleva, text doprava, linka spojuje ikonky. */
