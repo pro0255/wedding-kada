@@ -1978,10 +1978,11 @@ body,
   /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
      někdo pohnul rukou */
   transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
-  transform: rotate(-3.4deg);
+  /* Záporný úhel = proti směru hodin, tedy levý horní roh nahoru. */
+  transform: rotate(-7deg);
 }
 /* Otevřená obálka odstoupí doprava; fotky jdou zrcadlově doleva (viz scéna). */
-.obalka.je-otevrena { transform: rotate(-.9deg) translate(var(--rozestup), -1rem); }
+.obalka.je-otevrena { transform: rotate(-2.4deg) translate(var(--rozestup), -1rem); }
 
 /* --- papír --- */
 .obalka-vysuv {
@@ -2148,11 +2149,11 @@ body,
   .obalka {
     width: min(100%, 440px);
     margin-left: auto; margin-right: auto;
-    transform: rotate(-2.2deg);
+    transform: rotate(-5deg);
   }
   .obalka-papir { }
   /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
-  .obalka.je-otevrena { transform: rotate(-.6deg) translateY(-.3rem); }
+  .obalka.je-otevrena { transform: rotate(-1.8deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }
 
