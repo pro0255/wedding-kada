@@ -415,48 +415,29 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
-/* Svatební menu jako opravdové desky: zavřené se jenom název, po klepnutí se
-   rozevřou na dvě strany s bílým papírem a textem.
+/* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
+   klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
 
-   Desky nejsou fotka, ale kreslené. Fotky, které k nim byly po ruce, mají na
-   deskách cizí potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří
-   nápis — takže by z podkladu byla hádanka. Takhle si určujeme barvu i velikost
-   sami a desky zůstanou ostré v každé velikosti.
+   Otáčí se doopravdy, ne prolnutím. Levá strana menu není samostatná deska,
+   ale RUB obálky — přesně jako v knize, kde je první strana přilepená zevnitř
+   na desku. Díky tomu stačí jediné otočení o 180° a obsah se objeví sám,
+   jakmile obálka přejde přes svislou rovinu.
 
-   Zavírá se klepnutím kamkoli do rozevřených desek, stejně jako se obálka
-   v příběhu zavírá klepnutím na dopis. */
+   Kniha je pořád široká dvě desky, jen se zavřená posune o půl desky doprava,
+   aby ta jedna viditelná stála na střed. Šířka se tím neanimuje, nic v sekci
+   nepodskakuje a 3D se nikde neplácne do roviny — což by se stalo, kdyby měl
+   kterýkoli rodič overflow jiný než visible.
+
+   Desky nejsou fotka. Fotky, které k nim byly po ruce, mají na deskách cizí
+   potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří nápis — takže
+   by z podkladu byla hádanka. Takhle si určujeme barvu i velikost sami. */
 function SvatebniMenu() {
   const [otevrene, setOtevrene] = useState(false);
   return (
     <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
-      <div className="menu-rozevrene" onClick={otevrene ? () => setOtevrene(false) : undefined}>
-        <div className="menu-strana">
-          <div className="menu-list">
-            <p className="menu-uvod">
-              To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
-              na obřad — my víme svoje. Dobrou chuť!
-            </p>
-            <ul className="menu-chody">
-              <li>
-                <span className="menu-kurz">Polévka</span>
-                <span className="menu-jidlo">Svatební vývar</span>
-                <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Hlavní chod</span>
-                <span className="menu-jidlo">Vepřová panenka v sous-vide</span>
-                <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Dezert</span>
-                <span className="menu-jidlo">Svatební dort</span>
-                <span className="menu-detail">Čokoládový korpus, pařížský krém, malinové compote</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="menu-strana">
+      <div className="menu-vnitrek">
+        {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
+        <div className="menu-deska menu-deska-prava">
           <div className="menu-list">
             <p className="menu-nadstrana">Pro nejmenší</p>
             <ul className="menu-chody">
@@ -478,18 +459,44 @@ function SvatebniMenu() {
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Obálka leží přes pravou stranu — tam, kde na zavřené knize je. */}
-      <button
-        type="button"
-        className="menu-obalka"
-        onClick={() => setOtevrene(true)}
-        aria-expanded={otevrene}
-      >
-        <span className="menu-nazev">Svatební<i>menu</i></span>
-        <span className="menu-vyzva">Klepněte a otevřete</span>
-      </button>
+        {/* Obálka: líc se zlatým názvem, rub s první stranou menu. */}
+        <div className="menu-obalka">
+          <button
+            type="button"
+            className="menu-deska menu-obalka-lic"
+            onClick={() => setOtevrene(true)}
+            aria-expanded={otevrene}
+          >
+            <span className="menu-nazev">Svatební<i>menu</i></span>
+          </button>
+          <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
+            <div className="menu-list">
+              <p className="menu-uvod">
+                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
+                na obřad — my víme svoje. Dobrou chuť!
+              </p>
+              <ul className="menu-chody">
+                <li>
+                  <span className="menu-kurz">Polévka</span>
+                  <span className="menu-jidlo">Svatební vývar</span>
+                  <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
+                </li>
+                <li>
+                  <span className="menu-kurz">Hlavní chod</span>
+                  <span className="menu-jidlo">Vepřová panenka v sous-vide</span>
+                  <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
+                </li>
+                <li>
+                  <span className="menu-kurz">Dezert</span>
+                  <span className="menu-jidlo">Svatební dort</span>
+                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinové compote</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -777,7 +784,6 @@ export default function Home() {
       {/* menu */}
       <section className="menu" id="menu">
         <Reveal className="wrap">
-          <p className="eyebrow">Dobrou chuť</p>
           <h2>Svatební menu</h2>
         </Reveal>
         <Reveal>
