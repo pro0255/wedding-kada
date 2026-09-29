@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Předlohy ikonek k programu, které nejsou naše: archy z prodejních sad
+# wedding icons. Do public patří jen kresby, na které máme právo.
+public/program/prstynky a disko.jpg
+public/program/tanec.jpg
