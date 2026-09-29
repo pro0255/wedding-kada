@@ -415,6 +415,84 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
+/* Svatební menu jako opravdové desky: zavřené se jenom název, po klepnutí se
+   rozevřou na dvě strany s bílým papírem a textem.
+
+   Desky nejsou fotka, ale kreslené. Fotky, které k nim byly po ruce, mají na
+   deskách cizí potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří
+   nápis — takže by z podkladu byla hádanka. Takhle si určujeme barvu i velikost
+   sami a desky zůstanou ostré v každé velikosti.
+
+   Zavírá se klepnutím kamkoli do rozevřených desek, stejně jako se obálka
+   v příběhu zavírá klepnutím na dopis. */
+function SvatebniMenu() {
+  const [otevrene, setOtevrene] = useState(false);
+  return (
+    <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
+      <div className="menu-rozevrene" onClick={otevrene ? () => setOtevrene(false) : undefined}>
+        <div className="menu-strana">
+          <div className="menu-list">
+            <p className="menu-uvod">
+              To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
+              na obřad — my víme svoje. Dobrou chuť!
+            </p>
+            <ul className="menu-chody">
+              <li>
+                <span className="menu-kurz">Polévka</span>
+                <span className="menu-jidlo">Svatební vývar</span>
+                <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
+              </li>
+              <li>
+                <span className="menu-kurz">Hlavní chod</span>
+                <span className="menu-jidlo">Vepřová panenka v sous-vide</span>
+                <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
+              </li>
+              <li>
+                <span className="menu-kurz">Dezert</span>
+                <span className="menu-jidlo">Svatební dort</span>
+                <span className="menu-detail">Čokoládový korpus, pařížský krém, malinové compote</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="menu-strana">
+          <div className="menu-list">
+            <p className="menu-nadstrana">Pro nejmenší</p>
+            <ul className="menu-chody">
+              <li>
+                <span className="menu-kurz">Polévka</span>
+                <span className="menu-jidlo">Svatební vývar</span>
+                <span className="menu-detail">Zelenina, nudle</span>
+              </li>
+              <li>
+                <span className="menu-kurz">Hlavní chod</span>
+                <span className="menu-jidlo">Smažený kuřecí řízek</span>
+                <span className="menu-detail">Bramborové pyré</span>
+              </li>
+            </ul>
+            <p className="menu-preji">Dobrou chuť</p>
+            <p className="menu-alergeny">
+              Máte-li speciální stravovací požadavky (vegetariánské, veganské či
+              zdravotní), dejte nám prosím vědět předem.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Obálka leží přes pravou stranu — tam, kde na zavřené knize je. */}
+      <button
+        type="button"
+        className="menu-obalka"
+        onClick={() => setOtevrene(true)}
+        aria-expanded={otevrene}
+      >
+        <span className="menu-nazev">Svatební<i>menu</i></span>
+        <span className="menu-vyzva">Klepněte a otevřete</span>
+      </button>
+    </div>
+  );
+}
 /* Program dne jako časová osa. `ikona` je název souboru v public/program,
    který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
    dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
@@ -698,59 +776,12 @@ export default function Home() {
 
       {/* menu */}
       <section className="menu" id="menu">
-        <Reveal className="menu-karta">
-          <span className="menu-masle" aria-hidden="true" />
-          <div className="wrap">
-            <p className="eyebrow">Dobrou chuť</p>
-            <h2>Svatební menu</h2>
-            <p className="lead">
-              To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili na obřad —
-              my víme svoje. Dobrou chuť!
-            </p>
-          </div>
-          <div className="events">
-          <div className="event">
-            <div className="meta">Polévka</div>
-            <h3>Svatební vývar</h3>
-            <p>Játrové knedlíčky, zelenina, nudle</p>
-          </div>
-          <div className="event">
-            <div className="meta">Hlavní chod</div>
-            <h3>Vepřová panenka v sous-vide s pečenými brambory grenaille a pepřovou omáčkou</h3>
-          </div>
-          <div className="event">
-            <div className="meta">Dezert</div>
-            <h3>Svatební dort</h3>
-            <p>Čokoládový korpus, pařížský krém, malinové compote</p>
-          </div>
-          </div>
-
-          <div className="wrap menu-kids-title">
-            <p className="eyebrow">Pro nejmenší</p>
-            <h3>Dětské svatební menu</h3>
-          </div>
-          <div className="events">
-            <div className="event">
-              <div className="meta">Polévka</div>
-              <h3>Svatební vývar</h3>
-              <p>Zelenina, nudle</p>
-            </div>
-            <div className="event">
-              <div className="meta">Hlavní chod</div>
-              <h3>Smažený kuřecí řízek s bramborovým pyré</h3>
-            </div>
-          </div>
-
-          {/* Prostřený stůl sedí na spodní lince rámečku, stejně jako mašle
-              visí na horní. Kresbu vyřezává scripts/menu-stul.mjs. */}
-          <span className="menu-stul" aria-hidden="true" />
+        <Reveal className="wrap">
+          <p className="eyebrow">Dobrou chuť</p>
+          <h2>Svatební menu</h2>
         </Reveal>
-        {/* poznámka mimo rámeček — patří k menu, ale není to chod */}
-        <Reveal className="menu-poznamka">
-          <p>
-            Máte-li speciální stravovací požadavky (vegetariánské, veganské či
-            zdravotní), dejte nám prosím vědět předem.
-          </p>
+        <Reveal>
+          <SvatebniMenu />
         </Reveal>
       </section>
 

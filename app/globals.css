@@ -2345,3 +2345,165 @@ body,
 @media (max-width: 640px) {
   .location .ubytovani { margin-top: 3rem; padding-top: 2.8rem; padding-bottom: 2.2rem; }
 }
+
+/* ---------- svatební menu jako desky ----------
+   Zavřené desky s názvem, po klepnutí se rozevřou na dvě strany s bílým
+   papírem. Kniha drží výšku jedné desky pořád a mění jen šířku: z jedné desky
+   na dvě. Rozevřené desky i obálka jsou obojí absolutně uprostřed, takže se
+   růst děje na obě strany a nic nepřeskočí.
+
+   `overflow: hidden` na knize ořízne rozevřené desky, dokud je kniha úzká.
+   Stíny proto nesou vnitřní prvky, ne kniha — na ní by se ořízly taky. */
+.menu-kniha {
+  --deska: clamp(230px, 30vw, 380px);
+  --pomer: 1.41;
+  --deska-modra: #b7cee5;
+  --deska-tmava: #9dbbd6;
+  --zlata: #c69b3f;
+
+  position: relative;
+  width: var(--deska);
+  height: calc(var(--deska) * var(--pomer));
+  margin: 3.2rem auto 0;
+  overflow: hidden;
+  transition: width .85s cubic-bezier(.4, 0, .2, 1);
+  perspective: 1800px;
+}
+.menu-kniha.je-otevrene { width: calc(var(--deska) * 2); }
+
+/* --- obálka --- */
+.menu-obalka {
+  position: absolute; top: 0; bottom: 0;
+  left: 50%; margin-left: calc(var(--deska) / -2);
+  width: var(--deska);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.4rem;
+  border: 0; padding: 2rem; cursor: pointer; font: inherit;
+  /* Plátno desek: k okrajům tmavší, uprostřed nadzvednuté — to je celé
+     nasvícení, které deska potřebuje. */
+  background:
+    radial-gradient(120% 90% at 50% 38%, #c9dcee 0%, var(--deska-modra) 55%, var(--deska-tmava) 100%);
+  border-radius: 4px 7px 7px 4px;
+  box-shadow: 0 18px 44px rgba(31, 64, 104, .26), inset 0 0 0 1px rgba(255, 255, 255, .35);
+  transform-origin: left center;
+  transition: transform .85s cubic-bezier(.4, 0, .2, 1), opacity .5s ease .2s;
+}
+/* Hřbet: úzký pruh u levé hrany se dvěma nýty, jako na deskách s vazbou. */
+.menu-obalka::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 13%;
+  background: linear-gradient(to right, rgba(0, 0, 0, .09), rgba(0, 0, 0, 0) 55%, rgba(255, 255, 255, .22));
+  border-right: 1px solid rgba(255, 255, 255, .4);
+}
+.menu-kniha.je-otevrene .menu-obalka {
+  transform: rotateY(-108deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu-nazev {
+  display: flex; flex-direction: column; align-items: center; line-height: 1;
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(1.25rem, 3.2vw, 1.75rem);
+  letter-spacing: .26em; text-transform: uppercase;
+  /* Zlato vyražené do desky: světlá hrana zdola, tmavý stín shora. Samotná
+     zlatá barva vypadá jako nálepka, tohle jako ražba. */
+  color: var(--zlata);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .55),
+    0 -1px 1px rgba(90, 65, 10, .45);
+}
+.menu-nazev i {
+  font-style: normal; margin-top: .55em;
+  font-size: 1.12em; letter-spacing: .3em;
+}
+.menu-vyzva {
+  font-size: .58rem; letter-spacing: .26em; text-transform: uppercase;
+  color: color-mix(in srgb, #2f4f6b 62%, transparent);
+}
+
+/* --- rozevřené desky --- */
+.menu-rozevrene {
+  position: absolute; top: 0; bottom: 0;
+  left: 50%; margin-left: calc(var(--deska) * -1);
+  width: calc(var(--deska) * 2);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2.2%;
+  padding: 3.4%;
+  background:
+    linear-gradient(to right, var(--deska-tmava), var(--deska-modra) 12%, var(--deska-modra) 46%,
+      var(--deska-tmava) 50%, var(--deska-modra) 54%, var(--deska-modra) 88%, var(--deska-tmava));
+  border-radius: 6px;
+  box-shadow: 0 18px 44px rgba(31, 64, 104, .26);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.menu-kniha.je-otevrene .menu-rozevrene { opacity: 1; cursor: pointer; }
+
+.menu-strana { display: flex; }
+.menu-list {
+  flex: 1; display: flex; flex-direction: column;
+  background: #fdfcfa;
+  padding: 7% 8%;
+  box-shadow: 0 2px 10px rgba(31, 64, 104, .18);
+  /* Vlasová linka kousek od kraje, jako na tištěném menu. */
+  outline: 1px solid rgba(53, 96, 127, .22);
+  outline-offset: -7px;
+  color: #35607f;
+  overflow: hidden;
+}
+
+.menu-uvod {
+  font-size: clamp(.58rem, 1.05vw, .8rem); line-height: 1.7;
+  font-style: italic; text-align: center;
+  margin-bottom: 8%;
+}
+.menu-nadstrana, .menu-preji {
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.66rem, 1.2vw, .92rem);
+  letter-spacing: .26em; text-transform: uppercase; text-align: center;
+}
+.menu-nadstrana { margin-bottom: 6%; }
+.menu-preji { margin-top: auto; padding-top: 8%; }
+
+.menu-chody { list-style: none; margin: 0; padding: 0; }
+.menu-chody li { text-align: center; }
+.menu-chody li + li { margin-top: 7%; }
+.menu-kurz {
+  display: block; font-size: clamp(.46rem, .82vw, .62rem);
+  letter-spacing: .3em; text-transform: uppercase;
+  color: color-mix(in srgb, #35607f 62%, transparent);
+  margin-bottom: .5em;
+}
+.menu-jidlo {
+  display: block; font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.72rem, 1.35vw, 1.02rem); line-height: 1.3;
+}
+.menu-detail {
+  display: block; margin-top: .45em;
+  font-size: clamp(.5rem, .92vw, .7rem); line-height: 1.5; font-style: italic;
+  color: color-mix(in srgb, #35607f 72%, transparent);
+}
+.menu-alergeny {
+  margin-top: 5%;
+  font-size: clamp(.46rem, .85vw, .64rem); line-height: 1.55; text-align: center;
+  color: color-mix(in srgb, #35607f 62%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-kniha, .menu-obalka, .menu-rozevrene { transition: none; }
+}
+
+/* Na telefonu se dvě strany vedle sebe nepřečtou — desky se rozevřou pod sebe
+   a kniha se protáhne do výšky místo do šířky. */
+@media (max-width: 720px) {
+  .menu-kniha { --deska: min(300px, 88vw); }
+  .menu-kniha.je-otevrene {
+    width: var(--deska);
+    height: auto;
+    overflow: visible;
+  }
+  .menu-kniha.je-otevrene .menu-rozevrene {
+    position: static; margin: 0; width: 100%;
+    grid-template-columns: 1fr; gap: 4%;
+  }
+  .menu-list { padding: 8% 9%; }
+}
