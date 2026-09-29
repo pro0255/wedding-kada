@@ -2474,18 +2474,7 @@ body,
 
 .menu-chody { list-style: none; margin: 0; padding: 0; }
 .menu-chody li { text-align: center; }
-/* Mezi chody drobný kosočtverec na lince — svatební menu, ne formulář. */
-.menu-chody li + li { margin-top: 7.5%; position: relative; }
-.menu-chody li + li::before {
-  content: ""; position: absolute; left: 50%; top: -3.8%;
-  width: 34px; height: 1px; margin-left: -17px;
-  background: linear-gradient(to right, transparent, rgba(53, 96, 127, .45), transparent);
-}
-.menu-chody li + li::after {
-  content: ""; position: absolute; left: 50%; top: -3.8%;
-  width: 5px; height: 5px; margin: -2px 0 0 -2.5px;
-  background: rgba(53, 96, 127, .45); rotate: 45deg;
-}
+.menu-chody li + li { margin-top: 8%; }
 .menu-kurz {
   display: block; font-size: clamp(.54rem, .86vw, .72rem);
   letter-spacing: .3em; text-transform: uppercase;
@@ -2554,11 +2543,32 @@ body,
   filter: drop-shadow(0 8px 18px rgba(31, 64, 104, .16));
 }
 
-/* Na telefonu zůstane jen pět kusů — dvanáct by na té šířce zakrylo fotky. */
+/* Věnec přesahuje skupinu asi o šestinu na každou stranu, takže sekce
+   potřebuje shora i zdola víc místa — jinak se květiny ořežou o hranu bílé
+   plochy a rozlezou se do modrých sekcí nad a pod. */
+.obsah-ramec > .story { padding-block: 11rem; }
+
+/* Věnec je široký zhruba dvakrát tolik co skupina, kolem které stojí, takže se
+   musí s oknem zmenšovat — jinak krajní květiny vyjedou za okraj a .obsah-ramec
+   je ořízne. Posunout každou zvlášť nejde, polohy jsou v inline stylu z dat;
+   zmenšuje se proto celá vrstva. `scale` se skládá až za `transform`, takže
+   vystředění vrstvy zůstává v platnosti.
+
+   Hodnoty jsou spočítané tak, aby nejzazší květina měla od okraje okna pořád
+   aspoň pár desítek pixelů. */
+.kvetiny-scena { scale: .9; }
+@media (max-width: 1700px) { .kvetiny-scena { scale: .82; } }
+@media (max-width: 1500px) { .kvetiny-scena { scale: .76; } }
+@media (max-width: 1300px) { .kvetiny-scena { scale: .7; } }
+@media (max-width: 1100px) { .kvetiny-scena { scale: .62; } }
+@media (max-width: 950px) { .kvetiny-scena { scale: .55; } }
+
+/* Na telefonu zůstane jen pět kusů — třináct by na té šířce zakrylo fotky. */
 @media (max-width: 760px) {
-  .kvetiny-scena { width: 100%; }
+  .kvetiny-scena { width: 100%; scale: 1; }
   .kvetina { display: none; }
   .kvetina-maly { display: block; }
+  .obsah-ramec > .story { padding-block: 6rem; }
 }
 
 /* ---------- mapa a fotka jako pohlednice ----------
@@ -2622,14 +2632,16 @@ body,
    nadpis nalepený u horní hrany nechával spodní dvě třetiny desky prázdné. */
 .menu-obalka-lic { padding-top: 6%; justify-content: center; }
 
-/* Deska je fotka zavřeného menu s odmaskovaným potiskem a přebarvená do baby
-   blue (scripts/menu-deska.mjs). Gradient pod ní zůstává jako záloha, kdyby se
-   obrázek nenačetl — deska bez podkladu by byla průhledná díra. */
+/* Desky jsou zatím bílé. Fotka zavřeného menu je vyčištěná a připravená
+   (public/menu/deska.webp, dělá ji scripts/menu-deska.mjs), ale po smazaném
+   potisku v ní zůstává slabý duch, takže na desky zatím nejde. */
 .menu-deska {
-  background-image: url("/menu/deska.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-image: none;
+  background-color: #f6f4f0;
+  box-shadow:
+    0 26px 60px rgba(53, 96, 127, .18),
+    0 6px 18px rgba(53, 96, 127, .1),
+    inset 0 0 0 1px rgba(53, 96, 127, .08);
 }
 /* Ornament: krátká linka s kosočtvercem uprostřed, stejný jako mezi chody. */
 .menu-ornament {
@@ -2691,4 +2703,41 @@ body,
   margin: 1.6rem auto 0; text-align: center;
   font-size: .62rem; letter-spacing: .3em; text-transform: uppercase;
   color: color-mix(in srgb, var(--list-modra, #35607f) 62%, transparent);
+}
+
+/* --- příbory po stranách zavřené knihy ---
+   Kniha je pořád široká dvě desky a zavřená ukazuje tu pravou, posunutou na
+   střed — viditelná deska tedy leží mezi 25 % a 75 % šířky knihy. Příbory
+   sedí hned za těmi hranicemi. Otevřená kniha zabere celou šířku, takže
+   uhnou do stran a zmizí. */
+.menu-pribor {
+  position: absolute; top: 50%; height: auto;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(53, 96, 127, .18));
+  transition: opacity .5s ease, translate .9s cubic-bezier(.4, 0, .2, 1);
+}
+.menu-pribor-vidlicka { left: 11%; width: 8%; }
+.menu-pribor-nuz { left: 79%; width: 6.5%; }
+.menu-pribor-lzice { left: 88%; width: 9%; }
+.menu-kniha.je-otevrene .menu-pribor { opacity: 0; }
+.menu-kniha.je-otevrene .menu-pribor-vidlicka { translate: -60% 0; }
+.menu-kniha.je-otevrene .menu-pribor-nuz,
+.menu-kniha.je-otevrene .menu-pribor-lzice { translate: 60% 0; }
+
+/* --- obsah stran menu ---
+   Text začíná nahoře, ne na středu: úvodní věta patří pod nadpis a chody za
+   ni, ne aby se celý sloupec vznášel uprostřed papíru. */
+.menu-list { justify-content: flex-start; }
+.menu-preji { margin-top: 10%; }
+
+/* Kresba prostřeného stolu mezi přáním a poznámkou o stravování. */
+.menu-kresba {
+  display: block; width: 72%; height: auto;
+  margin: 7% auto 0;
+  opacity: .9;
+}
+
+@media (max-width: 760px) {
+  .menu-pribor { display: none; }
 }

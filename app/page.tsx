@@ -424,29 +424,28 @@ function FotoHromadka() {
    `maly` označuje ty, které zůstanou i na telefonu. Všech dvanáct by se na
    šířku mobilu nevešlo, aniž by zakryly fotky. */
 const KVETINY: { soubor: string; sirka: number; poloha: React.CSSProperties; uhel: number; maly?: boolean }[] = [
-  /* Věnec podle předlohy, květina po květině.
+  /* Věnec odměřený z předlohy. Procenta jsou vůči skupině fotek s obálkou:
+     nula vlevo nahoře na hromádce, sto procent na pravém kraji obálky a na
+     spodní hraně fotek. Záporné hodnoty jsou tedy kus za skupinou, což je
+     u věnce většina.
 
-     Nahoře: bílá gypsophila vlevo, modrá hortenzie uprostřed nad hromádkou
-     a růžové karafiáty nad obálkou. */
-  { soubor: "04_gypsophila", sirka: 16, poloha: { left: "10%", top: "-11%" }, uhel: -16 },
-  { soubor: "06_hortenzie", sirka: 25, poloha: { left: "27%", top: "-13%" }, uhel: -6, maly: true },
-  { soubor: "13_karafiat", sirka: 22, poloha: { left: "60%", top: "-13%" }, uhel: 13, maly: true },
-  /* Pravý bok: karafiáty u obálky, pod nimi bílé krásenky. */
-  { soubor: "13_karafiat", sirka: 17, poloha: { right: "-8%", top: "12%" }, uhel: -20 },
-  { soubor: "08_krasenka", sirka: 20, poloha: { right: "-10%", top: "42%" }, uhel: 5, maly: true },
-  /* Spodní věnec zleva doprava: krásenky, bílé květy, krémová gerbera,
-     krásenky. */
-  { soubor: "08_krasenka", sirka: 16, poloha: { left: "8%", bottom: "-13%" }, uhel: -10 },
-  { soubor: "01_kvetiny_bile", sirka: 13, poloha: { left: "31%", bottom: "-16%" }, uhel: 6 },
-  { soubor: "10_gerbera", sirka: 18, poloha: { left: "49%", bottom: "-14%" }, uhel: 11 },
-  { soubor: "08_krasenka", sirka: 18, poloha: { left: "66%", bottom: "-9%" }, uhel: -6 },
-  /* Levý bok shora dolů: světle modrý květ, karafiáty, krémové ibišky,
-     karafiáty. Musí ven z hromádky, ale ne až na kraj okna — věnec má
-     kompozici objímat, ne se od ní odlepit. */
-  { soubor: "02_modry_kvet", sirka: 18, poloha: { left: "-13%", top: "3%" }, uhel: -12, maly: true },
-  { soubor: "13_karafiat", sirka: 15, poloha: { left: "-16%", top: "20%" }, uhel: 5 },
-  { soubor: "01_kvetiny_bile", sirka: 15, poloha: { left: "-12%", top: "36%" }, uhel: 8 },
-  { soubor: "13_karafiat", sirka: 15, poloha: { left: "-10%", bottom: "-4%" }, uhel: 3, maly: true },
+     Květiny jsou schválně velké a překrývají se — na předloze drží pohromadě
+     jako kytice, ne jako rozsypané jednotlivosti. */
+
+  /* Horní oblouk zleva: světle modrý květ, hortenzie, karafiáty nad obálkou. */
+  { soubor: "02_modry_kvet", sirka: 31, poloha: { left: "-13%", top: "-24%" }, uhel: -8, maly: true },
+  { soubor: "06_hortenzie", sirka: 40, poloha: { left: "29%", top: "-32%" }, uhel: -4, maly: true },
+  { soubor: "13_karafiat", sirka: 28, poloha: { left: "63%", top: "-22%" }, uhel: 10, maly: true },
+  /* Levý bok shora dolů: karafiáty, krémové ibišky, krásenka, karafiáty. */
+  { soubor: "13_karafiat", sirka: 29, poloha: { left: "-41%", top: "-4%" }, uhel: -6 },
+  { soubor: "01_kvetiny_bile", sirka: 26, poloha: { left: "-20%", top: "10%" }, uhel: 4 },
+  { soubor: "08_krasenka", sirka: 23, poloha: { left: "-23%", top: "51%" }, uhel: -8 },
+  { soubor: "13_karafiat", sirka: 23, poloha: { left: "-32%", top: "55%" }, uhel: 8 },
+  /* Spodní okraj: bílý květ, krémová gerbera. */
+  { soubor: "01_kvetiny_bile", sirka: 24, poloha: { left: "-4%", top: "78%" }, uhel: 5, maly: true },
+  { soubor: "10_gerbera", sirka: 19, poloha: { left: "37%", top: "96%" }, uhel: -7 },
+  /* Pravý bok: velký trs krásenek u obálky. */
+  { soubor: "08_krasenka", sirka: 44, poloha: { left: "60%", top: "47%" }, uhel: 4, maly: true },
 ];
 
 function KvetinyScena() {
@@ -484,6 +483,11 @@ function SvatebniMenu() {
   const [otevrene, setOtevrene] = useState(false);
   return (
     <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
+      {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
+          se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
+      <img className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
+      <img className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
+      <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
       <div className="menu-vnitrek">
         {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
         <div className="menu-deska menu-deska-prava">
@@ -502,6 +506,8 @@ function SvatebniMenu() {
               </li>
             </ul>
             <p className="menu-preji">Dobrou chuť</p>
+            {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
+            <img className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
             <p className="menu-alergeny">
               Máte-li speciální stravovací požadavky (vegetariánské, veganské či
               zdravotní), dejte nám prosím vědět předem.
@@ -519,14 +525,13 @@ function SvatebniMenu() {
           >
             <span className="menu-obalka-obsah">
               <span className="menu-ornament" aria-hidden="true" />
-              <span className="menu-nazev">Svatební<i>menu</i></span>
+              <span className="menu-nazev">Menu</span>
               <span className="menu-monogram">K &amp; J</span>
               <span className="menu-datum">18 · 09 · 2027</span>
             </span>
           </button>
           <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
             <div className="menu-list">
-              <p className="menu-nadstrana">Pro dospělé</p>
               <p className="menu-uvod">
                 To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
                 na obřad — my víme svoje.
@@ -841,10 +846,9 @@ export default function Home() {
 
       {/* menu */}
       <section className="menu" id="menu">
-        {/* Nadpis nese sama deska menu. Tady zůstává jen pro odečítače a pro
-            odkaz z navigace — dvakrát napsané „Svatební menu“ pod sebou je
-            zbytečné. */}
-        <h2 className="jen-pro-odecitace">Svatební menu</h2>
+        <Reveal className="wrap">
+          <h2>Svatební menu</h2>
+        </Reveal>
         <Reveal>
           <SvatebniMenu />
         </Reveal>
