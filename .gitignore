@@ -47,3 +47,7 @@ next-env.d.ts
 # wedding icons. Do public patří jen kresby, na které máme právo.
 public/program/prstynky a disko.jpg
 public/program/tanec.jpg
+
+# Arch prodejní sady wedding icons, ze kterého se vyřezávají ikonky programu.
+# Do repozitáře nepatří, vyřezané ikonky ano.
+public/program/prstynkyy.png
