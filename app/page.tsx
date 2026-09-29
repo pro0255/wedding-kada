@@ -415,6 +415,55 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
+/* Vystřižené květiny kolem hromádky fotek a obálky.
+
+   Poloha je v procentech scény, ne v pixelech — scéna se s oknem zmenšuje
+   a květiny se musí zmenšit s ní, jinak by se při úzkém okně sesypaly na
+   sebe. `sirka` je díl šířky scény, zbytek dopočítá poměr stran obrázku.
+
+   `maly` označuje ty, které zůstanou i na telefonu. Všech dvanáct by se na
+   šířku mobilu nevešlo, aniž by zakryly fotky. */
+const KVETINY: { soubor: string; sirka: number; poloha: React.CSSProperties; uhel: number; maly?: boolean }[] = [
+  /* Věnec podle předlohy, květina po květině.
+
+     Nahoře: bílá gypsophila vlevo, modrá hortenzie uprostřed nad hromádkou
+     a růžové karafiáty nad obálkou. */
+  { soubor: "04_gypsophila", sirka: 16, poloha: { left: "10%", top: "-11%" }, uhel: -16 },
+  { soubor: "06_hortenzie", sirka: 25, poloha: { left: "27%", top: "-13%" }, uhel: -6, maly: true },
+  { soubor: "13_karafiat", sirka: 22, poloha: { left: "60%", top: "-13%" }, uhel: 13, maly: true },
+  /* Pravý bok: karafiáty u obálky, pod nimi bílé krásenky. */
+  { soubor: "13_karafiat", sirka: 17, poloha: { right: "-8%", top: "12%" }, uhel: -20 },
+  { soubor: "08_krasenka", sirka: 20, poloha: { right: "-10%", top: "42%" }, uhel: 5, maly: true },
+  /* Spodní věnec zleva doprava: krásenky, bílé květy, krémová gerbera,
+     krásenky. */
+  { soubor: "08_krasenka", sirka: 16, poloha: { left: "8%", bottom: "-13%" }, uhel: -10 },
+  { soubor: "01_kvetiny_bile", sirka: 13, poloha: { left: "31%", bottom: "-16%" }, uhel: 6 },
+  { soubor: "10_gerbera", sirka: 18, poloha: { left: "49%", bottom: "-14%" }, uhel: 11 },
+  { soubor: "08_krasenka", sirka: 18, poloha: { left: "66%", bottom: "-9%" }, uhel: -6 },
+  /* Levý bok shora dolů: světle modrý květ, karafiáty, krémové ibišky,
+     karafiáty. Musí ven z hromádky, ale ne až na kraj okna — věnec má
+     kompozici objímat, ne se od ní odlepit. */
+  { soubor: "02_modry_kvet", sirka: 18, poloha: { left: "-13%", top: "3%" }, uhel: -12, maly: true },
+  { soubor: "13_karafiat", sirka: 15, poloha: { left: "-16%", top: "20%" }, uhel: 5 },
+  { soubor: "01_kvetiny_bile", sirka: 15, poloha: { left: "-12%", top: "36%" }, uhel: 8 },
+  { soubor: "13_karafiat", sirka: 15, poloha: { left: "-10%", bottom: "-4%" }, uhel: 3, maly: true },
+];
+
+function KvetinyScena() {
+  return (
+    <span className="kvetiny-scena" aria-hidden="true">
+      {KVETINY.map((k, i) => (
+        <img
+          key={i}
+          className={"kvetina" + (k.maly ? " kvetina-maly" : "")}
+          src={`/kytky/${k.soubor}.webp`}
+          alt=""
+          style={{ ...k.poloha, width: `${k.sirka}%`, rotate: `${k.uhel}deg` }}
+        />
+      ))}
+    </span>
+  );
+}
 /* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
    klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
 
@@ -468,13 +517,19 @@ function SvatebniMenu() {
             onClick={() => setOtevrene(true)}
             aria-expanded={otevrene}
           >
-            <span className="menu-nazev">Svatební<i>menu</i></span>
+            <span className="menu-obalka-obsah">
+              <span className="menu-ornament" aria-hidden="true" />
+              <span className="menu-nazev">Svatební<i>menu</i></span>
+              <span className="menu-monogram">K &amp; J</span>
+              <span className="menu-datum">18 · 09 · 2027</span>
+            </span>
           </button>
           <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
             <div className="menu-list">
+              <p className="menu-nadstrana">Pro dospělé</p>
               <p className="menu-uvod">
                 To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
-                na obřad — my víme svoje. Dobrou chuť!
+                na obřad — my víme svoje.
               </p>
               <ul className="menu-chody">
                 <li>
@@ -490,59 +545,61 @@ function SvatebniMenu() {
                 <li>
                   <span className="menu-kurz">Dezert</span>
                   <span className="menu-jidlo">Svatební dort</span>
-                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinové compote</span>
+                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
       </div>
+      {/* Pod knihou, ne na desce — tam by soupeřila se zlatým názvem. */}
+      <p className="menu-napoveda">{otevrene ? "Klepnutím zavřete" : "Klikněte pro otevření"}</p>
     </div>
   );
 }
-/* Program dne jako časová osa. `ikona` je název souboru v public/program,
-   který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
-   dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
-   něm prázdné místo, ne rozbitá ikona. */
-const PROGRAM = [
-  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U ženicha a nevěsty",
-    popis: "Poslední klidné sousto předtím, než to celé začne." },
-  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U zvoničky v Rekovicích",
-    popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
-  { cas: "13:30", nazev: "Přípitek a svatební oběd", ikona: "obed",
-    popis: "Na zdraví, na lásku a na pořádný hlad." },
-  { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
-    popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
-  { cas: "16:30", nazev: "První tanec", ikona: "tanec",
-    popis: "Jeden tanec a žádné záruky elegance." },
-  { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
-    popis: "Dobré jídlo, sklenka v ruce a čas užít si den naplno." },
-  { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
-    popis: "Boty dolů, hudbu nahoru." },
-];
-
-function CasovaOsa() {
-  return (
-    <ol className="osa">
-      {PROGRAM.map((b) => (
-        <li key={b.nazev} className="osa-bod">
-          <span className="osa-ikona">
-            <img
-              src={`/program/${b.ikona}.webp`}
-              alt=""
-              aria-hidden="true"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-          </span>
-          <span className="osa-cas"><b>{b.cas}</b></span>
-          <span className="osa-nazev">{b.nazev}</span>
-          {b.misto && <span className="osa-misto">{b.misto}</span>}
-          <span className="osa-popis">{b.popis}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
+/* Program dne jako časová osa. `ikona` je název souboru v public/program,
+   který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
+   dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
+   něm prázdné místo, ne rozbitá ikona. */
+const PROGRAM = [
+  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U ženicha a nevěsty",
+    popis: "Poslední klidné sousto předtím, než to celé začne." },
+  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U zvoničky v Rekovicích",
+    popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
+  { cas: "13:30", nazev: "Přípitek a svatební oběd", ikona: "obed",
+    popis: "Na zdraví, na lásku a na pořádný hlad." },
+  { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
+    popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
+  { cas: "16:30", nazev: "První tanec", ikona: "tanec",
+    popis: "Jeden tanec a žádné záruky elegance." },
+  { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
+    popis: "Dobré jídlo, sklenka v ruce a čas užít si den naplno." },
+  { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
+    popis: "Boty dolů, hudbu nahoru." },
+];
+
+function CasovaOsa() {
+  return (
+    <ol className="osa">
+      {PROGRAM.map((b) => (
+        <li key={b.nazev} className="osa-bod">
+          <span className="osa-ikona">
+            <img
+              src={`/program/${b.ikona}.webp`}
+              alt=""
+              aria-hidden="true"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          </span>
+          <span className="osa-cas"><b>{b.cas}</b></span>
+          <span className="osa-nazev">{b.nazev}</span>
+          {b.misto && <span className="osa-misto">{b.misto}</span>}
+          <span className="osa-popis">{b.popis}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
 /* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
    listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
 type StavObalky = "zavreno" | "dopis" | "oznameni";
@@ -731,6 +788,7 @@ export default function Home() {
       {/* příběh */}
       <section className="story" id="story">
         <Reveal className="story-grid">
+          <KvetinyScena />
           <div className="story-photo">
             <FotoHromadka />
           </div>
@@ -783,9 +841,10 @@ export default function Home() {
 
       {/* menu */}
       <section className="menu" id="menu">
-        <Reveal className="wrap">
-          <h2>Svatební menu</h2>
-        </Reveal>
+        {/* Nadpis nese sama deska menu. Tady zůstává jen pro odečítače a pro
+            odkaz z navigace — dvakrát napsané „Svatební menu“ pod sebou je
+            zbytečné. */}
+        <h2 className="jen-pro-odecitace">Svatební menu</h2>
         <Reveal>
           <SvatebniMenu />
         </Reveal>

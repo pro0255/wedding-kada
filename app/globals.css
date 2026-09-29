@@ -2361,8 +2361,8 @@ body,
 .menu-kniha {
   --deska: clamp(290px, 33vw, 520px);
   --pomer: 1.41;
-  --deska-modra: #b7cee5;
-  --deska-tmava: #96b6d3;
+  --deska-modra: #c2d7ea;
+  --deska-tmava: #a9c5de;
   --zlata: #c69b3f;
   --list-modra: #35607f;
 
@@ -2395,13 +2395,15 @@ body,
 .menu-obalka-lic { border-radius: 3px 9px 9px 3px; cursor: pointer; }
 .menu-obalka-rub { border-radius: 9px 3px 3px 9px; cursor: pointer; }
 /* Stín od hřbetu do plochy desky. */
+/* Stín od hřbetu. Užší a světlejší, než by se zdálo: tmavý pruh uprostřed
+   rozevřené knihy ji opticky rozděluje na dvě půlky místo jednoho celku. */
 .menu-deska-prava::before,
 .menu-obalka-rub::before {
-  content: ""; position: absolute; top: 0; bottom: 0; width: 9%;
+  content: ""; position: absolute; top: 0; bottom: 0; width: 6%;
   pointer-events: none;
 }
-.menu-deska-prava::before { left: 0; background: linear-gradient(to right, rgba(20, 45, 75, .3), transparent); }
-.menu-obalka-rub::before { right: 0; background: linear-gradient(to left, rgba(20, 45, 75, .3), transparent); }
+.menu-deska-prava::before { left: 0; background: linear-gradient(to right, rgba(20, 45, 75, .15), transparent); }
+.menu-obalka-rub::before { right: 0; background: linear-gradient(to left, rgba(20, 45, 75, .15), transparent); }
 
 /* --- obálka --- */
 .menu-obalka {
@@ -2443,9 +2445,11 @@ body,
 
 /* --- papír na desce --- */
 .menu-list {
-  flex: 1; display: flex; flex-direction: column;
+  /* Obě strany mají stejný papír i odsazení a obsah je svisle na střed —
+     jinak jedna začíná výš než druhá a celé se to zdá nakřivo. */
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
   background: #fdfcfa;
-  padding: 7.5% 8.5%;
+  padding: 9% 8.5%;
   box-shadow: 0 3px 14px rgba(20, 45, 75, .22);
   /* Vlasová linka kousek od kraje, jako na tištěném menu. */
   outline: 1px solid rgba(53, 96, 127, .22);
@@ -2456,7 +2460,8 @@ body,
 .menu-uvod {
   font-size: clamp(.68rem, 1.05vw, .92rem); line-height: 1.75;
   font-style: italic; text-align: center;
-  margin-bottom: 9%;
+  margin: -4% 0 9%;
+  color: color-mix(in srgb, var(--list-modra) 88%, transparent);
 }
 .menu-nadstrana, .menu-preji {
   font-family: var(--serif), Georgia, serif;
@@ -2464,15 +2469,27 @@ body,
   letter-spacing: .26em; text-transform: uppercase; text-align: center;
 }
 .menu-nadstrana { margin-bottom: 7%; }
-.menu-preji { margin-top: auto; padding-top: 9%; }
+.menu-uvod + .menu-chody { margin-top: 0; }
+.menu-preji { margin-top: 9%; }
 
 .menu-chody { list-style: none; margin: 0; padding: 0; }
 .menu-chody li { text-align: center; }
-.menu-chody li + li { margin-top: 7.5%; }
+/* Mezi chody drobný kosočtverec na lince — svatební menu, ne formulář. */
+.menu-chody li + li { margin-top: 7.5%; position: relative; }
+.menu-chody li + li::before {
+  content: ""; position: absolute; left: 50%; top: -3.8%;
+  width: 34px; height: 1px; margin-left: -17px;
+  background: linear-gradient(to right, transparent, rgba(53, 96, 127, .45), transparent);
+}
+.menu-chody li + li::after {
+  content: ""; position: absolute; left: 50%; top: -3.8%;
+  width: 5px; height: 5px; margin: -2px 0 0 -2.5px;
+  background: rgba(53, 96, 127, .45); rotate: 45deg;
+}
 .menu-kurz {
   display: block; font-size: clamp(.54rem, .86vw, .72rem);
   letter-spacing: .3em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--list-modra) 62%, transparent);
+  color: color-mix(in srgb, var(--list-modra) 80%, transparent);
   margin-bottom: .55em;
 }
 .menu-jidlo {
@@ -2481,13 +2498,13 @@ body,
 }
 .menu-detail {
   display: block; margin-top: .45em;
-  font-size: clamp(.6rem, .95vw, .8rem); line-height: 1.5; font-style: italic;
-  color: color-mix(in srgb, var(--list-modra) 72%, transparent);
+  font-size: clamp(.62rem, .98vw, .82rem); line-height: 1.5; font-style: italic;
+  color: color-mix(in srgb, var(--list-modra) 90%, transparent);
 }
 .menu-alergeny {
   margin-top: 6%;
-  font-size: clamp(.56rem, .88vw, .74rem); line-height: 1.6; text-align: center;
-  color: color-mix(in srgb, var(--list-modra) 62%, transparent);
+  font-size: clamp(.6rem, .92vw, .78rem); line-height: 1.6; text-align: center;
+  color: color-mix(in srgb, var(--list-modra) 85%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2516,4 +2533,162 @@ body,
   .menu-kniha.je-otevrene .menu-deska-prava,
   .menu-kniha.je-otevrene .menu-obalka-rub { display: flex; }
   .menu-obalka { order: -1; }
+}
+
+/* ---------- vystřižené květiny kolem scény příběhu ----------
+   Vrstva je široká přesně jako skupina fotek s obálkou, ne jako celá sekce:
+   .story-grid se roztahuje přes okno a procenta v něm by květiny rozhodila po
+   celé šířce místo kolem kompozice.
+
+   Leží pod fotkami (z-index 1) i obálkou (5), takže z nich vykukují po
+   stranách, jak mají. Nechytají myš — celá hromádka je jedno tlačítko. */
+.kvetiny-scena {
+  position: absolute; top: 0; bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  width: calc(var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv));
+  z-index: 0; pointer-events: none;
+}
+.kvetina {
+  position: absolute; height: auto; display: block;
+  /* Jemný stín usadí květinu na stránku, ať nevypadá nalepená. */
+  filter: drop-shadow(0 8px 18px rgba(31, 64, 104, .16));
+}
+
+/* Na telefonu zůstane jen pět kusů — dvanáct by na té šířce zakrylo fotky. */
+@media (max-width: 760px) {
+  .kvetiny-scena { width: 100%; }
+  .kvetina { display: none; }
+  .kvetina-maly { display: block; }
+}
+
+/* ---------- mapa a fotka jako pohlednice ----------
+   Bílý rám kolem obou stran karty. Nedá se udělat rámečkem na .venue-map:
+   ta se otáčí a rám by se otáčel s ní jako plocha, ne jako pasparta. Sedí
+   proto na obou stranách zvlášť, a protože mají `overflow: hidden`, ořízne
+   se jim obsah přesně po vnitřní hraně rámu. */
+.venue-flip-front, .venue-flip-back {
+  border: 12px solid #fff;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(53, 96, 127, .12);
+}
+.venue-map { border-radius: 3px; }
+
+/* Bod na mapě do modré, ať drží s celou sekcí. Původní růžová zbyla z doby,
+   kdy byla sekce růžová. */
+.venue-pin-dot {
+  background: radial-gradient(circle at 35% 30%, #6d9ec4, #35607f 70%);
+  box-shadow: 0 2px 6px rgba(23, 51, 74, .45), 0 0 0 1px rgba(53, 96, 127, .55);
+}
+.venue-pin-ring { border-color: rgba(53, 96, 127, .55); }
+
+/* ---------- ubytování: modré akcenty na bílém pruhu ----------
+   Pruh zůstává bílý s černým textem, ale co má nést barvu — cena, čísla
+   kapacity, ukazatel a tlačítko — jde do modré podle sekce kolem. Uvnitř pruhu
+   je --palette-rose-text přepsaná na inkoust, takže samo od sebe by nic
+   nezmodralo. */
+.location .ubytovani {
+  --modra-akcent: #35607f;
+  --modra-akcent-syta: #22415a;
+}
+.location .ubytovani .lead strong { color: var(--modra-akcent); }
+.location .kapacita-cisla b { color: var(--modra-akcent); }
+.location .kapacita-cisla b span,
+.location .kapacita-popis { color: color-mix(in srgb, var(--modra-akcent) 78%, transparent); }
+.location .kapacita-bar { background: color-mix(in srgb, var(--modra-akcent) 16%, transparent); }
+.location .kapacita-fill { background: var(--modra-akcent); }
+.location .ubytovani .btn { border-color: var(--modra-akcent); color: var(--modra-akcent); }
+.location .ubytovani .btn:hover:not(:disabled) {
+  background: var(--modra-akcent-syta); border-color: var(--modra-akcent-syta); color: #fff;
+}
+.location .ubytovani .btn:disabled:hover { background: none; color: var(--modra-akcent); }
+.location .ubytovani-form input:focus { border-bottom-color: var(--modra-akcent); }
+
+/* Nadpis jen pro odečítače: z pohledu zmizí, ze struktury stránky ne. */
+.jen-pro-odecitace {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- zavřené desky menu ----------
+   Obálka má kompozici shora dolů: drobný ornament, název, monogram a datum.
+   Pod samotným názvem zůstávala půlka desky prázdná a deska vypadala jako
+   nedotisknutá. */
+.menu-obalka-obsah {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8%; width: 100%;
+}
+/* Obsah obálky svisle na střed. Odsazení shora z .menu-obalka-lic tu končí —
+   nadpis nalepený u horní hrany nechával spodní dvě třetiny desky prázdné. */
+.menu-obalka-lic { padding-top: 6%; justify-content: center; }
+
+/* Deska je fotka zavřeného menu s odmaskovaným potiskem a přebarvená do baby
+   blue (scripts/menu-deska.mjs). Gradient pod ní zůstává jako záloha, kdyby se
+   obrázek nenačetl — deska bez podkladu by byla průhledná díra. */
+.menu-deska {
+  background-image: url("/menu/deska.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Ornament: krátká linka s kosočtvercem uprostřed, stejný jako mezi chody. */
+.menu-ornament {
+  position: relative; display: block;
+  width: 34%; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(150, 112, 40, .55), transparent);
+}
+.menu-ornament::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  background: rgba(150, 112, 40, .6); rotate: 45deg;
+}
+
+/* Zlato sytější a s přechodem: plochá světlá zlatá na modré skoro zmizí,
+   tohle vypadá jako ražba fólií. Podklad se ořízne na text, takže pod ním
+   musí být barva průhledná. */
+.menu-nazev {
+  background: linear-gradient(160deg, #d9ad4b 0%, #b8892e 38%, #8a6318 62%, #d8ab4e 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  /* Text je průhledný, takže text-shadow z dřívějška by ho obkreslil jako
+     siluetu — ražbu dělá filter níž. */
+  text-shadow: none;
+  /* Ražba: světlá hrana zdola, tmavý stín shora. Stín musí být na prvku, ne
+     na textu — text sám je průhledný a text-shadow by ho obkreslil. */
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, .5))
+    drop-shadow(0 -1px 1px rgba(78, 55, 6, .45));
+}
+.menu-monogram {
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.95rem, 2.1vw, 1.35rem); letter-spacing: .34em;
+  color: #9b7326;
+}
+.menu-datum {
+  font-size: clamp(.55rem, 1.15vw, .72rem); letter-spacing: .38em;
+  color: color-mix(in srgb, #7d5c1c 72%, transparent);
+}
+
+/* Hřbet: tmavší proužek u levé hrany a zaoblení i vlevo, aby to byla kniha,
+   ne karta. */
+.menu-obalka-lic::after {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7%;
+  border-radius: 9px 0 0 9px;
+  background: linear-gradient(to right, rgba(20, 45, 75, .22), rgba(20, 45, 75, .05) 60%, transparent);
+  border-right: 1px solid rgba(255, 255, 255, .35);
+  pointer-events: none;
+}
+.menu-obalka-lic { border-radius: 9px 5px 5px 9px; }
+
+/* Měkčí stín s modrým nádechem místo šedého. */
+.menu-deska { box-shadow: 0 26px 60px rgba(53, 96, 127, .22), 0 6px 18px rgba(53, 96, 127, .12); }
+
+/* Kniha se při najetí pootevře — bez textu na desce je to jediný náznak,
+   že se s ní dá něco dělat. */
+.menu-kniha:not(.je-otevrene) .menu-obalka:hover { transform: rotateY(-9deg); }
+
+.menu-napoveda {
+  margin: 1.6rem auto 0; text-align: center;
+  font-size: .62rem; letter-spacing: .3em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--list-modra, #35607f) 62%, transparent);
 }
