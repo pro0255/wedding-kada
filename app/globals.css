@@ -1988,11 +1988,12 @@ body,
   /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
      někdo pohnul rukou */
   transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
-  /* Záporný úhel = proti směru hodin, tedy levý horní roh nahoru. */
-  transform: rotate(-7deg);
+  /* Kladný úhel = po směru hodin, a tím jde nahoru LEVÝ horní roh: otáčí se
+     kolem středu, takže pravá strana klesá a levá stoupá. */
+  transform: rotate(7deg);
 }
 /* Otevřená obálka odstoupí doprava; fotky jdou zrcadlově doleva (viz scéna). */
-.obalka.je-otevrena { transform: rotate(-2.4deg) translate(var(--rozestup), -1rem); }
+.obalka.je-otevrena { transform: rotate(2.4deg) translate(var(--rozestup), -1rem); }
 
 /* --- papír --- */
 .obalka-vysuv {
@@ -2161,11 +2162,11 @@ body,
   .obalka {
     width: min(100%, 440px);
     margin-left: auto; margin-right: auto;
-    transform: rotate(-5deg);
+    transform: rotate(5deg);
   }
   .obalka-papir { }
   /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
-  .obalka.je-otevrena { transform: rotate(-1.8deg) translateY(-.3rem); }
+  .obalka.je-otevrena { transform: rotate(1.8deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }
 
@@ -2200,3 +2201,159 @@ body,
    CSS do něj nesahá, takže baby blue je přepsaná přímo v tom souboru. Tahle
    proměnná barví linky na stránkách her. */
 :root { --menu-ramecek: var(--baby-blue-linka); }
+
+/* ---------- program dne jako časová osa ----------
+   Ikonka, pilulka s časem na lince a popis pod ní — jeden sloupec na bod.
+   Sekce má baby blue podklad a modrou typografii; barvy textu se nepřepisují
+   po prvcích, ale přes proměnné, které si nadpis i popisky samy berou.
+
+   Přes celou šířku okna, stejně jako odpočet a fotky od vás — osa se sedmi
+   body by se do sloupce uprostřed nevešla. */
+.obsah-ramec > .schedule {
+  width: 100%;
+  background: var(--baby-blue);
+  /* Barva se musí nastavit i přímo, nejen přes --ink: text uvnitř ji dědí po
+     body, kde se var(--ink) vyhodnotilo dřív, a přepsat proměnnou tady už mu
+     nic nezmění. */
+  color: var(--osa-modra);
+
+  --osa-modra: #35607f;
+  --osa-linka: #a7c3da;
+  --ink: var(--osa-modra);
+  --ink-soft: #5c82a0;
+  --accent: var(--osa-modra);
+  --palette-rose-text: var(--osa-modra);
+  --palette-blue-text: var(--osa-modra);
+  --palette-blush-text: var(--osa-modra);
+  --palette-wine: var(--osa-modra);
+}
+
+.osa {
+  --osa-mezera: .55rem;
+  list-style: none; padding: 0;
+  margin: 3.6rem auto 0; max-width: 1320px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+}
+.osa-bod {
+  display: grid; grid-auto-rows: auto;
+  /* align-content: start je nutné: mřížka roztahuje body na výšku nejvyššího
+     z nich a bez tohohle by se přebytek rozdělil mezi řádky — každá pilulka
+     s časem by pak seděla o kus jinde a osa by se rozjela. */
+  align-content: start;
+  justify-items: center; text-align: center;
+  padding: 0 var(--osa-mezera);
+}
+
+/* Pevná výška řádku s ikonkou: kresby mají různý poměr stran a bez ní by
+   každá pilulka s časem seděla jinak vysoko. Ikonka stojí na spodní hraně. */
+.osa-ikona {
+  height: 104px; margin-bottom: 1.2rem;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.osa-ikona img { max-height: 100%; max-width: 100%; width: auto; display: block; }
+
+/* Linka vede skrz pilulky. Každý bod kreslí svůj úsek přes celou svou šířku,
+   sousední se potkají a dohromady je z nich jedna čára — u krajních bodů se
+   úsek zkrátí do poloviny, aby osa nezačínala v prázdnu. */
+.osa-cas { position: relative; display: block; width: 100%; }
+.osa-cas::before {
+  /* Přes odsazení bodu ven, jinak by mezi úseky zůstala mezera široká přesně
+     dvakrát to odsazení a z osy by byla čárkovaná čára. */
+  content: ""; position: absolute; top: 50%;
+  left: calc(-1 * var(--osa-mezera)); right: calc(-1 * var(--osa-mezera));
+  border-top: 1px solid var(--osa-linka);
+}
+.osa-bod:first-child .osa-cas::before { left: 50%; }
+.osa-bod:last-child .osa-cas::before { right: 50%; }
+.osa-cas b {
+  /* position: relative stačí — pilulka se kreslí po ::before, takže linku
+     překryje i bez z-indexu. */
+  position: relative; display: inline-block;
+  padding: .32rem .8rem;
+  background: var(--baby-blue);
+  border: 1px solid var(--osa-linka); border-radius: 999px;
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: .8rem; letter-spacing: .08em; white-space: nowrap;
+}
+
+.osa-nazev {
+  display: block; margin-top: 1.1rem;
+  font-family: var(--serif), Georgia, serif;
+  font-size: 1.02rem; letter-spacing: .08em; text-transform: uppercase;
+  line-height: 1.35;
+}
+.osa-misto, .osa-popis { display: block; color: var(--ink-soft); line-height: 1.55; }
+.osa-misto { margin-top: .45rem; font-size: .76rem; font-style: italic; }
+.osa-popis { margin-top: .5rem; font-size: .8rem; }
+
+/* Pod 900 px se osa postaví na výšku: sedm sloupců vedle sebe už je užších než
+   slovo „odpoledne“. Ikonka jde doleva, text doprava, linka spojuje ikonky. */
+@media (max-width: 900px) {
+  .osa { grid-auto-flow: row; grid-auto-columns: auto; max-width: 480px; }
+  .osa-bod {
+    grid-template-columns: 88px 1fr; grid-template-rows: auto auto auto auto;
+    justify-items: start; text-align: left;
+    padding: 0 0 2.4rem; position: relative;
+  }
+  .osa-ikona {
+    grid-column: 1; grid-row: 1 / -1;
+    height: 72px; margin: 0; align-items: flex-start;
+  }
+  .osa-cas, .osa-nazev, .osa-misto, .osa-popis { grid-column: 2; }
+  .osa-cas { width: auto; }
+  .osa-cas::before { display: none; }
+  .osa-nazev { margin-top: .55rem; font-size: .95rem; }
+  /* Svislá linka mezi ikonkami — vede od spodku ikonky k dalšímu bodu. */
+  .osa-bod::before {
+    content: ""; position: absolute; left: 43px; top: 80px; bottom: .6rem;
+    border-left: 1px solid var(--osa-linka);
+  }
+  .osa-bod:last-child::before { display: none; }
+}
+
+/* ---------- místo konání v modré ----------
+   Stejný recept jako u programu: baby blue plocha přes celou šířku a modrá
+   typografie přes proměnné.
+
+   Ubytování zůstává bílé, a to celým pruhem přes okno. Je to jediné místo na
+   webu, kde host něco vyplňuje, a formulář na barevné ploše se čte hůř než na
+   papíře. */
+.obsah-ramec > .location {
+  width: 100%;
+  background: var(--baby-blue);
+  color: var(--osa-modra);
+
+  --osa-modra: #35607f;
+  --ink: var(--osa-modra);
+  --ink-soft: #5c82a0;
+  --accent: var(--osa-modra);
+  --palette-rose-text: var(--osa-modra);
+  --palette-blue-text: var(--osa-modra);
+  --palette-blush-text: var(--osa-modra);
+  --ruzova-syta: #22415a;
+  --menu-ramecek: #a7c3da;
+}
+
+.location .ubytovani {
+  /* Vylomení z .wrap na celou šířku okna: blok se roztáhne na 100vw a posune
+     o půlku sám sobě doleva. Vodorovné odsazení pak vrátí obsah doprostřed na
+     původní šířku — proto je spočítané, ne pevné. Co z těch 100vw přeteče
+     o šířku posuvníku, ořízne .obsah-ramec. */
+  width: 100vw; max-width: none;
+  margin: 4.4rem 0 0 50%;
+  transform: translateX(-50%);
+  padding: 3.4rem max(1.2rem, calc((100vw - 640px) / 2)) 3rem;
+  background: #fff;
+  color: #2b2925;
+
+  /* Uvnitř pruhu platí zas obyčejné barvy webu. */
+  --ink: #2b2925;
+  --ink-soft: #635d55;
+  --palette-rose-text: var(--ink);
+  --palette-blue-text: var(--ink);
+  --ruzova-syta: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .location .ubytovani { margin-top: 3rem; padding-top: 2.8rem; padding-bottom: 2.2rem; }
+}

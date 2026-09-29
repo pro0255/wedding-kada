@@ -415,6 +415,49 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
+/* Program dne jako časová osa. `ikona` je název souboru v public/program,
+   který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
+   dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
+   něm prázdné místo, ne rozbitá ikona. */
+const PROGRAM = [
+  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U ženicha a nevěsty",
+    popis: "Poslední klidné sousto předtím, než to celé začne." },
+  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U zvoničky v Rekovicích",
+    popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
+  { cas: "13:30", nazev: "Přípitek a svatební oběd", ikona: "obed",
+    popis: "Na zdraví, na lásku a na pořádný hlad." },
+  { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
+    popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
+  { cas: "16:30", nazev: "První tanec", ikona: "tanec",
+    popis: "Jeden tanec a žádné záruky elegance." },
+  { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
+    popis: "Dobré jídlo, sklenka v ruce a čas užít si den naplno." },
+  { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
+    popis: "Boty dolů, hudbu nahoru." },
+];
+
+function CasovaOsa() {
+  return (
+    <ol className="osa">
+      {PROGRAM.map((b) => (
+        <li key={b.nazev} className="osa-bod">
+          <span className="osa-ikona">
+            <img
+              src={`/program/${b.ikona}.webp`}
+              alt=""
+              aria-hidden="true"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          </span>
+          <span className="osa-cas"><b>{b.cas}</b></span>
+          <span className="osa-nazev">{b.nazev}</span>
+          {b.misto && <span className="osa-misto">{b.misto}</span>}
+          <span className="osa-popis">{b.popis}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
 /* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
    listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
 type StavObalky = "zavreno" | "dopis" | "oznameni";
@@ -648,42 +691,8 @@ export default function Home() {
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
         </Reveal>
-        <Reveal className="events">
-          <div className="event">
-            <h3>Snídaně</h3>
-            <div className="meta">9:00 · U ženicha a nevěsty</div>
-            <p>Poslední klidné sousto předtím, než to celé začne.</p>
-          </div>
-          <div className="event">
-            <h3>Obřad</h3>
-            <div className="meta">12:00 · U zvoničky v Rekovicích</div>
-            <p>Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce.</p>
-          </div>
-          <div className="event">
-            <h3>Přípitek &amp; svatební oběd</h3>
-            <div className="meta">13:30</div>
-            <p>Na zdraví, na lásku a na pořádný hlad.</p>
-          </div>
-          <div className="event">
-            <h3>Krájení dortu</h3>
-            <div className="meta">15:30</div>
-            <p>První společný řez. Nůž držíme oba, vinu neseme napůl.</p>
-          </div>
-          <div className="event">
-            <h3>První tanec</h3>
-            <div className="meta">16:30</div>
-            <p>Jeden tanec a žádné záruky elegance.</p>
-          </div>
-          <div className="event">
-            <h3>Svatební odpoledne</h3>
-            <div className="meta">Odpoledne</div>
-            <p>Dobré jídlo, sklenka v ruce a čas užít si den naplno.</p>
-          </div>
-          <div className="event">
-            <h3>Večerní párty</h3>
-            <div className="meta">Od 19:00</div>
-            <p>Boty dolů, hudbu nahoru.</p>
-          </div>
+        <Reveal>
+          <CasovaOsa />
         </Reveal>
       </section>
 
