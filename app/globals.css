@@ -2184,15 +2184,38 @@ body,
      aby byl rámeček menu vidět. */
   --baby-blue-linka: #b5cee4;
 }
-/* Přes celou šířku okna: ostatní sekce mají `width: min(1600px, 100% - 3rem)`,
-   takže by barva skončila kus od kraje a vypadala jako pruh. Obsah uvnitř drží
-   šířku sám přes .wrap. Selektor musí být stejně specifický jako
-   `.obsah-ramec > section`, jinak by šířku nepřebil. */
+/* Modré sekce: baby blue přes celou šířku okna a modrá typografie.
+   Přes celou šířku proto, že ostatní sekce mají `width: min(1600px, 100% - 3rem)`
+   a barva by skončila kus od kraje jako pruh; obsah uvnitř drží šířku sám přes
+   .wrap. Selektor musí být stejně specifický jako `.obsah-ramec > section`,
+   jinak by šířku nepřebil.
+
+   Barva textu se nastavuje i přímo, nejen přes --ink: text ji dědí po body, kde
+   se var(--ink) vyhodnotilo dřív, a přepsat proměnnou níž už mu nic nezmění. */
 .obsah-ramec > .countdown,
-.obsah-ramec > .fotky-odkaz {
+.obsah-ramec > .fotky-odkaz,
+.obsah-ramec > .schedule,
+.obsah-ramec > .location {
   width: 100%;
   background: var(--baby-blue);
+  color: var(--osa-modra);
+
+  --osa-modra: #35607f;
+  --osa-linka: #a7c3da;
+  --ink: var(--osa-modra);
+  --ink-soft: #5c82a0;
+  --accent: var(--osa-modra);
+  --palette-rose-text: var(--osa-modra);
+  --palette-blue-text: var(--osa-modra);
+  --palette-blush-text: var(--osa-modra);
+  --palette-wine: var(--osa-modra);
+  --ruzova-syta: #22415a;
+  --menu-ramecek: var(--osa-linka);
 }
+
+/* Vlásečnice v odpočtu jsou natvrdo černé — na modré by zmizely. */
+.countdown .count { border-bottom-color: var(--osa-linka); }
+.countdown .count div + div::before { border-left-color: var(--osa-linka); }
 
 /* Scéna příběhu bere celou šířku okna — hromádka s obálkou je největší věc na
    stránce a ve sloupci uprostřed by se dusila. */
@@ -2209,25 +2232,6 @@ body,
 
    Přes celou šířku okna, stejně jako odpočet a fotky od vás — osa se sedmi
    body by se do sloupce uprostřed nevešla. */
-.obsah-ramec > .schedule {
-  width: 100%;
-  background: var(--baby-blue);
-  /* Barva se musí nastavit i přímo, nejen přes --ink: text uvnitř ji dědí po
-     body, kde se var(--ink) vyhodnotilo dřív, a přepsat proměnnou tady už mu
-     nic nezmění. */
-  color: var(--osa-modra);
-
-  --osa-modra: #35607f;
-  --osa-linka: #a7c3da;
-  --ink: var(--osa-modra);
-  --ink-soft: #5c82a0;
-  --accent: var(--osa-modra);
-  --palette-rose-text: var(--osa-modra);
-  --palette-blue-text: var(--osa-modra);
-  --palette-blush-text: var(--osa-modra);
-  --palette-wine: var(--osa-modra);
-}
-
 .osa {
   --osa-mezera: .8rem;
   list-style: none; padding: 0;
@@ -2318,22 +2322,6 @@ body,
    Ubytování zůstává bílé, a to celým pruhem přes okno. Je to jediné místo na
    webu, kde host něco vyplňuje, a formulář na barevné ploše se čte hůř než na
    papíře. */
-.obsah-ramec > .location {
-  width: 100%;
-  background: var(--baby-blue);
-  color: var(--osa-modra);
-
-  --osa-modra: #35607f;
-  --ink: var(--osa-modra);
-  --ink-soft: #5c82a0;
-  --accent: var(--osa-modra);
-  --palette-rose-text: var(--osa-modra);
-  --palette-blue-text: var(--osa-modra);
-  --palette-blush-text: var(--osa-modra);
-  --ruzova-syta: #22415a;
-  --menu-ramecek: #a7c3da;
-}
-
 .location .ubytovani {
   /* Vylomení z .wrap na celou šířku okna: blok se roztáhne na 100vw a posune
      o půlku sám sobě doleva. Vodorovné odsazení pak vrátí obsah doprostřed na
