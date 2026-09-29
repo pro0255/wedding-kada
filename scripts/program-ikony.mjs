@@ -18,13 +18,15 @@
  * viz VYREZY níž. Oblast se zadává hrubě, přesný ořez si skript dotáhne sám
  * podle inkoustu; musí ale sedět tak, aby do ní nezasahovala sousední ikona.
  *
- * Výřezy z archu mají oproti samostatným kresbám hrubší linku: na archu je
- * ikonka široká kolem sto padesáti pixelů, kdežto samostatná kresba skoro
- * tisíc, takže se zmenšuje na třetinu a tah se jí ztenčí sám. Aby v jedné řadě
- * seděly, umí skript tah ztenčit — `ztenceni` je úbytek v pixelech zdroje na
- * každé straně tahu. Dělá se to erozí na čtyřikrát zvětšené předloze, ne
- * zvýšením prahu: práh by z lehkých tahů ukousl víc než z tmavých a kresba by
- * se rozpadla. */
+ * Každá předloha má jinak silný tah: výřez z archu je široký kolem dvou set
+ * pixelů, samostatná kresba skoro tisíc, a po zmenšení na společnou šířku
+ * z toho vyjde jednou tlustá a jednou vlásková linka. Skript proto tah
+ * dorovnává — `ztenceni` je změna v pixelech VÝSTUPU na každé straně tahu,
+ * kladná ubírá, záporná přidává.
+ *
+ * Aby to šlo dávkovat po zlomku pixelu, klíčuje se na několikanásobku
+ * výstupní šířky a teprve hotová silueta se zmenší. Prahem se to dělat nedá:
+ * ten by z lehkých tahů ukousl víc než z tmavých a kresba by se rozpadla. */
 
 import sharp from "sharp";
 import { readdir } from "node:fs/promises";
@@ -42,17 +44,25 @@ const VYREZY = [
   { zdroj: "prstynky a disko.jpg", klic: "dort",
     oblast: { left: 838, top: 610, width: 190, height: 172 } },
   { zdroj: "prstynky a disko.jpg", klic: "odpoledne",
-    oblast: { left: 440, top: 168, width: 215, height: 140 } },
+    oblast: { left: 440, top: 168, width: 180, height: 140 } },
   { zdroj: "prstynky a disko.jpg", klic: "party",
     oblast: { left: 615, top: 764, width: 127, height: 144 } },
   { zdroj: "prstynky a disko.jpg", klic: "tanec",
-    oblast: { left: 850, top: 40, width: 200, height: 180 } },
+    oblast: { left: 850, top: 40, width: 200, height: 158 } },
 ];
 
 /* Výchozí hodnoty pro výřezy z archů: textura papíru potřebuje vyšší práh
  * a tah se musí ztenčit, ať sedí k samostatným kresbám. */
 const ARCH_PAPIR = 40;
-const ARCH_ZTENCENI = 0.5;
+const ARCH_ZTENCENI = 0.4;
+
+/* Samostatné kresby se naopak zmenšují tolik, že jim tah zeslábne — tady se
+ * o kus přidá. Klíč je název souboru bez pořadí. */
+const ZTENCENI_KRESEB = { snidane: -0.4 };
+
+/* Na kolikanásobku výstupní šířky se pracuje. Určuje, po jak jemných krocích
+ * se dá tah měnit: čtyřnásobek znamená čtvrtiny pixelu výstupu. */
+const ZVETSENI = 4;
 
 /* Modrá linek. Stejný tón jako písmo v sekci programu — ikonky a text mají
  * působit jako jedna kresba. */
@@ -138,6 +148,41 @@ function ztencit(alfa, W, H, r) {
   return ven;
 }
 
+/** Načte kresbu (případně výřez z archu) v pracovním rozlišení. */
+async function nacti(soubor, oblast) {
+  let obraz = sharp(`${SLOZKA}/${soubor}`);
+  if (oblast) obraz = obraz.extract(oblast);
+  const { data, info } = await obraz
+    .resize({ width: SIRKA * ZVETSENI, kernel: "lanczos3" })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  return { data, W: info.width, H: info.height };
+}
+
+/** Opak ztenčení: maximum z okolí tah rozšíří. Krytí jádra tím neutrpí, jen
+ *  se přidá na okrajích, takže se dilatovat smí přímo alfa. */
+function ztloustit(alfa, W, H, r) {
+  if (r < 1) return alfa;
+  const max1D = (zdroj, cil, delka, pocet, krok) => {
+    for (let i = 0; i < pocet; i++) {
+      for (let j = 0; j < delka; j++) {
+        let m = 0;
+        for (let d = -r; d <= r; d++) {
+          const k = j + d;
+          if (k >= 0 && k < delka) m = Math.max(m, zdroj[i * krok.i + k * krok.j]);
+        }
+        cil[i * krok.i + j * krok.j] = m;
+      }
+    }
+  };
+  const mez = new Float32Array(W * H);
+  max1D(alfa, mez, W, H, { i: W, j: 1 });
+  const ven = new Float32Array(W * H);
+  max1D(mez, ven, H, W, { i: 1, j: W });
+  return ven;
+}
+
 /** Z dat RGBA udělá modrou siluetu oříznutou na inkoust. */
 async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   const alfa = new Float32Array(W * H);
@@ -156,7 +201,10 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   }
   if (maxX < minX) return null;
 
-  const zeslabena = ztencit(alfa, W, H, Math.round(ztenceni));
+  const r = Math.round(Math.abs(ztenceni) * ZVETSENI);
+  const zeslabena = ztenceni >= 0
+    ? ztencit(alfa, W, H, r)
+    : ztloustit(alfa, W, H, r);
   const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
   const ven = Buffer.alloc(sirka * vyska * 4);
   for (let y = 0; y < vyska; y++) {
@@ -175,18 +223,9 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
 }
 
 /* --- ikonky vyřezané z archů --- */
-/* Čtyřnásobné zvětšení před klíčováním: eroze se tím dá dávkovat po čtvrtině
- * pixelu zdroje a okraje zůstanou měkké. Zmenšení zpátky řeší až výstup. */
-const ZVETSENI = 4;
 for (const v of VYREZY) {
-  const { data, info } = await sharp(`${SLOZKA}/${v.zdroj}`)
-    .extract(v.oblast)
-    .resize({ width: v.oblast.width * ZVETSENI, kernel: "lanczos3" })
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const r = await ikonka(data, info.width, info.height, v.klic,
-    v.papir ?? ARCH_PAPIR, (v.ztenceni ?? ARCH_ZTENCENI) * ZVETSENI);
+  const { data, W, H } = await nacti(v.zdroj, v.oblast);
+  const r = await ikonka(data, W, H, v.klic, v.papir ?? ARCH_PAPIR, v.ztenceni ?? ARCH_ZTENCENI);
   if (!r) { console.log(`${v.klic}: v zadané oblasti není žádná kresba`); continue; }
   console.log(`${v.klic} (výřez z ${v.zdroj})  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`);
 }
@@ -199,44 +238,8 @@ if (!soubory.length) {
 
 for (const soubor of soubory.sort()) {
   const { poradi, klic } = rozeber(soubor);
-  const { data, info } = await sharp(`${SLOZKA}/${soubor}`)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const W = info.width, H = info.height;
-
-  const alfa = new Float32Array(W * H);
-  let minX = W, maxX = 0, minY = H, maxY = 0;
-  for (let p = 0; p < W * H; p++) {
-    /* Tmavost, ne jas: kresba je tmavá na světlém. */
-    const jas = (data[p * 4] + data[p * 4 + 1] + data[p * 4 + 2]) / 3;
-    const a = prah(255 - jas, PAPIR, LINKA);
-    alfa[p] = a;
-    if (a > 0.35) {
-      const x = p % W, y = (p / W) | 0;
-      if (x < minX) minX = x;
-      if (x > maxX) maxX = x;
-      if (y < minY) minY = y;
-      if (y > maxY) maxY = y;
-    }
-  }
-  if (maxX < minX) { console.log(`${soubor}: nenašel jsem žádnou kresbu, přeskakuji`); continue; }
-
-  const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
-  const ven = Buffer.alloc(sirka * vyska * 4);
-  for (let y = 0; y < vyska; y++) {
-    for (let x = 0; x < sirka; x++) {
-      const q = (y * sirka + x) * 4;
-      ven[q] = MODRA[0]; ven[q + 1] = MODRA[1]; ven[q + 2] = MODRA[2];
-      ven[q + 3] = Math.round(255 * alfa[(y + minY) * W + (x + minX)]);
-    }
-  }
-
-  const cil = `${SLOZKA}/${klic}.webp`;
-  const vysledek = await sharp(ven, { raw: { width: sirka, height: vyska, channels: 4 } })
-    .resize({ width: Math.min(sirka, SIRKA) })
-    .webp({ quality: 92, alphaQuality: 100 })
-    .toFile(cil);
-
-  console.log(`${poradi}. ${klic}  ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`);
+  const { data, W, H } = await nacti(soubor);
+  const r = await ikonka(data, W, H, klic, PAPIR, ZTENCENI_KRESEB[klic] ?? 0);
+  if (!r) { console.log(`${soubor}: nenašel jsem žádnou kresbu, přeskakuji`); continue; }
+  console.log(`${poradi}. ${klic}  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`);
 }
