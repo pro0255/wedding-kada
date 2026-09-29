@@ -219,7 +219,7 @@ async function syrove(soubor) {
  * Ořez je na nejmenší obdélník kolem pečeti. Bez něj by kolem ní zůstal bílý
  * rám a v CSS by se musel dopočítávat — takhle se dá obrázek posadit rovnou. */
 {
-  const ZDROJ = "public/vosk na obalku.jpg";
+  const ZDROJ = "public/obalka/vosk na obalku.jpg";
   const { data, w, h } = await syrove(ZDROJ);
   let minX = w, maxX = 0, minY = h, maxY = 0;
 

@@ -1255,12 +1255,21 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   border: 36px solid transparent;
   border-image: url("/ramecek.svg") 40 round;
   /* horní odsazení musí být větší než přesah mašle, jinak srdíčka lezou do nadpisu */
-  padding: 4.6rem 1.6rem 1.4rem;
+  padding: 4.6rem 1.6rem 16rem;
 }
 .menu-masle {
   position: absolute; left: 50%; top: -50px; transform: translateX(-50%);
   width: 150px; height: 104px; pointer-events: none;
   background: url("/masle.svg") no-repeat center / contain;
+}
+/* Prostřený stůl na spodní lince rámečku — protějšek mašle nahoře. Kresba je
+   z předlohy svatebního menu, přebarvená do baby blue rámečku
+   (scripts/menu-stul.mjs). Spodní odsazení karty je kvůli ní větší, jinak by
+   stůl ležel na posledním chodu. */
+.menu-stul {
+  position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%);
+  width: min(300px, 66%); aspect-ratio: 684 / 624; pointer-events: none;
+  background: url("/menu/stul.webp") no-repeat center bottom / contain;
 }
 .menu-karta .wrap { max-width: none; }
 .menu-karta > .events:first-of-type { margin-top: 2.4rem; }
@@ -1290,9 +1299,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (max-width: 560px) {
   .menu-karta {
     border-width: 20px; border-image-width: 20px;
-    padding: 3.4rem .6rem 1rem;
+    padding: 3.4rem .6rem 13rem;
   }
   .menu-masle { width: 116px; height: 80px; top: -38px; }
+  .menu-stul { width: min(240px, 78%); bottom: -24px; }
 }
 
 /* Patička. Dřív to byla jedna řádka písma o velikosti 11 px, kde měla jména,
@@ -2134,7 +2144,9 @@ body,
 .obalka-telo:hover .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
 
 .obalka-popisek {
-  position: absolute; left: 0; right: 0; bottom: -1.9rem;
+  /* Níž, než by se zdálo: obálka je natočená o 7°, takže jí spodní roh
+     zajíždí pod vlastní rámec a popisek by z poloviny schoval. */
+  position: absolute; left: 0; right: 0; bottom: -3.4rem;
   font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
   color: color-mix(in srgb, var(--ink) 55%, transparent);
 }

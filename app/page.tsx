@@ -731,6 +731,10 @@ export default function Home() {
               <h3>Smažený kuřecí řízek s bramborovým pyré</h3>
             </div>
           </div>
+
+          {/* Prostřený stůl sedí na spodní lince rámečku, stejně jako mašle
+              visí na horní. Kresbu vyřezává scripts/menu-stul.mjs. */}
+          <span className="menu-stul" aria-hidden="true" />
         </Reveal>
         {/* poznámka mimo rámeček — patří k menu, ale není to chod */}
         <Reveal className="menu-poznamka">
