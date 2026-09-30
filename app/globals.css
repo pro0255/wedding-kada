@@ -528,6 +528,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
+.countdown-vzkaz {
+  margin: 1.5rem auto 0; max-width: 34ch;
+  font-family: var(--serif), Georgia, serif; font-style: italic;
+  font-size: clamp(.95rem, 1.6vw, 1.15rem); line-height: 1.6;
+  color: var(--ink-soft);
+}
 .count div { position: relative; padding: 0 .3rem; }
 .count div + div::before {
   content: ""; position: absolute; left: 0; top: .45rem; bottom: 1.4rem;
@@ -1140,9 +1146,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    pozadí, ne border. */
 .auto-linka {
   position: relative;
-  /* Přesně tak široká jako karta s mapou nad ní (.venue-map-scene) — linka
-     kratší než mapa vypadala jako nedotažená, ne jako záměr. */
-  width: min(720px, 100%); height: 1px;
+  /* Přes celou šířku sekce: od levého okraje textu po pravý okraj mapy. Kratší
+     linka pod dvousloupcovým rozvržením visela někde uprostřed a nepatřila ani
+     k jednomu sloupci. */
+  width: 100%; height: 1px;
   margin: 2.9rem auto 0;
   background: var(--osa-linka, rgba(0, 0, 0, .14));
 }

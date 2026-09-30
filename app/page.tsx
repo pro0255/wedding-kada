@@ -288,6 +288,11 @@ function Odpocet() {
             <span>vteřin</span>
           </div>
         </div>
+        {/* Věta pod čísly. Samotný odpočet je jen údaj — tohle mu dá hlas
+            a zároveň zaplní pruh, ve kterém jinak stály čtyři číslice a nic. */}
+        <p className="countdown-vzkaz">
+          Ještě chvilku. Pak už jen tanec, jídlo a dobří lidé.
+        </p>
         {/* ať si datum nemusí nikdo přepisovat ručně */}
         <div className="akce-radek">
           <PridatDoKalendare />
