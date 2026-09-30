@@ -2170,6 +2170,37 @@ body,
 }
 .obalka-telo:hover .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
 
+/* ---------- šipka s popiskem u zavřené obálky ----------
+   Sedí vpravo od obálky a míří na pečeť. Rozměry jsou v dílech šířky obálky,
+   takže se s ní zmenšuje; vyčnívá ven ze scény, kde je na okraji věnce místo.
+
+   Popisek je psaný po oblouku přes textPath, ne obyčejným odstavcem pod
+   obrázkem — rovný řádek pod zahnutou šipkou vypadal, jako by k ní nepatřil. */
+.obalka-navod {
+  position: absolute; left: 100%; top: -2%;
+  width: 26%;
+  margin-left: -2%;
+  pointer-events: none;
+  display: flex; flex-direction: column; align-items: center;
+  /* Obálka je natočená o 7°, šipka se s ní natáčí taky — tenhle úhel ji vrátí
+     zpátky do svislice, aby mířila na pečeť a ne mimo. */
+  rotate: -7deg;
+  transition: opacity .5s ease;
+}
+.obalka.je-otevrena .obalka-navod { opacity: 0; }
+.obalka-navod-sipka { width: 100%; height: auto; display: block; }
+.obalka-navod-text {
+  width: 118%; height: auto; margin-top: -6%;
+  fill: #b09672;
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  font-size: 30px; letter-spacing: .04em;
+}
+
+@media (max-width: 760px) {
+  /* Na telefonu není vedle obálky kam šipku dát. */
+  .obalka-navod { display: none; }
+}
+
 .obalka-popisek {
   /* Níž, než by se zdálo: obálka je natočená o 7°, takže jí spodní roh
      zajíždí pod vlastní rámec a popisek by z poloviny schoval. */
