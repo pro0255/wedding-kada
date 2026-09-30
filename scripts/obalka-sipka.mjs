@@ -29,9 +29,9 @@ const TAH = 120;
 const SIRKA = 360;
 
 /* O kolik pixelů se tah roztáhne do všech stran. Předloha je kreslená tenkým
- * fixem a na stránce se zmenšuje, takže z ní zbývala vlásečnice — tohle jí dá
- * zhruba dvojnásobnou tloušťku. */
-const ZTLOUSTNUTI = 5;
+ * fixem a na stránce se zmenšuje, takže z ní zbývala vlásečnice. Dvojnásobek
+ * byl naopak moc — tohle tah jen přitáhne. */
+const ZTLOUSTNUTI = 2;
 
 const prah = (v, od, do_) => {
   const t = Math.min(1, Math.max(0, (v - od) / (do_ - od)));
