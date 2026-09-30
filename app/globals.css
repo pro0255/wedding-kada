@@ -2204,9 +2204,11 @@ body,
 
    Musí to stát za blokem, který sráží pozadí sekcí na bílou: pravidla mají
    stejnou specificitu, takže rozhoduje pořadí. */
-/* Úvodní obrazovka s prstenem stojí na béžové, ne na bílé: fotka zvoničky se
-   do pozadí dole rozplývá maskou, takže barva pod ní musí navazovat na sekci
-   s odpočtem — a ta je béžová. */
+/* Úvodní obrazovka s prstenem i hero pod ní stojí na béžové, ne na bílé:
+   prsten se na bílé ploše vznášel v prázdnu a fotka zvoničky se dole rozplývá
+   maskou, takže barva pod ní musí navazovat na sekci s odpočtem — a ta je
+   béžová. */
+.loader,
 .hero-full { background: var(--bezova); }
 
 :root {
@@ -2439,15 +2441,7 @@ body,
      dvojnásobek a papír by na ní byl znatelně menší. */
   padding: calc(var(--deska) * .06);
   border: 0; font: inherit; text-align: inherit;
-  /* Žebrovaný papír z předlohy (public/menu/textura.jpg) a přes něj vineta:
-     bez ní je plocha placatá, protože textura má všude stejný jas. Gradient je
-     průhledný, aby žebrování prosvítalo i v rozích. */
-  background:
-    radial-gradient(130% 95% at 50% 36%,
-      rgba(255, 253, 248, .55) 0%,
-      rgba(231, 223, 208, .12) 58%,
-      rgba(186, 170, 144, .5) 100%),
-    var(--deska-bezova) url("/menu/textura.webp") center / cover;
+  background: radial-gradient(130% 95% at 50% 36%, #f2ece0 0%, var(--deska-bezova) 58%, var(--deska-tmava) 100%);
   box-shadow: 0 22px 54px rgba(90, 70, 50, .3);
 }
 /* Vnější roh zaoblený, vnitřní u hřbetu ostrý — tak je vázaná kniha. */
@@ -2533,7 +2527,7 @@ body,
 /* Oddělené od dětských chodů: nalepené pod nimi to vypadalo jako jejich
    podnadpis, ne jako závěr celého menu. */
 .menu-preji {
-  margin-top: 13%; padding-top: 7%;
+  margin-top: 10%; padding-top: 6%;
   border-top: 1px solid color-mix(in srgb, var(--list-pismo) 22%, transparent);
 }
 
@@ -2592,52 +2586,54 @@ body,
   .menu-obalka { order: -1; }
 }
 
-/* ---------- vystřižené květiny kolem scény příběhu ----------
-   Vrstva je široká přesně jako skupina fotek s obálkou, ne jako celá sekce:
-   .story-grid se roztahuje přes okno a procenta v něm by květiny rozhodila po
-   celé šířce místo kolem kompozice.
+/* ---------- věnec kolem scény příběhu ----------
+   Dva obrázky přes sebe: co leží za fotkami s obálkou a co přes ně. Dělá je
+   scripts/kytky-venec.mjs z jedné předlohy, takže mají stejné plátno a stačí
+   jim tady stejná geometrie.
 
-   Leží pod fotkami (z-index 1) i obálkou (5), takže z nich vykukují po
-   stranách, jak mají. Nechytají myš — celá hromádka je jedno tlačítko. */
+   Věnec není kolem kompozice symetrický — vlevo přesahuje skoro o polovinu
+   skupiny, vpravo skoro vůbec, protože tam je obálka. Proto se neumisťuje na
+   střed, ale posune se o naměřený díl vlastní šířky a výšky. Procenta
+   v `translate` se počítají z velikosti samotného obrázku, takže posun drží
+   při každé šířce okna. */
 .kvetiny-scena {
-  position: absolute; top: 0; bottom: 0;
-  left: 50%; transform: translateX(-50%);
-  /* O polovinu širší než skupina fotek s obálkou: věnec kolem ní přesahuje
-     vlevo skoro o polovinu skupiny a vpravo jen o kousek, takže kdyby byla
-     vrstva široká jako skupina, visel by věnec doleva a na užším okně by se
-     ořízl. Takhle se středí věnec, ne fotky. */
-  width: calc((var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv)) * 1.5);
+  position: absolute; left: 50%; top: 50%;
+  /* Skupina zabírá 67 % šířky věnce a fotka 68 % jeho výšky — odměřeno
+     z předlohy, kde je kompozice do věnce vsazená. */
+  width: calc((var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv)) * 1.484);
+  height: auto;
+  translate: -62.1% -55.6%;
   z-index: 0; pointer-events: none;
 }
-/* Pár květin leží přes fotky i obálku, ne za nimi — bez toho vypadá věnec jako
-   pozadí, ne jako kytice, do které je kompozice položená. Musí to být druhá
-   vrstva se svým z-indexem: vrstva s věncem tvoří vlastní kontext vrstvení,
-   takže by se z-index jednotlivého obrázku k obálce vůbec nedostal. */
-/* Nad fotkami (1), ale pod obálkou (5): přes hromádku květiny ležet mají,
-   přes rozevřený papír s příběhem ne. */
-.kvetiny-scena-nad { z-index: 4; }
-.kvetina {
-  position: absolute; height: auto; display: block;
-  /* Jemný stín usadí květinu na stránku, ať nevypadá nalepená. */
-  filter: drop-shadow(0 8px 18px rgba(90, 70, 50, .16));
-}
+/* Nad vším, i nad obálkou: bílé krásenky mají ležet na ní, jak je to na
+   předloze.
 
-/* Věnec přesahuje skupinu asi o šestinu na každou stranu, takže sekce
-   potřebuje shora i zdola víc místa — jinak se květiny ořežou o hranu bílé
-   plochy a rozlezou se do modrých sekcí nad a pod. */
+   Jakmile ale host se scénou něco dělá — listuje fotkami nebo otevře obálku —
+   květiny couvnou úplně dozadu. Přes fotku, kterou si zrovna prohlíží, ani
+   přes papír s příběhem nemá co ležet. */
+.kvetiny-scena-nad { z-index: 6; }
+.story-grid:has(.foto-hromadka:hover) .kvetiny-scena-nad,
+.story-grid:has(.foto-hromadka:focus-within) .kvetiny-scena-nad,
+.story-grid:has(.obalka.je-otevrena) .kvetiny-scena-nad { z-index: 0; }
+
+/* Věnec přesahuje skupinu nahoru i dolů, takže sekce potřebuje víc místa —
+   jinak se květiny ořežou o hranu bílé plochy a rozlezou se do sousedních
+   sekcí. */
 .obsah-ramec > .story { padding-block: 12rem; }
 
-/* Zmenšovat celou vrstvu s věncem NEJDE, i když se to nabízí: `scale` stahuje
-   krajní květiny ke středu, takže ty levé zalezou za hromádku fotek a věnec se
-   celý nahrne k obálce vpravo. Věnec se musí zmenšovat tím, že se zmenší
-   samotná skupina — polohy květin jsou v procentech scény, takže si tvar
-   udrží sám. O velikost skupiny se stará --foto-sirka a spol. ve scéně. */
+/* Na telefonu stojí fotky a obálka pod sebou, takže věnec kolem obou by byl
+   vysoký přes celou obrazovku. Drží se proto jen horní části, kde je hromádka
+   fotek, a vykukuje za ní.
 
-/* Na telefonu zůstane jen pět kusů — třináct by na té šířce zakrylo fotky. */
+   Vrstva, co na šířku leží přes kompozici, se tu neukazuje vůbec: věnec je
+   proti fotce mnohem větší než na desktopu a její květy padly doprostřed
+   obličejů. */
 @media (max-width: 760px) {
-  .kvetiny-scena { width: 100%; scale: 1; }
-  .kvetina { display: none; }
-  .kvetina-maly { display: block; }
+  .kvetiny-scena {
+    width: 155%; top: 0;
+    translate: -54% -22%;
+  }
+  .kvetiny-scena-nad { display: none; }
   .obsah-ramec > .story { padding-block: 6rem; }
 }
 
@@ -2718,12 +2714,16 @@ body,
    nadpis nalepený u horní hrany nechával spodní dvě třetiny desky prázdné. */
 .menu-obalka-lic { padding-top: 6%; justify-content: center; }
 
-/* Desky jsou zatím bílé. Fotka zavřeného menu je vyčištěná a připravená
-   (public/menu/deska.webp, dělá ji scripts/menu-deska.mjs), ale po smazaném
-   potisku v ní zůstává slabý duch, takže na desky zatím nejde. */
+/* Desky mají žebrovaný papír z předlohy (public/menu/textura.jpg) a přes něj
+   vinetu — bez ní je plocha placatá, protože textura má všude stejný jas.
+   Gradient je průhledný, aby žebrování prosvítalo i v rozích. */
 .menu-deska {
-  background-image: none;
-  background-color: #f6f4f0;
+  background:
+    radial-gradient(130% 95% at 50% 36%,
+      rgba(255, 253, 248, .5) 0%,
+      rgba(231, 223, 208, .1) 58%,
+      rgba(186, 170, 144, .46) 100%),
+    #ece6da url("/menu/textura.webp") center / cover;
   box-shadow:
     0 26px 60px rgba(107, 83, 64, .18),
     0 6px 18px rgba(107, 83, 64, .1),
@@ -2829,9 +2829,12 @@ body,
 .menu-obalka-rub .menu-list { padding-top: 17%; }
 
 /* Kresba prostřeného stolu mezi přáním a poznámkou o stravování. */
+/* Kresba je poslední prvek na dětské straně a musí se vejít i s ní — proto je
+   menší, než by se hodilo: při 72 % přetékal obsah pod spodní hranu papíru
+   a kresba ležela na desce. */
 .menu-kresba {
-  display: block; width: 72%; height: auto;
-  margin: 7% auto 0;
+  display: block; width: 46%; height: auto;
+  margin: 4% auto 0;
   opacity: .9;
 }
 

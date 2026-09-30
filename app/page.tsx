@@ -414,78 +414,20 @@ function FotoHromadka() {
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
-/* Vystřižené květiny kolem hromádky fotek a obálky.
+/* Věnec kolem hromádky fotek a obálky.
 
-   Poloha je v procentech scény, ne v pixelech — scéna se s oknem zmenšuje
-   a květiny se musí zmenšit s ní, jinak by se při úzkém okně sesypaly na
-   sebe. `sirka` je díl šířky scény, zbytek dopočítá poměr stran obrázku.
+   Není skládaný z jednotlivých květin, ale ze dvou obrázků: předloha
+   (public/kytky ram.png) je hotová sestava a scripts/kytky-venec.mjs z ní dělá
+   vrstvu, co leží za kompozicí, a vrstvu, co přes ni. Obě mají stejné plátno,
+   takže stačí položit je na sebe se stejnou geometrií.
 
-   `maly` označuje ty, které zůstanou i na telefonu. Všech dvanáct by se na
-   šířku mobilu nevešlo, aniž by zakryly fotky. */
-const KVETINY: {
-  soubor: string; sirka: number; poloha: React.CSSProperties; uhel: number;
-  maly?: boolean;
-  /* `nad` položí květinu přes fotky i obálku, ne za ně. Na předloze jich pár
-     leží navrchu — bez toho vypadá věnec jako pozadí, ne jako kytice, do které
-     je kompozice položená. */
-  nad?: boolean;
-}[] = [
-  /* Věnec odměřený z předlohy. Procenta jsou vůči skupině fotek s obálkou:
-     nula vlevo nahoře na hromádce, sto procent na pravém kraji obálky a na
-     spodní hraně fotek. Záporné hodnoty jsou tedy kus za skupinou, což je
-     u věnce většina.
-
-     Květiny jsou schválně velké a překrývají se — na předloze drží pohromadě
-     jako kytice, ne jako rozsypané jednotlivosti. */
-
-  /* Vodorovné hodnoty jsou v procentech VRSTVY, která je o polovinu širší než
-     skupina fotek s obálkou — skupina v ní leží mezi 25 % a 75 %. Věnec totiž
-     přesahuje vlevo skoro o polovinu skupiny, ale vpravo jen o kousek (tam je
-     obálka), takže kdyby se procenta počítala od skupiny, visel by celý doleva
-     a na užším okně by se ořízl. Takhle se středí věnec, ne fotky.
-
-     Svislé hodnoty zůstávají v procentech výšky skupiny. */
-
-  /* Horní oblouk zleva: světle modrý květ, velká hortenzie a nad obálkou
-     karafiáty. Druhá, menší hortenzie vykukuje zpoza obálky. */
-  { soubor: "02_modry_kvet", sirka: 20.5, poloha: { left: "6%", top: "-23%" }, uhel: -6, maly: true },
-  { soubor: "06_hortenzie", sirka: 26, poloha: { left: "36%", top: "-34%" }, uhel: -3, maly: true },
-  { soubor: "06_hortenzie", sirka: 10.5, poloha: { left: "55%", top: "-6%" }, uhel: 14 },
-  { soubor: "13_karafiat", sirka: 15, poloha: { left: "62%", top: "-24%" }, uhel: 28, maly: true },
-  { soubor: "13_karafiat", sirka: 11, poloha: { left: "59.5%", top: "4%" }, uhel: -18 },
-  /* Levý bok shora dolů: dva karafiátové trsy a mezi nimi ibišek s bílou
-     sasankou. Trsy jsou schválně oddělené — jeden dlouhý splýval v pruh. */
-  { soubor: "13_karafiat", sirka: 13, poloha: { left: "-11%", top: "-20%" }, uhel: -18 },
-  { soubor: "01_kvetiny_bile-3", sirka: 14, poloha: { left: "2%", top: "9%" }, uhel: 4 },
-  { soubor: "13_karafiat", sirka: 13, poloha: { left: "-7%", top: "44%" }, uhel: 12 },
-  { soubor: "01_kvetiny_bile-2", sirka: 12, poloha: { left: "1%", top: "54%" }, uhel: -8 },
-  /* Spodní okraj a pravý bok. Tyhle tři leží přes kompozici, ne za ní. */
-  { soubor: "01_kvetiny_bile-1", sirka: 14, poloha: { left: "13%", top: "76%" }, uhel: 6, maly: true, nad: true },
-  { soubor: "01_kvetiny_bile-3", sirka: 13, poloha: { left: "40%", top: "84%" }, uhel: -9, nad: true },
-  { soubor: "08_krasenka", sirka: 27, poloha: { left: "60%", top: "44%" }, uhel: 4, maly: true, nad: true },
-];
-
-/* Dvě vrstvy se stejnou geometrií: jedna pod fotkami s obálkou, druhá nad
-   nimi. Jedna vrstva by nestačila — tvoří vlastní kontext vrstvení, takže
-   z-index jednotlivé květiny by se k obálce vůbec nedostal. */
+   Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext vrstvení —
+   z-index uvnitř jednoho obrázku by se k obálce nedostal. */
 function KvetinyScena() {
-  const vrstva = (nad: boolean) => (
-    <span className={"kvetiny-scena" + (nad ? " kvetiny-scena-nad" : "")} aria-hidden="true">
-      {KVETINY.filter((k) => Boolean(k.nad) === nad).map((k, i) => (
-        <img
-          key={i}
-          className={"kvetina" + (k.maly ? " kvetina-maly" : "")}
-          src={`/kytky/${k.soubor}.webp`}
-          alt=""
-          style={{ ...k.poloha, width: `${k.sirka}%`, rotate: `${k.uhel}deg` }}
-        />
-      ))}
-    </span>
-  );
   return (
     <>
-      {vrstva(false)}
-      {vrstva(true)}
+      <img className="kvetiny-scena" src="/kytky/venec-pod.webp" alt="" aria-hidden="true" />
+      <img className="kvetiny-scena kvetiny-scena-nad" src="/kytky/venec-nad.webp" alt="" aria-hidden="true" />
     </>
   );
 }
