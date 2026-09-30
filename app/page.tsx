@@ -637,22 +637,6 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
         {/* Popisek jen u otevřené obálky. Zavřené ukazuje cestu šipka. */}
         {otevrena && <span className="obalka-popisek">Zavřít</span>}
       </button>
-      {/* Šipka s popiskem vedle zavřené obálky. Text jde po oblouku, aby se
-          šipky držel — proto svg s textPath, ne obyčejný odstavec pod ní.
-          Jakmile se obálka otevře, obojí zmizí: host už ví, na co klepnout. */}
-      <span className="obalka-navod" aria-hidden="true">
-        <img className="obalka-navod-sipka" src="/obalka/sipka.webp" alt="" />
-        <svg className="obalka-navod-text" viewBox="0 0 200 96" focusable="false">
-          {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako v podpisu
-              pod kresbou a drží se zakřivení šipky nad sebou. */}
-          <path id="obalka-navod-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
-          <text>
-            <textPath href="#obalka-navod-drah" startOffset="50%" textAnchor="middle">
-              klikni
-            </textPath>
-          </text>
-        </svg>
-      </span>
     </div>
   );
 }
@@ -794,6 +778,23 @@ export default function Home() {
       <section className="story" id="story">
         <Reveal className="story-grid">
           <KvetinyScena />
+          {/* Šipka s popiskem ke zavřené obálce. Je to samostatná vrstva scény,
+              ne součást obálky: uvnitř ní by ji překryly květiny, které na
+              obálce leží, protože obálka má vlastní kontext vrstvení a její
+              potomci se nad ně nedostanou. */}
+          <span className="obalka-navod" aria-hidden="true">
+            <img className="obalka-navod-sipka" src="/obalka/sipka.webp" alt="" />
+            <svg className="obalka-navod-text" viewBox="0 0 200 96" focusable="false">
+              {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako podpis
+                  pod kresbou a drží se zakřivení šipky nad sebou. */}
+              <path id="obalka-navod-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
+              <text>
+                <textPath href="#obalka-navod-drah" startOffset="50%" textAnchor="middle">
+                  klikni
+                </textPath>
+              </text>
+            </svg>
+          </span>
           <div className="story-photo">
             <FotoHromadka />
           </div>

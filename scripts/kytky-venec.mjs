@@ -49,17 +49,19 @@ const NAVRCH = [
       { x: 0.152, y: 0.282, sirka: 0.162 }, // žlutý ibišek nahoře
     ],
   },
-];
-
-/* Tři krásenky vpravo dole se z výstřižku vzít nedají: v souboru se překrývají
- * jinak než ve věnci a odleptat je od sebe nejde, protože do sebe zasahují
- * skoro půlkou květu. Berou se proto přímo z věnce, kruhem kolem každé — okolo
- * nich je dost prázdna, aby kruh nesáhl na sousední karafiát. Střed a poloměr
- * jsou v dílech šířky věnce. */
-const VYREZY = [
-  { x: 0.898, y: 0.620, r: 0.078 },
-  { x: 0.836, y: 0.788, r: 0.083 },
-  { x: 0.726, y: 0.790, r: 0.076 },
+  {
+    soubor: `${SLOZKA}/08_krasenka.png`,
+    /* Krásenky do sebe zasahují skoro půlkou květu, takže odleptat je od sebe
+       nejde — rozpadly by se dřív, než se oddělí. Dělí se proto podle svých
+       žlutozelených středů: ty jsou tři, jasně od sebe a v okvětních lístcích
+       se taková barva nikde jinde nevyskytuje. */
+    stredy: (r, g, b) => g > 110 && g - b > 45 && r > 90 && b < 140,
+    kvety: [
+      { x: 0.845, y: 0.535, sirka: 0.112 }, // vpravo nahoře
+      { x: 0.772, y: 0.700, sirka: 0.124 }, // prostřední
+      { x: 0.662, y: 0.706, sirka: 0.120 }, // nejlevější
+    ],
+  },
 ];
 const CIL = "public/kytky";
 
@@ -161,7 +163,7 @@ const venecPlny = await orez(venec);
    tolik jader, kolik se čeká, a pak se jádra zase současně rozlévají zpátky do
    původního tvaru. Který pixel připadne kterému květu, tím rozhodne vzdálenost,
    ne pořadí — a hranice vede tudy, kudy se květy dotýkají. */
-function rozdel(o, pocet) {
+function rozdel(o, pocet, stredy) {
   const { W, H, alfa } = o;
   const je = new Uint8Array(W * H);
   for (let p = 0; p < W * H; p++) je[p] = alfa[p] > 0.5 ? 1 : 0;
@@ -194,10 +196,31 @@ function rozdel(o, pocet) {
     return { cislo, nalezene };
   };
 
+  const drobek = (W * H) / 1600;
+
+  /* Když má květ poznávací střed, jsou jádra rovnou ta — odleptávání se přeskočí.
+     Je to spolehlivější: květy, které se překrývají půlkou, se odleptají dřív,
+     než se od sebe oddělí, a rozpadnou se na nesmyslné kusy. */
+  if (stredy) {
+    const barevne = new Uint8Array(W * H);
+    for (let p = 0; p < W * H; p++) {
+      if (!je[p]) continue;
+      if (stredy(o.data[p * 4], o.data[p * 4 + 1], o.data[p * 4 + 2])) barevne[p] = 1;
+    }
+    const nalezene = ostrovy(barevne);
+    const velke = nalezene.nalezene
+      .filter((k) => k.velikost > (W * H) / 20000)
+      .sort((a, b) => b.velikost - a.velikost)
+      .slice(0, pocet);
+    if (velke.length < pocet) {
+      throw new Error(`středů květů jsem našel ${velke.length}, čekal jsem ${pocet}`);
+    }
+    return rozliv(o, je, nalezene.cislo, velke, W, H, alfa);
+  }
+
   /* odleptávání po jednom pixelu, dokud jader nepřibude na potřebný počet */
   let leptana = je;
   let jadra = ostrovy(leptana);
-  const drobek = (W * H) / 1600;
   for (let krok = 0; krok < Math.max(W, H) && jadra.nalezene.filter((o) => o.velikost > drobek).length < pocet; krok++) {
     const dalsi = new Uint8Array(W * H);
     for (let y = 0; y < H; y++) {
@@ -214,12 +237,18 @@ function rozdel(o, pocet) {
   const velka = jadra.nalezene.filter((o) => o.velikost > drobek).slice(0, pocet);
   if (velka.length < pocet) throw new Error(`v ${o.cesta} jsem nenašel ${pocet} květů`);
 
-  /* současné rozlévání jader zpátky do původního tvaru */
+  return rozliv(o, je, jadra.cislo, velka, W, H, alfa);
+}
+
+/* Současné rozlévání jader zpátky do původního tvaru. Který pixel připadne
+   kterému květu, rozhodne vzdálenost od jádra, ne pořadí — hranice tak vede
+   tudy, kudy se květy dotýkají. Vrací díly seřazené shora dolů. */
+function rozliv(o, je, cislo, jadra, W, H, alfa) {
   const komu = new Int32Array(W * H);
   let fronta = [];
   for (let p = 0; p < W * H; p++) {
-    const id = jadra.cislo[p];
-    if (id && velka.some((o) => o.id === id)) { komu[p] = id; fronta.push(p); }
+    const id = cislo[p];
+    if (id && jadra.some((j) => j.id === id)) { komu[p] = id; fronta.push(p); }
   }
   while (fronta.length) {
     const dalsi = [];
@@ -238,8 +267,7 @@ function rozdel(o, pocet) {
     fronta = dalsi;
   }
 
-  /* z každého dílu samostatný obrázek, seřazené shora dolů */
-  return velka
+  return jadra
     .map(({ id }) => {
       let minX = W, maxX = 0, minY = H, maxY = 0;
       for (let p = 0; p < W * H; p++) {
@@ -250,28 +278,26 @@ function rozdel(o, pocet) {
         if (y < minY) minY = y;
         if (y > maxY) maxY = y;
       }
-      const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
       const data = Buffer.alloc(W * H * 4);
+      const alfaKusu = new Float32Array(W * H);
       for (let p = 0; p < W * H; p++) {
         if (komu[p] !== id) continue;
         data[p * 4] = o.data[p * 4]; data[p * 4 + 1] = o.data[p * 4 + 1];
         data[p * 4 + 2] = o.data[p * 4 + 2]; data[p * 4 + 3] = Math.round(255 * alfa[p]);
+        alfaKusu[p] = alfa[p];
       }
-      return { data, alfa, W, H, minX, minY, sirka, vyska, minYRadit: minY };
+      return {
+        data, alfa: alfaKusu, W, H, minX, minY,
+        sirka: maxX - minX + 1, vyska: maxY - minY + 1,
+      };
     })
-    .sort((a, b) => a.minYRadit - b.minYRadit)
-    .map((k) => {
-      /* orez() čte barvu z .data jako RGBA, ne RGBA+alfa zvlášť — sjednotíme */
-      const alfaKusu = new Float32Array(W * H);
-      for (let p = 0; p < W * H; p++) alfaKusu[p] = k.data[p * 4 + 3] / 255;
-      return { ...k, alfa: alfaKusu };
-    });
+    .sort((a, b) => a.minY - b.minY);
 }
 
 const mistaVystrizku = [];
-for (const { soubor, kvety } of NAVRCH) {
+for (const { soubor, kvety, stredy } of NAVRCH) {
   const cely = await nacti(soubor);
-  const kusy = rozdel({ ...cely, cesta: soubor }, kvety.length);
+  const kusy = rozdel({ ...cely, cesta: soubor }, kvety.length, stredy);
   for (let i = 0; i < kvety.length; i++) {
     const { x, y, sirka: dilSirky } = kvety[i];
     const vlozeny = await orez(kusy[i], Math.round(sirka * dilSirky));
@@ -310,25 +336,6 @@ for (const { kus, x: px, y: py } of mistaVystrizku) {
       navrch[c] = kus.data[q]; navrch[c + 1] = kus.data[q + 1];
       navrch[c + 2] = kus.data[q + 2]; navrch[c + 3] = kus.data[q + 3];
     }
-  }
-}
-
-/* A k tomu kruhové výřezy přímo z věnce. */
-for (let y = 0; y < vyska; y++) {
-  const dy = y / vyska;
-  for (let x = 0; x < sirka; x++) {
-    const dx = x / sirka;
-    let uvnitr = false;
-    for (const t of VYREZY) {
-      /* Poloměr je v dílech šířky; svislá vzdálenost se proto přepočítá poměrem
-         stran, jinak by z kruhu byla elipsa. */
-      if (Math.hypot(dx - t.x, (dy - t.y) * (vyska / sirka)) < t.r) { uvnitr = true; break; }
-    }
-    if (!uvnitr) continue;
-    const c = (y * sirka + x) * 4;
-    if (venecPlny.data[c + 3] <= navrch[c + 3]) continue;
-    navrch[c] = venecPlny.data[c]; navrch[c + 1] = venecPlny.data[c + 1];
-    navrch[c + 2] = venecPlny.data[c + 2]; navrch[c + 3] = venecPlny.data[c + 3];
   }
 }
 

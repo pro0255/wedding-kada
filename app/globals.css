@@ -2177,22 +2177,33 @@ body,
    Popisek je psaný po oblouku přes textPath, ne obyčejným odstavcem pod
    obrázkem — rovný řádek pod zahnutou šipkou vypadal, jako by k ní nepatřil. */
 .obalka-navod {
-  position: absolute; left: 100%; top: 2%;
-  width: 17%;
-  margin-left: -5%;
+  /* Umístěná vůči středu scény, protože leží mimo obálku: rozměry i posun jsou
+     v dílech skupiny fotek s obálkou, takže drží při každé šířce okna. */
+  --skupina: calc(var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv));
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--skupina) * .135);
+  translate: calc(var(--skupina) * .55) calc(var(--skupina) * -.26);
+  /* Nad věncem i obálkou — je to pokyn hostovi, nesmí zmizet pod okvětním
+     lístkem. */
+  z-index: 7;
   pointer-events: none;
   display: flex; flex-direction: column; align-items: center;
-  /* Obálka je natočená o 7°, šipka se s ní natáčí taky — tenhle úhel ji vrátí
-     zpátky do svislice, aby mířila na pečeť a ne mimo. */
-  rotate: -7deg;
   transition: opacity .5s ease;
 }
-.obalka.je-otevrena .obalka-navod { opacity: 0; }
-.obalka-navod-sipka { width: 100%; height: auto; display: block; }
+.story-grid:has(.obalka.je-otevrena) .obalka-navod { opacity: 0; }
+/* Šipka leží skoro naplocho, aby mířila na horní roh obálky a ne kolmo dolů —
+   svisle postavená ukazovala mimo a zabírala dvakrát tolik výšky. */
+.obalka-navod-sipka {
+  width: 100%; height: auto; display: block;
+  rotate: -40deg;
+  /* Otočení nemění místo v rozvržení, takže by pod šipkou zůstala díra vysoká
+     jako nerotovaný obrázek. Tenhle posun ji zase zavře. */
+  margin-bottom: -26%;
+}
 /* Popisek je širší než šipka a písmo v poměru k ní velké: pod drobnou kresbou
    se malý nápis ztrácel. Rozměr řídí viewBox, takže se škáluje spolu se šipkou. */
 .obalka-navod-text {
-  width: 210%; height: auto; margin-top: -4%;
+  width: 190%; height: auto; margin-top: 4%;
   fill: #b09672;
   font-family: var(--rukopis), "Segoe Script", cursive;
   font-size: 44px; letter-spacing: .04em;
