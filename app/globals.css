@@ -551,7 +551,6 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    růžová. Za menu pokračuje modrý rozcestník na fotky a řadu uzavírá růžové
    FAQ, jehož barvu drží i patička. */
 .story { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); }
-.story-grid { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; max-width: 980px; margin: 0 auto; text-align: left; }
 /* hromádka fotek — vypadá jako stoh vyvolaných fotek, kliknutím se listuje */
 .foto-hromadka {
   position: relative; display: block; width: 100%; aspect-ratio: 4/5;
@@ -646,12 +645,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (prefers-reduced-motion: reduce) {
   .doodle-obal-klikni .story-doodle { animation: none; }
 }
-.story-text .lead { margin: 0; max-width: none; }
+/* Text příběhu leží na papíře uvnitř obálky, kde si šířku řídí sám. */
+.obalka-listy .lead { margin: 0; max-width: none; }
 @media (max-width: 760px) {
-  .story-grid { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
-  /* width je potřeba — fotky v hromádce jsou absolutní, samy by šířku neurčily */
-  .story-photo { width: 100%; max-width: 420px; margin: 0 auto 5rem; }
-  .story-text .lead { margin: 0 auto; max-width: 46ch; }
   /* Rámeček se zmenší s hromádkou — 22/92 px by na úzké obrazovce sežralo
      půlku fotky. */
   .foto-list { border-width: 14px; border-bottom-width: 58px; }
@@ -1897,53 +1893,63 @@ body,
 
    Fotky se posouvají přes :has() — stav otevření drží React uvnitř obálky
    a nemá smysl ho kvůli posunu tahat o dvě úrovně výš. */
-.story-grid {
-  /* Rozměry ve vw, ne v pixelech: scéna má brát celou šířku okna, ne jet
-     středem. Součet rozložené skupiny je 40 + 46 − 12 + 2 × 8 = 90 vw, takže
-     se i po rozejití vejde vedle odsazení sekce. Krajní hodnoty clamp drží
-     scénu čitelnou na malém okně a zastaví růst na velkém. */
-  /* Skupina zabírá 64 vw. Víc nejde: kolem ní stojí věnec z květin, který je
-     zhruba jeden a půlkrát širší než ona, takže při 71 vw už krajní květiny
-     vyjížděly z okna a .obsah-ramec je ořezal. */
-  --foto-sirka: clamp(240px, 33vw, 540px);
-  --obalka-sirka: clamp(280px, 35vw, 600px);
-  --prekryv: clamp(70px, 10vw, 160px);
-  /* Rozestup smí růst dál než samotné listy: na širokém okně se skupina
-     rozprostře po stránce, aniž by cokoli nabobtnalo. */
-  --rozestup: clamp(38px, 9vw, 240px);
+/* ---------- scéna příběhu ----------
+   Kontejner má poměr stran plátna, na kterém jsou kreslené obě vrstvy věnce
+   (1622 × 1001). Fotky, obálka i pokyn se do něj sázejí v procentech, takže
+   celá kompozice drží tvar při každé šířce okna — na mobilu se jen zmenší,
+   nic se nepřeskládá.
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-  max-width: none;
-  width: 100%;
-}
-.story-photo {
-  flex: none; width: var(--foto-sirka);
-  /* Vlastní vrstvení: odznak „klikni“ má uvnitř z-index 20 a bez toho by
-     přelezl i obálku, která leží na hromádce. */
-  position: relative; z-index: 1;
-  transition: transform .8s cubic-bezier(.34, 1.15, .5, 1);
-}
-.story-text {
-  flex: none; width: var(--obalka-sirka);
-  margin-left: calc(-1 * var(--prekryv));
-  /* Nad květinami, které leží přes fotky: rozevřená obálka s papírem je to
-     hlavní, co má host číst, a lístky přes ni jdou do textu. */
-  position: relative; z-index: 5;
-}
-.story-grid:has(.obalka.je-otevrena) .story-photo {
-  transform: translateX(calc(-1 * var(--rozestup)));
+   Bez pozadí: věnec má průhledné okraje a jakýkoli podklad by z něj udělal
+   obdélníkovou dlaždici uprostřed bílé sekce. */
+.scena {
+  position: relative;
+  width: 100%; max-width: 1622px;
+  aspect-ratio: 1622 / 1001;
+  margin: 0 auto;
 }
 
-@media (max-width: 760px) {
-  /* Pod sebe: na šířku telefonu není skupina kam rozložit. */
-  .story-grid { flex-direction: column; }
-  .story-photo, .story-text { width: 100%; }
-  .story-grid:has(.obalka.je-otevrena) .story-photo { transform: none; }
+/* Obě vrstvy leží přes celou scénu a nesmí se posouvat ani zmenšovat — jsou
+   kreslené na jedno plátno a jakýkoli rozdíl by je vůči sobě rozhodil. */
+.scena-kytky {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 1; pointer-events: none;
+}
+/* Přes fotky i obálku. Jakmile ale host se scénou něco dělá — klepne na fotky
+   nebo otevře obálku — couvne dozadu: přes to, na co se zrovna dívá, nemá co
+   ležet. */
+.scena-kytky-nad { z-index: 4; }
+.scena:has(.foto-hromadka.je-listovano) .scena-kytky-nad,
+.scena:has(.obalka.je-otevrena) .scena-kytky-nad { z-index: 0; }
+
+.scena-foto {
+  position: absolute; left: 28%; top: 20.5%; width: 30%;
+  z-index: 2;
+}
+.scena-obalka {
+  position: absolute; left: 48%; top: 31%; width: 35.5%;
+  z-index: 3;
 }
 
+/* Pokyn ke klepnutí. Písmo jde po oblouku — vodorovný řádek vedle obálky
+   vypadal jako popisek, ne jako šipka ukazující cestu. */
+.scena-navod {
+  position: absolute; left: 82%; top: 34%; width: 14%;
+  /* Nad vším ostatním, ať ho nezakryje okvětní lístek ani roh obálky. */
+  z-index: 5; pointer-events: none;
+  transition: opacity .5s ease;
+}
+.scena:has(.obalka.je-otevrena) .scena-navod { opacity: 0; }
+.scena-navod svg {
+  display: block; width: 100%; height: auto; overflow: visible;
+  fill: #b09672;
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  font-size: 30px; letter-spacing: .06em;
+}
+
+/* Rozevřená obálka vyjede papírem nahoru a scéna by ho ořízla o svůj spodní
+   okraj — proto smí přetéct. */
+.story .wrap, .scena { overflow: visible; }
 
 /* Sekce příběhu měla shora 15rem kvůli doodlu „zásnuby na Troskách“, který
    visel nad hromádkou fotek a lezl pod odpočet. Doodle je pryč — popisky jsou
@@ -2008,7 +2014,7 @@ body,
 
   position: relative;
   z-index: 5;
-  /* Šířku i přesah přes fotky řídí scéna (.story-text), obálka vyplní, co
+  /* Šířku i přesah přes fotky řídí scéna (.scena-obalka), obálka vyplní, co
      dostane. */
   width: 100%;
   /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
@@ -2169,50 +2175,6 @@ body,
   transition: transform .45s cubic-bezier(.34, 1.25, .5, 1);
 }
 .obalka-telo:hover .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
-
-/* ---------- šipka s popiskem u zavřené obálky ----------
-   Sedí vpravo od obálky a míří na pečeť. Rozměry jsou v dílech šířky obálky,
-   takže se s ní zmenšuje; vyčnívá ven ze scény, kde je na okraji věnce místo.
-
-   Popisek je psaný po oblouku přes textPath, ne obyčejným odstavcem pod
-   obrázkem — rovný řádek pod zahnutou šipkou vypadal, jako by k ní nepatřil. */
-.obalka-navod {
-  /* Umístěná vůči středu scény, protože leží mimo obálku: rozměry i posun jsou
-     v dílech skupiny fotek s obálkou, takže drží při každé šířce okna. */
-  --skupina: calc(var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv));
-  position: absolute; left: 50%; top: 50%;
-  width: calc(var(--skupina) * .135);
-  translate: calc(var(--skupina) * .55) calc(var(--skupina) * -.26);
-  /* Nad věncem i obálkou — je to pokyn hostovi, nesmí zmizet pod okvětním
-     lístkem. */
-  z-index: 7;
-  pointer-events: none;
-  display: flex; flex-direction: column; align-items: center;
-  transition: opacity .5s ease;
-}
-.story-grid:has(.obalka.je-otevrena) .obalka-navod { opacity: 0; }
-/* Šipka leží skoro naplocho, aby mířila na horní roh obálky a ne kolmo dolů —
-   svisle postavená ukazovala mimo a zabírala dvakrát tolik výšky. */
-.obalka-navod-sipka {
-  width: 100%; height: auto; display: block;
-  rotate: -40deg;
-  /* Otočení nemění místo v rozvržení, takže by pod šipkou zůstala díra vysoká
-     jako nerotovaný obrázek. Tenhle posun ji zase zavře. */
-  margin-bottom: -26%;
-}
-/* Popisek je širší než šipka a písmo v poměru k ní velké: pod drobnou kresbou
-   se malý nápis ztrácel. Rozměr řídí viewBox, takže se škáluje spolu se šipkou. */
-.obalka-navod-text {
-  width: 190%; height: auto; margin-top: 4%;
-  fill: #b09672;
-  font-family: var(--rukopis), "Segoe Script", cursive;
-  font-size: 44px; letter-spacing: .04em;
-}
-
-@media (max-width: 760px) {
-  /* Na telefonu není vedle obálky kam šipku dát. */
-  .obalka-navod { display: none; }
-}
 
 .obalka-popisek {
   /* Níž, než by se zdálo: obálka je natočená o 7°, takže jí spodní roh
@@ -2635,55 +2597,12 @@ body,
   .menu-obalka { order: -1; }
 }
 
-/* ---------- věnec kolem scény příběhu ----------
-   Dva obrázky přes sebe: co leží za fotkami s obálkou a co přes ně. Dělá je
-   scripts/kytky-venec.mjs z jedné předlohy, takže mají stejné plátno a stačí
-   jim tady stejná geometrie.
-
-   Věnec není kolem kompozice symetrický — vlevo přesahuje skoro o polovinu
-   skupiny, vpravo skoro vůbec, protože tam je obálka. Proto se neumisťuje na
-   střed, ale posune se o naměřený díl vlastní šířky a výšky. Procenta
-   v `translate` se počítají z velikosti samotného obrázku, takže posun drží
-   při každé šířce okna. */
-.kvetiny-scena {
-  position: absolute; left: 50%; top: 50%;
-  /* Skupina zabírá 67 % šířky věnce a fotka 68 % jeho výšky — odměřeno
-     z předlohy, kde je kompozice do věnce vsazená. */
-  width: calc((var(--foto-sirka) + var(--obalka-sirka) - var(--prekryv)) * 1.484);
-  height: auto;
-  translate: -62.1% -55.6%;
-  z-index: 0; pointer-events: none;
-}
-/* Nad vším, i nad obálkou: bílé krásenky mají ležet na ní, jak je to na
-   předloze.
-
-   Jakmile ale host se scénou něco dělá — klepne na fotky nebo otevře obálku —
-   květiny couvnou úplně dozadu. Přes fotku, kterou si zrovna prohlíží, ani
-   přes papír s příběhem nemá co ležet. Na pouhé najetí myší se nereaguje:
-   kompozice by poskakovala každému, kdo jen projede kurzorem. */
-.kvetiny-scena-nad { z-index: 6; }
-.story-grid:has(.foto-hromadka.je-listovano) .kvetiny-scena-nad,
-.story-grid:has(.obalka.je-otevrena) .kvetiny-scena-nad { z-index: 0; }
-
-/* Věnec přesahuje skupinu nahoru i dolů, takže sekce potřebuje víc místa —
+/* Věnec přesahuje scénu nahoru i dolů, takže sekce potřebuje víc místa —
    jinak se květiny ořežou o hranu bílé plochy a rozlezou se do sousedních
    sekcí. */
-.obsah-ramec > .story { padding-block: 12rem; }
-
-/* Na telefonu stojí fotky a obálka pod sebou, takže věnec kolem obou by byl
-   vysoký přes celou obrazovku. Drží se proto jen horní části, kde je hromádka
-   fotek, a vykukuje za ní.
-
-   Vrstva, co na šířku leží přes kompozici, se tu neukazuje vůbec: věnec je
-   proti fotce mnohem větší než na desktopu a její květy padly doprostřed
-   obličejů. */
+.obsah-ramec > .story { padding-block: 8rem; }
 @media (max-width: 760px) {
-  .kvetiny-scena {
-    width: 155%; top: 0;
-    translate: -54% -22%;
-  }
-  .kvetiny-scena-nad { display: none; }
-  .obsah-ramec > .story { padding-block: 6rem; }
+  .obsah-ramec > .story { padding-block: 4rem; }
 }
 
 /* ---------- mapa a fotka jako pohlednice ----------

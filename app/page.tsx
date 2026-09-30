@@ -418,19 +418,21 @@ function FotoHromadka() {
    rizika, že se obálka pod rukou zavře. */
 /* Věnec kolem hromádky fotek a obálky.
 
-   Není skládaný z jednotlivých květin, ale ze dvou obrázků: předloha
-   (public/kytky ram.png) je hotová sestava a scripts/kytky-venec.mjs z ní dělá
-   vrstvu, co leží za kompozicí, a vrstvu, co přes ni. Obě mají stejné plátno,
-   takže stačí položit je na sebe se stejnou geometrií.
+   Jsou to dvě hotové vrstvy z jedné předlohy (scripts/kytky-venec.mjs) na
+   společném plátně 1622 × 1001: jedna leží za kompozicí, druhá přes ni. Obě
+   vyplní scénu celou, takže se do nich fotky s obálkou usadí v procentech
+   a drží polohu při každé šířce okna.
 
    Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext vrstvení —
-   z-index uvnitř jednoho obrázku by se k obálce nedostal. */
-function KvetinyScena() {
+   z-index uvnitř jednoho obrázku by se k obálce vůbec nedostal. */
+function KvetinyVrstva({ nad }: { nad?: boolean }) {
   return (
-    <>
-      <img className="kvetiny-scena" src="/kytky/venec-pod.webp" alt="" aria-hidden="true" />
-      <img className="kvetiny-scena kvetiny-scena-nad" src="/kytky/venec-nad.webp" alt="" aria-hidden="true" />
-    </>
+    <img
+      className={"scena-kytky" + (nad ? " scena-kytky-nad" : "")}
+      src={nad ? "/kytky/venec-nad.webp" : "/kytky/venec-pod.webp"}
+      alt=""
+      aria-hidden="true"
+    />
   );
 }
 /* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
@@ -776,29 +778,12 @@ export default function Home() {
 
       {/* příběh */}
       <section className="story" id="story">
-        <Reveal className="story-grid">
-          <KvetinyScena />
-          {/* Šipka s popiskem ke zavřené obálce. Je to samostatná vrstva scény,
-              ne součást obálky: uvnitř ní by ji překryly květiny, které na
-              obálce leží, protože obálka má vlastní kontext vrstvení a její
-              potomci se nad ně nedostanou. */}
-          <span className="obalka-navod" aria-hidden="true">
-            <img className="obalka-navod-sipka" src="/obalka/sipka.webp" alt="" />
-            <svg className="obalka-navod-text" viewBox="0 0 200 96" focusable="false">
-              {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako podpis
-                  pod kresbou a drží se zakřivení šipky nad sebou. */}
-              <path id="obalka-navod-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
-              <text>
-                <textPath href="#obalka-navod-drah" startOffset="50%" textAnchor="middle">
-                  klikni
-                </textPath>
-              </text>
-            </svg>
-          </span>
-          <div className="story-photo">
+        <Reveal className="scena">
+          <KvetinyVrstva />
+          <div className="scena-foto">
             <FotoHromadka />
           </div>
-          <div className="story-text">
+          <div className="scena-obalka">
             <ObalkaPribeh>
               <p className="eyebrow">Náš příběh</p>
               <h2>Jak to celé začalo</h2>
@@ -811,6 +796,19 @@ export default function Home() {
               </p>
             </ObalkaPribeh>
           </div>
+          <KvetinyVrstva nad />
+          {/* Pokyn hostovi. Kreslená šipka tu byla taky, ale sama o sobě
+              zabírala kus scény — zůstal jen nápis, který opisuje její oblouk. */}
+          <span className="scena-navod" aria-hidden="true">
+            <svg viewBox="0 0 120 150" focusable="false">
+              <path id="scena-navod-drah" d="M 18 132 C 44 118, 78 88, 104 34" fill="none" />
+              <text>
+                <textPath href="#scena-navod-drah" startOffset="50%" textAnchor="middle">
+                  klikni
+                </textPath>
+              </text>
+            </svg>
+          </span>
         </Reveal>
       </section>
 
