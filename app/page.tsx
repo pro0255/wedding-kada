@@ -642,10 +642,10 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
           Jakmile se obálka otevře, obojí zmizí: host už ví, na co klepnout. */}
       <span className="obalka-navod" aria-hidden="true">
         <img className="obalka-navod-sipka" src="/obalka/sipka.webp" alt="" />
-        <svg className="obalka-navod-text" viewBox="0 0 200 74" focusable="false">
-          {/* Dráha kopíruje spodní okraj oblouku šipky: zleva zespodu nahoru
-              doprava, s prohnutím dolů. */}
-          <path id="obalka-navod-drah" d="M 8 30 C 52 76, 140 70, 194 16" fill="none" />
+        <svg className="obalka-navod-text" viewBox="0 0 200 96" focusable="false">
+          {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako v podpisu
+              pod kresbou a drží se zakřivení šipky nad sebou. */}
+          <path id="obalka-navod-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
           <text>
             <textPath href="#obalka-navod-drah" startOffset="50%" textAnchor="middle">
               klikni
