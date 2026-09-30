@@ -28,6 +28,11 @@ const TAH = 120;
 /* Šířka výstupu. Na stránce je šipka široká kolem 150 px. */
 const SIRKA = 360;
 
+/* O kolik pixelů se tah roztáhne do všech stran. Předloha je kreslená tenkým
+ * fixem a na stránce se zmenšuje, takže z ní zbývala vlásečnice — tohle jí dá
+ * zhruba dvojnásobnou tloušťku. */
+const ZTLOUSTNUTI = 5;
+
 const prah = (v, od, do_) => {
   const t = Math.min(1, Math.max(0, (v - od) / (do_ - od)));
   return t * t * (3 - 2 * t);
@@ -52,13 +57,49 @@ for (let p = 0; p < W * H; p++) {
 }
 if (maxX < minX) throw new Error("v předloze jsem nenašel žádnou kresbu");
 
+/* Ztloustnutí: každý pixel si vezme nejvyšší alfu ze svého okolí. Počítá se po
+ * osách zvlášť — projít celé okolí najednou je při téhle velikosti okna
+ * zbytečně pomalé a výsledek je stejný. */
+const maxVOkoli = (zdroj, r) => {
+  const mezi = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      let m = 0;
+      for (let d = -r; d <= r; d++) {
+        const xx = x + d;
+        if (xx < 0 || xx >= W) continue;
+        const v = zdroj[y * W + xx];
+        if (v > m) m = v;
+      }
+      mezi[y * W + x] = m;
+    }
+  }
+  const ven = new Float32Array(W * H);
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      let m = 0;
+      for (let d = -r; d <= r; d++) {
+        const yy = y + d;
+        if (yy < 0 || yy >= H) continue;
+        const v = mezi[yy * W + x];
+        if (v > m) m = v;
+      }
+      ven[y * W + x] = m;
+    }
+  }
+  return ven;
+};
+const silna = maxVOkoli(alfa, ZTLOUSTNUTI);
+minX = Math.max(0, minX - ZTLOUSTNUTI); maxX = Math.min(W - 1, maxX + ZTLOUSTNUTI);
+minY = Math.max(0, minY - ZTLOUSTNUTI); maxY = Math.min(H - 1, maxY + ZTLOUSTNUTI);
+
 const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
 const ven = Buffer.alloc(sirka * vyska * 4);
 for (let y = 0; y < vyska; y++) {
   for (let x = 0; x < sirka; x++) {
     const q = (y * sirka + x) * 4;
     ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
-    ven[q + 3] = Math.round(255 * alfa[(y + minY) * W + (x + minX)]);
+    ven[q + 3] = Math.round(255 * silna[(y + minY) * W + (x + minX)]);
   }
 }
 

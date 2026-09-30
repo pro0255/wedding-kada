@@ -795,24 +795,25 @@ export default function Home() {
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
             </ObalkaPribeh>
+            {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
+                Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
+                po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
+                šla obálka pořád otevřít. */}
+            <span className="klikni-wrap" aria-hidden="true">
+              <svg className="klikni-text" viewBox="0 0 200 96" focusable="false">
+                {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako podpis
+                    nad kresbou a drží se zakřivení šipky pod sebou. */}
+                <path id="klikni-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
+                <text>
+                  <textPath href="#klikni-drah" startOffset="50%" textAnchor="middle">
+                    klikni
+                  </textPath>
+                </text>
+              </svg>
+              <img className="klikni-sipka" src="/obalka/sipka.webp" alt="" />
+            </span>
           </div>
           <KvetinyVrstva nad />
-          {/* Pokyn hostovi: šipka na obálku a pod ní nápis po jejím oblouku.
-              Leží úplně nahoře, aby ji nezakryl okvětní lístek ani roh obálky,
-              a nechytá myš, aby pod ní šla obálka pořád otevřít. */}
-          <span className="scena-navod" aria-hidden="true">
-            <img className="scena-navod-sipka" src="/obalka/sipka.webp" alt="" />
-            <svg className="scena-navod-text" viewBox="0 0 200 96" focusable="false">
-              {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako podpis
-                  pod kresbou a drží se zakřivení šipky nad sebou. */}
-              <path id="scena-navod-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
-              <text>
-                <textPath href="#scena-navod-drah" startOffset="50%" textAnchor="middle">
-                  klikni
-                </textPath>
-              </text>
-            </svg>
-          </span>
         </Reveal>
       </section>
 
