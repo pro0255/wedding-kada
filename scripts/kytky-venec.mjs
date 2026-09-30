@@ -2,33 +2,65 @@
  *
  *   node scripts/kytky-venec.mjs
  *
- * Předlohy v public/kytky u obalky jsou hotové sestavy květin na bílém papíře —
- * přesně tak, jak má věnec na stránce vypadat. Skládat ho na webu z jednotlivých
- * květin znamenalo hádat polohy podle obrázku; takhle je sestava daná a web ji
- * jen položí na místo.
+ * Předlohy jsou v public/kytky u obalky. Věnec je hotová sestava květin na
+ * bílém papíře — přesně tak, jak má na stránce vypadat. Skládat ho na webu
+ * z jednotlivých květin znamenalo hádat polohy podle obrázku; takhle je sestava
+ * daná a web ji jen položí na místo.
  *
- * Věnec se ukládá nadvakrát, do dvou obrázků STEJNÝCH rozměrů. Spodní je CELÝ
- * věnec; z vrchního je vidět jen pár květů — ty, které mají na stránce ležet
- * přes fotky a obálku. Dvě vrstvy musí být proto, že vrstva zakládá vlastní
- * kontext vrstvení a z-index uvnitř jednoho obrázku by se k obálce nedostal.
+ * Ukládá se nadvakrát, do dvou obrázků STEJNÝCH rozměrů. Spodní je celý věnec;
+ * z vrchního jsou vidět jen květy, které mají na stránce ležet přes fotky
+ * a obálku. Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext
+ * vrstvení a z-index uvnitř jednoho obrázku by se k obálce nedostal.
  *
- * Které květy to jsou, se nehádá: druhá předloha je tentýž věnec BEZ nich, takže
- * maska vrchní vrstvy je prostě rozdíl obou obrázků. Spodní vrstva přitom
- * zůstává celá — díky tomu nemůže maska nechat díru ani hranu a smí mít měkký
- * okraj, protože co je v ní, leží přesně na tomtéž kusu obrazu pod sebou.
+ * Vrchní vrstva se nevyřezává z věnce — skládá se ze samostatných výstřižků
+ * (NAVRCH), které jsou ve složce vedle něj. Vyřezávat nešlo: květy se ve věnci
+ * dotýkají sousedních karafiátů, takže každý řez buď ukousl okvětní lístek,
+ * nebo z karafiátu vzal cíp, a jedno i druhé nad fotkou viselo s ostrou hranou.
+ *
+ * Kam výstřižek patří, říká MISTA — obdélník v dílech věnce, odměřený z jeho
+ * předlohy. Hledat polohu automaticky podle barevné shody se neosvědčilo: věnec
+ * je samý bílý květ, takže nejmenší průměrná odchylka vycházela na poloviční
+ * měřítko někde uprostřed, kde se výstřižek schoval mezi okvětní lístky.
  *
  * Bílé pozadí se odmaskuje záplavou od okrajů, ne prahem jasu. Práh by nestačil:
  * bílé květy mají uvnitř skoro stejný jas jako papír, takže by z nich zůstaly
  * poloprůhledné duchy a fotka by jimi prosvítala. Záplava naopak ubere jen to
  * bílé, co souvisle navazuje na okraj. Papír uzavřený mezi stonky se k okraji
  * nedostane, a ten dobere práh na čistou bílou — okvětní lístky mají i na světle
- * stíny, takže se pod něj vejdou, kdežto vyexportovaný podklad je přesně bílý. */
+ * stíny, kdežto vyexportovaný podklad je přesně bílý. */
 
 import sharp from "sharp";
 
 const SLOZKA = "public/kytky u obalky";
-const PLNY = `${SLOZKA}/kytky ram gerbera.png`;
-const BEZ = `${SLOZKA}/kytky ram bez dvou.png`;
+const VENEC = `${SLOZKA}/kytky ram gerbera.png`;
+/* Výstřižky, které leží přes fotky a obálku. Každý soubor nese víc květů
+ * pohromadě, ale ve věnci jsou rozházené jinak, než jak stojí v něm — proto se
+ * rozřeže na jednotlivé květy a každý se posadí zvlášť.
+ *
+ * `kvety` jsou seřazené shora dolů, jak je skript v souboru najde, a u každého
+ * stojí jeho místo ve věnci: levý horní roh a šířka v dílech šířky věnce. Výška
+ * se dopočítá z poměru stran, aby se květ nedeformoval. */
+const NAVRCH = [
+  {
+    soubor: `${SLOZKA}/01_kvetiny_bile.png`,
+    kvety: [
+      { x: 0.250, y: 0.740, sirka: 0.145 }, // plný bílý květ, dole vlevo
+      { x: 0.122, y: 0.545, sirka: 0.148 }, // bílá sasanka nad ním
+      { x: 0.152, y: 0.282, sirka: 0.162 }, // žlutý ibišek nahoře
+    ],
+  },
+];
+
+/* Tři krásenky vpravo dole se z výstřižku vzít nedají: v souboru se překrývají
+ * jinak než ve věnci a odleptat je od sebe nejde, protože do sebe zasahují
+ * skoro půlkou květu. Berou se proto přímo z věnce, kruhem kolem každé — okolo
+ * nich je dost prázdna, aby kruh nesáhl na sousední karafiát. Střed a poloměr
+ * jsou v dílech šířky věnce. */
+const VYREZY = [
+  { x: 0.898, y: 0.620, r: 0.078 },
+  { x: 0.836, y: 0.788, r: 0.083 },
+  { x: 0.726, y: 0.790, r: 0.076 },
+];
 const CIL = "public/kytky";
 
 /* Nad tímhle jasem je papír, pokud na papír u okraje souvisle navazuje. */
@@ -36,12 +68,7 @@ const PAPIR = 243;
 /* A tenhle jas je papír vždycky, i uzavřený mezi stonky. */
 const CISTA_BILA = 252;
 
-/* O kolik se maska vrchní vrstvy roztáhne za obrys květu, v dílech šířky. Obě
- * předlohy jsou vyexportované každá zvlášť a nesedí na pixel, takže samotný
- * rozdíl má po obvodu roztřepený lem. */
-const ROZSIRENI = 0.012;
-
-/* Načte předlohu a vrátí její alfu (0 papír, 1 květina) i meze obsahu. */
+/* Načte obrázek, odmaskuje papír a vrátí data i meze obsahu. */
 async function nacti(cesta) {
   const { data, info } = await sharp(cesta).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const W = info.width, H = info.height;
@@ -51,10 +78,15 @@ async function nacti(cesta) {
     jas[p] = (data[p * 4] + data[p * 4 + 1] + data[p * 4 + 2]) / 3;
   }
 
+  /* Výstřižky mají pozadí průhledné, věnec bílé. Obojí se tu srovná na jedno:
+     co je průhledné nebo bílé, je prázdno. */
   const pozadi = new Uint8Array(W * H);
   const fronta = [];
   const pridej = (p) => {
-    if (p >= 0 && p < W * H && !pozadi[p] && jas[p] >= PAPIR) { pozadi[p] = 1; fronta.push(p); }
+    if (p >= 0 && p < W * H && !pozadi[p] && (data[p * 4 + 3] < 24 || jas[p] >= PAPIR)) {
+      pozadi[p] = 1;
+      fronta.push(p);
+    }
   };
   for (let x = 0; x < W; x++) { pridej(x); pridej((H - 1) * W + x); }
   for (let y = 0; y < H; y++) { pridej(y * W); pridej(y * W + W - 1); }
@@ -66,7 +98,7 @@ async function nacti(cesta) {
     if (qy > 0) pridej(q - W);
     if (qy < H - 1) pridej(q + W);
   }
-  for (let p = 0; p < W * H; p++) if (jas[p] >= CISTA_BILA) pozadi[p] = 1;
+  for (let p = 0; p < W * H; p++) if (data[p * 4 + 3] < 24 || jas[p] >= CISTA_BILA) pozadi[p] = 1;
 
   /* Hrana se změkčí průměrem z okolí — ostrý přechod vypadá vystřižený nůžkami. */
   const alfa = new Float32Array(W * H);
@@ -98,87 +130,207 @@ async function nacti(cesta) {
   return { data, alfa, W, H, minX, minY, sirka: maxX - minX + 1, vyska: maxY - minY + 1 };
 }
 
-const plny = await nacti(PLNY);
-const bez = await nacti(BEZ);
-const { sirka, vyska } = plny;
-console.log(`plný věnec ${plny.sirka}x${plny.vyska}, bez dvou ${bez.sirka}x${bez.vyska}`);
+/* Ořízne na obsah a převede na RGBA o zadané šířce. */
+async function orez(o, sirkaVen) {
+  const ven = Buffer.alloc(o.sirka * o.vyska * 4);
+  for (let y = 0; y < o.vyska; y++) {
+    for (let x = 0; x < o.sirka; x++) {
+      const p = (y + o.minY) * o.W + (x + o.minX), q = (y * o.sirka + x) * 4;
+      ven[q] = o.data[p * 4]; ven[q + 1] = o.data[p * 4 + 1]; ven[q + 2] = o.data[p * 4 + 2];
+      ven[q + 3] = Math.round(255 * o.alfa[p]);
+    }
+  }
+  const sirka = sirkaVen ?? o.sirka;
+  const vyska = Math.max(1, Math.round((o.vyska / o.sirka) * sirka));
+  const data = await sharp(ven, { raw: { width: o.sirka, height: o.vyska, channels: 4 } })
+    .resize(sirka, vyska, { fit: "fill" })
+    .raw()
+    .toBuffer();
+  return { data, W: sirka, H: vyska };
+}
 
-/* --- maska vrchní vrstvy: co je v plném věnci navíc --- */
-/* Předlohy jsou vyexportované každá v jiném měřítku, takže se ta druhá čte přes
-   přepočet na ořez té první. */
-const rozdil = new Float32Array(sirka * vyska);
-let kolik = 0;
-for (let y = 0; y < vyska; y++) {
-  const by = bez.minY + Math.round((y / vyska) * bez.vyska);
-  for (let x = 0; x < sirka; x++) {
-    const bx = bez.minX + Math.round((x / sirka) * bez.sirka);
-    const a = plny.alfa[(y + plny.minY) * plny.W + (x + plny.minX)];
-    const b = bx < bez.W && by < bez.H ? bez.alfa[by * bez.W + bx] : 0;
-    if (a > 0.5 && b < 0.5) { rozdil[y * sirka + x] = 1; kolik++; }
+const venec = await nacti(VENEC);
+const { sirka, vyska } = venec;
+console.log(`věnec ${sirka}x${vyska}`);
+
+const venecPlny = await orez(venec);
+
+/* Rozdělí výstřižek na jednotlivé květy a vrátí je seřazené shora dolů.
+   Souvislé ostrovy nestačí — okvětní lístky se dotýkají, takže celý soubor
+   bývá jeden kus. Maska se proto nejdřív odleptává, dokud se nerozpadne na
+   tolik jader, kolik se čeká, a pak se jádra zase současně rozlévají zpátky do
+   původního tvaru. Který pixel připadne kterému květu, tím rozhodne vzdálenost,
+   ne pořadí — a hranice vede tudy, kudy se květy dotýkají. */
+function rozdel(o, pocet) {
+  const { W, H, alfa } = o;
+  const je = new Uint8Array(W * H);
+  for (let p = 0; p < W * H; p++) je[p] = alfa[p] > 0.5 ? 1 : 0;
+
+  const ostrovy = (maska) => {
+    const cislo = new Int32Array(W * H);
+    const nalezene = [];
+    for (let start = 0; start < W * H; start++) {
+      if (cislo[start] || !maska[start]) continue;
+      const id = nalezene.length + 1;
+      const zasobnik = [start];
+      cislo[start] = id;
+      let velikost = 0;
+      while (zasobnik.length) {
+        const q = zasobnik.pop();
+        velikost++;
+        const qx = q % W, qy = (q / W) | 0;
+        const sousedi = [
+          qx > 0 ? q - 1 : -1, qx < W - 1 ? q + 1 : -1,
+          qy > 0 ? q - W : -1, qy < H - 1 ? q + W : -1,
+        ];
+        for (const n of sousedi) {
+          if (n < 0 || cislo[n] || !maska[n]) continue;
+          cislo[n] = id;
+          zasobnik.push(n);
+        }
+      }
+      nalezene.push({ id, velikost });
+    }
+    return { cislo, nalezene };
+  };
+
+  /* odleptávání po jednom pixelu, dokud jader nepřibude na potřebný počet */
+  let leptana = je;
+  let jadra = ostrovy(leptana);
+  const drobek = (W * H) / 1600;
+  for (let krok = 0; krok < Math.max(W, H) && jadra.nalezene.filter((o) => o.velikost > drobek).length < pocet; krok++) {
+    const dalsi = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const p = y * W + x;
+        if (!leptana[p]) continue;
+        if (x === 0 || y === 0 || x === W - 1 || y === H - 1) continue;
+        if (leptana[p - 1] && leptana[p + 1] && leptana[p - W] && leptana[p + W]) dalsi[p] = 1;
+      }
+    }
+    leptana = dalsi;
+    jadra = ostrovy(leptana);
+  }
+  const velka = jadra.nalezene.filter((o) => o.velikost > drobek).slice(0, pocet);
+  if (velka.length < pocet) throw new Error(`v ${o.cesta} jsem nenašel ${pocet} květů`);
+
+  /* současné rozlévání jader zpátky do původního tvaru */
+  const komu = new Int32Array(W * H);
+  let fronta = [];
+  for (let p = 0; p < W * H; p++) {
+    const id = jadra.cislo[p];
+    if (id && velka.some((o) => o.id === id)) { komu[p] = id; fronta.push(p); }
+  }
+  while (fronta.length) {
+    const dalsi = [];
+    for (const q of fronta) {
+      const qx = q % W, qy = (q / W) | 0;
+      const sousedi = [
+        qx > 0 ? q - 1 : -1, qx < W - 1 ? q + 1 : -1,
+        qy > 0 ? q - W : -1, qy < H - 1 ? q + W : -1,
+      ];
+      for (const n of sousedi) {
+        if (n < 0 || komu[n] || !je[n]) continue;
+        komu[n] = komu[q];
+        dalsi.push(n);
+      }
+    }
+    fronta = dalsi;
+  }
+
+  /* z každého dílu samostatný obrázek, seřazené shora dolů */
+  return velka
+    .map(({ id }) => {
+      let minX = W, maxX = 0, minY = H, maxY = 0;
+      for (let p = 0; p < W * H; p++) {
+        if (komu[p] !== id) continue;
+        const x = p % W, y = (p / W) | 0;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+      const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
+      const data = Buffer.alloc(W * H * 4);
+      for (let p = 0; p < W * H; p++) {
+        if (komu[p] !== id) continue;
+        data[p * 4] = o.data[p * 4]; data[p * 4 + 1] = o.data[p * 4 + 1];
+        data[p * 4 + 2] = o.data[p * 4 + 2]; data[p * 4 + 3] = Math.round(255 * alfa[p]);
+      }
+      return { data, alfa, W, H, minX, minY, sirka, vyska, minYRadit: minY };
+    })
+    .sort((a, b) => a.minYRadit - b.minYRadit)
+    .map((k) => {
+      /* orez() čte barvu z .data jako RGBA, ne RGBA+alfa zvlášť — sjednotíme */
+      const alfaKusu = new Float32Array(W * H);
+      for (let p = 0; p < W * H; p++) alfaKusu[p] = k.data[p * 4 + 3] / 255;
+      return { ...k, alfa: alfaKusu };
+    });
+}
+
+const mistaVystrizku = [];
+for (const { soubor, kvety } of NAVRCH) {
+  const cely = await nacti(soubor);
+  const kusy = rozdel({ ...cely, cesta: soubor }, kvety.length);
+  for (let i = 0; i < kvety.length; i++) {
+    const { x, y, sirka: dilSirky } = kvety[i];
+    const vlozeny = await orez(kusy[i], Math.round(sirka * dilSirky));
+    mistaVystrizku.push({ kus: vlozeny, x: Math.round(sirka * x), y: Math.round(vyska * y) });
+    console.log(
+      `${soubor.split("/").pop()} #${i + 1}  ${vlozeny.W}x${vlozeny.H} na `
+      + `${Math.round(sirka * x)}/${Math.round(vyska * y)}`,
+    );
   }
 }
-if (!kolik) throw new Error("předlohy se neliší — nemám co dát navrch");
-
-/* Roztažení a změkčení. Počítá se posuvnými součty: projít okolí každého pixelu
-   přímo by při téhle velikosti okna trvalo minuty. */
-const rozmazej = (zdroj, r) => {
-  const mezi = new Float32Array(sirka * vyska);
-  const ven = new Float32Array(sirka * vyska);
-  for (let y = 0; y < vyska; y++) {
-    for (let x = 0; x < sirka; x++) {
-      const od = Math.max(0, x - r), do_ = Math.min(sirka - 1, x + r);
-      let soucet = 0;
-      if (x === 0) {
-        for (let i = od; i <= do_; i++) soucet += zdroj[y * sirka + i];
-      } else {
-        soucet = mezi[y * sirka + x - 1] * (Math.min(sirka - 1, x - 1 + r) - Math.max(0, x - 1 - r) + 1);
-        if (x - 1 - r >= 0) soucet -= zdroj[y * sirka + (x - 1 - r)];
-        if (x + r < sirka) soucet += zdroj[y * sirka + (x + r)];
-      }
-      mezi[y * sirka + x] = soucet / (do_ - od + 1);
-    }
-  }
-  for (let x = 0; x < sirka; x++) {
-    for (let y = 0; y < vyska; y++) {
-      const od = Math.max(0, y - r), do_ = Math.min(vyska - 1, y + r);
-      let soucet = 0;
-      if (y === 0) {
-        for (let i = od; i <= do_; i++) soucet += mezi[i * sirka + x];
-      } else {
-        soucet = ven[(y - 1) * sirka + x] * (Math.min(vyska - 1, y - 1 + r) - Math.max(0, y - 1 - r) + 1);
-        if (y - 1 - r >= 0) soucet -= mezi[(y - 1 - r) * sirka + x];
-        if (y + r < vyska) soucet += mezi[(y + r) * sirka + x];
-      }
-      ven[y * sirka + x] = soucet / (do_ - od + 1);
-    }
-  }
-  return ven;
-};
-
-const polomer = Math.max(2, Math.round(sirka * ROZSIRENI));
-/* Nejdřív roztáhnout — všechno, kde průměr vyšel nad nulu, je uvnitř. */
-const siroka = rozmazej(rozdil, polomer);
-for (let i = 0; i < siroka.length; i++) siroka[i] = siroka[i] > 0.02 ? 1 : 0;
-/* A pak změkčit okraj. */
-const maska = rozmazej(siroka, Math.max(1, Math.round(polomer / 3)));
 
 /* --- dva obrázky na stejném plátně --- */
-async function uloz(jmeno, jenNavrch) {
-  const ven = Buffer.alloc(sirka * vyska * 4);
-  for (let y = 0; y < vyska; y++) {
-    for (let x = 0; x < sirka; x++) {
-      const p = (y + plny.minY) * plny.W + (x + plny.minX), q = (y * sirka + x) * 4;
-      ven[q] = plny.data[p * 4]; ven[q + 1] = plny.data[p * 4 + 1]; ven[q + 2] = plny.data[p * 4 + 2];
-      ven[q + 3] = Math.round(255 * plny.alfa[p] * (jenNavrch ? maska[y * sirka + x] : 1));
-    }
-  }
-  const vysledek = await sharp(ven, { raw: { width: sirka, height: vyska, channels: 4 } })
+async function uloz(jmeno, obsah) {
+  const vysledek = await sharp(obsah, { raw: { width: sirka, height: vyska, channels: 4 } })
     .resize({ width: 1400, withoutEnlargement: true })
     .webp({ quality: 86, alphaQuality: 100 })
     .toFile(`${CIL}/${jmeno}.webp`);
   console.log(`${CIL}/${jmeno}.webp  ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`);
 }
 
-await uloz("venec-pod", false);
-await uloz("venec-nad", true);
-console.log(`ořez ${sirka}x${vyska}, poměr šířka/výška = ${(sirka / vyska).toFixed(4)}`);
+await uloz("venec-pod", venecPlny.data);
+
+/* Vrchní vrstva: prázdné plátno velikosti věnce a v něm výstřižky na svých
+   místech. Skládá se přímo kopírováním pixelů — composite by u raw vstupů
+   znamenal každý kus zvlášť zakódovat. */
+const navrch = Buffer.alloc(sirka * vyska * 4);
+for (const { kus, x: px, y: py } of mistaVystrizku) {
+  for (let y = 0; y < kus.H; y++) {
+    const cy = y + py;
+    if (cy < 0 || cy >= vyska) continue;
+    for (let x = 0; x < kus.W; x++) {
+      const cx = x + px;
+      if (cx < 0 || cx >= sirka) continue;
+      const q = (y * kus.W + x) * 4, c = (cy * sirka + cx) * 4;
+      if (kus.data[q + 3] <= navrch[c + 3]) continue;
+      navrch[c] = kus.data[q]; navrch[c + 1] = kus.data[q + 1];
+      navrch[c + 2] = kus.data[q + 2]; navrch[c + 3] = kus.data[q + 3];
+    }
+  }
+}
+
+/* A k tomu kruhové výřezy přímo z věnce. */
+for (let y = 0; y < vyska; y++) {
+  const dy = y / vyska;
+  for (let x = 0; x < sirka; x++) {
+    const dx = x / sirka;
+    let uvnitr = false;
+    for (const t of VYREZY) {
+      /* Poloměr je v dílech šířky; svislá vzdálenost se proto přepočítá poměrem
+         stran, jinak by z kruhu byla elipsa. */
+      if (Math.hypot(dx - t.x, (dy - t.y) * (vyska / sirka)) < t.r) { uvnitr = true; break; }
+    }
+    if (!uvnitr) continue;
+    const c = (y * sirka + x) * 4;
+    if (venecPlny.data[c + 3] <= navrch[c + 3]) continue;
+    navrch[c] = venecPlny.data[c]; navrch[c + 1] = venecPlny.data[c + 1];
+    navrch[c + 2] = venecPlny.data[c + 2]; navrch[c + 3] = venecPlny.data[c + 3];
+  }
+}
+
+await uloz("venec-nad", navrch);
+console.log(`poměr šířka/výška = ${(sirka / vyska).toFixed(4)}`);

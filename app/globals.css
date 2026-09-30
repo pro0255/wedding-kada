@@ -2402,7 +2402,7 @@ body,
   --pomer: 1.41;
   --deska-bezova: #e7dfd0;
   --deska-tmava: #d3c7b2;
-  --zlata: #c69b3f;
+  --zlata: #b88b2c;
   --list-pismo: #5f4a37;
 
   width: calc(var(--deska) * 2);
@@ -2486,11 +2486,16 @@ body,
   /* Zlato vyražené do desky: světlá hrana zdola, tmavý stín shora. Samotná
      zlatá barva vypadá jako nálepka, tohle jako ražba. */
   color: var(--zlata);
+  /* Ražba do desky: světlá hrana zespoda, tmavý stín shora — a k tomu tenký
+     tmavý lem dokola. Bez něj se zlato na žebrovaném papíře rozpadlo, protože
+     textura má místy skoro stejný jas jako písmo. */
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, .6),
-    0 2px 1px rgba(255, 255, 255, .28),
-    0 -1px 1px rgba(86, 61, 8, .5),
-    0 -2px 3px rgba(86, 61, 8, .28);
+    0 1px 0 rgba(255, 255, 255, .75),
+    0 2px 2px rgba(255, 255, 255, .4),
+    0 -1px 1px rgba(74, 52, 6, .8),
+    0 -2px 4px rgba(74, 52, 6, .45),
+    0 0 2px rgba(74, 52, 6, .55),
+    0 0 6px rgba(74, 52, 6, .25);
 }
 .menu-nazev i {
   font-style: normal; margin-top: .42em;
@@ -2527,13 +2532,13 @@ body,
 /* Oddělené od dětských chodů: nalepené pod nimi to vypadalo jako jejich
    podnadpis, ne jako závěr celého menu. */
 .menu-preji {
-  margin-top: 10%; padding-top: 6%;
+  margin-top: 7%; padding-top: 4%;
   border-top: 1px solid color-mix(in srgb, var(--list-pismo) 22%, transparent);
 }
 
 .menu-chody { list-style: none; margin: 0; padding: 0; }
 .menu-chody li { text-align: center; }
-.menu-chody li + li { margin-top: 8%; }
+.menu-chody li + li { margin-top: 7%; }
 /* Kategorie i popisky jsou drobné a proložené — průhlednost, která na velkém
    nadpisu působí jemně, z nich při čtení u stolu dělá šeď. Proto jen lehké
    projasnění proti plné barvě textu, ne polovina. */
@@ -2608,12 +2613,12 @@ body,
 /* Nad vším, i nad obálkou: bílé krásenky mají ležet na ní, jak je to na
    předloze.
 
-   Jakmile ale host se scénou něco dělá — listuje fotkami nebo otevře obálku —
+   Jakmile ale host se scénou něco dělá — klepne na fotky nebo otevře obálku —
    květiny couvnou úplně dozadu. Přes fotku, kterou si zrovna prohlíží, ani
-   přes papír s příběhem nemá co ležet. */
+   přes papír s příběhem nemá co ležet. Na pouhé najetí myší se nereaguje:
+   kompozice by poskakovala každému, kdo jen projede kurzorem. */
 .kvetiny-scena-nad { z-index: 6; }
-.story-grid:has(.foto-hromadka:hover) .kvetiny-scena-nad,
-.story-grid:has(.foto-hromadka:focus-within) .kvetiny-scena-nad,
+.story-grid:has(.foto-hromadka.je-listovano) .kvetiny-scena-nad,
 .story-grid:has(.obalka.je-otevrena) .kvetiny-scena-nad { z-index: 0; }
 
 /* Věnec přesahuje skupinu nahoru i dolů, takže sekce potřebuje víc místa —
@@ -2833,8 +2838,8 @@ body,
    menší, než by se hodilo: při 72 % přetékal obsah pod spodní hranu papíru
    a kresba ležela na desce. */
 .menu-kresba {
-  display: block; width: 46%; height: auto;
-  margin: 4% auto 0;
+  display: block; width: 56%; height: auto;
+  margin: 3% auto 0;
   opacity: .9;
 }
 

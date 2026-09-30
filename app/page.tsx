@@ -336,7 +336,9 @@ function FotoHromadka() {
   return (
     <button
       type="button"
-      className="foto-hromadka"
+      /* Jakmile host začne listovat, couvnou květiny nad kompozicí dozadu —
+         přes fotku, kterou si prohlíží, nemá co ležet. */
+      className={"foto-hromadka" + (listoval ? " je-listovano" : "")}
       onClick={() => {
         setListoval(true);
         setAktivni((i) => (i + 1) % pocet);
@@ -632,7 +634,9 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
           <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
           <img className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
         </span>
-        <span className="obalka-popisek">{otevrena ? "Zavřít" : "Klepněte na pečeť"}</span>
+        {/* Popisek jen u otevřené obálky. Zavřená si o klepnutí říká sama —
+            leží nakřivo přes hromádku a je na ní zlatá pečeť. */}
+        {otevrena && <span className="obalka-popisek">Zavřít</span>}
       </button>
     </div>
   );
