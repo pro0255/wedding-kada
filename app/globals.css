@@ -1923,28 +1923,36 @@ body,
 .scena:has(.obalka.je-otevrena) .scena-kytky-nad { z-index: 0; }
 
 .scena-foto {
-  position: absolute; left: 28%; top: 20.5%; width: 30%;
+  position: absolute; left: 25.5%; top: 20%; width: 30.5%;
   z-index: 2;
 }
+/* Obálka leží přes roh hromádky, ale jen kouskem — víc a schovala by ženicha
+   s nevěstou. */
 .scena-obalka {
-  position: absolute; left: 48%; top: 31%; width: 35.5%;
+  position: absolute; left: 50%; top: 31%; width: 35.5%;
   z-index: 3;
 }
 
 /* Pokyn ke klepnutí. Písmo jde po oblouku — vodorovný řádek vedle obálky
    vypadal jako popisek, ne jako šipka ukazující cestu. */
 .scena-navod {
-  position: absolute; left: 82%; top: 34%; width: 14%;
+  position: absolute; left: 82.5%; top: 39%; width: 11%;
   /* Nad vším ostatním, ať ho nezakryje okvětní lístek ani roh obálky. */
   z-index: 5; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center;
   transition: opacity .5s ease;
 }
 .scena:has(.obalka.je-otevrena) .scena-navod { opacity: 0; }
-.scena-navod svg {
-  display: block; width: 100%; height: auto; overflow: visible;
+/* Šipka se neotáčí — na předloze míří na obálku tak, jak je nakreslená. */
+.scena-navod-sipka { display: block; width: 100%; height: auto; }
+/* Popisek je širší než šipka: pod drobnou kresbou se úzký nápis ztrácel.
+   Velikost řídí viewBox, takže se škáluje se scénou. */
+.scena-navod-text {
+  display: block; width: 185%; height: auto; margin-top: 4%;
+  overflow: visible;
   fill: #b09672;
   font-family: var(--rukopis), "Segoe Script", cursive;
-  font-size: 30px; letter-spacing: .06em;
+  font-size: 44px; letter-spacing: .04em;
 }
 
 /* Rozevřená obálka vyjede papírem nahoru a scéna by ho ořízla o svůj spodní
