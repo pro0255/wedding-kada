@@ -2040,8 +2040,8 @@ body,
   --zasun: 82%;
   /* Šířky listů v dílech obsahu .obalka-listy. Oznámení je širší i vyšší,
      dopis na něm leží. */
-  --list-oznameni: 72%;
-  --list-dopis: 66%;
+  --list-oznameni: 92%;
+  --list-dopis: 85%;
   --vosk: #c69b3f;
 
   position: relative;
@@ -2094,7 +2094,7 @@ body,
 /* Obal obou listů. Odsazení je místo na jejich natočení — ořez
    .obalka-vysuv-ram by jinak rohy usekl. Výšku obalu drží oznámení, které je
    v toku; dopis na něm leží absolutně. */
-.obalka-listy { position: relative; padding: 5% 7%; }
+.obalka-listy { position: relative; padding: 4% 6%; }
 
 .obalka-papir {
   /* Dopis leží na oznámení, posunutý doprava dolů, aby zpoza něj oznámení
