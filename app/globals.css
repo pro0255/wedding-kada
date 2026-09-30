@@ -1098,8 +1098,8 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .akce-odkaz:hover .kal-srdce, .vyber.je-otevreny .akce-odkaz .kal-srdce { fill: var(--palette-blush); }
 .countdown .akce-radek { margin-top: 1.7rem; }
 
-/* sdílení pod medailonkem v patičce */
-.paticka-sdilet { margin-top: 1.6rem; }
+/* sdílení pod pásem v patičce */
+.paticka-sdilet { margin-top: 1.9rem; }
 .venue-map .maplibregl-map { background: var(--ruzova-jemna); }
 /* Žádný filtr — barvy si mapa nastavuje sama v VenueMap.tsx (googlovská
    paleta se šalvějovou zelení). Dřív tu byl grayscale, který ji odbarvil. */
@@ -1135,9 +1135,20 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    Celý blok je o ~10 % větší než zbytek sekce: je to jediné místo na webu,
    kde host něco vyplňuje, tak ať se to dobře čte a trefuje. */
 .ubytovani {
-  position: relative; /* kotva pro auto jedoucí po horní lince */
   max-width: 620px; margin: 3.9rem auto 0; padding-top: 3.3rem;
-  border-top: 1px solid rgba(0,0,0,.1); text-align: center;
+  text-align: center;
+}
+
+/* Dráha auta: krátká linka pod tlačítky u mapy. Kotví auto (to je uvnitř
+   absolutně) a zároveň je tou čarou, po které jede — proto výška 1 px a
+   pozadí, ne border. */
+.auto-linka {
+  position: relative;
+  /* Přesně tak široká jako karta s mapou nad ní (.venue-map-scene) — linka
+     kratší než mapa vypadala jako nedotažená, ne jako záměr. */
+  width: min(720px, 100%); height: 1px;
+  margin: 2.9rem auto 0;
+  background: var(--osa-linka, rgba(0, 0, 0, .14));
 }
 
 /* ——— doodle auto na lince nad ubytováním ———
@@ -1310,34 +1321,43 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    Teď má tři úrovně a nahoře kreslenou snítku, která stránku uzavře. */
 footer {
   position: relative; z-index: 1;
-  /* těsné odsazení — výšku patičky nese samo kolečko, nemá smysl kolem něj
-     nechávat další prázdno */
-  padding: 1.6rem 1.5rem 2rem; text-align: center; color: var(--ink-soft);
-  /* Bez pozadí. Patička leží NAD dekorem (z-index 1) a s krycí béžovou řezala
-     přes květiny i střední pruh vodorovnou hranu — takhle jdou obě vrstvy
-     až na úplný konec stránky a kolečko sedí na nich. */
-  background: none;
+  /* Bez bočního odsazení: pás krajiny jde od kraje ke kraji a odsazení by ho
+     uvnitř zúžilo. Řádek se sdílením si svoje odsazení nese sám. */
+  padding: 0 0 2.4rem; text-align: center; color: var(--ink-soft);
+  /* Béžová jde až na konec stránky, i pod řádek se sdílením. Bílý zbytek pod
+     pruhem vypadal jako nedopatření — patička má končit jednou plochou. */
+  background: var(--bezova);
 }
-/* Medailonek s fotkou zvoničky uvnitř. Stránka končí tím, čím začala.
-   Rozměr je v min(), aby se kolečko vešlo i na úzký telefon. */
+/* Béžový pruh přes celé okno a v něm medailonek s fotkou zvoničky. Stránka
+   končí tím, čím začala.
+
+   Pruh je jen barva: fotka roztažená přes celou šířku se pod závojem rozpadla
+   na mlhu, ve které zvonička zanikla. Do kolečka se naopak vejde celá. */
+.paticka-pas {
+  /* Pozadí nese footer, ten je béžový až na konec stránky. Tady zbývá jen
+     odsazení kolem medailonku. */
+  padding: 3.4rem 1.4rem 0;
+}
+/* Medailonek. Rozměr je v min(), aby se vešel i na úzký telefon. */
 .paticka-kolecko {
   width: min(272px, 76vw); aspect-ratio: 1; border-radius: 50%;
   margin: 0 auto; padding: 1.4rem;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  border: 1.5px solid var(--palette-rose);
-  /* Fotka zvoničky uvnitř kolečka, pod silným béžovým závojem — pod textem
-     má jen prosvítat, jinak by se jména na fotografii ztratila. */
+  /* Bílý prstenec kolem — na béžovém pruhu odděluje kolečko od podkladu líp
+     než linka a drží se papírové estetiky zbytku webu. */
+  border: 7px solid #fff;
+  /* Fotka zvoničky uvnitř, pod silným béžovým závojem — pod textem má jen
+     prosvítat, jinak by se jména na fotografii ztratila. */
   background:
     linear-gradient(rgba(236, 231, 222, .88), rgba(236, 231, 222, .88)),
     url("/fotky/kaplicka.jpg") center / cover no-repeat;
-  box-shadow: 0 10px 30px rgba(158, 71, 80, .14);
+  box-shadow: 0 10px 30px rgba(107, 83, 64, .18);
 }
 /* uvnitř kolečka je míň místa, tak je typografie o stupeň drobnější */
 .paticka-kolecko .paticka-jmena { font-size: clamp(1.1rem, 3.4vw, 1.3rem); margin-bottom: .4rem; }
 .paticka-kolecko .paticka-datum { font-size: .8rem; margin-bottom: .8rem; }
 .paticka-kolecko .paticka-vzkaz { font-size: .62rem; }
-.paticka-kolecko .paticka-kytka { margin-bottom: .8rem; }
 /* Datum a vzkaz tmavší než jinde na webu. Nad tmavými místy fotky měl tlumený
    odstín kontrast 3,51 při hranici 4,5 — tenhle dává 5,84. */
 .paticka-kolecko .paticka-datum,
@@ -1909,6 +1929,9 @@ body,
 .story-text {
   flex: none; width: var(--obalka-sirka);
   margin-left: calc(-1 * var(--prekryv));
+  /* Nad květinami, které leží přes fotky: rozevřená obálka s papírem je to
+     hlavní, co má host číst, a lístky přes ni jdou do textu. */
+  position: relative; z-index: 5;
 }
 .story-grid:has(.obalka.je-otevrena) .story-photo {
   transform: translateX(calc(-1 * var(--rozestup)));
@@ -2049,8 +2072,8 @@ body,
   background: #fff;
   /* Sekce má bílé pozadí, takže papír potřebuje vlastní hranu — bez linky
      a stínu by text jen visel ve vzduchu a žádný papír by z něj nebyl. */
-  border: 1px solid rgba(31, 64, 104, .14);
-  box-shadow: 0 18px 40px rgba(31, 64, 104, .17), 0 2px 6px rgba(31, 64, 104, .08);
+  border: 1px solid rgba(90, 70, 50, .14);
+  box-shadow: 0 18px 40px rgba(90, 70, 50, .17), 0 2px 6px rgba(90, 70, 50, .08);
   padding: 2.6rem 2.6rem;
   text-align: left;
   opacity: 0;
@@ -2079,7 +2102,7 @@ body,
   overflow: hidden;
   transform: rotate(-5deg);
   opacity: 0;
-  filter: drop-shadow(0 10px 26px rgba(31, 64, 104, .22));
+  filter: drop-shadow(0 10px 26px rgba(90, 70, 50, .22));
   transition: opacity .45s ease, transform .85s cubic-bezier(.4, 0, .2, 1);
 }
 .obalka-oznameni > div { position: absolute; inset: 0; }
@@ -2181,11 +2204,16 @@ body,
 
    Musí to stát za blokem, který sráží pozadí sekcí na bílou: pravidla mají
    stejnou specificitu, takže rozhoduje pořadí. */
+/* Úvodní obrazovka s prstenem stojí na béžové, ne na bílé: fotka zvoničky se
+   do pozadí dole rozplývá maskou, takže barva pod ní musí navazovat na sekci
+   s odpočtem — a ta je béžová. */
+.hero-full { background: var(--bezova); }
+
 :root {
-  --baby-blue: #dbe7f4;
+  --bezova: #ece5d8;
   /* Na linku je plocha moc světlá — tohle je stejný tón o dva stupně sytější,
      aby byl rámeček menu vidět. */
-  --baby-blue-linka: #b5cee4;
+  --bezova-linka: #cbbda6;
 }
 /* Modré sekce: baby blue přes celou šířku okna a modrá typografie.
    Přes celou šířku proto, že ostatní sekce mají `width: min(1600px, 100% - 3rem)`
@@ -2200,19 +2228,20 @@ body,
 .obsah-ramec > .schedule,
 .obsah-ramec > .location {
   width: 100%;
-  background: var(--baby-blue);
-  color: var(--osa-modra);
 
-  --osa-modra: #35607f;
-  --osa-linka: #a7c3da;
-  --ink: var(--osa-modra);
-  --ink-soft: #5c82a0;
-  --accent: var(--osa-modra);
-  --palette-rose-text: var(--osa-modra);
-  --palette-blue-text: var(--osa-modra);
-  --palette-blush-text: var(--osa-modra);
-  --palette-wine: var(--osa-modra);
-  --ruzova-syta: #22415a;
+  background: var(--bezova);
+  color: var(--osa-pismo);
+
+  --osa-pismo: #6b5340;
+  --osa-linka: #cbbda6;
+  --ink: var(--osa-pismo);
+  --ink-soft: #8a755c;
+  --accent: var(--osa-pismo);
+  --palette-rose-text: var(--osa-pismo);
+  --palette-blue-text: var(--osa-pismo);
+  --palette-blush-text: var(--osa-pismo);
+  --palette-wine: var(--osa-pismo);
+  --ruzova-syta: #4a3928;
   --menu-ramecek: var(--osa-linka);
 }
 
@@ -2226,7 +2255,7 @@ body,
 /* Rámeček menu je border-image z public/ramecek.svg a barvu si nese uvnitř —
    CSS do něj nesahá, takže baby blue je přepsaná přímo v tom souboru. Tahle
    proměnná barví linky na stránkách her. */
-:root { --menu-ramecek: var(--baby-blue-linka); }
+:root { --menu-ramecek: var(--bezova-linka); }
 
 /* ---------- program dne jako časová osa ----------
    Ikonka, pilulka s časem na lince a popis pod ní — jeden sloupec na bod.
@@ -2277,7 +2306,7 @@ body,
      překryje i bez z-indexu. */
   position: relative; display: inline-block;
   padding: .36rem .9rem;
-  background: var(--baby-blue);
+  background: var(--bezova);
   border: 1px solid var(--osa-linka); border-radius: 999px;
   font-family: var(--serif), Georgia, serif; font-weight: 500;
   font-size: .92rem; letter-spacing: .08em; white-space: nowrap;
@@ -2334,7 +2363,12 @@ body,
   margin: 4.4rem 0 0 50%;
   transform: translateX(-50%);
   padding: 3.4rem max(1.2rem, calc((100vw - 640px) / 2)) 3rem;
-  background: #fff;
+  /* Bílá se do béžové sekce vtápí jen shora: ubytování patří k místu konání
+     a ostrý předěl z něj dělal samostatný blok. Dole žádný přechod není —
+     tam už začíná program a ten k ubytování nepatří. */
+  background: linear-gradient(to bottom,
+    var(--bezova) 0,
+    #fff clamp(60px, 8vh, 120px));
   color: #2b2925;
 
   /* Uvnitř pruhu platí zas obyčejné barvy webu. */
@@ -2364,10 +2398,10 @@ body,
 .menu-kniha {
   --deska: clamp(290px, 33vw, 520px);
   --pomer: 1.41;
-  --deska-modra: #c2d7ea;
-  --deska-tmava: #a9c5de;
+  --deska-bezova: #e7dfd0;
+  --deska-tmava: #d3c7b2;
   --zlata: #c69b3f;
-  --list-modra: #35607f;
+  --list-pismo: #5f4a37;
 
   width: calc(var(--deska) * 2);
   height: calc(var(--deska) * var(--pomer));
@@ -2405,8 +2439,16 @@ body,
      dvojnásobek a papír by na ní byl znatelně menší. */
   padding: calc(var(--deska) * .06);
   border: 0; font: inherit; text-align: inherit;
-  background: radial-gradient(130% 95% at 50% 36%, #c9dcee 0%, var(--deska-modra) 58%, var(--deska-tmava) 100%);
-  box-shadow: 0 22px 54px rgba(31, 64, 104, .3);
+  /* Žebrovaný papír z předlohy (public/menu/textura.jpg) a přes něj vineta:
+     bez ní je plocha placatá, protože textura má všude stejný jas. Gradient je
+     průhledný, aby žebrování prosvítalo i v rozích. */
+  background:
+    radial-gradient(130% 95% at 50% 36%,
+      rgba(255, 253, 248, .55) 0%,
+      rgba(231, 223, 208, .12) 58%,
+      rgba(186, 170, 144, .5) 100%),
+    var(--deska-bezova) url("/menu/textura.webp") center / cover;
+  box-shadow: 0 22px 54px rgba(90, 70, 50, .3);
 }
 /* Vnější roh zaoblený, vnitřní u hřbetu ostrý — tak je vázaná kniha. */
 .menu-deska-prava { border-radius: 3px 9px 9px 3px; }
@@ -2420,8 +2462,8 @@ body,
   content: ""; position: absolute; top: 0; bottom: 0; width: 6%;
   pointer-events: none;
 }
-.menu-deska-prava::before { left: 0; background: linear-gradient(to right, rgba(20, 45, 75, .15), transparent); }
-.menu-obalka-rub::before { right: 0; background: linear-gradient(to left, rgba(20, 45, 75, .15), transparent); }
+.menu-deska-prava::before { left: 0; background: linear-gradient(to right, rgba(80, 62, 44, .15), transparent); }
+.menu-obalka-rub::before { right: 0; background: linear-gradient(to left, rgba(80, 62, 44, .15), transparent); }
 
 /* --- obálka --- */
 .menu-obalka {
@@ -2468,18 +2510,18 @@ body,
   flex: 1; display: flex; flex-direction: column; justify-content: center;
   background: #fdfcfa;
   padding: 9% 8.5%;
-  box-shadow: 0 3px 14px rgba(20, 45, 75, .22);
+  box-shadow: 0 3px 14px rgba(80, 62, 44, .22);
   /* Vlasová linka kousek od kraje, jako na tištěném menu. */
-  outline: 1px solid rgba(53, 96, 127, .22);
+  outline: 1px solid rgba(107, 83, 64, .22);
   outline-offset: -8px;
-  color: var(--list-modra);
+  color: var(--list-pismo);
 }
 
 .menu-uvod {
   font-size: clamp(.68rem, 1.05vw, .92rem); line-height: 1.75;
   font-style: italic; text-align: center;
   margin: -4% 0 9%;
-  color: color-mix(in srgb, var(--list-modra) 88%, transparent);
+  color: color-mix(in srgb, var(--list-pismo) 88%, transparent);
 }
 .menu-nadstrana, .menu-preji {
   font-family: var(--serif), Georgia, serif;
@@ -2488,15 +2530,23 @@ body,
 }
 .menu-nadstrana { margin-bottom: 7%; }
 .menu-uvod + .menu-chody { margin-top: 0; }
-.menu-preji { margin-top: 9%; }
+/* Oddělené od dětských chodů: nalepené pod nimi to vypadalo jako jejich
+   podnadpis, ne jako závěr celého menu. */
+.menu-preji {
+  margin-top: 13%; padding-top: 7%;
+  border-top: 1px solid color-mix(in srgb, var(--list-pismo) 22%, transparent);
+}
 
 .menu-chody { list-style: none; margin: 0; padding: 0; }
 .menu-chody li { text-align: center; }
 .menu-chody li + li { margin-top: 8%; }
+/* Kategorie i popisky jsou drobné a proložené — průhlednost, která na velkém
+   nadpisu působí jemně, z nich při čtení u stolu dělá šeď. Proto jen lehké
+   projasnění proti plné barvě textu, ne polovina. */
 .menu-kurz {
-  display: block; font-size: clamp(.54rem, .86vw, .72rem);
+  display: block; font-size: clamp(.58rem, .9vw, .76rem);
   letter-spacing: .3em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--list-modra) 80%, transparent);
+  color: color-mix(in srgb, var(--list-pismo) 94%, transparent);
   margin-bottom: .55em;
 }
 .menu-jidlo {
@@ -2505,13 +2555,13 @@ body,
 }
 .menu-detail {
   display: block; margin-top: .45em;
-  font-size: clamp(.62rem, .98vw, .82rem); line-height: 1.5; font-style: italic;
-  color: color-mix(in srgb, var(--list-modra) 90%, transparent);
+  font-size: clamp(.66rem, 1.02vw, .86rem); line-height: 1.5; font-style: italic;
+  color: color-mix(in srgb, var(--list-pismo) 96%, transparent);
 }
 .menu-alergeny {
-  margin-top: 6%;
+  margin-top: auto; padding-top: 9%;
   font-size: clamp(.6rem, .92vw, .78rem); line-height: 1.6; text-align: center;
-  color: color-mix(in srgb, var(--list-modra) 85%, transparent);
+  color: color-mix(in srgb, var(--list-pismo) 90%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2563,11 +2613,13 @@ body,
    pozadí, ne jako kytice, do které je kompozice položená. Musí to být druhá
    vrstva se svým z-indexem: vrstva s věncem tvoří vlastní kontext vrstvení,
    takže by se z-index jednotlivého obrázku k obálce vůbec nedostal. */
-.kvetiny-scena-nad { z-index: 6; }
+/* Nad fotkami (1), ale pod obálkou (5): přes hromádku květiny ležet mají,
+   přes rozevřený papír s příběhem ne. */
+.kvetiny-scena-nad { z-index: 4; }
 .kvetina {
   position: absolute; height: auto; display: block;
   /* Jemný stín usadí květinu na stránku, ať nevypadá nalepená. */
-  filter: drop-shadow(0 8px 18px rgba(31, 64, 104, .16));
+  filter: drop-shadow(0 8px 18px rgba(90, 70, 50, .16));
 }
 
 /* Věnec přesahuje skupinu asi o šestinu na každou stranu, takže sekce
@@ -2598,17 +2650,17 @@ body,
   border: 12px solid #fff;
   border-radius: 3px;
   background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(53, 96, 127, .12);
+  box-shadow: inset 0 0 0 1px rgba(107, 83, 64, .12);
 }
 .venue-map { border-radius: 3px; }
 
 /* Bod na mapě do modré, ať drží s celou sekcí. Původní růžová zbyla z doby,
    kdy byla sekce růžová. */
 .venue-pin-dot {
-  background: radial-gradient(circle at 35% 30%, #6d9ec4, #35607f 70%);
-  box-shadow: 0 2px 6px rgba(23, 51, 74, .45), 0 0 0 1px rgba(53, 96, 127, .55);
+  background: radial-gradient(circle at 35% 30%, #a8916f, #6b5340 70%);
+  box-shadow: 0 2px 6px rgba(23, 51, 74, .45), 0 0 0 1px rgba(107, 83, 64, .55);
 }
-.venue-pin-ring { border-color: rgba(53, 96, 127, .55); }
+.venue-pin-ring { border-color: rgba(107, 83, 64, .55); }
 
 /* ---------- ubytování: modré akcenty na bílém pruhu ----------
    Pruh zůstává bílý s černým textem, ale co má nést barvu — cena, čísla
@@ -2616,21 +2668,21 @@ body,
    je --palette-rose-text přepsaná na inkoust, takže samo od sebe by nic
    nezmodralo. */
 .location .ubytovani {
-  --modra-akcent: #35607f;
-  --modra-akcent-syta: #22415a;
+  --hneda-akcent: #6b5340;
+  --hneda-akcent-syta: #4a3928;
 }
-.location .ubytovani .lead strong { color: var(--modra-akcent); }
-.location .kapacita-cisla b { color: var(--modra-akcent); }
+.location .ubytovani .lead strong { color: var(--hneda-akcent); }
+.location .kapacita-cisla b { color: var(--hneda-akcent); }
 .location .kapacita-cisla b span,
-.location .kapacita-popis { color: color-mix(in srgb, var(--modra-akcent) 78%, transparent); }
-.location .kapacita-bar { background: color-mix(in srgb, var(--modra-akcent) 16%, transparent); }
-.location .kapacita-fill { background: var(--modra-akcent); }
-.location .ubytovani .btn { border-color: var(--modra-akcent); color: var(--modra-akcent); }
+.location .kapacita-popis { color: color-mix(in srgb, var(--hneda-akcent) 78%, transparent); }
+.location .kapacita-bar { background: color-mix(in srgb, var(--hneda-akcent) 16%, transparent); }
+.location .kapacita-fill { background: var(--hneda-akcent); }
+.location .ubytovani .btn { border-color: var(--hneda-akcent); color: var(--hneda-akcent); }
 .location .ubytovani .btn:hover:not(:disabled) {
-  background: var(--modra-akcent-syta); border-color: var(--modra-akcent-syta); color: #fff;
+  background: var(--hneda-akcent-syta); border-color: var(--hneda-akcent-syta); color: #fff;
 }
-.location .ubytovani .btn:disabled:hover { background: none; color: var(--modra-akcent); }
-.location .ubytovani-form input:focus { border-bottom-color: var(--modra-akcent); }
+.location .ubytovani .btn:disabled:hover { background: none; color: var(--hneda-akcent); }
+.location .ubytovani-form input:focus { border-bottom-color: var(--hneda-akcent); }
 
 /* Kresby po stranách bílého pruhu s ubytováním: vlevo hotelový vozík, vpravo
    snídaně. Pruh jde přes celé okno a obsah v něm drží uprostřed jen 640 px,
@@ -2673,9 +2725,9 @@ body,
   background-image: none;
   background-color: #f6f4f0;
   box-shadow:
-    0 26px 60px rgba(53, 96, 127, .18),
-    0 6px 18px rgba(53, 96, 127, .1),
-    inset 0 0 0 1px rgba(53, 96, 127, .08);
+    0 26px 60px rgba(107, 83, 64, .18),
+    0 6px 18px rgba(107, 83, 64, .1),
+    inset 0 0 0 1px rgba(107, 83, 64, .08);
 }
 /* Ornament: krátká linka s kosočtvercem uprostřed, stejný jako mezi chody. */
 .menu-ornament {
@@ -2720,14 +2772,14 @@ body,
 .menu-obalka-lic::after {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7%;
   border-radius: 9px 0 0 9px;
-  background: linear-gradient(to right, rgba(20, 45, 75, .22), rgba(20, 45, 75, .05) 60%, transparent);
+  background: linear-gradient(to right, rgba(80, 62, 44, .22), rgba(80, 62, 44, .05) 60%, transparent);
   border-right: 1px solid rgba(255, 255, 255, .35);
   pointer-events: none;
 }
 .menu-obalka-lic { border-radius: 9px 5px 5px 9px; }
 
 /* Měkčí stín s modrým nádechem místo šedého. */
-.menu-deska { box-shadow: 0 26px 60px rgba(53, 96, 127, .22), 0 6px 18px rgba(53, 96, 127, .12); }
+.menu-deska { box-shadow: 0 26px 60px rgba(107, 83, 64, .22), 0 6px 18px rgba(107, 83, 64, .12); }
 
 /* Kniha se při najetí pootevře — bez textu na desce je to jediný náznak,
    že se s ní dá něco dělat. */
@@ -2736,7 +2788,7 @@ body,
 .menu-napoveda {
   margin: 1.6rem auto 0; text-align: center;
   font-size: .62rem; letter-spacing: .3em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--list-modra, #35607f) 62%, transparent);
+  color: color-mix(in srgb, var(--list-pismo, #5f4a37) 62%, transparent);
 }
 
 /* --- příbory po stranách zavřené knihy ---
@@ -2756,7 +2808,7 @@ body,
   height: 74%; width: auto;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  filter: drop-shadow(0 6px 14px rgba(53, 96, 127, .18));
+  filter: drop-shadow(0 6px 14px rgba(107, 83, 64, .18));
   transition: opacity .5s ease, translate .9s cubic-bezier(.4, 0, .2, 1);
 }
 .menu-pribor-vidlicka { left: 14%; }

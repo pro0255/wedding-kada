@@ -26,9 +26,9 @@ import { mkdir } from "node:fs/promises";
 const ZDROJ = "public/menu/menu se stolem.png";
 const CIL = "public/menu";
 
-/* Odstín a strop sytosti baby blue rámečku (#a9c4dd). */
-const ODSTIN = 207;
-const STROP_SYTOSTI = 0.45;
+/* Odstín a strop sytosti béžové linky rámečku (#c2ad8e). */
+const ODSTIN = 32;
+const STROP_SYTOSTI = 0.34;
 /* Světlost: linka z 0,33 vyjede na 0,75, krémová z 0,98 zůstane na 0,97. */
 const SVETLOST = (l) => l * 0.35 + 0.63;
 

@@ -8,7 +8,7 @@
  *
  * Kresby jsou černé linky na bílém papíře, uložené jako JPEG. Průhlednost se
  * proto nebere z alfa kanálu (žádný tam není), ale z tmavosti: co je černé, je
- * plná linka, co bílé, je papír. Barva se pak nastaví natvrdo na modrou —
+ * plná linka, co bílé, je papír. Barva se pak nastaví natvrdo na hnědou —
  * přebarvovat odstín nemá u černé co dělat, černá žádný odstín nemá.
  *
  * Ořez na kresbu je nutný: každý sken má kolem sebe jinak velký bílý okraj
@@ -64,9 +64,9 @@ const ZTENCENI_KRESEB = { snidane: -0.4 };
  * se dá tah měnit: čtyřnásobek znamená čtvrtiny pixelu výstupu. */
 const ZVETSENI = 4;
 
-/* Modrá linek. Stejný tón jako písmo v sekci programu — ikonky a text mají
+/* Barva linek. Stejný tón jako písmo v sekci programu — ikonky a text mají
  * působit jako jedna kresba. */
-const MODRA = [0x35, 0x60, 0x7f];
+const BARVA = [0x6b, 0x53, 0x40];
 
 /* Šířka výstupu. Ikonky se zobrazují kolem 110 px, tohle je rezerva na
  * displeje s dvojnásobnou hustotou. */
@@ -183,7 +183,7 @@ function ztloustit(alfa, W, H, r) {
   return ven;
 }
 
-/** Z dat RGBA udělá modrou siluetu oříznutou na inkoust. */
+/** Z dat RGBA udělá barevnou siluetu oříznutou na inkoust. */
 async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   const alfa = new Float32Array(W * H);
   let minX = W, maxX = 0, minY = H, maxY = 0;
@@ -210,7 +210,7 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   for (let y = 0; y < vyska; y++) {
     for (let x = 0; x < sirka; x++) {
       const q = (y * sirka + x) * 4;
-      ven[q] = MODRA[0]; ven[q + 1] = MODRA[1]; ven[q + 2] = MODRA[2];
+      ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
       ven[q + 3] = Math.round(255 * zeslabena[(y + minY) * W + (x + minX)]);
     }
   }

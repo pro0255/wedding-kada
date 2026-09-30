@@ -3,16 +3,20 @@
  *   node scripts/ubytovani-kresby.mjs
  *
  * Z předloh v public/ubytování vyřízne hotelový vozík a snídani, odmaskuje
- * pozadí a obojí sjednotí do černé. Obě předlohy jsou archy s dalšími
+ * pozadí a obojí sjednotí do jedné barvy. Obě předlohy jsou archy s dalšími
  * kresbami a s cizím názvem, takže se z nich bere jen zadaný obdélník; přesný
  * ořez na kresbu si skript dotáhne sám podle inkoustu.
  *
  * Průhlednost se bere z tmavosti: co je tmavé, je tah, co světlé, je papír.
- * Barva se nastaví natvrdo na černou — vozík je na předloze vínový, snídaně
- * černá, a vedle sebe by si nesedly. */
+ * Barva se nastaví natvrdo na hnědou z ikonek programu — vozík je na předloze
+ * vínový, snídaně černá, a vedle sebe by si nesedly. */
 
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
+
+/* Stejný tón jako ikonky v programu (scripts/program-ikony.mjs) — kresby na
+ * webu mají vypadat jako jedna ruka. */
+const BARVA = [0x6b, 0x53, 0x40];
 
 const SLOZKA = "public/ubytování";
 const CIL = "public/ubytovani";
@@ -69,7 +73,7 @@ for (const k of KRESBY) {
   for (let y = 0; y < vyska; y++) {
     for (let x = 0; x < sirka; x++) {
       const q = (y * sirka + x) * 4;
-      ven[q] = 26; ven[q + 1] = 26; ven[q + 2] = 26;
+      ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
       ven[q + 3] = Math.round(255 * alfa[(y + minY) * W + (x + minX)]);
     }
   }

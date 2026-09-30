@@ -10,17 +10,16 @@
  * Práh je schválně vysoko — přes předlohu jde bledý vodoznak a nižší práh by
  * ho protáhl na výstup jako šedý cár.
  *
- * Barva tahů se nechává původní, jen se sjednotí do modré webu: kresba je
- * kolem 210°, tedy skoro tam, kde má být, ale sytější a tmavší, než sedne
- * k drobnému textu vedle. */
+ * Barva tahů se sjednotí s písmem menu: předloha je modrá, ale zbytek webu je
+ * béžový a studená kresba by v něm stála jako cizí prvek. */
 
 import sharp from "sharp";
 
 const ZDROJ = "public/menu/haha.jpg";
 const CIL = "public/menu/prostreno.webp";
 
-/* Modrá textu menu. */
-const MODRA = [0x35, 0x60, 0x7f];
+/* Barva textu menu. */
+const BARVA = [0x5f, 0x4a, 0x37];
 
 /* Prahy tmavosti. Pod spodním je papír i vodoznak, nad horním plný tah. */
 const PAPIR = 58;
@@ -58,7 +57,7 @@ const ven = Buffer.alloc(sirka * vyska * 4);
 for (let y = 0; y < vyska; y++) {
   for (let x = 0; x < sirka; x++) {
     const q = (y * sirka + x) * 4;
-    ven[q] = MODRA[0]; ven[q + 1] = MODRA[1]; ven[q + 2] = MODRA[2];
+    ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
     ven[q + 3] = Math.round(255 * alfa[(y + minY) * W + (x + minX)]);
   }
 }

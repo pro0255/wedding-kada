@@ -12,7 +12,6 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
 import Link from "next/link";
-import { SnitkaKvet } from "./Kytky";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
@@ -447,26 +446,23 @@ const KVETINY: {
 
      Svislé hodnoty zůstávají v procentech výšky skupiny. */
 
-  /* Horní oblouk zleva: světle modrý květ, hortenzie, ještě kus hortenzie
-     a karafiáty nad obálkou. */
-  { soubor: "02_modry_kvet", sirka: 17, poloha: { left: "19%", top: "-19%" }, uhel: -8, maly: true },
-  { soubor: "06_hortenzie", sirka: 21, poloha: { left: "44%", top: "-24%" }, uhel: -4, maly: true },
-  { soubor: "06_hortenzie", sirka: 14, poloha: { left: "60%", top: "-19%" }, uhel: 9 },
-  { soubor: "13_karafiat", sirka: 17, poloha: { left: "68%", top: "-18%" }, uhel: 10, maly: true, nad: true },
-  /* Levý bok shora dolů. Karafiáty se překrývají, aby držely jako jeden trs. */
-  { soubor: "13_karafiat", sirka: 17, poloha: { left: "4%", top: "-2%" }, uhel: -6 },
-  { soubor: "13_karafiat", sirka: 14, poloha: { left: "11%", top: "26%" }, uhel: 12 },
-  { soubor: "01_kvetiny_bile", sirka: 15, poloha: { left: "16%", top: "12%" }, uhel: 4 },
-  { soubor: "08_krasenka", sirka: 13, poloha: { left: "14%", top: "50%" }, uhel: -8 },
-  { soubor: "13_karafiat", sirka: 14, poloha: { left: "8%", top: "52%" }, uhel: 8 },
-  /* Spodní okraj zleva doprava. */
-  { soubor: "08_krasenka", sirka: 12, poloha: { left: "21%", top: "72%" }, uhel: 6 },
-  { soubor: "01_kvetiny_bile", sirka: 13, poloha: { left: "31%", top: "78%" }, uhel: 5, maly: true, nad: true },
-  { soubor: "10_gerbera", sirka: 11, poloha: { left: "49%", top: "86%" }, uhel: -7 },
-  { soubor: "01_kvetiny_bile", sirka: 10, poloha: { left: "70%", top: "78%" }, uhel: 10 },
-  /* Pravý bok: karafiát pod horním trsem a chomáč krásenek u obálky. */
-  { soubor: "13_karafiat", sirka: 13, poloha: { left: "76%", top: "16%" }, uhel: -18, nad: true },
-  { soubor: "08_krasenka", sirka: 24, poloha: { left: "66%", top: "44%" }, uhel: 4, maly: true, nad: true },
+  /* Horní oblouk zleva: světle modrý květ, velká hortenzie a nad obálkou
+     karafiáty. Druhá, menší hortenzie vykukuje zpoza obálky. */
+  { soubor: "02_modry_kvet", sirka: 20.5, poloha: { left: "6%", top: "-23%" }, uhel: -6, maly: true },
+  { soubor: "06_hortenzie", sirka: 26, poloha: { left: "36%", top: "-34%" }, uhel: -3, maly: true },
+  { soubor: "06_hortenzie", sirka: 10.5, poloha: { left: "55%", top: "-6%" }, uhel: 14 },
+  { soubor: "13_karafiat", sirka: 15, poloha: { left: "62%", top: "-24%" }, uhel: 28, maly: true },
+  { soubor: "13_karafiat", sirka: 11, poloha: { left: "59.5%", top: "4%" }, uhel: -18 },
+  /* Levý bok shora dolů: dva karafiátové trsy a mezi nimi ibišek s bílou
+     sasankou. Trsy jsou schválně oddělené — jeden dlouhý splýval v pruh. */
+  { soubor: "13_karafiat", sirka: 13, poloha: { left: "-11%", top: "-20%" }, uhel: -18 },
+  { soubor: "01_kvetiny_bile-3", sirka: 14, poloha: { left: "2%", top: "9%" }, uhel: 4 },
+  { soubor: "13_karafiat", sirka: 13, poloha: { left: "-7%", top: "44%" }, uhel: 12 },
+  { soubor: "01_kvetiny_bile-2", sirka: 12, poloha: { left: "1%", top: "54%" }, uhel: -8 },
+  /* Spodní okraj a pravý bok. Tyhle tři leží přes kompozici, ne za ní. */
+  { soubor: "01_kvetiny_bile-1", sirka: 14, poloha: { left: "13%", top: "76%" }, uhel: 6, maly: true, nad: true },
+  { soubor: "01_kvetiny_bile-3", sirka: 13, poloha: { left: "40%", top: "84%" }, uhel: -9, nad: true },
+  { soubor: "08_krasenka", sirka: 27, poloha: { left: "60%", top: "44%" }, uhel: 4, maly: true, nad: true },
 ];
 
 /* Dvě vrstvy se stejnou geometrií: jedna pod fotkami s obálkou, druhá nad
@@ -522,7 +518,7 @@ function SvatebniMenu() {
         {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
         <div className="menu-deska menu-deska-prava">
           <div className="menu-list">
-            <p className="menu-nadstrana">Pro nejmenší</p>
+            <p className="menu-nadstrana">Pro naše nejmenší</p>
             <ul className="menu-chody">
               <li>
                 <span className="menu-kurz">Polévka</span>
@@ -534,14 +530,17 @@ function SvatebniMenu() {
                 <span className="menu-jidlo">Smažený kuřecí řízek</span>
                 <span className="menu-detail">Bramborové pyré</span>
               </li>
+              <li>
+                <span className="menu-kurz">Dezert</span>
+                <span className="menu-jidlo">Svatební dort</span>
+                <span className="menu-detail">Čokoládový korpus, pařížský krém</span>
+              </li>
             </ul>
+            {/* Oddělené linkou a mezerou: nalepené pod dětskými chody to
+                vypadalo jako jejich podnadpis, ne jako závěr celého menu. */}
             <p className="menu-preji">Dobrou chuť</p>
             {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
             <img className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
-            <p className="menu-alergeny">
-              Máte-li speciální stravovací požadavky (vegetariánské, veganské či
-              zdravotní), dejte nám prosím vědět předem.
-            </p>
           </div>
         </div>
 
@@ -562,11 +561,13 @@ function SvatebniMenu() {
           </button>
           <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
             <div className="menu-list">
+              {/* Nadpis první, vtip až pod ním: stránka má začít hlavičkou a
+                  vtip pak funguje jako pointa, ne jako úvodní odstavec. */}
+              <p className="menu-nadstrana">Menu</p>
               <p className="menu-uvod">
                 To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
                 na obřad — my víme svoje.
               </p>
-              <p className="menu-nadstrana">Menu</p>
               <ul className="menu-chody">
                 <li>
                   <span className="menu-kurz">Polévka</span>
@@ -575,7 +576,7 @@ function SvatebniMenu() {
                 </li>
                 <li>
                   <span className="menu-kurz">Hlavní chod</span>
-                  <span className="menu-jidlo">Vepřová panenka v sous-vide</span>
+                  <span className="menu-jidlo">Vepřová panenka sous-vide</span>
                   <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
                 </li>
                 <li>
@@ -584,6 +585,13 @@ function SvatebniMenu() {
                   <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
                 </li>
               </ul>
+              {/* Poznámka o stravovacích požadavcích patří sem, ne na dětskou
+                  stranu: tam se tlačila pod ilustraci, kdežto levá strana má
+                  o chod míň a pod dezertem zůstávala prázdná plocha. */}
+              <p className="menu-alergeny">
+                Speciální stravovací požadavky (vegetariánské, veganské či
+                zdravotní) nám prosím napište nejpozději do 1.&nbsp;8.&nbsp;2027.
+              </p>
             </div>
           </div>
         </div>
@@ -932,13 +940,14 @@ export default function Home() {
       </section>
 
       <footer>
-        {/* Medailonek: fotka kapličky z hera pod béžovým závojem, růžová linka
-           po obvodu a uvnitř rozloučení. Uzavírá stránku tím, čím začala. */}
-        <div className="paticka-kolecko">
-          <SnitkaKvet className="paticka-kytka" />
-          <p className="paticka-jmena">Kateřina &amp; Jakub</p>
-          <p className="paticka-datum">18 · 09 · 2027</p>
-          <p className="paticka-vzkaz">Těšíme se na vás</p>
+        {/* Béžový pruh přes celé okno a na něm medailonek: fotka zvoničky
+           v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala. */}
+        <div className="paticka-pas">
+          <div className="paticka-kolecko">
+            <p className="paticka-jmena">Kateřina &amp; Jakub</p>
+            <p className="paticka-datum">18 · 09 · 2027</p>
+            <p className="paticka-vzkaz">Těšíme se na vás</p>
+          </div>
         </div>
         <div className="akce-radek paticka-sdilet">
           <SdiletWeb />

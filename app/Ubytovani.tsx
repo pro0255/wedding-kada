@@ -25,7 +25,7 @@ function AutoDrah({ children }: { children: React.ReactNode }) {
     if (!el) return;
     // Sleduje se okolní blok, ne samotná dráha: ta je absolutní a nulově
     // vysoká, a takový cíl IntersectionObserver spolehlivě nehlásí.
-    const cil = el.closest(".ubytovani") ?? el;
+    const cil = el.closest(".auto-linka") ?? el;
     const io = new IntersectionObserver(
       (zaznamy) => {
         if (zaznamy.some((z) => z.isIntersecting)) {
@@ -152,8 +152,14 @@ export default function Ubytovani() {
   const plno = stav?.volno === 0;
 
   return (
-    <div className="ubytovani">
-      <AutoNaLince />
+    <>
+      {/* Krátká linka pod tlačítky u mapy — dráha auta. Dřív jezdilo po horní
+          hraně bílého pruhu ubytování, tedy přes celé okno: na širokém monitoru
+          byla cesta tak dlouhá, že auto půlku cyklu jen plulo prázdnem. */}
+      <div className="auto-linka">
+        <AutoNaLince />
+      </div>
+      <div className="ubytovani">
       {/* Kresby po stranách bílého pruhu. Vyřezává je
           scripts/ubytovani-kresby.mjs. */}
       <img className="ubytovani-kresba ubytovani-kresba-vozik" src="/ubytovani/vozik.webp" alt="" aria-hidden="true" />
@@ -259,6 +265,7 @@ export default function Ubytovani() {
           {chyba}
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -5,7 +5,7 @@
  * Předloha (public/menu/pribor.jpg) je vidlička, nůž a lžíce na bílém papíře,
  * každá s růžovou mašlí. Web je potřebuje zvlášť — vidličku nalevo od menu,
  * nůž se lžící napravo — takže se musí rozdělit, odmaskovat pozadí a mašle
- * přebarvit do modré.
+ * přebarvit do teplé béžové.
  *
  * Dělí se podle prázdných sloupců: mezi příbory je na předloze čistý bílý
  * pruh, takže stačí spočítat, kolik je v každém sloupci kresby, a rozřezat to
@@ -13,7 +13,7 @@
  * ani rozmístěné pravidelně.
  *
  * Mašle se poznají podle sytosti: příbor je kreslený šedě, mašle je jediná
- * barevná věc na předloze. Odstín se jí nastaví na modrý a světlost se nechá,
+ * barevná věc na předloze. Odstín se jí nastaví natvrdo a světlost se nechá,
  * takže mašli zůstanou záhyby i stíny. */
 
 import sharp from "sharp";
@@ -24,9 +24,9 @@ const CIL = "public/menu";
 /* Jak se výřezy jmenují, zleva doprava. */
 const NAZVY = ["vidlicka", "nuz", "lzice"];
 
-/* Modrá mašlí — stejná jako rámeček menu. */
-const ODSTIN = 207;
-const SYTOST = 0.42;
+/* Barva mašlí — teplá, aby seděla k béžové paletě webu. */
+const ODSTIN = 32;
+const SYTOST = 0.34;
 
 /* Od jaké sytosti jde o mašli. Šedá kresba příboru se drží pod desetinou. */
 const SYTOST_MASLE = 0.18;
