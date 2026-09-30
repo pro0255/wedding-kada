@@ -1916,11 +1916,15 @@ body,
   z-index: 1; pointer-events: none;
 }
 /* Přes fotky i obálku. Jakmile ale host se scénou něco dělá — klepne na fotky
-   nebo otevře obálku — couvne dozadu: přes to, na co se zrovna dívá, nemá co
-   ležet. */
+   nebo otevře obálku — couvne za ně: přes to, na co se zrovna dívá, nemá co
+   ležet.
+
+   Couvne jen o tolik, aby byla pod fotkami (2) a obálkou (3), ne úplně dozadu:
+   se stejným z-indexem jako zadní vrstva zůstane nad ní, protože stojí později
+   v pořadí. Věnec tak ani na chvíli neztratí hloubku. */
 .scena-kytky-nad { z-index: 4; }
 .scena:has(.foto-hromadka.je-listovano) .scena-kytky-nad,
-.scena:has(.obalka.je-otevrena) .scena-kytky-nad { z-index: 0; }
+.scena:has(.obalka.je-otevrena) .scena-kytky-nad { z-index: 1; }
 
 .scena-foto {
   position: absolute; left: 25.5%; top: 20%; width: 30.5%;
