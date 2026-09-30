@@ -581,13 +581,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-popis {
   position: absolute; inset: 0;
   transform: rotate(-1.5deg);
-  /* Zarovnaný doprava, ne na střed: přes levý dolní roh rámečku leží bílý květ
-     z přední vrstvy věnce a ukusoval popisku začátek. */
-  display: flex; align-items: flex-end; justify-content: flex-end;
-  padding: 0 26px 30px 34%;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 26px 30px;
   pointer-events: none;
   font-family: var(--rukopis), "Segoe Script", cursive;
-  font-size: 1.45rem; line-height: 1.15; text-align: right;
+  font-size: 1.45rem; line-height: 1.15; text-align: center;
   color: color-mix(in srgb, var(--ink) 82%, transparent);
   transition: opacity .3s ease;
 }
@@ -1952,10 +1950,7 @@ body,
   position: absolute; left: 82.5%; top: 39%; width: 11%;
   /* Nad vším ostatním, ať ho nezakryje okvětní lístek ani roh obálky. */
   z-index: 5; pointer-events: none;
-  /* Nápis stojí NAD šipkou, u jejího začátku — odtud oko sjede po oblouku až
-     k hrotu na obálce. Pod hrotem by naopak četlo pokyn, až když se podívalo
-     jinam. */
-  display: flex; flex-direction: column-reverse; align-items: center;
+  display: flex; flex-direction: column; align-items: center;
   transition: opacity .5s ease;
 }
 .scena:has(.obalka.je-otevrena) .scena-navod { opacity: 0; }
@@ -1964,7 +1959,7 @@ body,
 /* Popisek je širší než šipka: pod drobnou kresbou se úzký nápis ztrácel.
    Velikost řídí viewBox, takže se škáluje se scénou. */
 .scena-navod-text {
-  display: block; width: 185%; height: auto; margin-bottom: 2%;
+  display: block; width: 185%; height: auto; margin-top: 4%;
   overflow: visible;
   fill: #b09672;
   font-family: var(--rukopis), "Segoe Script", cursive;
