@@ -819,7 +819,13 @@ export default function Home() {
 
       {/* místo */}
       <section className="location" id="location">
-        <Reveal className="wrap">
+        <Reveal className="wrap location-wrap">
+          {/* Text vlevo, mapa vpravo. Celý web jinak staví všechno na střed pod
+              sebe; tahle sekce ten rytmus jednou přeruší, aby stránka nebyla
+              sedmkrát za sebou stejná. Ubytování pod tím zůstává přes celou
+              šířku, je to samostatný krok. */}
+          <div className="location-radek">
+          <div className="location-text">
           <p className="eyebrow">Kde se to stane</p>
           <h2>Místo konání</h2>
           {/* Jméno místa stojí natvrdo pod nadpisem. Dřív se objevovalo jen na
@@ -832,7 +838,11 @@ export default function Home() {
           </p>
           {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
           <Kopirovat className="venue-kopirovat" text={VENUE_ADDRESS} popisek="Kopírovat adresu" />
-          <VenueMap />
+          </div>
+          <div className="location-mapa">
+            <VenueMap />
+          </div>
+          </div>
           <Ubytovani />
         </Reveal>
       </section>

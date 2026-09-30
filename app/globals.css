@@ -2395,6 +2395,34 @@ body,
   .osa-bod:last-child::before { display: none; }
 }
 
+/* ---------- místo konání ve dvou sloupcích ----------
+   Text vlevo, mapa vpravo. Zbytek webu staví všechno na střed pod sebe, takže
+   sedm sekcí za sebou vypadá stejně; tahle jediná ten rytmus přeruší.
+
+   Sekce si kvůli tomu bere víc šířky než ostatní — dva sloupce v 640 px by
+   byly dva úzké proužky. Ubytování pod tím zůstává na střed, je to samostatný
+   krok a formulář se v úzkém sloupci vyplňuje líp. */
+.location-wrap { max-width: 1180px; }
+.location-radek {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 4vw, 4.5rem);
+  text-align: left;
+}
+.location-radek .lead { margin: 0; }
+.location-radek .venue-kopirovat { justify-content: flex-start; }
+/* Mapa v pravém sloupci vyplní, co dostane — vlastní šířku si neurčuje. */
+.location-mapa .venue-map-scene { max-width: none; margin: 0; }
+
+/* Pod 900 px se sloupce srovnají pod sebe a text jde zpátky na střed. */
+@media (max-width: 900px) {
+  .location-radek { grid-template-columns: 1fr; text-align: center; }
+  .location-radek .lead { margin: 0 auto; }
+  .location-radek .venue-kopirovat { justify-content: center; }
+  .location-mapa { margin-top: 2rem; }
+}
+
 /* ---------- místo konání v modré ----------
    Stejný recept jako u programu: baby blue plocha přes celou šířku a modrá
    typografie přes proměnné.
