@@ -2415,10 +2415,12 @@ body,
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(2rem, 4vw, 4.5rem);
-  text-align: left;
+  /* Text zůstává na střed sloupce: tlačítka pod ním mají popisky vycentrované
+     a na praporek zarovnaný text vedle nich vypadal jako omyl. */
+  text-align: center;
 }
-.location-radek .lead { margin: 0; }
-.location-radek .venue-kopirovat { justify-content: flex-start; }
+.location-radek .lead { margin: 0 auto; }
+.location-radek .venue-map-actions { margin-top: 2rem; }
 /* Mapa v pravém sloupci vyplní, co dostane — vlastní šířku si neurčuje. */
 .location-mapa .venue-map-scene { max-width: none; margin: 0; }
 

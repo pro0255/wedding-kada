@@ -11,6 +11,7 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
 
 import Ring3D from "./Ring3D";
 import Ubytovani from "./Ubytovani";
+import { VenueAkce } from "./VenueMap";
 import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
@@ -843,6 +844,7 @@ export default function Home() {
           </p>
           {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
           <Kopirovat className="venue-kopirovat" text={VENUE_ADDRESS} popisek="Kopírovat adresu" />
+          <VenueAkce />
           </div>
           <div className="location-mapa">
             <VenueMap />
