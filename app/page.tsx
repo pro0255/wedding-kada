@@ -268,19 +268,16 @@ function Odpocet() {
   const left = useCountdown(WEDDING_DATE);
   return (
     <section className="countdown" id="countdown">
-      {/* Gypsofila po stranách. Na každé straně trs ze tří kopií téhož
-          obrázku — jedna větev vypadala jako vystřižená nálepka, tři různě
-          velké a natočené drží pohromadě jako kytice. Pravá strana je
-          zrcadlená, takže se stonky na obou stranách opírají o okraj okna. */}
+      {/* Gypsofila po stranách. Na každé straně dvě velké větve: jedna shora,
+          druhá zdola, obě květy u okraje okna a stonkem dovnitř. Pravá strana
+          je zrcadlená, takže stačí jedny hodnoty rotace pro obě. */}
       <span className="odpocet-trs odpocet-trs-vlevo" aria-hidden="true">
         <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
         <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
       </span>
       <span className="odpocet-trs odpocet-trs-vpravo" aria-hidden="true">
         <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
         <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
       </span>
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
