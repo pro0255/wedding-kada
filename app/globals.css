@@ -546,13 +546,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 0;
 }
-/* Levý sedí v rohu na hranici béžové a bílé nad ní a je lehce stočený doprava,
-   aby mířil do sekce, ne kolmo dolů. */
-.program-zavoj-vlevo { left: 1%; top: -26%; rotate: 10deg; }
+/* Levý má stonky u levého kraje těsně pod horní hranou sekce — kompozice je
+   nakreslená přímo v obrázku, takže se neotáčí ani nezrcadlí. */
+.program-zavoj-vlevo { left: 0; top: -15%; height: 78%; }
 /* Pravý se otáčí kolem svého pravého spodního rohu, kde má stonky — při otáčení
    kolem středu by se z rohu zvedly a visely by ve vzduchu. */
 .program-zavoj-vpravo {
-  right: -3%; bottom: -16%;
+  right: -3%; bottom: -12%;
   transform-origin: 100% 100%;
   rotate: -14deg;
 }
@@ -728,8 +728,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .schedule {
   background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci));
   color: var(--ink);
-  /* kotva pro závoje, které z ní schválně vyčuhují */
-  position: relative; overflow: visible;
+  /* Kotva pro závoje, které z ní schválně vyčuhují. z-index ji zvedne nad
+     sousední sekce — jinak přes vyčuhující část závoje leží pozadí sekce nad
+     ní a kvítky vyblednou. */
+  position: relative; z-index: 2; overflow: visible;
 }
 .schedule .eyebrow { color: var(--palette-blue-text); }
 /* názvy bodů programu v modré podle pozadí sekce; menu má svou vínovou níž */
