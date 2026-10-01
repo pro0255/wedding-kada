@@ -334,7 +334,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* obal obsahu — drží absolutně pozicovaný dekor (květiny, světlý pruh)
    a ořezává ho na svou plochu */
 .obsah-ramec {
-  position: relative; overflow: hidden;
+  position: relative;
+  /* Vodorovně se ořezává (dekor nesmí dělat posuvník), svisle ne — gypsofila
+     u odpočtu schválně přesahuje do sousedních sekcí. Clip umí jednu osu,
+     hidden by ořezal obě. */
+  overflow-x: clip; overflow-y: visible;
 }
 /* Květinový dekor po stranách + světlý pruh středem.
    Leží až za sekcemi, takže se propíše nad jejich
@@ -520,7 +524,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .reveal { position: relative; z-index: 1; }
 
 /* countdown */
-.countdown { background: var(--ruzova-jemna); position: relative; overflow: hidden; }
+.countdown { background: var(--ruzova-jemna); position: relative; z-index: 2; overflow: visible; }
 /* čtyři stejně široké sloupce s dělicími linkami — rytmus tak nezávisí na tom,
    jestli má číslo dvě nebo tři číslice */
 .count {
@@ -529,31 +533,32 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
 /* ---------- gypsofila u odpočtu ----------
-   Rámuje čísla, která jinak stojí v prázdném pruhu. Větve se ořežou hranou
-   sekce, takže působí, že pokračují dál za obrazovku.
+   Rámuje čísla, která jinak stojí v prázdném pruhu. Stonky vycházejí z bočního
+   okraje stránky a větve míří šikmo dovnitř nahoru — proto to natočení; svisle
+   postavené rostly ze spodní hrany jako ze záhonu.
 
-   Rozměry a polohy jsou v procentech šířky sekce, aby se s oknem zmenšovaly.
-   Obě větve jsou tentýž obrázek, jen pravá je menší, níž a otočená jinam —
-   zrcadlová kopie by z nich udělala rámeček. */
+   Schválně přesahují ven ze sekce do bílého prostoru nad ní i pod ní. Pravá je
+   větší a posazená jinak než levá: zrcadlová kopie by z nich udělala rámeček.
+   Šířky jsou v procentech sekce, aby se s oknem zmenšovaly. */
 .odpocet-kytka {
   position: absolute; height: auto;
   pointer-events: none; user-select: none;
-  z-index: 0;
+  z-index: 1;
 }
 .odpocet-kytka-vlevo {
-  left: -5%; top: -8%;
-  width: clamp(190px, 25vw, 420px);
-  rotate: 6deg;
+  left: -6%; top: 3%;
+  width: 22%;
+  rotate: 34deg;
 }
 .odpocet-kytka-vpravo {
-  right: -4%; top: 14%;
-  width: clamp(150px, 20vw, 340px);
-  /* Překlopená a natočená jinak, aby nebyla poznat jako táž větev. */
+  right: -11%; top: 1%;
+  width: 30%;
+  /* Překlopená, takže míří zrcadlově — a k tomu jiný úhel i velikost. */
   transform: scaleX(-1);
-  rotate: -14deg;
+  rotate: 28deg;
 }
 /* Obsah nad květinami — čísla i věta musí zůstat čitelné. */
-.countdown > .wrap { position: relative; z-index: 1; }
+.countdown > .wrap { position: relative; z-index: 2; }
 
 @media (max-width: 760px) {
   /* Na úzkém okně by větve ležely přes čísla. */
