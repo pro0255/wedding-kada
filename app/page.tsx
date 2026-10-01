@@ -270,8 +270,8 @@ function Odpocet() {
     <section className="countdown" id="countdown">
       {/* Závoj po stranách odpočtu. Dva hotové obrázky, každý na svou stranu —
           nic se neotáčí ani nezrcadlí, kompozice je nakreslená v nich. */}
-      <img className="odpocet-zavoj odpocet-zavoj-vlevo" src="/kytky/zavoj_vlevo.webp" alt="" aria-hidden="true" />
-      <img className="odpocet-zavoj odpocet-zavoj-vpravo" src="/kytky/zavoj_vpravo.webp" alt="" aria-hidden="true" />
+      <img className="odpocet-zavoj odpocet-zavoj-vlevo" src="/kytky/zavoj_vlevo_v4.webp" alt="" aria-hidden="true" />
+      <img className="odpocet-zavoj odpocet-zavoj-vpravo" src="/kytky/zavoj_vpravo_v4.webp" alt="" aria-hidden="true" />
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
         <h2>Zbývá do svatby</h2>
