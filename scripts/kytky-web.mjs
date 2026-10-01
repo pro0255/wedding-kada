@@ -25,6 +25,11 @@ const CIL = "public/kytky";
  * tohle je rezerva na displeje s dvojnásobnou hustotou. */
 const MAX = 560;
 
+/* Závoje u odpočtu jsou na stránce vysoké přes půl obrazovky, takže se ukládají
+ * větší — v 560 px by byly rozmazané. */
+const VELKE = new Set(["zavoj_vlevo", "zavoj_vpravo"]);
+const MAX_VELKE = 1000;
+
 /* Pod touhle průhledností se pixel bere jako prázdno a ořeže se. */
 const PRAH_ALFY = 12;
 
@@ -55,8 +60,13 @@ for (const soubor of soubory) {
   const klic = soubor.replace(/\.png$/i, "");
   const vysledek = await sharp(`${ZDROJ}/${soubor}`)
     .extract({ left: minX, top: minY, width: sirka, height: vyska })
-    .resize({ width: MAX, height: MAX, fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 88, alphaQuality: 100 })
+    .resize({
+      width: VELKE.has(klic) ? MAX_VELKE : MAX,
+      height: VELKE.has(klic) ? MAX_VELKE : MAX,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: VELKE.has(klic) ? 80 : 88, alphaQuality: 100 })
     .toFile(`${CIL}/${klic}.webp`);
 
   console.log(

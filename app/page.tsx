@@ -268,20 +268,10 @@ function Odpocet() {
   const left = useCountdown(WEDDING_DATE);
   return (
     <section className="countdown" id="countdown">
-      {/* Gypsofila po stranách. Na každé straně trs ze tří kopií téhož
-          obrázku — jedna větev vypadala jako vystřižená nálepka, tři různě
-          velké a natočené drží pohromadě jako kytice. Pravá strana je
-          zrcadlená, takže se stonky na obou stranách opírají o okraj okna. */}
-      <span className="odpocet-trs odpocet-trs-vlevo" aria-hidden="true">
-        <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
-      </span>
-      <span className="odpocet-trs odpocet-trs-vpravo" aria-hidden="true">
-        <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
-        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
-      </span>
+      {/* Závoj po stranách odpočtu. Dva hotové obrázky, každý na svou stranu —
+          nic se neotáčí ani nezrcadlí, kompozice je nakreslená v nich. */}
+      <img className="odpocet-zavoj odpocet-zavoj-vlevo" src="/kytky/zavoj_vlevo.webp" alt="" aria-hidden="true" />
+      <img className="odpocet-zavoj odpocet-zavoj-vpravo" src="/kytky/zavoj_vpravo.webp" alt="" aria-hidden="true" />
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
         <h2>Zbývá do svatby</h2>
