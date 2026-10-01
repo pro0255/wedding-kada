@@ -524,7 +524,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .reveal { position: relative; z-index: 1; }
 
 /* countdown */
-.countdown { background: var(--ruzova-jemna); position: relative; z-index: 2; overflow: visible; }
+.countdown { background: var(--ruzova-jemna); }
 /* čtyři stejně široké sloupce s dělicími linkami — rytmus tak nezávisí na tom,
    jestli má číslo dvě nebo tři číslice */
 .count {
@@ -532,33 +532,28 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
-/* ---------- závoj u odpočtu ----------
-   Dva hotové obrázky, každý na svou stranu. Nic se neotáčí, nezrcadlí ani
-   neskládá z kopií — kompozice větví je nakreslená přímo v nich.
+/* ---------- závoj u programu dne ----------
+   Jeden vlevo nahoře, druhý vpravo dole — úhlopříčně, ne jako rámeček po obou
+   stranách. Schválně je to tahle sekce a ne odpočet: hned nad věncem u příběhu
+   by byly dvě květinové kompozice za sebou a věnec by ztratil překvapení.
 
-   Výška se měří od spodní hrany sekce, takže dolů nic nepřesahuje a nahoru
-   obrázky vyjedou o těch pár procent, o která jsou vyšší než pruh. Šířka se
-   dopočítá z poměru stran, aby se závoj nedeformoval.
-
-   Strop v max-width je kvůli užším obrazovkám: závoje by jinak s klesající
-   výškou sekce zůstávaly stejně široké a slezly by se nad čísla. */
-.odpocet-zavoj {
-  position: absolute; bottom: 0;
-  width: auto; max-width: 22vw;
+   Oba přesahují ven ze sekce do bílého prostoru. Výška je v procentech sekce,
+   šířka se dopočítá z poměru stran. Leží pod obsahem, aby ikonky ani popisky
+   nezakryly. */
+.program-zavoj {
+  position: absolute;
+  height: 62%; width: auto; max-width: 17vw;
   pointer-events: none; user-select: none;
-  z-index: 1;
+  z-index: 0;
 }
-/* Kousek zasunuté za okraj okna, ať z nich kouká jen část — celé dovnitř byly
-   na čísla moc. */
-.odpocet-zavoj-vlevo { left: -5%; height: 105%; }
-.odpocet-zavoj-vpravo { right: -5%; height: 105%; }
+.program-zavoj-vlevo { left: -4%; top: -12%; }
+.program-zavoj-vpravo { right: -4%; bottom: -16%; }
+/* Obsah nad květinami. */
+.schedule > .wrap { position: relative; z-index: 1; }
 
-/* Obsah nad závojem — čísla i věta musí zůstat čitelné. */
-.countdown > .wrap { position: relative; z-index: 2; }
-
-@media (max-width: 760px) {
-  /* Na úzkém okně by závoje ležely přes čísla. */
-  .odpocet-zavoj { display: none; }
+@media (max-width: 900px) {
+  /* Na úzkém okně se osa staví na výšku a závoje by ležely přes ni. */
+  .program-zavoj { display: none; }
 }
 
 .countdown-vzkaz {
@@ -722,7 +717,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 
 /* schedule */
-.schedule { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); color: var(--ink); }
+.schedule {
+  background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci));
+  color: var(--ink);
+  /* kotva pro závoje, které z ní schválně vyčuhují */
+  position: relative; overflow: visible;
+}
 .schedule .eyebrow { color: var(--palette-blue-text); }
 /* názvy bodů programu v modré podle pozadí sekce; menu má svou vínovou níž */
 .schedule .event h3 { color: var(--palette-blue-text); }
