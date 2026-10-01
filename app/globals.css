@@ -546,8 +546,16 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 0;
 }
-.program-zavoj-vlevo { left: -4%; top: -12%; }
-.program-zavoj-vpravo { right: -4%; bottom: -16%; }
+/* Levý sedí v rohu na hranici béžové a bílé nad ní a je lehce stočený doprava,
+   aby mířil do sekce, ne kolmo dolů. */
+.program-zavoj-vlevo { left: 1%; top: -26%; rotate: 10deg; }
+/* Pravý se otáčí kolem svého pravého spodního rohu, kde má stonky — při otáčení
+   kolem středu by se z rohu zvedly a visely by ve vzduchu. */
+.program-zavoj-vpravo {
+  right: -3%; bottom: -16%;
+  transform-origin: 100% 100%;
+  rotate: -14deg;
+}
 /* Obsah nad květinami. */
 .schedule > .wrap { position: relative; z-index: 1; }
 
