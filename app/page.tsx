@@ -268,6 +268,11 @@ function Odpocet() {
   const left = useCountdown(WEDDING_DATE);
   return (
     <section className="countdown" id="countdown">
+      {/* Gypsofila po stranách. Schválně ne zrcadlově: pravá větev je menší,
+          posazená níž a otočená jinam — dvě stejné kopie vypadaly jako rámeček,
+          ne jako kytky. Stejný princip jako věnec u příběhu. */}
+      <img className="odpocet-kytka odpocet-kytka-vlevo" src="/kytky/04_gypsophila.webp" alt="" aria-hidden="true" />
+      <img className="odpocet-kytka odpocet-kytka-vpravo" src="/kytky/04_gypsophila.webp" alt="" aria-hidden="true" />
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
         <h2>Zbývá do svatby</h2>

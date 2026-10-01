@@ -520,7 +520,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .reveal { position: relative; z-index: 1; }
 
 /* countdown */
-.countdown { background: var(--ruzova-jemna); }
+.countdown { background: var(--ruzova-jemna); position: relative; overflow: hidden; }
 /* čtyři stejně široké sloupce s dělicími linkami — rytmus tak nezávisí na tom,
    jestli má číslo dvě nebo tři číslice */
 .count {
@@ -528,6 +528,38 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
+/* ---------- gypsofila u odpočtu ----------
+   Rámuje čísla, která jinak stojí v prázdném pruhu. Větve se ořežou hranou
+   sekce, takže působí, že pokračují dál za obrazovku.
+
+   Rozměry a polohy jsou v procentech šířky sekce, aby se s oknem zmenšovaly.
+   Obě větve jsou tentýž obrázek, jen pravá je menší, níž a otočená jinam —
+   zrcadlová kopie by z nich udělala rámeček. */
+.odpocet-kytka {
+  position: absolute; height: auto;
+  pointer-events: none; user-select: none;
+  z-index: 0;
+}
+.odpocet-kytka-vlevo {
+  left: -5%; top: -8%;
+  width: clamp(190px, 25vw, 420px);
+  rotate: 6deg;
+}
+.odpocet-kytka-vpravo {
+  right: -4%; top: 14%;
+  width: clamp(150px, 20vw, 340px);
+  /* Překlopená a natočená jinak, aby nebyla poznat jako táž větev. */
+  transform: scaleX(-1);
+  rotate: -14deg;
+}
+/* Obsah nad květinami — čísla i věta musí zůstat čitelné. */
+.countdown > .wrap { position: relative; z-index: 1; }
+
+@media (max-width: 760px) {
+  /* Na úzkém okně by větve ležely přes čísla. */
+  .odpocet-kytka { display: none; }
+}
+
 .countdown-vzkaz {
   margin: 1.5rem auto 0; max-width: 34ch;
   font-family: var(--serif), Georgia, serif; font-style: italic;
