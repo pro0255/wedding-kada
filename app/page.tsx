@@ -268,11 +268,20 @@ function Odpocet() {
   const left = useCountdown(WEDDING_DATE);
   return (
     <section className="countdown" id="countdown">
-      {/* Gypsofila po stranách. Schválně ne zrcadlově: pravá větev je menší,
-          posazená níž a otočená jinam — dvě stejné kopie vypadaly jako rámeček,
-          ne jako kytky. Stejný princip jako věnec u příběhu. */}
-      <img className="odpocet-kytka odpocet-kytka-vlevo" src="/kytky/04_gypsophila.webp" alt="" aria-hidden="true" />
-      <img className="odpocet-kytka odpocet-kytka-vpravo" src="/kytky/04_gypsophila.webp" alt="" aria-hidden="true" />
+      {/* Gypsofila po stranách. Na každé straně trs ze tří kopií téhož
+          obrázku — jedna větev vypadala jako vystřižená nálepka, tři různě
+          velké a natočené drží pohromadě jako kytice. Pravá strana je
+          zrcadlená, takže se stonky na obou stranách opírají o okraj okna. */}
+      <span className="odpocet-trs odpocet-trs-vlevo" aria-hidden="true">
+        <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
+        <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
+        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
+      </span>
+      <span className="odpocet-trs odpocet-trs-vpravo" aria-hidden="true">
+        <img className="odpocet-vetev odpocet-vetev-1" src="/kytky/04_gypsophila.webp" alt="" />
+        <img className="odpocet-vetev odpocet-vetev-2" src="/kytky/04_gypsophila.webp" alt="" />
+        <img className="odpocet-vetev odpocet-vetev-3" src="/kytky/04_gypsophila.webp" alt="" />
+      </span>
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
         <h2>Zbývá do svatby</h2>
@@ -297,7 +306,10 @@ function Odpocet() {
         {/* Věta pod čísly. Samotný odpočet je jen údaj — tohle mu dá hlas
             a zároveň zaplní pruh, ve kterém jinak stály čtyři číslice a nic. */}
         <p className="countdown-vzkaz">
-          Ještě chvilku. Pak už jen tanec, jídlo a dobří lidé.
+          Audentes fortuna iuvat.
+          {/* Překlad drobně pod citátem: kdo latinsky neumí, ať nezůstane
+              u hádanky bez odpovědi. */}
+          <span>štěstí přeje odvážným</span>
         </p>
         {/* ať si datum nemusí nikdo přepisovat ručně */}
         <div className="akce-radek">
