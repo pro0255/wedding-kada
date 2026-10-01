@@ -533,23 +533,21 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
 /* ---------- gypsofila u odpočtu ----------
-   Na každé straně dvě velké větve, jedna shora a druhá zdola, obě květy
-   u okraje okna a stonkem dovnitř. Svisle postavená větev rostla ze spodní
-   hrany jako ze záhonu, proto to natočení: v předloze míří stonek dolů
-   a květy nahoru, takže −60° je stočí doleva nahoru a −120° doleva dolů.
+   Na každé straně trs ze tří kopií téhož obrázku: různě velké, různě natočené
+   a vzájemně posunuté, aby se překrývaly. Jedna větev působila jako vystřižená
+   nálepka, tři drží pohromadě jako kytice.
 
    Trs sahá přes celou výšku sekce a ořezává se clip-path: dolů nesmí vyčnívat
    nic, nahoru smí kousek. Záporná hodnota insetu je právě to povolení nahoře;
    overflow by ořízl obě strany stejně.
 
-   Pravý trs je zrcadlený, takže stačí jedny hodnoty rotace pro obě strany. */
+   Stonky směřují k bočnímu okraji okna, proto to natočení — svisle postavená
+   větev rostla ze spodní hrany jako ze záhonu. Pravý trs je zrcadlený, takže
+   stačí jedny hodnoty rotace pro obě strany. */
 .odpocet-trs {
   position: absolute; top: 0; bottom: 0;
-  width: 26%;
-  /* Ořezává se JEN dole, na hraně sekce. Do stran i nahoru se pouští dál:
-     stranou proto, aby se vnitřní kvítky neusekly svislou hranou, nahoru
-     kvůli přesahu do bílého pásu. Co vyleze z okna, ořízne obal obsahu. */
-  clip-path: inset(-7% -100% 0 -100%);
+  width: 17%;
+  clip-path: inset(-8% 0 0 0);
   pointer-events: none; user-select: none;
   z-index: 1;
 }
@@ -558,11 +556,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 
 .odpocet-vetev {
   position: absolute; height: auto;
-  transform-origin: 50% 50%;
+  /* Stonek u kraje, květy dovnitř — otáčí se kolem spodního vnějšího rohu. */
+  transform-origin: 20% 90%;
 }
-/* Horní větev je větší a vyčnívá nad sekci; spodní navazuje pod ní. */
-.odpocet-vetev-1 { left: -46%; top: -14%; width: 120%; rotate: -62deg; }
-.odpocet-vetev-2 { left: -42%; top: 34%; width: 104%; rotate: -118deg; }
+/* Hlavní větev, pak dvě menší kolem ní. Rozdíly v úhlu jsou dost velké na to,
+   aby nebylo poznat, že je to pořád tentýž obrázek. */
+.odpocet-vetev-1 { left: -14%; top: -11%; width: 100%; rotate: 32deg; }
+.odpocet-vetev-2 { left: 6%; top: 26%; width: 78%; rotate: 52deg; }
+.odpocet-vetev-3 { left: -22%; top: 30%; width: 62%; rotate: 16deg; }
 
 /* Obsah nad květinami — čísla i věta musí zůstat čitelné. */
 .countdown > .wrap { position: relative; z-index: 2; }
