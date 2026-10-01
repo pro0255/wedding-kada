@@ -548,8 +548,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 1;
 }
-.odpocet-zavoj-vlevo { left: 0; height: 105%; }
-.odpocet-zavoj-vpravo { right: 0; height: 105%; }
+/* Kousek zasunuté za okraj okna, ať z nich kouká jen část — celé dovnitř byly
+   na čísla moc. */
+.odpocet-zavoj-vlevo { left: -5%; height: 105%; }
+.odpocet-zavoj-vpravo { right: -5%; height: 105%; }
 
 /* Obsah nad závojem — čísla i věta musí zůstat čitelné. */
 .countdown > .wrap { position: relative; z-index: 2; }
