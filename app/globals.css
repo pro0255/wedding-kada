@@ -548,14 +548,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 /* Levý má stonky u levého kraje těsně pod horní hranou sekce — kompozice je
    nakreslená přímo v obrázku, takže se neotáčí ani nezrcadlí. */
-/* Stonek vychází z levého kraje kousek pod horní hranou sekce. Hodnota je
-   odměřená: v obrázku je stonek ve 28 % jeho výšky, takže při -20 % a výšce
-   78 % padne zhruba dvě procenta pod hranu. */
-.program-zavoj-vlevo { left: 0; top: -20%; height: 78%; }
+.program-zavoj-vlevo { left: 0; top: -16%; height: 78%; }
 /* Pravý se otáčí kolem svého pravého spodního rohu, kde má stonky — při otáčení
    kolem středu by se z rohu zvedly a visely by ve vzduchu. */
 .program-zavoj-vpravo {
-  right: 2%; bottom: -12%;
+  right: -3%; bottom: -12%;
   transform-origin: 100% 100%;
   rotate: -14deg;
 }
