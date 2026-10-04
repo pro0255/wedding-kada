@@ -862,7 +862,7 @@ export default function Home() {
         {/* Závoj po stranách programu: jeden vlevo nahoře, druhý vpravo dole.
             Úhlopříčně, ne jako rámeček — a dost daleko od věnce u příběhu, aby
             se dvě květinové kompozice nepotkaly hned za sebou. */}
-        <img className="program-zavoj program-zavoj-vlevo" src="/kytky/zavoj_program_vlevo_nahore_v2.webp" alt="" aria-hidden="true" />
+        <img className="program-zavoj program-zavoj-vlevo" src="/kytky/zavoj_program_vlevo_nahore_v3.webp" alt="" aria-hidden="true" />
         <img className="program-zavoj program-zavoj-vpravo" src="/kytky/zavoj_program_vpravo_dole.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>

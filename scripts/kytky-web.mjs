@@ -27,7 +27,7 @@ const MAX = 560;
 
 /* Závoje u odpočtu jsou na stránce vysoké přes půl obrazovky, takže se ukládají
  * větší — v 560 px by byly rozmazané. */
-const VELKE = new Set(["zavoj_program_vlevo_nahore_v2", "zavoj_program_vpravo_dole"]);
+const VELKE = new Set(["zavoj_program_vlevo_nahore_v3", "zavoj_program_vpravo_dole"]);
 const MAX_VELKE = 1000;
 
 /* Pod touhle průhledností se pixel bere jako prázdno a ořeže se. */

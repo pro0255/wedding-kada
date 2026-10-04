@@ -548,7 +548,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 /* Levý má stonky u levého kraje těsně pod horní hranou sekce — kompozice je
    nakreslená přímo v obrázku, takže se neotáčí ani nezrcadlí. */
-.program-zavoj-vlevo { left: 0; top: -15%; height: 78%; }
+.program-zavoj-vlevo { left: 0; top: -16%; height: 78%; }
 /* Pravý se otáčí kolem svého pravého spodního rohu, kde má stonky — při otáčení
    kolem středu by se z rohu zvedly a visely by ve vzduchu. */
 .program-zavoj-vpravo {
@@ -2728,7 +2728,14 @@ body,
 /* Věnec přesahuje scénu nahoru i dolů, takže sekce potřebuje víc místa —
    jinak se květiny ořežou o hranu bílé plochy a rozlezou se do sousedních
    sekcí. */
-.obsah-ramec > .story { padding-block: 8rem; }
+.obsah-ramec > .story {
+  padding-block: 8rem;
+  transition: padding-bottom .7s cubic-bezier(.4, 0, .2, 1);
+}
+/* Rozevřená obálka je s papírem o půl metru vyšší a spodkem lezla do sekce
+   s místem konání. Sekce si proto na tu chvíli přidá dole místo — plynule,
+   aby obsah pod ní neposkočil. */
+.obsah-ramec > .story:has(.obalka.je-otevrena) { padding-bottom: calc(8rem + 110px); }
 @media (max-width: 760px) {
   .obsah-ramec > .story { padding-block: 4rem; }
 }
