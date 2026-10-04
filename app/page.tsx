@@ -887,6 +887,11 @@ export default function Home() {
          přes QR kódy na stolech — po svatbě, až kódy nikdo mít nebude, by
          byla stránka z webu nedosažitelná. */}
       <section className="fotky-odkaz" id="fotky">
+        {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
+            takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
+            mimo béžový pruh. */}
+        <img className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
+        <img className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Vzpomínky</p>
           <h2>Fotky od vás</h2>

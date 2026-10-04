@@ -567,6 +567,29 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   .program-zavoj { display: none; }
 }
 
+/* ---------- kytice u fotek od vás ----------
+   Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
+   nezrcadlí. Obě jsou vyšší než pruh a schválně z něj vyčuhují nahoru i dolů.
+
+   Velikost řídí výška, šířka se dopočítá — žádný strop v max-width, ten by je
+   při pevné výšce nezmenšil, ale zúžil a zdeformoval. */
+.fotky-kytice {
+  position: absolute;
+  width: auto;
+  pointer-events: none; user-select: none;
+  z-index: 0;
+}
+.fotky-kytice-vlevo { left: 0; top: -23%; height: 130%; }
+.fotky-kytice-vpravo { right: 0; top: -16%; height: 131%; }
+
+/* Obsah nad kyticemi. */
+.fotky-odkaz > .wrap { position: relative; z-index: 1; }
+
+@media (max-width: 900px) {
+  /* Na úzkém okně by kytice ležely přes text. */
+  .fotky-kytice { display: none; }
+}
+
 .countdown-vzkaz {
   margin: 1.5rem auto 0; max-width: 34ch;
   font-family: var(--serif), Georgia, serif; font-style: italic;
@@ -1463,7 +1486,13 @@ footer {
 /* Rozcestník na fotky je nově modrý článek mezi růžovým menu a růžovým FAQ —
    střídání tak drží dál a menu zůstává růžové. Akcenty jsou modré stejně jako
    na samotné stránce /fotky, aby na sebe obě navazovaly. */
-.fotky-odkaz { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); }
+/* Kotva pro kytice, které ze sekce schválně vyčuhují. z-index ji zvedne nad
+   sousední sekce — jinak přes vyčuhující část leží jejich podklad a kytice
+   vybledne. */
+.fotky-odkaz {
+  background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci));
+  position: relative; z-index: 2; overflow: visible;
+}
 .fotky-odkaz .eyebrow { color: var(--palette-blue-text); }
 /* prosba o obřadu — drobnější a tlumená, aby nekonkurovala hlavní výzvě */
 .fotky-prosba {
