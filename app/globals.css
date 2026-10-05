@@ -720,6 +720,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 
 /* schedule */
 .schedule { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); color: var(--ink); }
+
+/* Místo konání i program jsou obě béžové, takže se jejich svislé odsazení
+   slévá do jedné mezery dvojité výšky: nad nadpisem bylo 193 px proti 96 px
+   pod posledním textem. Program si proto horní odsazení odpustí — mezeru
+   drží sekce nad ním. */
+.location + .schedule { padding-top: 0; }
 .schedule .eyebrow { color: var(--palette-blue-text); }
 /* názvy bodů programu v modré podle pozadí sekce; menu má svou vínovou níž */
 .schedule .event h3 { color: var(--palette-blue-text); }
