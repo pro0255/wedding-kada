@@ -547,8 +547,8 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 0;
 }
-.fotky-kytice-vlevo { left: 0; top: -7%; height: 98%; }
-.fotky-kytice-vpravo { right: 0; top: 0; height: 99%; }
+.fotky-kytice-vlevo { left: 0; top: -23%; height: 130%; }
+.fotky-kytice-vpravo { right: 0; top: -16%; height: 131%; }
 
 /* Obsah nad kyticemi. */
 .fotky-odkaz > .wrap { position: relative; z-index: 1; }
