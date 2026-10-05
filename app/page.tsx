@@ -321,15 +321,15 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
   { src: "/fotky/4.jpeg", alt: "Chorvatsko", datum: "9. 9. 2022", popis: "Chorvatsko" },
   { src: "/fotky/6.jpeg", alt: "Kozmice", datum: "16. 3. 2023", popis: "Kozmice" },
   { src: "/fotky/11.jpeg", alt: "Sicílie", datum: "25. 5. 2024", popis: "Sicílie" },
-  { src: "/fotky/22.jpeg", alt: "Kateřina a Jakub", datum: "30. 8. 2024", popis: "první Chorvatsko jako rodina" },
+  { src: "/fotky/20.jpeg", alt: "Svatba I a O", datum: "30. 8. 2024", popis: "svatba I & O" },
   { src: "/fotky/16.jpeg", alt: "Těhotenské focení", datum: "16. 6. 2025", popis: "těhotenské focení" },
   { src: "/fotky/21.jpeg", alt: "První Chorvatsko", datum: "11. 9. 2025", popis: "první Chorvatsko" },
-  { src: "/fotky/20.jpeg", alt: "Slovensko", datum: "31. 12. 2025", popis: "Slovensko" },
+  { src: "/fotky/22.jpeg", alt: "Kateřina a Jakub", datum: "31. 12. 2025", popis: "první Chorvatsko jako rodina" },
   { src: "/fotky/23.jpeg", alt: "Štramberk", datum: "23. 4. 2026", popis: "Štramberk" },
   { src: "/fotky/24.jpeg", alt: "FM City Fest", datum: "19. 6. 2026", popis: "FM City Fest" },
   { src: "/fotky/25.jpeg", alt: "Trogir", datum: "18. 7. 2026", popis: "Trogir" },
   { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", datum: "30. 7. 2026", popis: "zásnuby na Troskách" },
-  { src: "/fotky/26.jpeg", alt: "Kutná Hora", datum: "1. 8. 2026", popis: "Kutná Hora, dole u Dole" },
+  { src: "/fotky/26.jpeg", alt: "Kutná Hora", datum: "1. 8. 2026", popis: "Kutná Hora" },
 ];
 
 /* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
