@@ -547,8 +547,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 0;
 }
-.program-kytice-vlevo { left: 0; top: -10%; height: 113%; }
-.program-kytice-vpravo { right: 0; top: -6%; height: 112%; }
+/* Posun nahoru: horní květy mají vyčuhovat nad béžovou sekci, dole jen
+   lehce nebo vůbec. Procento se počítá z výšky obrázku, ne sekce. */
+.program-kytice { transform: translateY(-12%); }
+.program-kytice-vlevo { left: 0; top: -10%; height: 125%; }
+.program-kytice-vpravo { right: 0; top: -6%; height: 125%; }
 
 /* Obsah programu nad kyticemi. */
 .schedule > .wrap, .schedule > .reveal { position: relative; z-index: 3; }
@@ -559,7 +562,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    zmenší a osa si po stranách nechá místo. Strop v šířce spolu s pevnou
    výškou obrázek deformuje, object-fit to vrací do pořádku. */
 @media (max-width: 2300px) {
-  .program-kytice { max-width: 16vw; object-fit: contain; }
+  .program-kytice { max-width: 20vw; object-fit: contain; }
 }
 @media (max-width: 900px) {
   .program-kytice { display: none; }
@@ -2421,7 +2424,7 @@ body,
 /* Pod 2300 px se osa roztahuje do celé šířky a lezla by do kytic po stranách
    sekce. Nechá si tedy po stranách místo přesně na ně. Nad tím se opírá
    o svůj strop 1640 px a kytice se vedle ní vejdou samy. */
-@media (max-width: 2300px) { .osa { padding-inline: 17vw; } }
+@media (max-width: 2300px) { .osa { padding-inline: 21vw; } }
 .osa-bod {
   display: grid; grid-auto-rows: auto;
   /* align-content: start je nutné: mřížka roztahuje body na výšku nejvyššího
