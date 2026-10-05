@@ -21,9 +21,10 @@ const VRSTVY = [
   { zdroj: `${SLOZKA}/vrstva_predni_1622x1001_v2.png`, cil: "venec-nad" },
 ];
 
-/* Šířka výstupu. Scéna je na webu široká nanejvýš kolem 1100 px, tohle je
- * rezerva na displeje s vyšší hustotou. */
-const SIRKA = 1500;
+/* Šířka výstupu. Scéna je na webu široká přesně jako plátno předlohy, tedy
+ * 1622 px, takže se nesmí ukládat menší — v 1500 px se na stránce roztahovala
+ * o osm procent a věnec byl rozmazaný. */
+const SIRKA = 1622;
 
 /* Přesuny jednotlivých květů v předloze. Teď je seznam prázdný — přední vrstva
  * se místo toho na stránce lehce naklání, což vyšlo líp: květy se tím na fotkách
@@ -107,7 +108,7 @@ for (const { zdroj, cil } of VRSTVY) {
 
   const vysledek = await (await posun(zdroj, zdroj.split("/").pop()))
     .resize({ width: SIRKA, withoutEnlargement: true })
-    .webp({ quality: 88, alphaQuality: 100 })
+    .webp({ quality: 95, alphaQuality: 100 })
     .toFile(`${CIL}/${cil}.webp`);
 
   console.log(

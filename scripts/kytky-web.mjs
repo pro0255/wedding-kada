@@ -25,8 +25,10 @@ const CIL = "public/kytky";
  * tohle je rezerva na displeje s dvojnásobnou hustotou. */
 const MAX = 560;
 
-/* Závoje u odpočtu jsou na stránce vysoké přes půl obrazovky, takže se ukládají
- * větší — v 560 px by byly rozmazané. */
+/* Kytice a závoje jsou na stránce vysoké přes půl obrazovky. Strop je nad
+ * rozlišením předloh, takže si zachovají původní velikost — zmenšené na 1000 px
+ * se na širokém monitoru a na displejích s dvojnásobnou hustotou roztahovaly
+ * a byly rozmazané. */
 const VELKE = new Set([
   "zavoj_program_vlevo_nahore_v3",
   "zavoj_program_vpravo_dole_v2",
@@ -35,7 +37,7 @@ const VELKE = new Set([
   "kytice_program_vlevo",
   "kytice_program_vpravo",
 ]);
-const MAX_VELKE = 1000;
+const MAX_VELKE = 1600;
 
 /* Pod touhle průhledností se pixel bere jako prázdno a ořeže se. */
 const PRAH_ALFY = 12;
@@ -73,7 +75,7 @@ for (const soubor of soubory) {
       fit: "inside",
       withoutEnlargement: true,
     })
-    .webp({ quality: VELKE.has(klic) ? 80 : 88, alphaQuality: 100 })
+    .webp({ quality: VELKE.has(klic) ? 95 : 88, alphaQuality: 100 })
     .toFile(`${CIL}/${klic}.webp`);
 
   console.log(
