@@ -535,6 +535,36 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
+/* ---------- kytice u programu dne ----------
+   Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
+   nezrcadlí. Obě jsou vyšší než sekce a schválně z ní vyčuhují nahoru i dolů.
+
+   Velikost řídí výška, šířka se dopočítá — strop v max-width by je při pevné
+   výšce nezmenšil, ale zúžil a zdeformoval. Proto je u něj object-fit. */
+.program-kytice {
+  position: absolute;
+  width: auto;
+  pointer-events: none; user-select: none;
+  z-index: 0;
+}
+.program-kytice-vlevo { left: 0; top: -10%; height: 113%; }
+.program-kytice-vpravo { right: 0; top: -6%; height: 112%; }
+
+/* Obsah programu nad kyticemi. */
+.schedule > .wrap, .schedule > .reveal { position: relative; z-index: 3; }
+
+/* Osa se o kytice opře až pod 2300 px. Nad tím se drží svého stropu 1640 px
+   a po stranách jí zbývá tolik místa, že se kytice vejdou vedle ní samy.
+   Pod tím se roztahuje do celé šířky a do kytic by vlezla — tak se kytice
+   zmenší a osa si po stranách nechá místo. Strop v šířce spolu s pevnou
+   výškou obrázek deformuje, object-fit to vrací do pořádku. */
+@media (max-width: 2300px) {
+  .program-kytice { max-width: 16vw; object-fit: contain; }
+}
+@media (max-width: 900px) {
+  .program-kytice { display: none; }
+}
+
 /* ---------- kytice u fotek od vás ----------
    Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
    nezrcadlí. Obě jsou vyšší než pruh a schválně z něj vyčuhují nahoru i dolů.
@@ -719,7 +749,14 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 
 /* schedule */
-.schedule { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); color: var(--ink); }
+.schedule {
+  background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci));
+  color: var(--ink);
+  /* Kotva pro kytice, které z ní schválně vyčuhují. z-index ji zvedne nad
+     sousední sekce — jinak přes vyčuhující část leží jejich podklad
+     a kytice vybledne. */
+  position: relative; z-index: 2; overflow: visible;
+}
 
 /* Místo konání i program jsou obě béžové, takže se jejich svislé odsazení
    slévá do jedné mezery dvojité výšky: nad nadpisem bylo 193 px proti 96 px
@@ -2380,6 +2417,11 @@ body,
   margin: 3.6rem auto 0; max-width: 1640px;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
 }
+
+/* Pod 2300 px se osa roztahuje do celé šířky a lezla by do kytic po stranách
+   sekce. Nechá si tedy po stranách místo přesně na ně. Nad tím se opírá
+   o svůj strop 1640 px a kytice se vedle ní vejdou samy. */
+@media (max-width: 2300px) { .osa { padding-inline: 17vw; } }
 .osa-bod {
   display: grid; grid-auto-rows: auto;
   /* align-content: start je nutné: mřížka roztahuje body na výšku nejvyššího

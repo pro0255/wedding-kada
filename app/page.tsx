@@ -778,6 +778,11 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
+        {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
+            takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
+            mimo béžový pruh. */}
+        <img className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp" alt="" aria-hidden="true" />
+        <img className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
