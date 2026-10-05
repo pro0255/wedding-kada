@@ -170,13 +170,14 @@ export default function Ubytovani() {
         <AutoNaLince />
       </div>
       <div className="ubytovani">
-      {/* Vlevo hromádka fotek pokojů a snídaní, vpravo kreslená snídaně.
+      {/* Dva sloupce: vlevo hromádka fotek pokojů, vpravo text s formulářem.
           Hromádka je stejná komponenta jako u příběhu, jen s jinou sadou a bez
-          popisků — na fotkách pokoje je vidět, co na nich je. */}
+          popisků — na fotkách pokoje je vidět, co na nich je. Výšku si bere
+          z řádku, takže je přesně tak vysoká jako text vedle. */}
       <div className="ubytovani-fotky">
         <FotoHromadka fotky={UBYTOVANI_FOTKY} />
       </div>
-      <img className="ubytovani-kresba ubytovani-kresba-snidane" src="/ubytovani/snidane.webp" alt="" aria-hidden="true" />
+      <div className="ubytovani-text">
       <h3>Ubytování</h3>
       <p className="lead">
         Máme pro vás zamluvená lůžka přímo v místě konání —{" "}
@@ -278,6 +279,7 @@ export default function Ubytovani() {
           {chyba}
         </p>
       )}
+        </div>
       </div>
     </>
   );

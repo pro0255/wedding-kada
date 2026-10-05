@@ -1174,8 +1174,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* ubytování — formulář a stav kapacity pod mapou.
    Celý blok je o ~10 % větší než zbytek sekce: je to jediné místo na webu,
    kde host něco vyplňuje, tak ať se to dobře čte a trefuje. */
+/* Vlevo hromádka fotek pokojů, vpravo text s formulářem. Řádek se natáhne
+   podle textu a hromádka ho vyplní na výšku — proto je fotka přesně tak
+   vysoká jako text vedle ní. */
 .ubytovani {
-  max-width: 620px; margin: 3.9rem auto 0; padding-top: 3.3rem;
+  max-width: 1060px; margin: 3.9rem auto 0; padding-top: 3.3rem;
+  display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1fr);
+  align-items: stretch; gap: clamp(2rem, 4vw, 3.6rem);
   text-align: center;
 }
 
@@ -2491,7 +2496,8 @@ body,
   width: 100vw; max-width: none;
   margin: 4.4rem 0 0 50%;
   transform: translateX(-50%);
-  padding: 3.4rem max(1.2rem, calc((100vw - 640px) / 2)) 3rem;
+  /* Dva sloupce uvnitř: obsah drží na 1060 px, dřív se vešel do 640. */
+  padding: 3.4rem max(1.2rem, calc((100vw - 1060px) / 2)) 3rem;
   /* Bílá se do béžové sekce vtápí jen shora: ubytování patří k místu konání
      a ostrý předěl z něj dělal samostatný blok. Dole žádný přechod není —
      tam už začíná program a ten k ubytování nepatří. */
@@ -2776,30 +2782,22 @@ body,
 .location .ubytovani .btn:disabled:hover { background: none; color: var(--hneda-akcent); }
 .location .ubytovani-form input:focus { border-bottom-color: var(--hneda-akcent); }
 
-/* Kresby po stranách bílého pruhu s ubytováním: vlevo hotelový vozík, vpravo
-   snídaně. Pruh jde přes celé okno a obsah v něm drží uprostřed jen 640 px,
-   takže po stranách je místa dost. */
-.ubytovani-kresba {
-  position: absolute; top: 50%;
-  transform: translateY(-50%);
-  height: auto; pointer-events: none;
-}
-/* Hromádka fotek pokojů vlevo od formuláře, na místě, kde dřív stál kreslený
-   vozík. Je to stejná komponenta jako u příběhu, takže si rozměr řídí sama —
-   obal jí jen řekne, kam a jak širokou. */
-.ubytovani-fotky {
-  position: absolute; left: 7%; top: 50%;
-  transform: translateY(-50%) rotate(-3deg);
-  width: 15%; max-width: 230px;
-  z-index: 1;
+/* Hromádka fotek pokojů v levém sloupci. Vyplní celou buňku, takže její výšku
+   určuje text vedle — poměr stran 4/5 tu tedy neplatí a fotky si tvar drží
+   samy přes object-fit: cover. */
+.ubytovani-fotky { position: relative; }
+.ubytovani-fotky .foto-hromadka {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; aspect-ratio: auto;
+  rotate: -2deg;
 }
 /* U ubytování nemá hromádka popisky, takže pruh pod fotkou může být užší. */
 .ubytovani-fotky .foto-list { border-bottom-width: 42px; }
-.ubytovani-kresba-snidane { right: 8%; width: 12.5%; rotate: 3deg; }
 
-/* Pod 1100 px už by kresby lezly do formuláře. */
-@media (max-width: 1100px) {
-  .ubytovani-kresba { display: none; }
+/* Na úzkém okně sloupce pod sebe, fotka nad textem a zase s vlastním poměrem. */
+@media (max-width: 900px) {
+  .ubytovani { grid-template-columns: 1fr; max-width: 620px; }
+  .ubytovani-fotky { max-width: 300px; margin: 0 auto; aspect-ratio: 4/5; }
 }
 
 /* Nadpis jen pro odečítače: z pohledu zmizí, ze struktury stránky ne. */
