@@ -669,13 +669,21 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-popis {
   position: absolute; inset: 0;
   transform: rotate(-1.5deg);
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 0 26px 30px;
+  /* Popisek a pod ním datum — proto sloupec, ne jen zarovnání ke spodní hraně. */
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  padding: 0 26px 24px;
   pointer-events: none;
   font-family: var(--rukopis), "Segoe Script", cursive;
   font-size: 1.45rem; line-height: 1.15; text-align: center;
   color: color-mix(in srgb, var(--ink) 82%, transparent);
   transition: opacity .3s ease;
+}
+/* Datum pod popiskem: drobné, prostrkané a slabší, ať zůstane hlavní rukopis. */
+.foto-datum {
+  margin-top: .3rem;
+  font-family: var(--serif), Georgia, serif;
+  font-size: .62rem; letter-spacing: .24em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 /* ——— ručně psané doodly u „Náš příběh" ———
    Kreslí se samy: každá čára má pathLength=1 a vyjede z mezery dash vzoru.

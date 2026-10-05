@@ -11,7 +11,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { IkonaKlik } from "./StoryDoodles";
 
-export type FotkaNaHromadce = { src: string; alt: string; popis?: string };
+export type FotkaNaHromadce = { src: string; alt: string; popis?: string; datum?: string };
 /* jak leží jednotlivé fotky na hromádce (0 = úplně navrchu) */
 const HROMADKA_SLOTY = [
   { rot: -1.5, x: 0, y: 0 },
@@ -84,7 +84,8 @@ export default function FotoHromadka({ fotky }: { fotky: FotkaNaHromadce[] }) {
         aria-hidden="true"
         style={{ opacity: fotky[aktivni].popis ? 1 : 0, zIndex: pocet + 1 }}
       >
-        {fotky[aktivni].popis}
+        <span className="foto-popis-text">{fotky[aktivni].popis}</span>
+        {fotky[aktivni].datum && <span className="foto-datum">{fotky[aktivni].datum}</span>}
       </span>
       {/* Odznak s kurzorem v rohu — zve k listování a zůstává vidět pořád.
           Popisky konkrétních fotek („zásnuby na Troskách“ a spol.) tu byly nad
