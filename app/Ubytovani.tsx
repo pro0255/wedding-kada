@@ -9,8 +9,11 @@ import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 const UBYTOVANI_FOTKY: FotkaNaHromadce[] = [
   { src: "/ubytovani/pokoj 1.webp", alt: "Pokoj v hotelu Rekovice" },
   { src: "/ubytovani/pokoj  2.webp", alt: "Pokoj v hotelu Rekovice" },
+  { src: "/ubytovani/pokoj 3.webp", alt: "Pokoj v hotelu Rekovice" },
+  { src: "/ubytovani/pokoj 4.webp", alt: "Pokoj v hotelu Rekovice" },
   { src: "/ubytovani/snidane 1.webp", alt: "Snídaně v hotelu Rekovice" },
   { src: "/ubytovani/snidane 2.webp", alt: "Snídaně v hotelu Rekovice" },
+  { src: "/ubytovani/snidane 3.webp", alt: "Snídaně v hotelu Rekovice" },
 ];
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
