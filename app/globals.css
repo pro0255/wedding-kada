@@ -773,7 +773,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .story .eyebrow { color: var(--palette-blue-text); }
 .location .eyebrow { color: var(--palette-rose-text); }
 .location .lead { color: var(--palette-rose-text); }
-.menu .eyebrow { color: var(--palette-blush-text); }
+/* Nadpis i popisek nad ním drží barvu ostatních nadpisů sekcí. Menu stojí na
+   bílé, kde by jinak platil základní skoro černý inkoust. */
+.menu .eyebrow, .menu > .wrap h2 { color: var(--hneda-nadpis, #6b5340); }
 /* FAQ leží na modré — „Ptáte se“ jako jediný eyebrow zůstával na zlaté z .eyebrow */
 .faq .eyebrow { color: var(--palette-rose-text); }
 .events { max-width: 560px; margin: 3rem auto 0; text-align: left; }
@@ -1347,6 +1349,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 
 /* menu */
 .menu { background: linear-gradient(to bottom, var(--modra-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
+/* Poloviční odsazení proti ostatním sekcím: prostírání je vysoké a kolem něj
+   zbývalo moc vzduchu. Selektor musí být stejně specifický jako
+   `.obsah-ramec > section`, jinak ho ten přebije. */
+.obsah-ramec > .menu { padding-block: 2.75rem; }
 .menu-kids-title { margin-top: 3.5rem; padding-top: 3rem; border-top: 1px solid rgba(0,0,0,.1); }
 .menu-kids-title h3 { font-size: 1.4rem; letter-spacing: .1em; text-transform: uppercase; }
 
@@ -2582,7 +2588,9 @@ body,
    nepodskakuje — a hlavně nikde nesmí být overflow jiný než visible, ten by
    celé 3D zplacatil do roviny. */
 .menu-kniha {
-  --deska: clamp(290px, 33vw, 520px);
+  /* O pětinu větší než dřív: v sekci kolem zbývalo moc prázdné plochy.
+     Příbory se měří výškou knihy, takže rostou s ní. */
+  --deska: clamp(348px, 40vw, 624px);
   --pomer: 1.41;
   --deska-bezova: #e7dfd0;
   --deska-tmava: #d3c7b2;
@@ -2923,9 +2931,11 @@ body,
   font-size: clamp(.95rem, 2.1vw, 1.35rem); letter-spacing: .34em;
   color: #9b7326;
 }
+/* O třetinu větší než dřív a plná zlatá jako monogram nad ním — průsvitná
+   se na světlé desce ztrácela. */
 .menu-datum {
-  font-size: clamp(.55rem, 1.15vw, .72rem); letter-spacing: .38em;
-  color: color-mix(in srgb, #7d5c1c 72%, transparent);
+  font-size: clamp(.72rem, 1.5vw, .94rem); letter-spacing: .38em;
+  color: #9b7326;
 }
 
 /* Hřbet: tmavší proužek u levé hrany a zaoblení i vlevo, aby to byla kniha,
@@ -2939,17 +2949,20 @@ body,
 }
 .menu-obalka-lic { border-radius: 9px 5px 5px 9px; }
 
-/* Měkčí stín s modrým nádechem místo šedého. */
-.menu-deska { box-shadow: 0 26px 60px rgba(107, 83, 64, .22), 0 6px 18px rgba(107, 83, 64, .12); }
+/* Jediný jemný stín pod deskou. Ten dřívější měl rozptyl 60 px a kolem celé
+   knihy dělal hnědý opar. */
+.menu-deska { box-shadow: 0 20px 40px rgba(0, 0, 0, .12); }
 
 /* Kniha se při najetí pootevře — bez textu na desce je to jediný náznak,
    že se s ní dá něco dělat. */
 .menu-kniha:not(.je-otevrene) .menu-obalka:hover { transform: rotateY(-9deg); }
 
+/* Pokyn ke klepnutí pod knihou. Je výrazně větší a tmavší než dřív — v drobné
+   prostrkané kapitálce ve vybledlé barvě ho nikdo nenašel. */
 .menu-napoveda {
-  margin: 1.6rem auto 0; text-align: center;
-  font-size: .62rem; letter-spacing: .3em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--list-pismo, #5f4a37) 62%, transparent);
+  margin: 2rem auto 0; text-align: center;
+  font-size: .9rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--hneda-nadpis, #6b5340);
 }
 
 /* --- příbory po stranách zavřené knihy ---
@@ -2972,7 +2985,9 @@ body,
   filter: drop-shadow(0 6px 14px rgba(107, 83, 64, .18));
   transition: opacity .5s ease, translate .9s cubic-bezier(.4, 0, .2, 1);
 }
-.menu-pribor-vidlicka { left: 14%; }
+/* Vidlička stála od desky dál než nůž — 63 px proti 25. Posouvá se středem,
+   protože každý příbor má jinou šířku. */
+.menu-pribor-vidlicka { left: 17.7%; }
 .menu-pribor-nuz { left: 81%; }
 .menu-pribor-lzice { left: 90%; }
 .menu-kniha.je-otevrene .menu-pribor { opacity: 0; }

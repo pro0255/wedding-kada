@@ -18,6 +18,7 @@ import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
 import { IkonaKlik } from "./StoryDoodles";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
+import Klikni from "./Klikni";
 import { OznameniHlavni } from "./oznameni/Oznameni";
 
 
@@ -727,19 +728,7 @@ export default function Home() {
                 Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
                 po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
                 šla obálka pořád otevřít. */}
-            <span className="klikni-wrap" aria-hidden="true">
-              <svg className="klikni-text" viewBox="0 0 200 96" focusable="false">
-                {/* Dráha je oblouk prohnutý dolů — písmo po něm sedí jako podpis
-                    nad kresbou a drží se zakřivení šipky pod sebou. */}
-                <path id="klikni-drah" d="M 6 26 C 48 96, 152 96, 194 26" fill="none" />
-                <text>
-                  <textPath href="#klikni-drah" startOffset="50%" textAnchor="middle">
-                    klikni
-                  </textPath>
-                </text>
-              </svg>
-              <img className="klikni-sipka" src="/obalka/sipka.webp" alt="" />
-            </span>
+            <Klikni id="klikni-drah-obalka" />
           </div>
           <KvetinyVrstva nad />
         </Reveal>
@@ -795,6 +784,7 @@ export default function Home() {
       {/* menu */}
       <section className="menu" id="menu">
         <Reveal className="wrap">
+          <p className="eyebrow">Dobrou chuť</p>
           <h2>Svatební menu</h2>
         </Reveal>
         <Reveal>
