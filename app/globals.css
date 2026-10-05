@@ -105,7 +105,10 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   /* max(100vw, 600px): na telefonu panorama nezmenšujeme na šířku okna, ale
      necháme ho přetéct a oříznout se. Při 375px vycházelo 80px vysoké,
      zvonička měla 12px a majáky 7 — nikdo by je neuviděl. */
-  --hory-sirka: max(100vw, 600px);
+  /* 132vw: panorama je širší než okno a po stranách se ořízne. Kreslené v šířce
+     okna leželo tak nízko, že mezi výzvou a prvním hřebenem zůstávalo přes dvě
+     stě pixelů prázdna. */
+  --hory-sirka: max(132vw, 600px);
   --hory-vyska: calc(var(--hory-sirka) * 3 / 14);
   overflow: hidden;
   /* Obsah se centruje do zbytku po tomhle odsazení, takže čím je větší, tím
