@@ -108,7 +108,15 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   --hory-sirka: max(100vw, 600px);
   --hory-vyska: calc(var(--hory-sirka) * 3 / 14);
   overflow: hidden;
-  padding-bottom: min(calc(var(--hory-vyska) * .55), 18vh);
+  /* Obsah se centruje do zbytku po tomhle odsazení, takže čím je větší, tím
+     výš obsah sedí. Nad ním zbývalo 264 px prázdna, dvojnásobek sráží na
+     polovinu. Strop ve vh hlídá nízká okna, kde by se obsah jinak nevešel. */
+  padding-bottom: min(calc(var(--hory-vyska) * 1.1), 36vh);
+}
+/* Na nízkém okně se obsah s panoramatem nevejde a zvednutí by ho vytlačilo
+   až k horní hraně. Tam se tedy zvedá jen tolik, co dřív. */
+@media (max-height: 900px) {
+  .loader { padding-bottom: min(calc(var(--hory-vyska) * .55), 18vh); }
 }
 /* Panorama Beskyd přes celou šířku spodní hrany. Obě vrstvy — pozadí s horami
    i překryv s majáky — mají krabici v poměru samotného obrázku (1400 × 300),
@@ -184,7 +192,7 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
 }
 /* než naskočí canvas, jen jemná zlatá záře — žádný plochý prsten */
 .loader-ring3d::before {
-  content: ""; position: absolute; width: 90px; height: 90px; border-radius: 50%;
+  content: ""; position: absolute; width: 117px; height: 117px; border-radius: 50%;
   background: radial-gradient(circle, rgba(220,178,110,.35), transparent 70%);
   animation: preGlow 1.6s ease-in-out infinite;
 }
@@ -194,7 +202,7 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
 }
 .loader-ring3d {
   position: relative;
-  width: 170px; height: 170px;
+  width: 221px; height: 221px;
   display: flex; align-items: center; justify-content: center;
   filter: drop-shadow(0 0 26px rgba(200,168,105,.4));
 }
