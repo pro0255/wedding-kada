@@ -29,7 +29,7 @@ const MAX = 560;
  * větší — v 560 px by byly rozmazané. */
 const VELKE = new Set([
   "zavoj_program_vlevo_nahore_v3",
-  "zavoj_program_vpravo_dole",
+  "zavoj_program_vpravo_dole_v2",
   "kytice_fotky_vlevo",
   "kytice_fotky_vpravo",
 ]);

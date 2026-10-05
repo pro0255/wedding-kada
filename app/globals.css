@@ -71,7 +71,10 @@
   --pin-ruzova: #c9737c;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* Základ pro všechny rem hodnoty na webu. 17,5 px místo výchozích 16: texty
+   jsou psané lehkým řezem ve světlé barvě a ve výchozí velikosti se špatně
+   četly. Zvětšuje se tím celá sazba naráz a proporce zůstanou. */
+html { font-size: 17.5px; scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -241,7 +244,7 @@ section { padding: 5.5rem 1.5rem; }
 .wrap { max-width: 640px; margin: 0 auto; text-align: center; }
 .eyebrow { font-size: .68rem; letter-spacing: .4em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; }
 h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1.6rem; }
-.lead { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; }
+.lead { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; font-size: 1.05rem; }
 
 /* fullscreen hero */
 .hero-full {
@@ -532,41 +535,6 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
-/* ---------- závoj u programu dne ----------
-   Jeden vlevo nahoře, druhý vpravo dole — úhlopříčně, ne jako rámeček po obou
-   stranách. Schválně je to tahle sekce a ne odpočet: hned nad věncem u příběhu
-   by byly dvě květinové kompozice za sebou a věnec by ztratil překvapení.
-
-   Oba přesahují ven ze sekce do bílého prostoru. Výška je v procentech sekce,
-   šířka se dopočítá z poměru stran. Leží pod obsahem, aby ikonky ani popisky
-   nezakryly. */
-.program-zavoj {
-  position: absolute;
-  /* Pozor na max-width: při pevné výšce obrázek nezmenší, ale zúží a zdeformuje. */
-  height: 52%; width: auto;
-  pointer-events: none; user-select: none;
-  z-index: 0;
-}
-/* Levý má stonky u levého kraje těsně pod horní hranou sekce — kompozice je
-   nakreslená přímo v obrázku, takže se neotáčí ani nezrcadlí. */
-/* Levá je užší a vysunutá do béžového rohu — roztažená přes čtvrtinu sekce
-   z ní dělala pozadí, ne detail. */
-.program-zavoj-vlevo { left: 0; top: -7%; width: 17%; height: auto; }
-/* Pravý se otáčí kolem svého pravého spodního rohu, kde má stonky — při otáčení
-   kolem středu by se z rohu zvedly a visely by ve vzduchu. */
-.program-zavoj-vpravo {
-  right: -3%; bottom: -12%;
-  transform-origin: 100% 100%;
-  rotate: -14deg;
-}
-/* Obsah nad květinami. */
-.schedule > .wrap { position: relative; z-index: 1; }
-
-@media (max-width: 900px) {
-  /* Na úzkém okně se osa staví na výšku a závoje by ležely přes ni. */
-  .program-zavoj { display: none; }
-}
-
 /* ---------- kytice u fotek od vás ----------
    Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
    nezrcadlí. Obě jsou vyšší než pruh a schválně z něj vyčuhují nahoru i dolů.
@@ -579,8 +547,8 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   pointer-events: none; user-select: none;
   z-index: 0;
 }
-.fotky-kytice-vlevo { left: 0; top: -23%; height: 130%; }
-.fotky-kytice-vpravo { right: 0; top: -16%; height: 131%; }
+.fotky-kytice-vlevo { left: 0; top: -7%; height: 98%; }
+.fotky-kytice-vpravo { right: 0; top: 0; height: 99%; }
 
 /* Obsah nad kyticemi. */
 .fotky-odkaz > .wrap { position: relative; z-index: 1; }
@@ -751,14 +719,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 
 /* schedule */
-.schedule {
-  background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci));
-  color: var(--ink);
-  /* Kotva pro závoje, které z ní schválně vyčuhují. z-index ji zvedne nad
-     sousední sekce — jinak přes vyčuhující část závoje leží pozadí sekce nad
-     ní a kvítky vyblednou. */
-  position: relative; z-index: 2; overflow: visible;
-}
+.schedule { background: linear-gradient(to bottom, var(--ruzova-jemna), var(--modra-jemna) var(--prechod-sekci)); color: var(--ink); }
 .schedule .eyebrow { color: var(--palette-blue-text); }
 /* názvy bodů programu v modré podle pozadí sekce; menu má svou vínovou níž */
 .schedule .event h3 { color: var(--palette-blue-text); }
@@ -1497,7 +1458,7 @@ footer {
 /* prosba o obřadu — drobnější a tlumená, aby nekonkurovala hlavní výzvě */
 .fotky-prosba {
   max-width: 46ch; margin: 1.6rem auto 0;
-  font-size: .9rem; font-style: italic; line-height: 1.65; color: var(--ink-soft);
+  font-size: .95rem; font-style: italic; line-height: 1.7; color: var(--ink-soft);
 }
 .fotky-prosba strong { font-weight: 500; font-style: normal; color: var(--modra-syta); }
 .fotky-odkaz .btn { margin-top: 2.2rem; border-color: var(--palette-blue-text); color: var(--palette-blue-text); }
@@ -2823,7 +2784,17 @@ body,
   transform: translateY(-50%);
   height: auto; pointer-events: none;
 }
-.ubytovani-kresba-vozik { left: 10%; width: 7%; rotate: -5deg; }
+/* Hromádka fotek pokojů vlevo od formuláře, na místě, kde dřív stál kreslený
+   vozík. Je to stejná komponenta jako u příběhu, takže si rozměr řídí sama —
+   obal jí jen řekne, kam a jak širokou. */
+.ubytovani-fotky {
+  position: absolute; left: 7%; top: 50%;
+  transform: translateY(-50%) rotate(-3deg);
+  width: 15%; max-width: 230px;
+  z-index: 1;
+}
+/* U ubytování nemá hromádka popisky, takže pruh pod fotkou může být užší. */
+.ubytovani-fotky .foto-list { border-bottom-width: 42px; }
 .ubytovani-kresba-snidane { right: 8%; width: 12.5%; rotate: 3deg; }
 
 /* Pod 1100 px už by kresby lezly do formuláře. */

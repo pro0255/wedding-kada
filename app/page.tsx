@@ -17,6 +17,7 @@ import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
 import { IkonaKlik } from "./StoryDoodles";
+import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 import { OznameniHlavni } from "./oznameni/Oznameni";
 
 
@@ -309,7 +310,7 @@ function Odpocet() {
 /* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
 /* `popis` se vypíše ručním písmem do bílého pruhu pod fotkou, jako by ho tam
    někdo dopsal. Má ho jen pár fotek — u ostatních pruh zůstává prázdný. */
-const PRIBEH_FOTKY: { src: string; alt: string; popis?: string }[] = [
+const PRIBEH_FOTKY: FotkaNaHromadce[] = [
   { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách" },
   { src: "/fotky/2.jpeg", alt: "První společná fotka", popis: "první společná fotka" },
   { src: "/fotky/4.jpeg", alt: "Kateřina a Jakub" },
@@ -326,88 +327,6 @@ const PRIBEH_FOTKY: { src: string; alt: string; popis?: string }[] = [
   { src: "/fotky/27.jpeg", alt: "Kateřina a Jakub" },
   { src: "/fotky/28.jpeg", alt: "Kateřina a Jakub" },
 ];
-
-// jak leží jednotlivé fotky na hromádce (0 = úplně navrchu)
-const HROMADKA_SLOTY = [
-  { rot: -1.5, x: 0, y: 0 },
-  { rot: 3.2, x: 12, y: 8 },
-  { rot: -4, x: -10, y: 15 },
-  { rot: 2.4, x: 6, y: 22 },
-];
-
-function FotoHromadka() {
-  const [aktivni, setAktivni] = useState(0);
-  // až po prvním kliknutí smí odcházející fotka animovat odchod — jinak by
-  // spodní fotka při prvním vykreslení bliknula
-  const [listoval, setListoval] = useState(false);
-  const pocet = PRIBEH_FOTKY.length;
-
-  return (
-    <button
-      type="button"
-      /* Jakmile host začne listovat, couvnou květiny nad kompozicí dozadu —
-         přes fotku, kterou si prohlíží, nemá co ležet. */
-      className={"foto-hromadka" + (listoval ? " je-listovano" : "")}
-      onClick={() => {
-        setListoval(true);
-        setAktivni((i) => (i + 1) % pocet);
-      }}
-      aria-label="Zobrazit další fotku"
-    >
-      {PRIBEH_FOTKY.map((foto, i) => {
-        const slot = (i - aktivni + pocet) % pocet;
-        const viditelny = slot < HROMADKA_SLOTY.length;
-        // fotka, která právě odešla z vršku — odhodí se doprava a zapadne pod hromádku
-        const odchazi = listoval && slot === pocet - 1;
-        const poloha = HROMADKA_SLOTY[Math.min(slot, HROMADKA_SLOTY.length - 1)];
-        return (
-          <motion.img
-            key={foto.src}
-            src={foto.src}
-            alt={slot === 0 ? foto.alt : ""}
-            className={`foto-list ${slot === 0 ? "foto-vrchni" : ""}`}
-            initial={false}
-            animate={
-              odchazi
-                ? {
-                    // decentní: fotka jen kousek sklouzne a rozplyne se
-                    // nad tou další — působí to jako listování, ne odhazování
-                    x: 22, y: 12, rotate: 2.5, opacity: 0,
-                  }
-                : {
-                    x: poloha.x,
-                    y: poloha.y,
-                    rotate: poloha.rot,
-                    opacity: viditelny ? 1 : 0,
-                  }
-            }
-            transition={
-              odchazi
-                ? { duration: 0.5, ease: "easeOut" }
-                : { type: "spring", stiffness: 170, damping: 26, mass: 1 }
-            }
-            style={{ zIndex: odchazi ? pocet + 1 : pocet - slot }}
-          />
-        );
-      })}
-      {/* Popisek leží ve stejném rámu jako vrchní fotka a otáčí se s ní stejně,
-          proto sedí v jejím bílém pruhu, ne vedle něj. */}
-      <span
-        className="foto-popis"
-        aria-hidden="true"
-        style={{ opacity: PRIBEH_FOTKY[aktivni].popis ? 1 : 0, zIndex: pocet + 1 }}
-      >
-        {PRIBEH_FOTKY[aktivni].popis}
-      </span>
-      {/* Odznak s kurzorem v rohu — zve k listování a zůstává vidět pořád.
-          Popisky konkrétních fotek („zásnuby na Troskách“ a spol.) tu byly nad
-          hromádkou a šly pryč; komponenty v StoryDoodles.tsx zůstávají. */}
-      <span className="doodle-obal ikona-klik-obal" aria-hidden="true">
-        <IkonaKlik />
-      </span>
-    </button>
-  );
-}
 
 /* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
    modré obálky — zavřené a otevřené (public/fotky). Vrstvy pro web z nich
@@ -790,7 +709,7 @@ export default function Home() {
         <Reveal className="scena">
           <KvetinyVrstva />
           <div className="scena-foto">
-            <FotoHromadka />
+            <FotoHromadka fotky={PRIBEH_FOTKY} />
           </div>
           <div className="scena-obalka">
             <ObalkaPribeh>
@@ -859,11 +778,6 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
-        {/* Závoj po stranách programu: jeden vlevo nahoře, druhý vpravo dole.
-            Úhlopříčně, ne jako rámeček — a dost daleko od věnce u příběhu, aby
-            se dvě květinové kompozice nepotkaly hned za sebou. */}
-        <img className="program-zavoj program-zavoj-vlevo" src="/kytky/zavoj_program_vlevo_nahore_v3.webp" alt="" aria-hidden="true" />
-        <img className="program-zavoj program-zavoj-vpravo" src="/kytky/zavoj_program_vpravo_dole.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>

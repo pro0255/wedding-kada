@@ -2,6 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { VENUE_WEB_URL } from "./venue";
+import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
+
+/* Fotky pokojů a snídaní. Bez popisků — na fotce pokoje je vidět, co na ní je,
+   a text vedle o tom mluví. */
+const UBYTOVANI_FOTKY: FotkaNaHromadce[] = [
+  { src: "/ubytovani/pokoj 1.webp", alt: "Pokoj v hotelu Rekovice" },
+  { src: "/ubytovani/pokoj  2.webp", alt: "Pokoj v hotelu Rekovice" },
+  { src: "/ubytovani/snidane 1.webp", alt: "Snídaně v hotelu Rekovice" },
+  { src: "/ubytovani/snidane 2.webp", alt: "Snídaně v hotelu Rekovice" },
+];
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
 
@@ -160,9 +170,12 @@ export default function Ubytovani() {
         <AutoNaLince />
       </div>
       <div className="ubytovani">
-      {/* Kresby po stranách bílého pruhu. Vyřezává je
-          scripts/ubytovani-kresby.mjs. */}
-      <img className="ubytovani-kresba ubytovani-kresba-vozik" src="/ubytovani/vozik.webp" alt="" aria-hidden="true" />
+      {/* Vlevo hromádka fotek pokojů a snídaní, vpravo kreslená snídaně.
+          Hromádka je stejná komponenta jako u příběhu, jen s jinou sadou a bez
+          popisků — na fotkách pokoje je vidět, co na nich je. */}
+      <div className="ubytovani-fotky">
+        <FotoHromadka fotky={UBYTOVANI_FOTKY} />
+      </div>
       <img className="ubytovani-kresba ubytovani-kresba-snidane" src="/ubytovani/snidane.webp" alt="" aria-hidden="true" />
       <h3>Ubytování</h3>
       <p className="lead">
