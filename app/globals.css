@@ -2791,6 +2791,12 @@ body,
   width: 100%; height: 100%; aspect-ratio: auto;
   rotate: -2deg;
 }
+
+/* Posun hromádky kousek doleva, ať nelepí na text. Jen na širokém okně —
+   na užším je bílé odsazení pruhu menší než posun a fotka by z něj vylezla. */
+@media (min-width: 1150px) {
+  .ubytovani-fotky .foto-hromadka { translate: -2.5rem 0; }
+}
 /* U ubytování nemá hromádka popisky, takže pruh pod fotkou může být užší. */
 .ubytovani-fotky .foto-list { border-bottom-width: 42px; }
 
