@@ -678,7 +678,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   transform: rotate(-1.5deg);
   /* Popisek a pod ním datum — proto sloupec, ne jen zarovnání ke spodní hraně. */
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-  padding: 0 26px 24px;
+  padding: 0 10px 24px;
   pointer-events: none;
   font-family: var(--rukopis), "Segoe Script", cursive;
   font-size: 1.45rem; line-height: 1.15; text-align: center;
@@ -687,14 +687,28 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 }
 /* Datum v pravém rohu bílého pruhu: drobné, prostrkané a slabší, ať zůstane
    hlavní rukopis. Zarovnání si řeší samo — popisek nad ním zůstává na střed. */
+/* Popisek vysázený ručním písmem. Přišel jako hotový obrázek, protože to písmo
+   na webu nemáme.
+
+   Velikost řídí VÝŠKA, ne šířka: všechny předlohy jsou 65 px vysoké, takže při
+   stejné výšce mají stejně velké písmo. Při stejné šířce by naopak dlouhý text
+   vyšel drobný a krátký velký — „první Chorvatsko jako rodina" bylo o třetinu
+   menší než ostatní. Strop v šířce spolu s pevnou výškou obrázek deformuje,
+   proto je u něj object-fit. */
+.foto-popis-obrazek {
+  height: 6%; width: auto; max-width: 100%;
+  object-fit: contain;
+  opacity: .82;
+}
+
 .foto-datum {
   align-self: flex-end;
   margin-top: .45rem;
   /* Bezpatkový řez a plná barva: světlá patková antikva byla v téhle velikosti
      tenká a prostrkaná verzálka se v ní navíc hůř četla. */
   font-family: var(--sans), "Helvetica Neue", sans-serif;
-  font-size: .82rem; font-weight: 600; letter-spacing: .08em;
-  color: var(--ink);
+  font-size: .76rem; font-weight: 500; letter-spacing: .08em;
+  color: color-mix(in srgb, var(--ink) 58%, transparent);
 }
 /* ——— ručně psané doodly u „Náš příběh" ———
    Kreslí se samy: každá čára má pathLength=1 a vyjede z mezery dash vzoru.
@@ -757,8 +771,12 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (max-width: 760px) {
   /* Rámeček se zmenší s hromádkou — 22/92 px by na úzké obrazovce sežralo
      půlku fotky. */
-  .foto-list { border-width: 14px; border-bottom-width: 58px; }
-  .foto-popis { font-size: 1.15rem; padding: 0 18px 18px; }
+  /* Spodní pruh musí uživit popisek i datum pod ním — v 58 px se rukopis
+     posadil o patnáct pixelů výš, na samotnou fotku. */
+  .foto-list { border-width: 14px; border-bottom-width: 78px; }
+  /* Užší odsazení po stranách: delší popisky potřebují šířku, jinak je
+     object-fit zmenší a písmo nesedí s ostatními. */
+  .foto-popis { font-size: 1.15rem; padding: 0 8px 14px; }
   /* doodly se zmenší a přisadí blíž — na úzké obrazovce není kam odskočit */
   .doodle-obal-klikni { width: 138px; left: 0; bottom: -96px; }
   .doodle-obal-zasnuby { width: 146px; right: 0; top: -119px; }
@@ -2134,7 +2152,8 @@ body,
     aspect-ratio: auto;
     display: flex; flex-direction: column; align-items: center;
     gap: 2.2rem;
-    padding-block: 2.5rem;
+    /* Shora nic — mezeru nad textem už drží odsazení sekce. */
+    padding-block: 0 1.2rem;
   }
   /* Věnec je pryč: na šířku telefonu se kolem obálky a fotek nemá kam rozložit
      a jako kulisa za nimi jen ubíral na klidu. */
@@ -2151,8 +2170,9 @@ body,
   }
   .scena:has(.obalka.je-otevrena) .scena-foto,
   .scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
-  .scena-obalka { order: 1; width: 92%; }
-  .scena-foto { order: 2; width: 80%; }
+  .scena-obalka { order: 1; width: 100%; }
+  /* Fotky skoro přes celou šířku — po stranách zbývalo zbytečně moc místa. */
+  .scena-foto { order: 2; width: 98%; }
 
   /* Obálka ani pokyn ke klepnutí na telefonu nejsou — viz blok níž. */
   .klikni-wrap { display: none; }
@@ -2414,8 +2434,6 @@ body,
   /* Na úzkém okně vycházelo písmo dopisu z clamp() na 9,6 px a nedalo se číst.
      Na telefonu je proto pevné — list má min-height: fit-content, takže se mu
      přizpůsobí výškou. */
-  .obalka-papir .lead { font-size: .92rem; line-height: 1.55; }
-  .obalka-papir .eyebrow { font-size: .72rem; }
   /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
   .obalka.je-otevrena { transform: rotate(1.8deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
@@ -2424,56 +2442,33 @@ body,
 /* Odznak u listů patří jen na telefon, kde se jimi listuje klepnutím. */
 .obalka-klik { display: none; }
 
-/* ——— obálka na telefonu: žádná obálka ———
-   Otevírání se sem nevejde. Rozevřená obálka s papírem je skoro dvakrát vyšší
-   než zavřená a text v ní vycházel na necelých deset pixelů. Na telefonu proto
-   leží rovnou kartička s textem a pod ní oznámení — obojí v plné šířce a hned
-   vidět, bez klepání. */
+/* ——— příběh na telefonu: jen text a pod ním fotky ———
+   Obálka, kartička i oznámení jdou pryč. Rozevřená obálka je skoro dvakrát
+   vyšší než zavřená, text v ní vycházel na necelých deset pixelů a dva listy
+   přes sebe se do šířky telefonu nevešly. Zůstává samotný text — čitelný,
+   bez papíru pod sebou — a pod ním hromádka fotek. */
 @media (max-width: 700px) {
   .obalka { transform: none; }
-  .obalka-telo { display: none; }
+  .obalka-telo, .obalka-oznameni, .obalka-klik { display: none; }
   /* Výsuv je trvale rozevřený a nic neořezává. */
   .obalka-vysuv {
     grid-template-rows: 1fr; margin-bottom: 0;
-    z-index: auto; pointer-events: auto; transition: none;
+    z-index: auto; pointer-events: none; transition: none;
   }
-  .obalka-vysuv-ram { overflow: visible; }
-  .obalka-listy {
-    display: flex; flex-direction: column; align-items: center;
-    gap: .55rem; padding: 0;
-  }
-  /* Dopis z absolutní polohy do toku a rovně — nemá na čem ležet. */
-  .obalka-papir {
-    position: static; order: 1;
-    width: 100%; aspect-ratio: auto; min-height: 0;
-    opacity: 1; transform: none; transition: none;
-    padding: 1.9rem 1.5rem;
-  }
-  .obalka-oznameni {
-    order: 2; width: 100%;
-    opacity: 1; transform: none; transition: none;
-  }
-
-  /* Stavy psané pro otevírání obálky tu nemají co dělat — listy leží rovně
-     pod sebou, ať je zrovna navrchu kterýkoli. */
-  .obalka.je-otevrena { transform: none; }
   .obalka.je-otevrena .obalka-vysuv { margin-bottom: 0; z-index: auto; }
-  .obalka.je-otevrena .obalka-papir,
-  .obalka.je-oznameni .obalka-papir { transform: none; opacity: 1; }
+  .obalka-vysuv-ram { overflow: visible; }
+  .obalka-listy { position: static; padding: 0; }
 
-  /* Klepnutí listy prohodí: nahoru jde oznámení, kartička pod něj. */
-  .obalka.je-oznameni .obalka-papir { order: 3; }
-  .obalka.je-oznameni .obalka-oznameni { order: 1; transform: none; }
-
-  /* Odznak s kurzorem v rohu kartičky. Leží v mřížce listů jako třetí prvek,
-     takže si ho pořadí nerozhází — drží se spodního okraje obalu. */
-  .obalka-klik {
-    /* .doodle-obal je absolutní — tady musí do toku, jinak ho pořadí v mřížce
-       míjí a odznak se zavěsí o celou obálku. */
-    position: static; display: block; order: 4;
-    width: 44px; margin: .4rem auto 0;
-    opacity: .8;
+  /* Z papíru zbude jen text: žádné pozadí, rámeček, stín ani natočení. */
+  .obalka-papir, .obalka.je-otevrena .obalka-papir, .obalka.je-oznameni .obalka-papir {
+    position: static; width: 100%; margin: 0;
+    aspect-ratio: auto; min-height: 0;
+    background: none; border: 0; box-shadow: none;
+    padding: 0; text-align: center;
+    opacity: 1; transform: none; transition: none;
   }
+  .obalka-papir .lead { font-size: .95rem; line-height: 1.6; }
+  .obalka-papir .eyebrow { font-size: .72rem; }
 }
 
 /* ---------- baby blue ----------
@@ -2921,7 +2916,9 @@ body,
    aby obsah pod ní neposkočil. */
 .obsah-ramec > .story:has(.obalka.je-otevrena) { padding-bottom: calc(8rem + 110px); }
 @media (max-width: 760px) {
-  .obsah-ramec > .story { padding-block: 4rem; }
+  /* Věnec se na telefon nekreslí, takže sekce nepotřebuje místo na jeho přesah.
+     Nad nadpisem zbývalo 138 px bílé. */
+  .obsah-ramec > .story { padding-block: 2.2rem; }
 }
 
 /* ---------- mapa a fotka jako pohlednice ----------

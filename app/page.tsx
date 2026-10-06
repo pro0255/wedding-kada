@@ -316,20 +316,20 @@ function Odpocet() {
    Popisky nese jen ta trojice, co je měla od začátku — u ostatních mluví fotka
    sama a zůstává pod ní jen datum. */
 const PRIBEH_FOTKY: FotkaNaHromadce[] = [
-  { src: "/fotky/2.jpeg", alt: "První společná fotka", datum: "14. 2. 2021", popis: "první společná fotka" },
+  { src: "/fotky/2.jpeg", alt: "První společná fotka", datum: "14. 2. 2021", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
   { src: "/fotky/27.jpeg", alt: "ZOO Ostrava", datum: "28. 4. 2021" },
   { src: "/fotky/28.jpeg", alt: "Bílovec", datum: "26. 9. 2021" },
   { src: "/fotky/4.jpeg", alt: "Chorvatsko", datum: "9. 9. 2022" },
   { src: "/fotky/6.jpeg", alt: "Kozmice", datum: "16. 3. 2023" },
   { src: "/fotky/11.jpeg", alt: "Sicílie", datum: "25. 5. 2024" },
   { src: "/fotky/21.jpeg", alt: "Svatba I a O", datum: "30. 8. 2024" },
-  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", datum: "16. 6. 2025" },
-  { src: "/fotky/22.jpeg", alt: "První Chorvatsko jako rodina", datum: "11. 9. 2025", popis: "první Chorvatsko jako rodina" },
+  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", datum: "16. 6. 2025", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
+  { src: "/fotky/22.jpeg", alt: "První Chorvatsko jako rodina", datum: "11. 9. 2025", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
   { src: "/fotky/20.jpeg", alt: "Slovensko", datum: "31. 12. 2025" },
   { src: "/fotky/23.jpeg", alt: "Štramberk", datum: "23. 4. 2026" },
   { src: "/fotky/24.jpeg", alt: "FM City Fest", datum: "19. 6. 2026" },
   { src: "/fotky/25.jpeg", alt: "Trogir", datum: "18. 7. 2026" },
-  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", datum: "30. 7. 2026", popis: "zásnuby na Troskách" },
+  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", datum: "30. 7. 2026", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
   { src: "/fotky/26.jpeg", alt: "Kutná Hora", datum: "1. 8. 2026" },
 ];
 
