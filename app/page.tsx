@@ -313,23 +313,24 @@ function Odpocet() {
    někdo dopsal. Má ho jen pár fotek — u ostatních pruh zůstává prázdný. */
 /* Fotky z našeho příběhu, seřazené od nejstarší. Datum i popisek jsou z Kátina
    zápisníku — pořadí v něm odpovídalo pořadí souborů, podle data se pak seřadily.
-   Popisky, které tu byly dřív, zůstaly ve svém znění. */
+   Popisky nese jen ta trojice, co je měla od začátku — u ostatních mluví fotka
+   sama a zůstává pod ní jen datum. */
 const PRIBEH_FOTKY: FotkaNaHromadce[] = [
   { src: "/fotky/2.jpeg", alt: "První společná fotka", datum: "14. 2. 2021", popis: "první společná fotka" },
-  { src: "/fotky/27.jpeg", alt: "ZOO Ostrava", datum: "28. 4. 2021", popis: "ZOO Ostrava" },
-  { src: "/fotky/28.jpeg", alt: "Bílovec", datum: "26. 9. 2021", popis: "Bílovec" },
-  { src: "/fotky/4.jpeg", alt: "Chorvatsko", datum: "9. 9. 2022", popis: "Chorvatsko" },
-  { src: "/fotky/6.jpeg", alt: "Kozmice", datum: "16. 3. 2023", popis: "Kozmice" },
-  { src: "/fotky/11.jpeg", alt: "Sicílie", datum: "25. 5. 2024", popis: "Sicílie" },
-  { src: "/fotky/21.jpeg", alt: "Svatba I a O", datum: "30. 8. 2024", popis: "svatba I & O" },
-  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", datum: "16. 6. 2025", popis: "těhotenské focení" },
+  { src: "/fotky/27.jpeg", alt: "ZOO Ostrava", datum: "28. 4. 2021" },
+  { src: "/fotky/28.jpeg", alt: "Bílovec", datum: "26. 9. 2021" },
+  { src: "/fotky/4.jpeg", alt: "Chorvatsko", datum: "9. 9. 2022" },
+  { src: "/fotky/6.jpeg", alt: "Kozmice", datum: "16. 3. 2023" },
+  { src: "/fotky/11.jpeg", alt: "Sicílie", datum: "25. 5. 2024" },
+  { src: "/fotky/21.jpeg", alt: "Svatba I a O", datum: "30. 8. 2024" },
+  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", datum: "16. 6. 2025" },
   { src: "/fotky/22.jpeg", alt: "První Chorvatsko jako rodina", datum: "11. 9. 2025", popis: "první Chorvatsko jako rodina" },
-  { src: "/fotky/20.jpeg", alt: "Slovensko", datum: "31. 12. 2025", popis: "Slovensko" },
-  { src: "/fotky/23.jpeg", alt: "Štramberk", datum: "23. 4. 2026", popis: "Štramberk" },
-  { src: "/fotky/24.jpeg", alt: "FM City Fest", datum: "19. 6. 2026", popis: "FM City Fest" },
-  { src: "/fotky/25.jpeg", alt: "Trogir", datum: "18. 7. 2026", popis: "Trogir" },
+  { src: "/fotky/20.jpeg", alt: "Slovensko", datum: "31. 12. 2025" },
+  { src: "/fotky/23.jpeg", alt: "Štramberk", datum: "23. 4. 2026" },
+  { src: "/fotky/24.jpeg", alt: "FM City Fest", datum: "19. 6. 2026" },
+  { src: "/fotky/25.jpeg", alt: "Trogir", datum: "18. 7. 2026" },
   { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", datum: "30. 7. 2026", popis: "zásnuby na Troskách" },
-  { src: "/fotky/26.jpeg", alt: "Kutná Hora", datum: "1. 8. 2026", popis: "Kutná Hora" },
+  { src: "/fotky/26.jpeg", alt: "Kutná Hora", datum: "1. 8. 2026" },
 ];
 
 /* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle

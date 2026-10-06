@@ -82,7 +82,7 @@ export default function FotoHromadka({ fotky }: { fotky: FotkaNaHromadce[] }) {
       <span
         className="foto-popis"
         aria-hidden="true"
-        style={{ opacity: fotky[aktivni].popis ? 1 : 0, zIndex: pocet + 1 }}
+        style={{ opacity: fotky[aktivni].popis || fotky[aktivni].datum ? 1 : 0, zIndex: pocet + 1 }}
       >
         <span className="foto-popis-text">{fotky[aktivni].popis}</span>
         {fotky[aktivni].datum && <span className="foto-datum">{fotky[aktivni].datum}</span>}
