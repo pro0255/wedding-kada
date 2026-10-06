@@ -678,8 +678,10 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   color: var(--ink);
   transition: opacity .3s ease;
 }
-/* Datum pod popiskem: drobné, prostrkané a slabší, ať zůstane hlavní rukopis. */
+/* Datum v pravém rohu bílého pruhu: drobné, prostrkané a slabší, ať zůstane
+   hlavní rukopis. Zarovnání si řeší samo — popisek nad ním zůstává na střed. */
 .foto-datum {
+  align-self: flex-end;
   margin-top: .3rem;
   font-family: var(--serif), Georgia, serif;
   font-size: .86rem; letter-spacing: .16em; text-transform: uppercase;
