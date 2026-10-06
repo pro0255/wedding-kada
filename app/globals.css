@@ -681,8 +681,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .foto-popis {
   position: absolute; inset: 0;
   transform: rotate(-1.5deg);
-  /* Popisek a pod ním datum — proto sloupec, ne jen zarovnání ke spodní hraně. */
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  display: flex; align-items: flex-end; justify-content: center;
   padding: 0 10px 24px;
   pointer-events: none;
   font-family: var(--rukopis), "Segoe Script", cursive;
@@ -690,14 +689,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   color: var(--ink);
   transition: opacity .3s ease;
 }
-/* Datum v pravém rohu bílého pruhu: drobné, prostrkané a slabší, ať zůstane
-   hlavní rukopis. Zarovnání si řeší samo — popisek nad ním zůstává na střed. */
+
 /* Popisek vysázený ručním písmem. Přišel jako hotový obrázek, protože to písmo
    na webu nemáme.
 
    Velikost řídí VÝŠKA, ne šířka: všechny předlohy jsou 65 px vysoké, takže při
    stejné výšce mají stejně velké písmo. Při stejné šířce by naopak dlouhý text
-   vyšel drobný a krátký velký — „první Chorvatsko jako rodina" bylo o třetinu
+   vyšel drobný a krátký velký — „první Chorvatsko jako rodina“ bylo o třetinu
    menší než ostatní. Strop v šířce spolu s pevnou výškou obrázek deformuje,
    proto je u něj object-fit. */
 .foto-popis-obrazek {
@@ -705,16 +703,8 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   object-fit: contain;
   opacity: .82;
 }
-
-.foto-datum {
-  align-self: flex-end;
-  margin-top: .45rem;
-  /* Bezpatkový řez a plná barva: světlá patková antikva byla v téhle velikosti
-     tenká a prostrkaná verzálka se v ní navíc hůř četla. */
-  font-family: var(--sans), "Helvetica Neue", sans-serif;
-  font-size: .76rem; font-weight: 500; letter-spacing: .08em;
-  color: color-mix(in srgb, var(--ink) 58%, transparent);
-}
+/* Datum v pravém rohu bílého pruhu: drobné, prostrkané a slabší, ať zůstane
+   hlavní rukopis. Zarovnání si řeší samo — popisek nad ním zůstává na střed. */
 /* ——— ručně psané doodly u „Náš příběh" ———
    Kreslí se samy: každá čára má pathLength=1 a vyjede z mezery dash vzoru.
    Animace stojí, dokud sekci neodhalí <Reveal> (.reveal.in), aby si host
@@ -776,9 +766,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 @media (max-width: 760px) {
   /* Rámeček se zmenší s hromádkou — 22/92 px by na úzké obrazovce sežralo
      půlku fotky. */
-  /* Spodní pruh musí uživit popisek i datum pod ním — v 58 px se rukopis
-     posadil o patnáct pixelů výš, na samotnou fotku. */
-  .foto-list { border-width: 14px; border-bottom-width: 78px; }
+  /* Spodní pruh musí uživit popisek — v 58 px se rukopis posadil o patnáct
+     pixelů výš, na samotnou fotku. */
+  .foto-list { border-width: 14px; border-bottom-width: 64px; }
   /* Užší odsazení po stranách: delší popisky potřebují šířku, jinak je
      object-fit zmenší a písmo nesedí s ostatními. */
   .foto-popis { font-size: 1.15rem; padding: 0 8px 14px; }
@@ -2620,7 +2610,8 @@ body,
     max-width: 480px; padding-inline: 0;
   }
   .osa-bod {
-    grid-template-columns: 88px 1fr; grid-template-rows: auto auto auto auto;
+    grid-template-columns: 100px 1fr; grid-template-rows: auto auto auto auto;
+    column-gap: 1rem;
     justify-items: start; text-align: left;
     padding: 0 0 2.4rem; position: relative;
   }
@@ -2630,15 +2621,22 @@ body,
        široké ikonky vysoko a vysoké sahaly až k popisu. Na střed pevně vysokého
        boxu sedí všechny stejně — a 74 px je zvolených tak, aby ten střed padl
        přesně na pomezí času a nadpisu. */
-    height: 74px; margin: 10px 0 0; align-items: center;
+    /* width: 100 % je nutná: .osa-bod má justify-items: start, takže by se box
+       s ikonkou smrskl na její šířku a sedl ke kraji sloupce. Kresby mají různou
+       šířku, takže by každá měla střed jinde a svislá čára by jím neprocházela. */
+    width: 100%; height: 74px; margin: 10px 0 0; align-items: center;
   }
+  /* Strop pod šířkou sloupce: nejširší kresby (talíř s příborem, koktejly) jinak
+     sahaly skoro k textu, zatímco úzké od něj byly daleko. Takhle má i ta
+     nejširší od textu aspoň 25 px. */
+  .osa-ikona img { max-width: 86px; }
   .osa-cas, .osa-nazev, .osa-misto, .osa-popis { grid-column: 2; }
   .osa-cas { width: auto; }
   .osa-cas::before { display: none; }
   .osa-nazev { margin-top: .55rem; font-size: .95rem; }
   /* Svislá linka mezi ikonkami — vede od spodku ikonky k dalšímu bodu. */
   .osa-bod::before {
-    content: ""; position: absolute; left: 43px; top: 92px; bottom: .6rem;
+    content: ""; position: absolute; left: 49px; top: 92px; bottom: .6rem;
     border-left: 1px solid var(--osa-linka);
   }
   /* Pod posledním bodem čára nekončí ostře, ale vytrácí se — párty pokračuje

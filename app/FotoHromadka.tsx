@@ -14,7 +14,7 @@ import { IkonaKlik } from "./StoryDoodles";
 /* `popisSrc` je popisek vysázený ručním písmem a uložený jako obrázek — to písmo
    na webu nemáme, tak přišel hotový. `popis` u něj zůstává jako text pro
    odečítače. */
-export type FotkaNaHromadce = { src: string; alt: string; popis?: string; popisSrc?: string; datum?: string };
+export type FotkaNaHromadce = { src: string; alt: string; popis?: string; popisSrc?: string };
 /* jak leží jednotlivé fotky na hromádce (0 = úplně navrchu) */
 const HROMADKA_SLOTY = [
   { rot: -1.5, x: 0, y: 0 },
@@ -85,14 +85,13 @@ export default function FotoHromadka({ fotky }: { fotky: FotkaNaHromadce[] }) {
       <span
         className="foto-popis"
         aria-hidden="true"
-        style={{ opacity: fotky[aktivni].popis || fotky[aktivni].popisSrc || fotky[aktivni].datum ? 1 : 0, zIndex: pocet + 1 }}
+        style={{ opacity: fotky[aktivni].popis || fotky[aktivni].popisSrc ? 1 : 0, zIndex: pocet + 1 }}
       >
         {fotky[aktivni].popisSrc ? (
           <img className="foto-popis-obrazek" src={fotky[aktivni].popisSrc} alt={fotky[aktivni].popis ?? ""} />
         ) : (
           <span className="foto-popis-text">{fotky[aktivni].popis}</span>
         )}
-        {fotky[aktivni].datum && <span className="foto-datum">{fotky[aktivni].datum}</span>}
       </span>
       {/* Odznak s kurzorem v rohu — zve k listování a zůstává vidět pořád.
           Popisky konkrétních fotek („zásnuby na Troskách“ a spol.) tu byly nad
