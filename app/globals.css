@@ -173,6 +173,11 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
 }
 /* s vypnutými animacemi majáky prostě tiše svítí */
 @media (prefers-reduced-motion: reduce) {
+  .menu-kniha.je-otevrene .menu-deska-prava,
+  .menu-kniha.je-otevrene .menu-obalka-rub { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .majak { opacity: 1; animation: none; }
   .majak-zar, .majak-plamen { animation: none; }
 }
@@ -2615,7 +2620,11 @@ body,
   }
   .osa-ikona {
     grid-column: 1; grid-row: 1 / -1;
-    height: 72px; margin: 0; align-items: flex-start;
+    /* Kresby mají každá jiný poměr stran: při zarovnání k horní hraně visely
+       široké ikonky vysoko a vysoké sahaly až k popisu. Na střed pevně vysokého
+       boxu sedí všechny stejně — a 74 px je zvolených tak, aby ten střed padl
+       přesně na pomezí času a nadpisu. */
+    height: 74px; margin: 10px 0 0; align-items: center;
   }
   .osa-cas, .osa-nazev, .osa-misto, .osa-popis { grid-column: 2; }
   .osa-cas { width: auto; }
@@ -2623,10 +2632,17 @@ body,
   .osa-nazev { margin-top: .55rem; font-size: .95rem; }
   /* Svislá linka mezi ikonkami — vede od spodku ikonky k dalšímu bodu. */
   .osa-bod::before {
-    content: ""; position: absolute; left: 43px; top: 80px; bottom: .6rem;
+    content: ""; position: absolute; left: 43px; top: 92px; bottom: .6rem;
     border-left: 1px solid var(--osa-linka);
   }
-  .osa-bod:last-child::before { display: none; }
+  /* Pod posledním bodem čára nekončí ostře, ale vytrácí se — párty pokračuje
+     dál, jen už pro ni nemáme čas v programu. Proto gradient v pozadí a ne
+     border-left, ten by se vyblednout nedal. */
+  .osa-bod:last-child::before {
+    border-left: 0; width: 1px;
+    bottom: auto; height: 2.6rem;
+    background: linear-gradient(to bottom, var(--osa-linka), transparent);
+  }
 }
 
 /* ---------- místo konání ve dvou sloupcích ----------
@@ -2883,24 +2899,61 @@ body,
 /* Na telefonu se dvě strany vedle sebe nepřečtou: kniha je široká jednu desku,
    obálka se neotáčí a obě strany se poskládají pod sebe. */
 @media (max-width: 760px) {
+  /* Celá šířka obsahu sekce. Pevných 340 px bylo víc, než kolik sekce uvnitř
+     odsazení nabízí — kniha z ní vylézala vpravo a auto okraje ji přestaly
+     centrovat, takže vlevo zbývalo 32 px a vpravo 4. */
+  /* --deska musí zůstat v pixelech: počítá se z ní šířka vnitřku i minimální
+     výška stran, a procento by se v těch výpočtech vztáhlo pokaždé k něčemu
+     jinému. 36 px je odsazení sekce po obou stranách. */
   .menu-kniha {
-    --deska: min(340px, 92vw);
+    --deska: min(400px, calc(100vw - 36px));
     width: var(--deska); height: auto;
     perspective: none;
   }
-  .menu-vnitrek { transform: none; display: grid; gap: 1.2rem; }
+  /* Užší odsazení sekce, ať na knihu zbude co nejvíc místa. */
+  .obsah-ramec > .menu { padding-inline: .4rem; }
+  /* minmax(0, 1fr) a min-width: 0: prvky mřížky se jinak nesmrští pod svou
+     nejmenší obsahovou šířku a sloupec vyrostl na 431 px uvnitř 339px knihy. */
+  .menu-vnitrek {
+    transform: none; display: grid; gap: 1.2rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .menu-deska, .menu-obalka { min-width: 0; }
   .menu-kniha.je-otevrene .menu-vnitrek { transform: none; }
   .menu-deska, .menu-obalka {
     position: static; width: 100%;
     aspect-ratio: 1 / var(--pomer);
+  }
+  /* Strany s chody rostou podle obsahu. V pevném poměru A-formátu text po
+     zvětšení písma z karty přetékal — o 40 a 82 px. Desky zavřené knihy si
+     poměr drží, těm se nic nestane. */
+  .menu-deska-prava, .menu-obalka-rub {
+    aspect-ratio: auto;
+    min-height: calc(var(--deska) * var(--pomer) * .9);
   }
   .menu-obalka { transform: none !important; }
   .menu-obalka-rub { transform: none; }
   /* Zavřená kniha ukáže jen obálku, otevřená obě strany. */
   .menu-deska-prava, .menu-obalka-rub { display: none; }
   .menu-kniha.je-otevrene .menu-obalka-lic { display: none; }
+  /* Lehké otevření: strany se místo tvrdého přepnutí vysunou a prolnou. Běží
+     to přes animation, ne transition — display se přepíná z none, a to by
+     transition nerozjelo. */
   .menu-kniha.je-otevrene .menu-deska-prava,
-  .menu-kniha.je-otevrene .menu-obalka-rub { display: flex; }
+  .menu-kniha.je-otevrene .menu-obalka-rub {
+    display: flex;
+    animation: menuOtevreni .5s cubic-bezier(.33, 1, .68, 1) both;
+  }
+  .menu-kniha.je-otevrene .menu-obalka-rub { animation-delay: .07s; }
+  @keyframes menuOtevreni {
+    from { opacity: 0; transform: translateY(16px) scale(.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Text na stranách menu byl na telefonu drobný — kurz 10 px, detail 11,5. */
+  .menu-kurz { font-size: .78rem; }
+  .menu-jidlo { font-size: 1rem; }
+  .menu-detail { font-size: .82rem; }
   .menu-obalka { order: -1; }
 }
 
