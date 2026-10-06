@@ -2612,7 +2612,13 @@ body,
 /* Pod 900 px se osa postaví na výšku: sedm sloupců vedle sebe už je užších než
    slovo „odpoledne“. Ikonka jde doleva, text doprava, linka spojuje ikonky. */
 @media (max-width: 900px) {
-  .osa { grid-auto-flow: row; grid-auto-columns: auto; max-width: 480px; }
+  /* Odsazení 21vw je kvůli kyticím po stranách sekce. Ty jsou na telefonu
+     skryté, takže by osu jen zbytečně mačkalo — při 375 px to bylo 79 px
+     z každé strany a text lezl z obrazovky. */
+  .osa {
+    grid-auto-flow: row; grid-auto-columns: auto;
+    max-width: 480px; padding-inline: 0;
+  }
   .osa-bod {
     grid-template-columns: 88px 1fr; grid-template-rows: auto auto auto auto;
     justify-items: start; text-align: left;
@@ -3035,10 +3041,14 @@ body,
 /* U ubytování nemá hromádka popisky, takže pruh pod fotkou může být užší. */
 .ubytovani-fotky .foto-list { border-bottom-width: 42px; }
 
-/* Na úzkém okně sloupce pod sebe, fotka nad textem a zase s vlastním poměrem. */
+/* Na úzkém okně sloupce pod sebe. Hromádka jde až za formulář: host nejdřív
+   přečte, co a za kolik, rezervuje — a fotky si prohlíží potom. Nad textem
+   odsouvala to podstatné pod ohyb. Poměr stran si zase řídí sama, buňka
+   mřížky jí tu výšku nedá. */
 @media (max-width: 900px) {
-  .ubytovani { grid-template-columns: 1fr; max-width: 620px; }
-  .ubytovani-fotky { max-width: 300px; margin: 0 auto; aspect-ratio: 4/5; }
+  .ubytovani { grid-template-columns: 1fr; max-width: 620px; gap: 2.4rem; }
+  .ubytovani-text { order: 1; }
+  .ubytovani-fotky { order: 2; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 4/5; }
 }
 
 /* Nadpis jen pro odečítače: z pohledu zmizí, ze struktury stránky ne. */
