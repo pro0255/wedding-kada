@@ -102,13 +102,14 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
    Strop 18vh je pojistka pro nízká široká okna, kde by i tohle vytlačilo
    prsten z obrazovky. */
 .loader {
-  /* max(100vw, 600px): na telefonu panorama nezmenšujeme na šířku okna, ale
-     necháme ho přetéct a oříznout se. Při 375px vycházelo 80px vysoké,
-     zvonička měla 12px a majáky 7 — nikdo by je neuviděl. */
+  /* Na telefonu panorama nezmenšujeme na šířku okna, ale necháme ho přetéct
+     a oříznout se — jinak by zvonička i majáky byly sotva vidět. Spodní mez
+     820px: v 600px zbývalo na kopce 129 px výšky a ztrácely se. Výřez je
+     vystředěný, takže zvonička (54 % šířky kresby) zůstává v záběru. */
   /* 132vw: panorama je širší než okno a po stranách se ořízne. Kreslené v šířce
      okna leželo tak nízko, že mezi výzvou a prvním hřebenem zůstávalo přes dvě
      stě pixelů prázdna. */
-  --hory-sirka: max(132vw, 600px);
+  --hory-sirka: max(132vw, 820px);
   --hory-vyska: calc(var(--hory-sirka) * 3 / 14);
   overflow: hidden;
   /* Obsah se centruje do zbytku po tomhle odsazení, takže čím je větší, tím
@@ -210,6 +211,12 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   filter: drop-shadow(0 0 26px rgba(200,168,105,.4));
 }
 .loader-ring3d canvas { position: relative; z-index: 1; }
+/* Na telefonu je prsten menší: ve 221 px zabíral přes polovinu šířky okna
+   a na kopce pod ním nezbývalo místo. */
+@media (max-width: 700px) {
+  .loader-ring3d { width: 150px; height: 150px; }
+  .loader-ring3d::before { width: 80px; height: 80px; }
+}
 /* prsten jako tlačítko — vzhled si nese Ring3D, tlačítko dodá jen chování */
 .loader-vstup {
   background: none; border: none; padding: 0; cursor: pointer;
