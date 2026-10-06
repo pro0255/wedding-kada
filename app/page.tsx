@@ -531,6 +531,10 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
   const [stav, setStav] = useState<StavObalky>("zavreno");
   const otevrena = stav !== "zavreno";
   const dalsi = () => setStav(stav === "dopis" ? "oznameni" : "zavreno");
+  /* Na telefonu obálka není a oba listy leží pod sebou — klepnutí si je jen
+     prohodí. Na širokém okně se sem klepnutí nedostane: zavřené listy mají
+     pointer-events: none. */
+  const prohodit = () => setStav(stav === "oznameni" ? "zavreno" : "oznameni");
   return (
     <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
       {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
@@ -543,7 +547,7 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
           a tělo obálky je pod nimi. Ovládat se to dá pořád i z tlačítka níž,
           takže klávesnici ani odečítači tohle nic nebere; proto je to obyčejný
           div bez role. */}
-      <div className="obalka-vysuv" onClick={otevrena ? dalsi : undefined}>
+      <div className="obalka-vysuv" onClick={otevrena ? dalsi : prohodit}>
         <div className="obalka-vysuv-ram">
           <div className="obalka-listy">
             {/* Oznámení je z obou listů vyšší, takže drží výšku obalu a dopis
@@ -552,6 +556,11 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
               <OznameniHlavni />
             </span>
             <div className="obalka-papir">{children}</div>
+            {/* Odznak s kurzorem — na telefonu zve k prohození listů. Na širokém
+                okně ho CSS schová, tam vede cestu šipka u zavřené obálky. */}
+            <span className="doodle-obal obalka-klik" aria-hidden="true">
+              <IkonaKlik />
+            </span>
           </div>
         </div>
       </div>

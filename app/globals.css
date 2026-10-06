@@ -2421,6 +2421,9 @@ body,
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }
 
+/* Odznak u listů patří jen na telefon, kde se jimi listuje klepnutím. */
+.obalka-klik { display: none; }
+
 /* ——— obálka na telefonu: žádná obálka ———
    Otevírání se sem nevejde. Rozevřená obálka s papírem je skoro dvakrát vyšší
    než zavřená a text v ní vycházel na necelých deset pixelů. Na telefonu proto
@@ -2437,7 +2440,7 @@ body,
   .obalka-vysuv-ram { overflow: visible; }
   .obalka-listy {
     display: flex; flex-direction: column; align-items: center;
-    gap: 1.6rem; padding: 0;
+    gap: .55rem; padding: 0;
   }
   /* Dopis z absolutní polohy do toku a rovně — nemá na čem ležet. */
   .obalka-papir {
@@ -2449,6 +2452,27 @@ body,
   .obalka-oznameni {
     order: 2; width: 100%;
     opacity: 1; transform: none; transition: none;
+  }
+
+  /* Stavy psané pro otevírání obálky tu nemají co dělat — listy leží rovně
+     pod sebou, ať je zrovna navrchu kterýkoli. */
+  .obalka.je-otevrena { transform: none; }
+  .obalka.je-otevrena .obalka-vysuv { margin-bottom: 0; z-index: auto; }
+  .obalka.je-otevrena .obalka-papir,
+  .obalka.je-oznameni .obalka-papir { transform: none; opacity: 1; }
+
+  /* Klepnutí listy prohodí: nahoru jde oznámení, kartička pod něj. */
+  .obalka.je-oznameni .obalka-papir { order: 3; }
+  .obalka.je-oznameni .obalka-oznameni { order: 1; transform: none; }
+
+  /* Odznak s kurzorem v rohu kartičky. Leží v mřížce listů jako třetí prvek,
+     takže si ho pořadí nerozhází — drží se spodního okraje obalu. */
+  .obalka-klik {
+    /* .doodle-obal je absolutní — tady musí do toku, jinak ho pořadí v mřížce
+       míjí a odznak se zavěsí o celou obálku. */
+    position: static; display: block; order: 4;
+    width: 44px; margin: .4rem auto 0;
+    opacity: .8;
   }
 }
 
