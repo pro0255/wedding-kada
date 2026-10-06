@@ -36,6 +36,8 @@ const VELKE = new Set([
   "kytice_fotky_vpravo",
   "kytice_program_vlevo",
   "kytice_program_vpravo",
+  "kytice_odpocet_vlevo",
+  "kytice_odpocet_vpravo",
 ]);
 const MAX_VELKE = 1600;
 

@@ -270,6 +270,11 @@ function Odpocet() {
   const left = useCountdown(WEDDING_DATE);
   return (
     <section className="countdown" id="countdown">
+      {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
+          takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
+          mimo béžový pruh. */}
+      <img className="odpocet-kytice odpocet-kytice-vlevo" src="/kytky/kytice_odpocet_vlevo.webp" alt="" aria-hidden="true" />
+      <img className="odpocet-kytice odpocet-kytice-vpravo" src="/kytky/kytice_odpocet_vpravo.webp" alt="" aria-hidden="true" />
       <Reveal className="wrap">
         <p className="eyebrow">Odpočítáváme</p>
         <h2>Zbývá do svatby</h2>

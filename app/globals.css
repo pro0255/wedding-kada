@@ -538,7 +538,13 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 .reveal { position: relative; z-index: 1; }
 
 /* countdown */
-.countdown { background: var(--ruzova-jemna); }
+.countdown {
+  background: var(--ruzova-jemna);
+  /* Kotva pro kytice, které z ní schválně vyčuhují. z-index ji zvedne nad
+     sousední sekce — jinak přes vyčuhující část leží jejich podklad
+     a kytice vybledne. */
+  position: relative; z-index: 2; overflow: visible;
+}
 /* čtyři stejně široké sloupce s dělicími linkami — rytmus tak nezávisí na tom,
    jestli má číslo dvě nebo tři číslice */
 .count {
@@ -546,6 +552,32 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   max-width: 540px; margin: 2.6rem auto 0;
   padding-bottom: 1.7rem; border-bottom: 1px solid rgba(0,0,0,.1);
 }
+/* ---------- kytice u odpočtu ----------
+   Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
+   nezrcadlí. Obě jsou vyšší než sekce a schválně z ní vyčuhují nahoru i dolů.
+
+   Velikost řídí výška, šířka se dopočítá — strop v max-width by je při pevné
+   výšce nezmenšil, ale zúžil a zdeformoval. Proto je u něj object-fit. */
+.odpocet-kytice {
+  position: absolute;
+  width: auto;
+  pointer-events: none; user-select: none;
+  z-index: 0;
+}
+.odpocet-kytice-vlevo { left: 0; top: -5%; height: 111%; }
+.odpocet-kytice-vpravo { right: 0; top: -7%; height: 119%; }
+
+/* Odpočet a text nad kyticemi. */
+.countdown > .wrap { position: relative; z-index: 3; }
+
+@media (max-width: 1200px) {
+  /* Na užším okně by kytice lezly do čísel a textu. */
+  .odpocet-kytice { max-width: 18vw; object-fit: contain; }
+}
+@media (max-width: 900px) {
+  .odpocet-kytice { display: none; }
+}
+
 /* ---------- kytice u programu dne ----------
    Každá strana má vlastní obrázek s hotovou kompozicí, takže se neotáčí ani
    nezrcadlí. Obě jsou vyšší než sekce a schválně z ní vyčuhují nahoru i dolů.
