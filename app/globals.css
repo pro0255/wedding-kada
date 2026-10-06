@@ -2123,6 +2123,43 @@ body,
    okraj — proto smí přetéct. */
 .story .wrap, .scena { overflow: visible; }
 
+/* ——— scéna příběhu na telefonu ———
+   Vedle sebe se obálka s hromádkou nevejdou: obojí by vyšlo kolem 130 px a
+   z fotek by nebylo nic. Skládají se proto pod sebe — nahoře obálka s pokynem,
+   pod ní fotky.
+
+   Věnec se sem nevejde a je schovaný. */
+@media (max-width: 700px) {
+  .scena {
+    aspect-ratio: auto;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2.2rem;
+    padding-block: 2.5rem;
+  }
+  /* Věnec je pryč: na šířku telefonu se kolem obálky a fotek nemá kam rozložit
+     a jako kulisa za nimi jen ubíral na klidu. */
+  .scena-kytky { display: none; }
+
+  /* Z absolutních pozic do běžného toku. Posuny při otevřené obálce tu nemají
+     smysl — nic se nepřekrývá, co by se muselo rozestoupit. */
+  .scena-foto, .scena-obalka {
+    /* relative, ne static: obálka musí zůstat kotvou pro pokyn ke klepnutí,
+       který v ní leží absolutně. Bez toho se zavěsí o celou scénu a vyjede
+       nad ni. */
+    position: relative; inset: auto; transform: none;
+    margin-inline: auto;
+  }
+  .scena:has(.obalka.je-otevrena) .scena-foto,
+  .scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
+  .scena-obalka { order: 1; width: 74%; }
+  .scena-foto { order: 2; width: 80%; }
+
+  /* Pokyn ke klepnutí se vedle obálky celý nevejde — po stranách zbývá jen
+     kolem šedesáti pixelů. Překrývá proto pravý okraj obálky a ven vyčuhuje
+     jen kouskem. */
+  .klikni-wrap { left: 68%; top: -30%; width: 36%; }
+}
+
 /* Sekce příběhu měla shora 15rem kvůli doodlu „zásnuby na Troskách“, který
    visel nad hromádkou fotek a lezl pod odpočet. Doodle je pryč — popisky jsou
    teď v bílém pruhu polaroidu — takže platí běžné odsazení sekce. */
