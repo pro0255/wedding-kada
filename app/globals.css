@@ -2151,13 +2151,11 @@ body,
   }
   .scena:has(.obalka.je-otevrena) .scena-foto,
   .scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
-  .scena-obalka { order: 1; width: 74%; }
+  .scena-obalka { order: 1; width: 92%; }
   .scena-foto { order: 2; width: 80%; }
 
-  /* Pokyn ke klepnutí se vedle obálky celý nevejde — po stranách zbývá jen
-     kolem šedesáti pixelů. Překrývá proto pravý okraj obálky a ven vyčuhuje
-     jen kouskem. */
-  .klikni-wrap { left: 68%; top: -30%; width: 36%; }
+  /* Obálka ani pokyn ke klepnutí na telefonu nejsou — viz blok níž. */
+  .klikni-wrap { display: none; }
 }
 
 /* Sekce příběhu měla shora 15rem kvůli doodlu „zásnuby na Troskách“, který
@@ -2413,10 +2411,45 @@ body,
     margin-left: auto; margin-right: auto;
     transform: rotate(5deg);
   }
-  .obalka-papir { }
+  /* Na úzkém okně vycházelo písmo dopisu z clamp() na 9,6 px a nedalo se číst.
+     Na telefonu je proto pevné — list má min-height: fit-content, takže se mu
+     přizpůsobí výškou. */
+  .obalka-papir .lead { font-size: .92rem; line-height: 1.55; }
+  .obalka-papir .eyebrow { font-size: .72rem; }
   /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
   .obalka.je-otevrena { transform: rotate(1.8deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
+}
+
+/* ——— obálka na telefonu: žádná obálka ———
+   Otevírání se sem nevejde. Rozevřená obálka s papírem je skoro dvakrát vyšší
+   než zavřená a text v ní vycházel na necelých deset pixelů. Na telefonu proto
+   leží rovnou kartička s textem a pod ní oznámení — obojí v plné šířce a hned
+   vidět, bez klepání. */
+@media (max-width: 700px) {
+  .obalka { transform: none; }
+  .obalka-telo { display: none; }
+  /* Výsuv je trvale rozevřený a nic neořezává. */
+  .obalka-vysuv {
+    grid-template-rows: 1fr; margin-bottom: 0;
+    z-index: auto; pointer-events: auto; transition: none;
+  }
+  .obalka-vysuv-ram { overflow: visible; }
+  .obalka-listy {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 1.6rem; padding: 0;
+  }
+  /* Dopis z absolutní polohy do toku a rovně — nemá na čem ležet. */
+  .obalka-papir {
+    position: static; order: 1;
+    width: 100%; aspect-ratio: auto; min-height: 0;
+    opacity: 1; transform: none; transition: none;
+    padding: 1.9rem 1.5rem;
+  }
+  .obalka-oznameni {
+    order: 2; width: 100%;
+    opacity: 1; transform: none; transition: none;
+  }
 }
 
 /* ---------- baby blue ----------
