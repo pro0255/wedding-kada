@@ -25,6 +25,7 @@ export const KLIC = {
   hoste: "svatba:hoste", // hash deviceId → jméno
   skore: (hra: string) => `svatba:skore:${hra}`, // zset deviceId → nejlepší skóre
   ubytovani: "svatba:ubytovani:stav", // cache kapacity z Airtable
+  vstupPokusy: (ip: string) => `svatba:vstup:${ip}`, // počet špatných odpovědí u vstupu do galerie za minutu
 } as const;
 
 /**

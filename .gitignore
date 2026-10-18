@@ -54,3 +54,5 @@ public/program/prstynkyy.png
 
 # pracovní screenshoty z kontroly návrhů v Chromu
 /.navrh-snimky/
+# prototypy vstupu do galerie obsahují jméno psa = odpověď (FOTKY_HESLO) — jen lokálně
+/app/navrh/fotky/

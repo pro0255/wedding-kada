@@ -20,6 +20,27 @@ type Skupina = { id: string; nazev: string; popis: string; verze: Verze[] };
 
 const SKUPINY: Skupina[] = [
   {
+    id: "brana",
+    nazev: "Vstup k fotkám",
+    popis: "Galerii otevře jen ten, kdo ví, jak se jmenuje váš pes. Naostro odpověď ověří server a host ji zadá jen jednou — zařízení si vstup pamatuje. Prototypy jsou jen lokálně (app/navrh/fotky je v .gitignore), aby jméno psa nebylo ve veřejném repozitáři.",
+    verze: [
+      { kod: "B1", href: "/navrh/fotky/brana/v1", nazev: "Pes hlídá dveře", popis: "Akvarelový pes s kyticí sedí u dveří a ptá se. Na špatné jméno nakloní hlavu, na správné zavrtí ocasem a pustí vás dál." },
+      { kod: "B2", href: "/navrh/fotky/brana/v2", nazev: "Psí známka", popis: "Zlatá známka z obojku, do které se jméno vyryje. Správné jméno známka cinkne a otočí se." },
+      { kod: "B3", href: "/navrh/fotky/brana/v3", nazev: "Zavolejte ho", popis: "Zavolejte psa jménem. Na správné jméno přiběhne a přinese galerii." },
+      { kod: "B4", href: "/navrh/fotky/brana/v4", nazev: "Kdo je na fotce?", popis: "Rozmazaná fotka psa. Špatné pokusy přidávají nápovědy, správné jméno fotku zaostří a otevře galerii." },
+    ],
+  },
+  {
+    id: "galerie",
+    nazev: "Fotky po svatbě",
+    popis: "Jak bude vypadat galerie, až bude po svatbě. Zástupné fotky jsou z příběhu.",
+    verze: [
+      { kod: "G1", href: "/navrh/fotky/galerie/v1", nazev: "Album dne", popis: "Fotky seřazené podle programu: snídaně, obřad, oběd, dort, tanec, párty." },
+      { kod: "G2", href: "/navrh/fotky/galerie/v2", nazev: "Mozaika s oblíbenými", popis: "Nahoře nejvíc lajkované fotky, pod nimi mozaika všech." },
+      { kod: "G3", href: "/navrh/fotky/galerie/v3", nazev: "Promítání", popis: "Fotky se pouští jako promítání přes celou obrazovku, s přehledem pod ním." },
+    ],
+  },
+  {
     id: "pribeh",
     nazev: "Náš příběh",
     popis: "Šest úplně odlišných podob sekce s fotkami a dopisem. Popisky fotek jsou ve všech text, ne obrázek, a každá varianta zkouší jiné písmo.",

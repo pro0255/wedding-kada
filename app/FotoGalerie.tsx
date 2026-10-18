@@ -101,7 +101,9 @@ async function zmensi(soubor: File): Promise<Blob> {
   }
 }
 
-export default function FotoGalerie() {
+/** `zamceno` zavolá, když server odmítne přístup (cookie ze vstupu vypršela
+ *  nebo se změnilo heslo) — FotkyBrana pak vrátí hosta ke psovi u dveří. */
+export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) {
   const [fotky, setFotky] = useState<Fotka[] | null>(null);
   const [ukazVse, setUkazVse] = useState(false);
   const [jenMoje, setJenMoje] = useState(false);
@@ -127,6 +129,7 @@ export default function FotoGalerie() {
   const nacti = useCallback(async () => {
     try {
       const odpoved = await fetch(`/api/fotky?device=${device.current}`);
+      if (odpoved.status === 401) return zamceno?.();
       if (!odpoved.ok) {
         setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
         return;
@@ -149,7 +152,7 @@ export default function FotoGalerie() {
       /* galerie zůstane, jak byla; hlásíme jen když ještě nic nemáme */
       setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
     }
-  }, []);
+  }, [zamceno]);
 
   // první načtení + průběžná obnova (jen když je stránka vidět)
   useEffect(() => {
@@ -209,6 +212,7 @@ export default function FotoGalerie() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: secure_url, publicId: public_id, deviceId: device.current }),
         });
+        if (registrace.status === 401) zamceno?.();
         if (!registrace.ok) throw new Error(String(registrace.status));
       } catch {
         selhalo++;

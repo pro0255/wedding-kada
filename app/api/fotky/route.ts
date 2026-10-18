@@ -1,8 +1,10 @@
 import { pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
+import { BEZ_PRISTUPU, maPristupKFotkam } from "@/lib/fotkyPristup";
 import { DeviceIdSchema, FotkaDeleteSchema, FotkaPostSchema } from "@/lib/schemata";
 
-/** Galerie pro dané zařízení. */
+/** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup). */
 export async function GET(request: Request) {
+  if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const device = DeviceIdSchema.safeParse(new URL(request.url).searchParams.get("device"));
   try {
     return Response.json({ fotky: await seznamFotek(device.success ? device.data : "") });
@@ -14,6 +16,7 @@ export async function GET(request: Request) {
 
 /** Registrace fotky nahrané z mobilu přímo do Cloudinary. */
 export async function POST(request: Request) {
+  if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const telo = FotkaPostSchema.safeParse(await request.json().catch(() => null));
   if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
 
@@ -28,6 +31,7 @@ export async function POST(request: Request) {
 
 /** Smazání vlastní fotky. */
 export async function DELETE(request: Request) {
+  if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const telo = FotkaDeleteSchema.safeParse(await request.json().catch(() => null));
   if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
 

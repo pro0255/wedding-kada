@@ -59,3 +59,6 @@ export const FotkaPostSchema = z.object({
 export const FotkaDeleteSchema = z.object({ id: FotkaIdSchema, deviceId: DeviceIdSchema });
 
 export const LajkPostSchema = z.object({ fotkaId: FotkaIdSchema, deviceId: DeviceIdSchema });
+
+/** Odpověď na otázku u vstupu do galerie fotek. */
+export const VstupPostSchema = z.object({ odpoved: z.string().trim().min(1).max(60) });

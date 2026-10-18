@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import FotoGalerie from "../FotoGalerie";
+import FotkyBrana from "../FotkyBrana";
 
 export const metadata: Metadata = {
   title: "Fotky ze svatby · Kateřina & Jakub",
@@ -20,7 +20,7 @@ export default function FotkyStranka() {
             všem — díky, že nám pomáháte posbírat celý den.
           </p>
         </div>
-        <FotoGalerie />
+        <FotkyBrana />
       </section>
     </main>
   );

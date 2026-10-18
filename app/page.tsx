@@ -220,7 +220,7 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obr
   },
   {
     q: "Co si přejete za dar?",
-    obrazek: "/fotky/pluto-kytice.png",
+    obrazek: "/fotky/pes-s-kytici.png",
     a: "Hrnce, ručníky i sklenice už doma máme, a tak nám nejvíc pomůže příspěvek do svatební kasičky. A místo kytky nebo lahve rádi odvezeme krmivo, deky nebo hračky našim chlupatým kamarádům do útulku. Tam udělají větší radost než další vázička u nás na poličce.",
   },
 ];
