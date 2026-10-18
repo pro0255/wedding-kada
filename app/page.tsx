@@ -374,7 +374,7 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
   { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
 ];
 
-/* Program dne jako časová osa. `ikona` je název souboru v public/program,
+/* Program dne. `ikona` je název souboru v public/program,
    který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
    dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
    něm prázdné místo, ne rozbitá ikona. */
@@ -397,28 +397,47 @@ const PROGRAM = [
     popis: "Boty dolů, hudbu nahoru." },
 ];
 
-function CasovaOsa() {
+/* Den ve dvou půlkách: Obřad (do oběda) a Oslava. */
+const PULKY_DNE = [
+  { stitek: "Dopoledne", nazev: "Obřad", body: PROGRAM.slice(0, 3) },
+  { stitek: "Odpoledne a\u00a0večer", nazev: "Oslava", body: PROGRAM.slice(3) },
+];
+
+/* Program jako dvě tištěné karty vedle sebe, lehce natočené jako polaroidy
+   v příběhu — papír a zlatý rámeček stejné jako u svatebního menu. Dřív to
+   byla osa se sedmi úzkými sloupci a pilulkami s časem: jediná sekce webu,
+   která nebyla papírový předmět, a popisy se lámaly do pěti řádků. */
+function ProgramDne() {
   return (
-    <ol className="osa">
-      {PROGRAM.map((b) => (
-        <li key={b.nazev} className="osa-bod">
-          <span className="osa-ikona">
-            <img
-              loading="lazy"
-              decoding="async"
-              src={`/program/${b.ikona}.webp`}
-              alt=""
-              aria-hidden="true"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-          </span>
-          <span className="osa-cas"><b>{b.cas}</b></span>
-          <span className="osa-nazev">{b.nazev}</span>
-          {b.misto && <span className="osa-misto">{b.misto}</span>}
-          <span className="osa-popis">{b.popis}</span>
-        </li>
+    <div className="den">
+      {PULKY_DNE.map((p) => (
+        <article key={p.nazev} className="den-karta">
+          <p className="den-stitek">{p.stitek}</p>
+          <h3 className="den-nadpis">{p.nazev}</h3>
+          <ol className="den-seznam">
+            {p.body.map((b) => (
+              <li key={b.nazev} className="den-bod">
+                <img
+                  loading="lazy"
+                  decoding="async"
+                  className="den-ikona"
+                  src={`/program/${b.ikona}.webp`}
+                  alt=""
+                  aria-hidden="true"
+                  onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                />
+                <span className="den-text">
+                  <span className="den-cas">{b.cas}</span>
+                  <span className="den-nazev">{b.nazev}</span>
+                  {b.misto && <span className="den-misto">{b.misto}</span>}
+                  <span className="den-popis">{b.popis}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </article>
       ))}
-    </ol>
+    </div>
   );
 }
 /* Úvodní obrazovka se zlatým prstenem. Svůj stav drží sama: klepnutí na prsten
@@ -637,7 +656,7 @@ export default function Home() {
           <h2>Program dne</h2>
         </Reveal>
         <Reveal>
-          <CasovaOsa />
+          <ProgramDne />
         </Reveal>
       </section>
 

@@ -585,11 +585,8 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
 /* Obsah programu nad kyticemi. */
 .schedule > .wrap, .schedule > .reveal { position: relative; z-index: 3; }
 
-/* Osa se o kytice opře až pod 2300 px. Nad tím se drží svého stropu 1640 px
-   a po stranách jí zbývá tolik místa, že se kytice vejdou vedle ní samy.
-   Pod tím se roztahuje do celé šířky a do kytic by vlezla — tak se kytice
-   zmenší a osa si po stranách nechá místo. Strop v šířce spolu s pevnou
-   výškou obrázek deformuje, object-fit to vrací do pořádku. */
+/* Pod 2300 px se kytice zmenší, ať nelezou k obsahu. Strop v šířce spolu
+   s pevnou výškou obrázek deformuje, object-fit to vrací do pořádku. */
 @media (max-width: 2300px) {
   .program-kytice { max-width: 20vw; object-fit: contain; }
 }
@@ -2058,124 +2055,60 @@ body,
 /* Barva linek na stránkách her. */
 :root { --menu-ramecek: var(--bezova-linka); }
 
-/* ---------- program dne jako časová osa ----------
-   Ikonka, pilulka s časem na lince a popis pod ní — jeden sloupec na bod.
-   Sekce má baby blue podklad a modrou typografii; barvy textu se nepřepisují
-   po prvcích, ale přes proměnné, které si nadpis i popisky samy berou.
-
-   Přes celou šířku okna, stejně jako odpočet a fotky od vás — osa se sedmi
-   body by se do sloupce uprostřed nevešla. */
-.osa {
-  --osa-mezera: .8rem;
-  list-style: none; padding: 0;
-  margin: 3.6rem auto 0; max-width: 1640px;
-  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+/* ---------- program dne: dvě karty ----------
+   Obřad a Oslava jako dvě tištěné karty vedle sebe. Papír a zlatý rámeček
+   jsou stejné jako u svatebního menu (app/menu/papir.module.css), natočení
+   jako u polaroidů v příběhu. Druhá karta je o kus níž, ať nestojí v řadě
+   jako tabulka. Na telefonu pod sebou. */
+.den {
+  --zlato: #a8874a;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 470px));
+  justify-content: center; align-items: start; gap: 3.2rem;
+  margin-top: 3rem;
 }
-
-/* Pod 2300 px se osa roztahuje do celé šířky a lezla by do kytic po stranách
-   sekce. Nechá si tedy po stranách místo přesně na ně. Nad tím se opírá
-   o svůj strop 1640 px a kytice se vedle ní vejdou samy. */
-@media (max-width: 2300px) { .osa { padding-inline: 21vw; } }
-.osa-bod {
-  display: grid; grid-auto-rows: auto;
-  /* align-content: start je nutné: mřížka roztahuje body na výšku nejvyššího
-     z nich a bez tohohle by se přebytek rozdělil mezi řádky — každá pilulka
-     s časem by pak seděla o kus jinde a osa by se rozjela. */
-  align-content: start;
-  justify-items: center; text-align: center;
-  padding: 0 var(--osa-mezera);
+.den-karta {
+  padding: 2.4rem 2.4rem 1.6rem;
+  background: #fdfcf9;
+  outline: 1px solid color-mix(in srgb, var(--zlato) 55%, transparent); outline-offset: -12px;
+  box-shadow: 0 1px 2px rgb(63 52 43 / .08), 0 26px 50px -24px rgb(63 52 43 / .35);
+  rotate: -1.4deg;
 }
-
-/* Pevná výška řádku s ikonkou: kresby mají různý poměr stran a bez ní by
-   každá pilulka s časem seděla jinak vysoko. Ikonka stojí na spodní hraně. */
-.osa-ikona {
-  height: 124px; margin-bottom: 1.3rem;
-  display: flex; align-items: flex-end; justify-content: center;
+.den-karta + .den-karta { rotate: 1.2deg; margin-top: 2.4rem; }
+.den-stitek {
+  margin: 0; text-align: center;
+  font-size: .64rem; letter-spacing: .36em; text-transform: uppercase; color: var(--zlato);
 }
-.osa-ikona img { max-height: 100%; max-width: 100%; width: auto; display: block; }
-
-/* Linka vede skrz pilulky. Každý bod kreslí svůj úsek přes celou svou šířku,
-   sousední se potkají a dohromady je z nich jedna čára — u krajních bodů se
-   úsek zkrátí do poloviny, aby osa nezačínala v prázdnu. */
-.osa-cas { position: relative; display: block; width: 100%; }
-.osa-cas::before {
-  /* Přes odsazení bodu ven, jinak by mezi úseky zůstala mezera široká přesně
-     dvakrát to odsazení a z osy by byla čárkovaná čára. */
-  content: ""; position: absolute; top: 50%;
-  left: calc(-1 * var(--osa-mezera)); right: calc(-1 * var(--osa-mezera));
-  border-top: 1px solid var(--osa-linka);
-}
-.osa-bod:first-child .osa-cas::before { left: 50%; }
-.osa-bod:last-child .osa-cas::before { right: 50%; }
-.osa-cas b {
-  /* position: relative stačí — pilulka se kreslí po ::before, takže linku
-     překryje i bez z-indexu. */
-  position: relative; display: inline-block;
-  padding: .36rem .9rem;
-  background: var(--bezova);
-  border: 1px solid var(--osa-linka); border-radius: 999px;
+.den-nadpis {
+  margin: .5rem 0 1.2rem; text-align: center;
   font-family: var(--serif), Georgia, serif; font-weight: 500;
-  font-size: .92rem; letter-spacing: .08em; white-space: nowrap;
+  font-size: 1.9rem; letter-spacing: .14em; text-transform: uppercase;
 }
-
-.osa-nazev {
-  display: block; margin-top: 1.1rem;
+.den-seznam { list-style: none; margin: 0; padding: 0; }
+.den-bod {
+  display: grid; grid-template-columns: 84px 1fr; column-gap: 1.2rem; align-items: center;
+  padding: .9rem 0;
+}
+.den-bod + .den-bod { border-top: 1px solid color-mix(in srgb, var(--zlato) 22%, transparent); }
+.den-ikona { width: 84px; height: 70px; object-fit: contain; }
+.den-text { display: block; }
+.den-cas {
+  display: block; font-family: var(--serif), Georgia, serif;
+  font-size: 1.3rem; line-height: 1.1; color: var(--zlato);
+}
+.den-nazev {
+  display: block; margin-top: .15rem;
   font-family: var(--serif), Georgia, serif;
-  font-size: 1.18rem; letter-spacing: .08em; text-transform: uppercase;
-  line-height: 1.35;
+  font-size: 1rem; letter-spacing: .12em; text-transform: uppercase; line-height: 1.3;
 }
-.osa-misto, .osa-popis { display: block; color: var(--ink-soft); line-height: 1.55; }
-.osa-misto { margin-top: .5rem; font-size: .86rem; font-style: italic; }
-.osa-popis { margin-top: .55rem; font-size: .92rem; }
+.den-misto { display: block; margin-top: .1rem; font-size: .8rem; font-style: italic; color: var(--ink-soft); }
+.den-popis { display: block; margin-top: .2rem; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
 
-/* Pod 900 px se osa postaví na výšku: sedm sloupců vedle sebe už je užších než
-   slovo „odpoledne“. Ikonka jde doleva, text doprava, linka spojuje ikonky. */
-@media (max-width: 900px) {
-  /* Odsazení 21vw je kvůli kyticím po stranách sekce. Ty jsou na telefonu
-     skryté, takže by osu jen zbytečně mačkalo — při 375 px to bylo 79 px
-     z každé strany a text lezl z obrazovky. */
-  .osa {
-    grid-auto-flow: row; grid-auto-columns: auto;
-    max-width: 480px; padding-inline: 0;
-  }
-  .osa-bod {
-    grid-template-columns: 100px 1fr; grid-template-rows: auto auto auto auto;
-    column-gap: 1rem;
-    justify-items: start; text-align: left;
-    padding: 0 0 2.4rem; position: relative;
-  }
-  .osa-ikona {
-    grid-column: 1; grid-row: 1 / -1;
-    /* Kresby mají každá jiný poměr stran: při zarovnání k horní hraně visely
-       široké ikonky vysoko a vysoké sahaly až k popisu. Na střed pevně vysokého
-       boxu sedí všechny stejně — a 74 px je zvolených tak, aby ten střed padl
-       přesně na pomezí času a nadpisu. */
-    /* width: 100 % je nutná: .osa-bod má justify-items: start, takže by se box
-       s ikonkou smrskl na její šířku a sedl ke kraji sloupce. Kresby mají různou
-       šířku, takže by každá měla střed jinde a svislá čára by jím neprocházela. */
-    width: 100%; height: 74px; margin: 10px 0 0; align-items: center;
-  }
-  /* Strop pod šířkou sloupce: nejširší kresby (talíř s příborem, koktejly) jinak
-     sahaly skoro k textu, zatímco úzké od něj byly daleko. Takhle má i ta
-     nejširší od textu aspoň 25 px. */
-  .osa-ikona img { max-width: 86px; }
-  .osa-cas, .osa-nazev, .osa-misto, .osa-popis { grid-column: 2; }
-  .osa-cas { width: auto; }
-  .osa-cas::before { display: none; }
-  .osa-nazev { margin-top: .55rem; font-size: .95rem; }
-  /* Svislá linka mezi ikonkami — vede od spodku ikonky k dalšímu bodu. */
-  .osa-bod::before {
-    content: ""; position: absolute; left: 49px; top: 92px; bottom: .6rem;
-    border-left: 1px solid var(--osa-linka);
-  }
-  /* Pod posledním bodem čára nekončí ostře, ale vytrácí se — párty pokračuje
-     dál, jen už pro ni nemáme čas v programu. Proto gradient v pozadí a ne
-     border-left, ten by se vyblednout nedal. */
-  .osa-bod:last-child::before {
-    border-left: 0; width: 1px;
-    bottom: auto; height: 2.6rem;
-    background: linear-gradient(to bottom, var(--osa-linka), transparent);
-  }
+@media (max-width: 860px) {
+  .den { grid-template-columns: minmax(0, 470px); gap: 2rem; }
+  .den-karta { padding: 2rem 1.5rem 1.2rem; outline-offset: -9px; rotate: -.8deg; }
+  .den-karta + .den-karta { rotate: .8deg; margin-top: 0; }
+  .den-bod { grid-template-columns: 58px 1fr; column-gap: .9rem; align-items: start; }
+  .den-ikona { width: 58px; height: 52px; }
 }
 
 /* ---------- místo konání ve dvou sloupcích ----------
@@ -2351,8 +2284,10 @@ body,
    na tom celý web stojí. */
 :root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
 
-/* program a menu jsou jeden pruh — mezi nimi stačí běžná mezera, ne dvojitá */
-.obsah-ramec > .schedule { padding-bottom: 2rem; }
+/* program a menu jsou jeden pruh — mezi nimi stačí běžná mezera, ne dvojitá.
+   Kus navíc kvůli stínu pod kartami programu: sekce ořezává (overflow: clip)
+   a stín by skončil rovnou hranou. */
+.obsah-ramec > .schedule { padding-bottom: 4rem; }
 
 .obsah-ramec > .schedule,
 .obsah-ramec > .menu { position: relative; overflow: clip; z-index: auto; }
@@ -2371,11 +2306,8 @@ body,
    s vlastními kyticemi po stranách a dole by se s nimi slily do jednoho
    sloupce květin přes dvě sekce. */
 .menu-kytice { left: auto; right: 0; top: 0; height: min(62%, 560px); object-position: right top; }
+/* Kytice je jen v rohu a vejde se do okraje vedle karet programu. */
 @media (max-width: 2300px) {
-  /* Kytice je jen v rohu, takže osa už nemusí držet místo na obou stranách
-     (dřív 21vw kvůli dvěma kyticím vedle ní) — sloupce byly při 1440 px
-     úzké 110 px a názvy se lámaly do čtyř řádků. Kytice se vejde do okraje. */
-  .osa { padding-inline: 10.5vw; }
   .program-kytice { max-width: 10vw; }
 }
 
@@ -2386,12 +2318,5 @@ body,
 .obsah-ramec > .location + .schedule,
 .obsah-ramec > .schedule + .menu,
 .obsah-ramec > .menu + .fotky-odkaz { box-shadow: 0 -2px 0 var(--bezova); }
-.osa-nazev { text-wrap: balance; }
-/* Na běžných monitorech je bod osy úzký kolem 150 px — o kus menší odsazení
-   a proklad, ať se „A SVATEBNÍ“ vejde na řádek. */
-@media (min-width: 901px) and (max-width: 1700px) {
-  .osa { --osa-mezera: .45rem; }
-  .osa-nazev { letter-spacing: .05em; }
-}
 
 
