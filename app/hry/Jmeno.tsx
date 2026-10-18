@@ -7,7 +7,7 @@ import s from "./hra.module.css";
 const KLIC = "kj-jmeno";
 
 /** Jméno k zařízení — v žebříčku místo „Neznámý host“. Cache v localStorage,
-    pravda v Airtable (Hoste). */
+    pravda v Redisu (svatba:hoste). */
 export default function Jmeno({
   onZmena,
   kompaktni = false,

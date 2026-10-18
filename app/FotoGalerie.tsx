@@ -9,7 +9,7 @@ import { deviceId } from "@/lib/deviceId";
  * a mazání vlastních fotek.
  *
  * Upload jde z mobilu přímo do Cloudinary (unsigned preset), přes náš
- * server letí jen malá registrace do Airtable. Před uploadem se fotka
+ * server letí jen malá registrace do Redisu. Před uploadem se fotka
  * zmenší na canvasu — šetří data hostů i free tier.
  */
 const MAX_STRANA = 2000;

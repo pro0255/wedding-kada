@@ -1,15 +1,14 @@
-import { apiTabulky, doFormule, nactiZaznamy, vlozZaznam } from "./airtable.ts";
+import { vsechnaJmena } from "./host.ts";
+import { KLIC, kratkaPamet, redis } from "./redis.ts";
 import { HRY, type HraSlug } from "./schemata.ts";
 
 export { HRY, type HraSlug };
 
 /**
- * Skóre ze her. Každé dohrání je řádek v tabulce „Skore“; žebříček se skládá
- * až tady — nejlepší výsledek na zařízení a hru. Jména bere z „Hoste“.
+ * Skóre ze her. Pro každou hru sorted set v Redisu, kde si zařízení drží jen
+ * svůj nejlepší výsledek (ZADD GT). Žebříček se skládá tady, jména z hostů.
  */
 
-const API_SKORE = apiTabulky("Skore");
-const API_HOSTE = apiTabulky("Hoste");
 export const NEZNAMY = "Neznámý host";
 
 export type Radek = { poradi: number; jmeno: string; skore: number; moje: boolean };
@@ -48,55 +47,45 @@ export function sestavZebricek(
   };
 }
 
-type SkoreFields = { DeviceId?: string; Hra?: string; "Skóre"?: number; Kdy?: string };
-type HostFields = { DeviceId?: string; "Jméno"?: string };
+// skóre všech her + jména; žebříčky se obnovují každých 30 s na každém telefonu
+const vse = kratkaPamet(5_000, async () => {
+  const p = redis().pipeline();
+  for (const hra of HRY) p.zrange(KLIC.skore(hra), 0, -1, { withScores: true });
+  const [vysledky, jmena] = await Promise.all([p.exec<(string | number)[][]>(), vsechnaJmena()]);
+  const skore = Object.fromEntries(
+    HRY.map((hra, i) => {
+      const plochy = vysledky[i] ?? [];
+      const radky: { deviceId: string; skore: number }[] = [];
+      for (let j = 0; j < plochy.length; j += 2) {
+        radky.push({ deviceId: String(plochy[j]), skore: Number(plochy[j + 1]) });
+      }
+      return [hra, radky];
+    }),
+  ) as Record<HraSlug, { deviceId: string; skore: number }[]>;
+  return { skore, jmena };
+});
 
 export async function zebricek(hra: HraSlug, mojeDevice: string): Promise<Zebricek> {
-  const [skore, hoste] = await Promise.all([
-    nactiZaznamy<SkoreFields>(API_SKORE, `{Hra}='${doFormule(hra)}'`),
-    nactiZaznamy<HostFields>(API_HOSTE),
-  ]);
-  const jmena = new Map<string, string>();
-  for (const h of hoste) {
-    if (h.fields.DeviceId && h.fields["Jméno"]) jmena.set(h.fields.DeviceId, h.fields["Jméno"]);
-  }
-  const platne: { deviceId: string; skore: number }[] = [];
-  for (const s of skore) {
-    const d = s.fields.DeviceId;
-    const b = s.fields["Skóre"];
-    if (d && typeof b === "number") platne.push({ deviceId: d, skore: b });
-  }
-  return sestavZebricek(platne, jmena, mojeDevice);
+  const { skore, jmena } = await vse.get();
+  return sestavZebricek(skore[hra], jmena, mojeDevice);
 }
 
 export async function ulozSkore(hra: HraSlug, deviceId: string, skore: number): Promise<void> {
-  await vlozZaznam<SkoreFields>(API_SKORE, {
-    DeviceId: deviceId,
-    Hra: hra,
-    "Skóre": skore,
-    Kdy: new Date().toISOString(),
-  });
+  await redis().zadd(KLIC.skore(hra), { gt: true }, { score: skore, member: deviceId });
+  vse.zahod();
 }
 
 export type Lidr = { jmeno: string; skore: number } | null;
 
 /** Nejlepší hráč každé hry — pro karty ve výběru. Jedno načtení pro všechny hry. */
 export async function lidri(): Promise<Record<HraSlug, Lidr>> {
-  const [skore, hoste] = await Promise.all([
-    nactiZaznamy<SkoreFields>(API_SKORE),
-    nactiZaznamy<HostFields>(API_HOSTE),
-  ]);
-  const jmena = new Map<string, string>();
-  for (const h of hoste) {
-    if (h.fields.DeviceId && h.fields["Jméno"]) jmena.set(h.fields.DeviceId, h.fields["Jméno"]);
-  }
+  const { skore, jmena } = await vse.get();
   const out = Object.fromEntries(HRY.map((h) => [h, null])) as Record<HraSlug, Lidr>;
-  for (const s of skore) {
-    const hra = s.fields.Hra;
-    const b = s.fields["Skóre"];
-    if (!hra || !(HRY as readonly string[]).includes(hra) || typeof b !== "number" || !s.fields.DeviceId) continue;
-    const cur = out[hra as HraSlug];
-    if (!cur || b > cur.skore) out[hra as HraSlug] = { jmeno: jmena.get(s.fields.DeviceId) ?? NEZNAMY, skore: b };
+  for (const hra of HRY) {
+    for (const s of skore[hra]) {
+      const cur = out[hra];
+      if (!cur || s.skore > cur.skore) out[hra] = { jmeno: jmena.get(s.deviceId) ?? NEZNAMY, skore: s.skore };
+    }
   }
   return out;
 }

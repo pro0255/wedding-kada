@@ -1,24 +1,21 @@
-import { apiTabulky, doFormule, nactiZaznamy, upravZaznam, vlozZaznam } from "./airtable.ts";
+import { KLIC, redis } from "./redis.ts";
 
 /**
- * Jméno k zařízení. Jeden řádek na deviceId (upsert) — může ho použít
+ * Jméno k zařízení. Jeden záznam na deviceId v hashi — může ho použít
  * kterákoli část webu, kde chceme hosta oslovit bez přihlašování.
  */
-const API_HOSTE = apiTabulky("Hoste");
-type HostFields = { DeviceId?: string; "Jméno"?: string; "Změněno"?: string };
-
-async function najdi(deviceId: string) {
-  const z = await nactiZaznamy<HostFields>(API_HOSTE, `{DeviceId}='${doFormule(deviceId)}'`);
-  return z[0];
+export async function jmenoHosta(deviceId: string): Promise<string | null> {
+  // Upstash hodnoty parsuje jako JSON — jméno „42“ by přišlo jako číslo
+  const jmeno = await redis().hget<unknown>(KLIC.hoste, deviceId);
+  return jmeno == null ? null : String(jmeno);
 }
 
-export async function jmenoHosta(deviceId: string): Promise<string | null> {
-  return (await najdi(deviceId))?.fields["Jméno"] ?? null;
+/** Všechna jména naráz (pro žebříčky). */
+export async function vsechnaJmena(): Promise<Map<string, string>> {
+  const vse = (await redis().hgetall<Record<string, unknown>>(KLIC.hoste)) ?? {};
+  return new Map(Object.entries(vse).map(([d, j]) => [d, String(j)]));
 }
 
 export async function ulozJmeno(deviceId: string, jmeno: string): Promise<void> {
-  const fields: HostFields = { "Jméno": jmeno, "Změněno": new Date().toISOString() };
-  const existujici = await najdi(deviceId);
-  if (existujici) await upravZaznam<HostFields>(API_HOSTE, existujici.id, fields);
-  else await vlozZaznam<HostFields>(API_HOSTE, { DeviceId: deviceId, ...fields });
+  await redis().hset(KLIC.hoste, { [deviceId]: jmeno });
 }
