@@ -709,10 +709,12 @@ export default function Home() {
 
       <footer>
         {/* Béžový pruh přes celé okno a na něm medailonek: fotka zvoničky
-           v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala. */}
+           v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala.
+           Jména jsou tu domácky — je to podpis pod „Těšíme se na vás“
+           (pravidlo jmen viz AGENTS.md). */}
         <div className="paticka-pas">
           <div className="paticka-kolecko">
-            <p className="paticka-jmena">Kateřina &amp; Jakub</p>
+            <p className="paticka-jmena">Káťa &amp; Kuba</p>
             <p className="paticka-datum">18 · 09 · 2027</p>
             <p className="paticka-vzkaz">Těšíme se na vás</p>
           </div>
