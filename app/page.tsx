@@ -491,19 +491,21 @@ function SvatebniMenu() {
    který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
    dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
    něm prázdné místo, ne rozbitá ikona. */
+/* Za jednopísmennými předložkami a spojkami je nezlomitelná mezera (\u00a0),
+   ať „v“ nebo „a“ nezůstane viset na konci řádku. */
 const PROGRAM = [
-  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U ženicha a nevěsty",
+  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U\u00a0ženicha a\u00a0nevěsty",
     popis: "Poslední klidné sousto předtím, než to celé začne." },
-  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U zvoničky v Rekovicích",
+  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
     popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
-  { cas: "13:30", nazev: "Přípitek a svatební oběd", ikona: "obed",
-    popis: "Na zdraví, na lásku a na pořádný hlad." },
+  { cas: "13:30", nazev: "Přípitek a\u00a0svatební oběd", ikona: "obed",
+    popis: "Na zdraví, na lásku a\u00a0na pořádný hlad." },
   { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
     popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
   { cas: "16:30", nazev: "První tanec", ikona: "tanec",
-    popis: "Jeden tanec a žádné záruky elegance." },
+    popis: "Jeden tanec a\u00a0žádné záruky elegance." },
   { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
-    popis: "Dobré jídlo, sklenka v ruce a čas užít si den naplno." },
+    popis: "Dobré jídlo, sklenka v\u00a0ruce a\u00a0čas užít si den naplno." },
   { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
     popis: "Boty dolů, hudbu nahoru." },
 ];
@@ -709,14 +711,14 @@ export default function Home() {
           <p className="eyebrow">Náš příběh</p>
           <h2>Jak to celé začalo</h2>
         </Reveal>
-        {/* Fotky vlevo, obálka vpravo dole přes roh hromádky. Kytice leží jen
-            za místem, kde se potkají; před ně jde jediná snítka. */}
+        {/* Fotky vlevo, obálka vpravo dole přes roh hromádky, kolem věnec. */}
         <Reveal className="scena">
-          <span className="scena-kytice" aria-hidden="true">
-            <img loading="lazy" decoding="async" className="scena-kv scena-kv-ostrozka" src="/kytky/12_ostrozka_modra.webp" alt="" />
-            <img loading="lazy" decoding="async" className="scena-kv scena-kv-gypsofila" src="/kytky/04_gypsophila.webp" alt="" />
-            <img loading="lazy" decoding="async" className="scena-kv scena-kv-hortenzie" src="/kytky/06_hortenzie.webp" alt="" />
-          </span>
+          {/* Věnec ze svatebních květin — přesně těch, které budou na svatbě
+              (předloha z public/kytky u obalky, scripts/kytky-venec.mjs). Obě
+              vrstvy leží POD fotkami i obálkou: květy jen vykukují zpoza
+              okrajů, přes tváře ani dopis nic neleží. */}
+          <img loading="lazy" decoding="async" className="scena-venec" src="/kytky/venec-pod.webp" alt="" aria-hidden="true" />
+          <img loading="lazy" decoding="async" className="scena-venec scena-venec-nad" src="/kytky/venec-nad.webp" alt="" aria-hidden="true" />
           <div className="scena-foto">
             <FotoHromadka fotky={PRIBEH_FOTKY} />
           </div>
@@ -730,9 +732,13 @@ export default function Home() {
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
             </ObalkaPribeh>
-            <span className="scena-pokyn" aria-hidden="true">otevřete dopis</span>
           </div>
-          <img loading="lazy" decoding="async" className="scena-kv scena-kv-pred" src="/kytky/07_hermanek.webp" alt="" aria-hidden="true" />
+          {/* Pokyn pod věncem, ve sloupci obálky — pod ní samotnou leží krásenky
+              a písmo by se v nich ztrácelo. */}
+          <span className="scena-pokyn" aria-hidden="true">
+            <span className="scena-pokyn-otevrit">otevřete dopis</span>
+            <span className="scena-pokyn-zavrit">zavřít dopis</span>
+          </span>
         </Reveal>
       </section>
 

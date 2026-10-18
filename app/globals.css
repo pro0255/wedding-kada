@@ -2039,105 +2039,74 @@ body,
 }
 
 /* ---------- scéna příběhu ----------
-   Hromádka fotek a obálka nejsou dva sloupce vedle sebe, ale jedna skupina
-   uprostřed stránky: obálka leží na hromádce. Po otevření se rozejdou —
-   obálka doprava, fotky doleva — aby si papír s textem udělal místo.
+   Diagonála: fotky vlevo nahoře, obálka vpravo dole a zakrývá jen roh
+   hromádky. Oba objekty jsou natočené proti sobě a mají stín ze stejné strany.
 
-   Rozměry jdou přes proměnné, protože se na užších obrazovkách musí zmenšit
-   všechny naráz a v poměru. Rozestup se počítá dvakrát: fotky se posunou
-   o −rozestup, obálka o +rozestup, takže se skupina roztáhne o dvojnásobek.
+   Kolem je věnec ze svatebních květin — barvy i druhy jsou přesně ty, které
+   budou na svatbě, proto se nijak netlumí. Je to předloha na plátně
+   1622 × 1001 a scéna má jeho poměr stran: fotky i obálka se do něj sázejí
+   v procentech a drží polohu při každé šířce okna. Obě vrstvy věnce leží pod
+   fotkami i obálkou, takže přes ně nic neleží.
 
-   Fotky se posouvají přes :has() — stav otevření drží React uvnitř obálky
-   a nemá smysl ho kvůli posunu tahat o dvě úrovně výš. */
-/* ---------- scéna příběhu ----------
-   Kontejner má poměr stran plátna, na kterém jsou kreslené obě vrstvy věnce
-   (1622 × 1001). Fotky, obálka i pokyn se do něj sázejí v procentech, takže
-   celá kompozice drží tvar při každé šířce okna — na mobilu se jen zmenší,
-   nic se nepřeskládá.
-
-   Bez pozadí: věnec má průhledné okraje a jakýkoli podklad by z něj udělal
-   obdélníkovou dlaždici uprostřed bílé sekce. */
+   Po otevření dopis vyjede z obálky a hromádka lehce ustoupí: jedna animace,
+   jedna křivka. */
+:root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
 .scena {
   position: relative;
   width: 100%; max-width: 1622px;
   aspect-ratio: 1622 / 1001;
   margin: 0 auto;
 }
-
-/* Obě vrstvy leží přes celou scénu a nesmí se posouvat ani zmenšovat — jsou
-   kreslené na jedno plátno a jakýkoli rozdíl by je vůči sobě rozhodil. */
-.scena-kytky {
+.scena-venec {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  z-index: 0; pointer-events: none;
+  z-index: 0; pointer-events: none; user-select: none;
 }
-/* Přes fotky i obálku. Jakmile ale host se scénou něco dělá — klepne na fotky
-   nebo otevře obálku — couvne za ně: přes to, na co se zrovna dívá, nemá co
-   ležet.
-
-   Couvne jen o stupeň, na 1: to je pod fotky (2) i obálku (3), ale pořád nad
-   zadní vrstvu (0). Spoléhat na pořadí v dokumentu při shodném z-indexu nestačí
-   — obě vrstvy pak vycházely vyrovnaně a přední mizela za karafiáty. */
-.scena-kytky-nad {
-  z-index: 4;
-  /* Lehce nakloněná: vlevo, kde leží hromádka, se tím květy zvednou z popisku
-     fotky, a vpravo na obálce naopak klesnou. Zadní vrstva zůstává rovná —
-     při dvou stupních se rozdíl neprozradí a věnec drží tvar. */
-  rotate: 2deg;
-}
-.scena:has(.foto-hromadka.je-listovano) .scena-kytky-nad,
-.scena:has(.obalka.je-otevrena) .scena-kytky-nad { z-index: 1; }
-
+/* Přední vrstva předlohy (ibišek, bílé květy, krásenky) dřív ležela přes fotky
+   a obálku. Teď je pod nimi, nad zadní vrstvou — květy se zastrčí pod okraje. */
+.scena-venec-nad { z-index: 1; }
 .scena-foto {
-  position: absolute; left: 25.5%; top: 20%; width: 30.5%;
+  position: absolute; left: 22%; top: 15%; width: 31%;
   z-index: 2;
-  /* pružná křivka: hromádka uhne, jako by ji někdo odsunul rukou */
-  transition: transform .8s cubic-bezier(.34, 1.15, .5, 1);
+  rotate: -3deg;
+  transition: transform .6s var(--krivka-d1);
 }
-/* Rozevřená obálka je s papírem skoro dvakrát vyšší a lezla by přes fotky.
-   Obojí se proto od sebe odsune — hromádka doleva, obálka doprava. */
-.scena:has(.obalka.je-otevrena) .scena-foto { transform: translateX(-24%); }
-.scena:has(.obalka.je-otevrena) .scena-obalka { transform: translateX(9%); }
-/* Obálka leží přes roh hromádky, ale jen kouskem — víc a schovala by ženicha
-   s nevěstou. */
+/* Dopis vyjede nad obálku, fotky nepřekryje — hromádka jen lehce ustoupí.
+   Průhlednost ne: prosvítal by přes ni věnec jako dvojexpozice. */
+.scena:has(.obalka.je-otevrena) .scena-foto { transform: translate(-3%, 1%) scale(.97); }
 .scena-obalka {
-  position: absolute; left: 50%; top: 31%; width: 35.5%;
+  position: absolute; left: 52%; top: 42%; width: 36%;
   z-index: 3;
-  transition: transform .8s cubic-bezier(.34, 1.15, .5, 1);
 }
 
-/* Pokyn ke klepnutí: nápis a pod ním šipka. Sedí uvnitř wrapperu obálky, takže
-   se s ní hýbe — po otevření se obálka odsune a pokyn jde s ní.
+/* Pokyn pod věncem ve sloupci obálky — decentní popisek místo kreslené
+   šipky. Text se po otevření vymění, ať host ví, jak dopis zase zavřít. */
+.scena-pokyn {
+  /* 91 % výšky scény = volné místo těsně pod krásenkami věnce */
+  position: absolute; left: 52%; width: 36%; top: 91%;
+  display: flex; align-items: center; justify-content: center; gap: .7rem;
+  font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.scena-pokyn::before { content: ""; width: 2rem; height: 1px; background: currentColor; }
+.scena-pokyn-zavrit { display: none; }
+.scena:has(.obalka.je-otevrena) .scena-pokyn-otevrit { display: none; }
+.scena:has(.obalka.je-otevrena) .scena-pokyn-zavrit { display: inline; }
 
-   Rozměry jsou v procentech šířky obálky, ne scény: tím drží poměr k ní i při
-   každé šířce okna. Šipka se neotáčí, jen posouvá. */
-.klikni-wrap {
-  /* Záporné odsazení shora: hrot šipky je u jejího spodního okraje, takže se
-     celý blok musí zvednout, aby hrot padl na půlku výšky obálky. */
-  position: absolute; left: 104%; top: -34%;
-  width: 27%;
-  z-index: 9; pointer-events: none;
-  display: flex; flex-direction: column; align-items: center;
-  transition: opacity .5s ease;
+@media (prefers-reduced-motion: reduce) {
+  .scena-foto { transition: none; }
 }
-.scena:has(.obalka.je-otevrena) .klikni-wrap { opacity: 0; }
-/* Nápis je širší než šipka: nad drobnou kresbou se úzký ztrácel. Velikost řídí
-   viewBox, takže se škáluje spolu s ní. */
-/* Nápis je odsazený doprava od šipky: nad jejím začátkem leží gerbera a písmo
-   se v okvětních lístcích ztrácelo. Vpravo od ní je čistá plocha. */
-.klikni-text {
-  display: block; width: 145%; height: auto;
-  margin: 0 -34% -6% auto;
-  overflow: visible;
-  fill: #b09672;
-  font-family: var(--rukopis), "Segoe Script", cursive;
-  font-size: 58px; letter-spacing: .04em;
+
+/* Na tabletu je hromádka menší a odznak s rukou by ležel přes začátek
+   ručně psaného popisku — posune se o kus ven z rohu. */
+@media (min-width: 701px) and (max-width: 1100px) {
+  .ikona-klik-obal { left: -30px; bottom: -26px; }
 }
-.klikni-sipka { display: block; width: 100%; height: auto; }
 
 /* Rozevřená obálka vyjede papírem nahoru a scéna by ho ořízla o svůj spodní
    okraj — proto smí přetéct. */
 .story .wrap, .scena { overflow: visible; }
+.story > .wrap { margin-bottom: 2.4rem; }
 
 /* ——— scéna příběhu na telefonu ———
    Vedle sebe se obálka s hromádkou nevejdou: obojí by vyšlo kolem 130 px a
@@ -2153,9 +2122,9 @@ body,
     /* Shora nic — mezeru nad textem už drží odsazení sekce. */
     padding-block: 0 1.2rem;
   }
-  /* Věnec je pryč: na šířku telefonu se kolem obálky a fotek nemá kam rozložit
-     a jako kulisa za nimi jen ubíral na klidu. */
-  .scena-kytky { display: none; }
+  /* Věnec je pryč: na šířku telefonu se kolem obálky a fotek nemá kam
+     rozložit a jako kulisa za nimi jen ubíral na klidu. */
+  .scena-venec, .scena-pokyn { display: none; }
 
   /* Z absolutních pozic do běžného toku. Posuny při otevřené obálce tu nemají
      smysl — nic se nepřekrývá, co by se muselo rozestoupit. */
@@ -2166,14 +2135,14 @@ body,
     position: relative; inset: auto; transform: none;
     margin-inline: auto;
   }
+  .scena-foto { rotate: none; }
   .scena:has(.obalka.je-otevrena) .scena-foto,
-  .scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
+  .scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; opacity: 1; }
+  .obalka.je-otevrena { transform: none; }
   .scena-obalka { order: 1; width: 100%; }
   /* Fotky skoro přes celou šířku — po stranách zbývalo zbytečně moc místa. */
   .scena-foto { order: 2; width: 98%; }
 
-  /* Obálka ani pokyn ke klepnutí na telefonu nejsou — viz blok níž. */
-  .klikni-wrap { display: none; }
 }
 
 /* Sekce příběhu měla shora 15rem kvůli doodlu „zásnuby na Troskách“, který
@@ -2215,7 +2184,7 @@ body,
    naměřené hodnoty, ne odhad.
 
    Obálka leží nakřivo a kouskem přes hromádku fotek. Po klepnutí se narovná,
-   poposkočí a vysune se z ní papír s celým textem příběhu.
+   nadzvedne a vysune se z ní papír s textem příběhu.
 
    Vrstvení: zadek 0, papír 1, předek 2, zavřená obálka 3, pečeť 4. Tělo obálky
    (<button>) proto nesmí mít z-index — jinak by založilo vlastní vrstvení a
@@ -2231,10 +2200,8 @@ body,
      hranou obálky. Je to pod ústy, ale nad spodkem obálky — papír tedy leží
      na kapse a kus obálky pod ním zůstane vidět. */
   --zasun: 82%;
-  /* Šířky listů v dílech obsahu .obalka-listy. Oznámení je širší i vyšší,
-     dopis na něm leží. */
-  --list-oznameni: 92%;
-  --list-dopis: 85%;
+  /* Šířka dopisu v dílech obsahu .obalka-listy. */
+  --list-dopis: 86%;
   --vosk: #c69b3f;
 
   position: relative;
@@ -2242,15 +2209,14 @@ body,
   /* Šířku i přesah přes fotky řídí scéna (.scena-obalka), obálka vyplní, co
      dostane. */
   width: 100%;
-  /* pružná křivka: obálka po klepnutí doskočí, ne dojede — působí to, že s ní
-     někdo pohnul rukou */
-  transition: transform .75s cubic-bezier(.34, 1.25, .5, 1);
+  transition: transform .6s var(--krivka-d1);
   /* Kladný úhel = po směru hodin, a tím jde nahoru LEVÝ horní roh: otáčí se
-     kolem středu, takže pravá strana klesá a levá stoupá. */
-  transform: rotate(7deg);
+     kolem středu, takže pravá strana klesá a levá stoupá. Fotky vedle jsou
+     natočené opačně (−3°). */
+  transform: rotate(4deg);
 }
-/* Otevřená obálka odstoupí doprava; fotky jdou zrcadlově doleva (viz scéna). */
-.obalka.je-otevrena { transform: rotate(2.4deg) translate(var(--rozestup), -1rem); }
+/* Otevřená se lehce narovná a nadzvedne; fotky mezitím ustoupí (viz scéna). */
+.obalka.je-otevrena { transform: rotate(1.5deg) translateY(-1rem); }
 
 /* --- papír --- */
 .obalka-vysuv {
@@ -2279,33 +2245,26 @@ body,
 /* min-height: 0 je nutné — položka mřížky má ve výchozím stavu min-height: auto
    a řádek 0fr by se kvůli tomu nesmrskl na nulu.
 
-   overflow: hidden zavřené listy schová. Platí ale na obě osy, takže co z listů
+   overflow: hidden zavřený dopis schová. Platí ale na obě osy, takže co z listu
    při natočení vyjede do stran, se taky ořízne — proto má dopis po stranách
-   12 % volného místa a oznámení za ním je nižší, aby se mu natočení vešlo
-   i na výšku. */
+   volné místo. */
 .obalka-vysuv-ram { position: relative; overflow: hidden; min-height: 0; }
-/* Obal obou listů. Odsazení je místo na jejich natočení — ořez
-   .obalka-vysuv-ram by jinak rohy usekl. Výšku obalu drží oznámení, které je
-   v toku; dopis na něm leží absolutně. */
+/* Obal dopisu. Odsazení je místo na jeho natočení — ořez .obalka-vysuv-ram
+   by jinak rohy usekl. */
 .obalka-listy { position: relative; padding: 4% 6%; }
 
 .obalka-papir {
-  /* Dopis leží na oznámení, posunutý doprava dolů, aby zpoza něj oznámení
-     koukalo. Poměr drží aspect-ratio, ne obsah: text je krátký a sám by list
-     nevytáhl do výšky. min-height: fit-content pojistí delší text, ten by
-     jinak z listu přetekl. */
-  position: absolute; z-index: 1;
-  right: 0; top: 14%;
+  /* Jediný list v toku — výšku drží jeho text. */
+  position: relative; z-index: 1;
+  margin: 0 auto;
   width: var(--list-dopis);
-  aspect-ratio: 1 / 1.28;
-  min-height: fit-content;
   display: flex; flex-direction: column; justify-content: center;
   background: #fff;
   /* Sekce má bílé pozadí, takže papír potřebuje vlastní hranu — bez linky
      a stínu by text jen visel ve vzduchu a žádný papír by z něj nebyl. */
   border: 1px solid rgba(90, 70, 50, .14);
   box-shadow: 0 18px 40px rgba(90, 70, 50, .17), 0 2px 6px rgba(90, 70, 50, .08);
-  padding: 2.6rem 2.6rem;
+  padding: clamp(1.4rem, 2.6vw, 2.4rem);
   text-align: left;
   opacity: 0;
   /* Dopis položený na obálku není nikdy srovnaný do pravého úhlu. */
@@ -2313,52 +2272,16 @@ body,
   transition: opacity .45s ease, transform .85s cubic-bezier(.4, 0, .2, 1);
 }
 .obalka.je-otevrena .obalka-papir { opacity: 1; transform: rotate(1.1deg); }
-/* Dopis vzadu, když je vepředu oznámení — odkloní se, ať je vidět, že jsou dva. */
-.obalka.je-oznameni .obalka-papir { transform: rotate(-5deg) translate(-4%, -4%); }
 
-/* ---------- přední strana oznámení v obálce ----------
-   Leží za dopisem a kouká za ním ven. Je nižší než dopis (86 %) a přisazená
-   k jeho hornímu okraji: natočení jí tím zbude místo dole, kde ji ořez
-   .obalka-vysuv-ram nechytí. Šířku si dopočítá karta sama z poměru A5. */
-.obalka-oznameni {
-  /* V toku a o kus větší než dopis — celé musí být čitelné, ne jen výřez.
-     Karta uvnitř je v milimetrech a nezmenšená měří přes 580 px; kdyby se
-     dostala do výpočtu vlastní velikosti prvku, roztáhla by ho na sebe.
-     Proto min-width: 0, overflow: hidden a karta absolutně umístěná — do
-     intrinsické šířky pak nemluví. */
-  display: block; position: relative; z-index: 0;
-  width: var(--list-oznameni);
-  aspect-ratio: 154 / 216;
-  min-width: 0;
-  overflow: hidden;
-  transform: rotate(-5deg);
-  opacity: 0;
-  filter: drop-shadow(0 10px 26px rgba(90, 70, 50, .22));
-  transition: opacity .45s ease, transform .85s cubic-bezier(.4, 0, .2, 1);
-}
-.obalka-oznameni > div { position: absolute; inset: 0; }
-.obalka.je-otevrena .obalka-oznameni { opacity: 1; }
-/* Vepředu: narovná se a překryje dopis. */
-.obalka.je-oznameni .obalka-oznameni {
-  z-index: 2;
-  transform: rotate(1.5deg) translate(12%, 4%);
-}
 /* Otevřený papír je zavírací plocha, zavřený nesmí brát kliknutí tělu obálky. */
 .obalka-vysuv { pointer-events: none; }
 .obalka.je-otevrena .obalka-vysuv { pointer-events: auto; cursor: pointer; }
-/* Hlavička dopisu na střed, text pod ní na praporek — jako v dopise. */
-.obalka-papir .eyebrow, .obalka-papir h2 { text-align: center; }
-.obalka-papir h2 {
-  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
-  margin-bottom: 1.4rem;
-}
-/* Písmo se smrskává s oknem. Na širokém zůstává, jak bylo; na užším by se
-   dlouhý text z listu vysypal ven a ořez obálky by ho usekl v půlce věty —
-   obálka totiž zabírá jen třetinu scény, takže list bývá sotva dvě stě pixelů
-   široký. */
+/* Nadpis příběhu je nad scénou, v dopise zůstává jen text. Písmo se smrskává
+   s oknem: obálka zabírá 40 % scény a na užším okně by se text z listu
+   vysypal ven. */
 .obalka-papir .lead {
-  max-width: none;
-  font-size: clamp(.55rem, 1.22vw, 1.05rem);
+  max-width: none; margin: 0;
+  font-size: clamp(.8rem, 1.15vw, 1.02rem);
   line-height: 1.6;
 }
 
@@ -2409,14 +2332,6 @@ body,
 }
 .obalka-telo:hover .obalka-pecet { transform: translate(-50%, -50%) scale(1.07); }
 
-.obalka-popisek {
-  /* Níž, než by se zdálo: obálka je natočená o 7°, takže jí spodní roh
-     zajíždí pod vlastní rámec a popisek by z poloviny schoval. */
-  position: absolute; left: 0; right: 0; bottom: -3.4rem;
-  font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .obalka, .obalka-vysuv, .obalka-telo, .obalka-papir,
   .obalka-pecet, .obalka-vrstva, .obalka-zavrena-obal { transition: none; }
@@ -2429,25 +2344,17 @@ body,
     margin-left: auto; margin-right: auto;
     transform: rotate(5deg);
   }
-  /* Na úzkém okně vycházelo písmo dopisu z clamp() na 9,6 px a nedalo se číst.
-     Na telefonu je proto pevné — list má min-height: fit-content, takže se mu
-     přizpůsobí výškou. */
-  /* Na mobilu je obálka pod fotkami, ne přes ně — není od čeho odstupovat. */
   .obalka.je-otevrena { transform: rotate(1.8deg) translateY(-.3rem); }
   .obalka-papir { padding: 1.9rem 1.3rem 1.6rem; }
 }
 
-/* Odznak u listů patří jen na telefon, kde se jimi listuje klepnutím. */
-.obalka-klik { display: none; }
-
 /* ——— příběh na telefonu: jen text a pod ním fotky ———
-   Obálka, kartička i oznámení jdou pryč. Rozevřená obálka je skoro dvakrát
-   vyšší než zavřená, text v ní vycházel na necelých deset pixelů a dva listy
-   přes sebe se do šířky telefonu nevešly. Zůstává samotný text — čitelný,
-   bez papíru pod sebou — a pod ním hromádka fotek. */
+   Obálka jde pryč. Rozevřená je skoro dvakrát vyšší než zavřená a text v ní
+   vycházel na necelých deset pixelů. Zůstává samotný text — čitelný, bez
+   papíru pod sebou — a pod ním hromádka fotek. */
 @media (max-width: 700px) {
   .obalka { transform: none; }
-  .obalka-telo, .obalka-oznameni, .obalka-klik { display: none; }
+  .obalka-telo { display: none; }
   /* Výsuv je trvale rozevřený a nic neořezává. */
   .obalka-vysuv {
     grid-template-rows: 1fr; margin-bottom: 0;
@@ -2458,15 +2365,14 @@ body,
   .obalka-listy { position: static; padding: 0; }
 
   /* Z papíru zbude jen text: žádné pozadí, rámeček, stín ani natočení. */
-  .obalka-papir, .obalka.je-otevrena .obalka-papir, .obalka.je-oznameni .obalka-papir {
+  .obalka-papir, .obalka.je-otevrena .obalka-papir {
     position: static; width: 100%; margin: 0;
     aspect-ratio: auto; min-height: 0;
     background: none; border: 0; box-shadow: none;
     padding: 0; text-align: center;
     opacity: 1; transform: none; transition: none;
   }
-  .obalka-papir .lead { font-size: .95rem; line-height: 1.6; }
-  .obalka-papir .eyebrow { font-size: .72rem; }
+  .obalka-papir .lead { font-size: .98rem; line-height: 1.6; }
 }
 
 /* ---------- baby blue ----------
@@ -3207,17 +3113,18 @@ body,
 }
 
 
-/* ==================== redesign 2026-10: příběh (D1), program a menu (P2) ====================
+/* ==================== redesign 2026-10: program a menu (P2) ====================
    Stojí na konci schválně: přebíjí starší pravidla se stejnou specificitou.
+   (Příběh, varianta D1, má svůj blok u scény příběhu výš.)
 
    Program a menu jsou jeden béžový pruh (menu bylo bílé a mezi dvěma béžovými
-   sekcemi trhalo stránku). Každá sekce má jen jednu kytici, střídavě vlevo
-   nahoře a vpravo dole, a ta zůstává uvnitř své sekce. Květiny jsou ztlumené,
-   aby nekřičely přes tlumenou sépii ikon programu. */
+   sekcemi trhalo stránku). Každá sekce má jednu kytici, střídavě vlevo
+   a vpravo nahoře, a ta zůstává uvnitř své sekce.
+
+   Květiny se NETLUMÍ: druhy i barvy jsou přesně ty, které budou na svatbě,
+   na tom celý web stojí. */
 :root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
 
-.scena-kv { filter: saturate(.7) sepia(.08); }
-.program-kytice, .fotky-kytice { filter: saturate(.42) sepia(.16) brightness(1.03); opacity: .9; }
 /* program a menu jsou jeden pruh — mezi nimi stačí běžná mezera, ne dvojitá */
 .obsah-ramec > .schedule { padding-bottom: 2rem; }
 
@@ -3225,12 +3132,40 @@ body,
 .obsah-ramec > .menu { position: relative; overflow: clip; z-index: auto; }
 .schedule > .wrap, .schedule > .reveal,
 .menu > .wrap, .menu > .reveal { position: relative; z-index: 3; }
-.program-kytice { transform: none; opacity: .92; }
-.program-kytice-vlevo { left: 0; top: 0; height: min(78%, 620px); }
-.menu-kytice { left: auto; right: 0; top: auto; bottom: 0; height: min(70%, 560px); }
+.program-kytice { transform: none; object-fit: contain; }
+/* Kytice jsou kreslené na přetékání: horní květ je uříznutý hranou obrázku.
+   Uprostřed souvislé béžové plochy by ten řez byl vidět jako rovná čára,
+   proto se horní okraj měkce rozplyne. */
+.program-kytice-vlevo, .menu-kytice {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+}
+.program-kytice-vlevo { left: 0; top: 0; height: min(78%, 620px); object-position: left top; }
+/* Menu má kytici vpravo NAHOŘE, ne dole: pod menu leží rozcestník na fotky
+   s vlastními kyticemi po stranách a dole by se s nimi slily do jednoho
+   sloupce květin přes dvě sekce. */
+.menu-kytice { left: auto; right: 0; top: 0; height: min(62%, 560px); object-position: right top; }
 @media (max-width: 2300px) {
-  .program-kytice { max-width: 17vw; object-position: left top; }
-  .menu-kytice { object-position: right bottom; }
+  /* Kytice je jen v rohu, takže osa už nemusí držet místo na obou stranách
+     (dřív 21vw kvůli dvěma kyticím vedle ní) — sloupce byly při 1440 px
+     úzké 110 px a názvy se lámaly do čtyř řádků. Kytice se vejde do okraje. */
+  .osa { padding-inline: 10.5vw; }
+  .program-kytice { max-width: 10vw; }
+}
+
+
+/* Šev mezi dvěma béžovými sekcemi: hranice leží na zlomku pixelu, každá
+   sekce pokryje jen část hraničního řádku a mezi nimi prosvitne bílé tělo
+   stránky jako vlasová linka. Následující sekce proto řádek přetře. */
+.obsah-ramec > .location + .schedule,
+.obsah-ramec > .schedule + .menu,
+.obsah-ramec > .menu + .fotky-odkaz { box-shadow: 0 -2px 0 var(--bezova); }
+.osa-nazev { text-wrap: balance; }
+/* Na běžných monitorech je bod osy úzký kolem 150 px — o kus menší odsazení
+   a proklad, ať se „A SVATEBNÍ“ vejde na řádek. */
+@media (min-width: 901px) and (max-width: 1700px) {
+  .osa { --osa-mezera: .45rem; }
+  .osa-nazev { letter-spacing: .05em; }
 }
 
 /* Menu: o kus menší a placaté — bez žebrovaného papíru, mašlí a rytých příborů.
@@ -3244,66 +3179,3 @@ body,
 .menu-obalka-lic::after { left: 14px; top: 14px; bottom: 14px; right: 14px; width: auto;
   background: none; border: 1px solid rgba(168, 135, 74, .55); border-radius: 3px; }
 
-/* ---------- příběh: D1, diagonála ----------
-   Nadpis nad scénou, ať sekce dává smysl i bez klepnutí. Fotky vlevo nahoře,
-   obálka vpravo dole a zakrývá jen roh hromádky. Oba objekty jsou natočené
-   proti sobě a mají stín ze stejné strany. Po otevření dopis vyjede přes
-   fotky a hromádka ustoupí a ztlumí se — jedna animace, jedna křivka. */
-.story > .wrap { margin-bottom: 2.4rem; }
-.scena { max-width: 1240px; aspect-ratio: 1000 / 600; }
-.scena-foto {
-  left: 13%; top: 2%; width: 33%;
-  rotate: -3deg;
-  transition: transform .6s var(--krivka-d1), opacity .6s var(--krivka-d1);
-}
-.scena:has(.obalka.je-otevrena) .scena-foto { transform: translate(-16%, 3%) scale(.94); opacity: .5; }
-.scena-obalka { left: 43%; top: 43%; width: 40%; transition: none; }
-.scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
-.obalka { transform: rotate(4deg); transition: transform .6s var(--krivka-d1); }
-.obalka.je-otevrena { transform: rotate(1.5deg) translateY(-1rem); }
-
-/* Papír: bez oznámení je jediný list, takže leží v toku a drží výšku sám. */
-.obalka-papir {
-  position: relative; inset: auto; margin: 0 auto;
-  width: 86%; aspect-ratio: auto; min-height: 0;
-  padding: clamp(1.4rem, 2.6vw, 2.4rem);
-}
-.obalka-papir .lead { font-size: clamp(.8rem, 1.15vw, 1.02rem); }
-
-/* Kytice za průsečíkem — hortenzie, ostrožka, gypsofila. Procenta jsou ze scény. */
-.scena-kytice { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.scena-kv { position: absolute; height: auto; pointer-events: none; user-select: none; }
-.scena-kv-ostrozka { left: 45%; top: 4%; width: 7%; rotate: 12deg; }
-.scena-kv-gypsofila { left: 49%; top: 7%; width: 19%; rotate: 8deg; }
-.scena-kv-hortenzie { left: 36%; top: 26%; width: 16%; }
-/* jediná snítka před obálkou, v jejím pravém dolním rohu */
-.scena-kv-pred { left: 77%; top: 65%; width: 13%; rotate: 18deg; z-index: 6; }
-
-/* Pokyn pod zavřenou obálkou — decentní popisek místo šipky „klikni“. */
-.scena-pokyn {
-  position: absolute; left: 0; right: 0; top: calc(100% + 1.6rem);
-  display: flex; align-items: center; justify-content: center; gap: .7rem;
-  font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
-  color: var(--ink-soft);
-  transition: opacity .3s ease;
-}
-.scena-pokyn::before { content: ""; width: 2rem; height: 1px; background: currentColor; }
-.scena:has(.obalka.je-otevrena) .scena-pokyn { opacity: 0; }
-
-@media (prefers-reduced-motion: reduce) {
-  .scena-foto, .obalka { transition: none; }
-}
-
-/* Telefon: text a pod ním fotky (obálka se schová, viz starší blok výš). */
-@media (max-width: 700px) {
-  .scena { aspect-ratio: auto; }
-  /* desktopové pozice výš v tomhle bloku by přebily starší mobilní tok */
-  .scena-foto, .scena-obalka { left: auto; top: auto; }
-  .scena-obalka { width: 100%; }
-  .scena-foto { width: 98%; rotate: none; }
-  .scena:has(.obalka.je-otevrena) .scena-foto { transform: none; opacity: 1; }
-  .scena-kytice, .scena-kv-pred, .scena-pokyn { display: none; }
-  .obalka, .obalka.je-otevrena { transform: none; }
-  .obalka-papir { width: 100%; padding: 0; }
-  .obalka-papir .lead { font-size: .98rem; }
-}
