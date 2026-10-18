@@ -185,9 +185,6 @@ export default function FotoHromadka({
             <span className="foto-popis-text">{fotky[aktivni].popis}</span>
           )}
         </span>
-        {/* Napověda při najetí myší: na kterou stranu klepnutí listuje. */}
-        <span className="foto-sipka foto-sipka-zpet" aria-hidden="true">‹</span>
-        <span className="foto-sipka foto-sipka-dal" aria-hidden="true">›</span>
       </div>
 
       <div className="foto-ovladani">

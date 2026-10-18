@@ -570,14 +570,9 @@ export default function Home() {
           <p className="eyebrow">Náš příběh</p>
           <h2>Jak to celé začalo</h2>
         </Reveal>
-        {/* Fotky vlevo, obálka vpravo dole přes roh hromádky, kolem věnec. */}
+        {/* Fotky vlevo, obálka vpravo dole, mezi nimi vzduch. Květiny tu nejsou —
+            scéna s nimi byla přeplněná, mají místo jinde na stránce. */}
         <Reveal className="scena">
-          {/* Věnec ze svatebních květin — přesně těch, které budou na svatbě
-              (předloha z public/kytky u obalky, scripts/kytky-venec.mjs). Obě
-              vrstvy leží POD fotkami i obálkou: květy jen vykukují zpoza
-              okrajů, přes tváře ani dopis nic neleží. */}
-          <img loading="lazy" decoding="async" className="scena-venec" src="/kytky/venec-pod.webp" alt="" aria-hidden="true" />
-          <img loading="lazy" decoding="async" className="scena-venec scena-venec-nad" src="/kytky/venec-nad.webp" alt="" aria-hidden="true" />
           <div className="scena-foto">
             <FotoHromadka fotky={PRIBEH_FOTKY} nazev="Fotky z našeho příběhu" />
           </div>

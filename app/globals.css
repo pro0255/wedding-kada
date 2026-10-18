@@ -715,38 +715,22 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    stránce a vodorovný tah dá hromádce. */
 .foto-hromadka { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .foto-list { -webkit-user-drag: none; }
-/* Šipky po stranách jen jako nápověda při najetí myší; na dotyku je není kam
-   najet a stačí tah prstem i tlačítka pod hromádkou. */
-.foto-sipka {
-  position: absolute; top: 40%; z-index: 40;
-  width: 40px; height: 40px; border-radius: 50%;
-  display: grid; place-items: center; padding-bottom: 3px; box-sizing: border-box;
-  background: rgba(255, 255, 255, .92); color: var(--ink);
-  font: 400 26px/1 var(--serif), Georgia, serif;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .14);
-  opacity: 0; transition: opacity .25s ease;
-  pointer-events: none;
-}
-.foto-sipka-zpet { left: -12px; }
-.foto-sipka-dal { right: -12px; }
-@media (hover: hover) {
-  .foto-hromadka:hover .foto-sipka { opacity: .95; }
-}
 .foto-ovladani {
   display: flex; align-items: center; justify-content: center; gap: .8rem;
   margin-top: 1.4rem;
   position: relative; z-index: 5;
 }
+/* Tiché ovládání: jen znak, bez kroužku — plocha 44 px zůstává kvůli prstu. */
 .foto-tlacitko {
   width: 44px; height: 44px; border-radius: 50%;
   display: grid; place-items: center; padding: 0 0 3px;
-  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
-  background: rgba(255, 255, 255, .92); color: var(--ink);
+  border: 1px solid transparent;
+  background: none; color: var(--ink-soft);
   font: 400 24px/1 var(--serif), Georgia, serif;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: border-color .2s ease;
 }
-.foto-tlacitko:hover { border-color: color-mix(in srgb, var(--ink) 55%, transparent); }
+.foto-tlacitko:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 25%, transparent); }
 .foto-tlacitko:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .foto-pocet {
   min-width: 4.4em; text-align: center;
@@ -1925,52 +1909,39 @@ body,
 }
 
 /* ---------- scéna příběhu ----------
-   Diagonála: fotky vlevo nahoře, obálka vpravo dole a zakrývá jen roh
-   hromádky. Oba objekty jsou natočené proti sobě a mají stín ze stejné strany.
+   Diagonála: fotky vlevo nahoře, obálka vpravo dole, mezi nimi vzduch. Oba
+   objekty jsou natočené proti sobě a mají stín ze stejné strany. Květiny tu
+   nejsou — s věncem kolem byla scéna přeplněná.
 
-   Kolem je věnec ze svatebních květin — barvy i druhy jsou přesně ty, které
-   budou na svatbě, proto se nijak netlumí. Je to předloha na plátně
-   1622 × 1001 a scéna má jeho poměr stran: fotky i obálka se do něj sázejí
-   v procentech a drží polohu při každé šířce okna. Obě vrstvy věnce leží pod
-   fotkami i obálkou, takže přes ně nic neleží.
-
-   Po otevření dopis vyjede z obálky a hromádka lehce ustoupí: jedna animace,
-   jedna křivka. */
+   Všechno se sází v procentech scény, která drží poměr stran — kompozice
+   tak drží tvar při každé šířce okna. Po otevření dopis vyjede z obálky
+   a hromádka lehce ustoupí: jedna animace, jedna křivka. */
 :root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
 .scena {
   position: relative;
-  width: 100%; max-width: 1622px;
-  aspect-ratio: 1622 / 1001;
+  width: 100%; max-width: 1000px;
+  aspect-ratio: 1000 / 660;
   margin: 0 auto;
 }
-.scena-venec {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0; pointer-events: none; user-select: none;
-}
-/* Přední vrstva předlohy (ibišek, bílé květy, krásenky) dřív ležela přes fotky
-   a obálku. Teď je pod nimi, nad zadní vrstvou — květy se zastrčí pod okraje. */
-.scena-venec-nad { z-index: 1; }
 .scena-foto {
-  position: absolute; left: 22%; top: 15%; width: 31%;
+  position: absolute; left: 11%; top: 6%; width: 33%;
   z-index: 2;
   transition: transform .6s var(--krivka-d1);
 }
 /* Natočená je jen hromádka — ovládání pod ní zůstává rovně. */
 .scena-foto .foto-hromadka { rotate: -3deg; }
 /* Dopis vyjede nad obálku, fotky nepřekryje — hromádka jen lehce ustoupí.
-   Průhlednost ne: prosvítal by přes ni věnec jako dvojexpozice. */
+   Průhlednost ne — fotky by vybledly. */
 .scena:has([data-otevreno="true"]) .scena-foto { transform: translate(-3%, 1%) scale(.97); }
 .scena-obalka {
-  position: absolute; left: 52%; top: 42%; width: 36%;
+  position: absolute; left: 52%; top: 40%; width: 38%;
   z-index: 3;
 }
 
-/* Pokyn pod věncem ve sloupci obálky — decentní popisek místo kreslené
+/* Pokyn pod obálkou — decentní popisek místo kreslené
    šipky. Text se po otevření vymění, ať host ví, jak dopis zase zavřít. */
 .scena-pokyn {
-  /* 91 % výšky scény = volné místo těsně pod krásenkami věnce */
-  position: absolute; left: 52%; width: 36%; top: 91%;
+  position: absolute; left: 52%; width: 38%; top: 83%;
   display: flex; align-items: center; justify-content: center; gap: .7rem;
   font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
   color: var(--ink-soft);
@@ -1994,9 +1965,7 @@ body,
    Vedle sebe se obálka s hromádkou nevejdou: obojí by vyšlo kolem 130 px a
    z fotek by nebylo nic. Skládají se proto pod sebe — nahoře fotky, pod nimi
    obálka a pokyn. Rozložený dopis vyjede z obálky nahoru přes fotky; to je
-   v pořádku, host si zrovna čte.
-
-   Věnec se sem nevejde a je schovaný. */
+   v pořádku, host si zrovna čte. */
 @media (max-width: 700px) {
   .scena {
     aspect-ratio: auto;
@@ -2005,10 +1974,6 @@ body,
     /* Shora nic — mezeru nad textem už drží odsazení sekce. */
     padding-block: 0 1.2rem;
   }
-  /* Věnec je pryč: na šířku telefonu se kolem obálky a fotek nemá kam
-     rozložit a jako kulisa za nimi jen ubíral na klidu. */
-  .scena-venec { display: none; }
-
   /* Z absolutních pozic do běžného toku. */
   .scena-foto, .scena-obalka {
     position: relative; inset: auto; transform: none;
@@ -2275,8 +2240,7 @@ body,
    a potřebuje kam. */
 .obsah-ramec > .story { padding-block: 8rem; }
 @media (max-width: 760px) {
-  /* Věnec se na telefon nekreslí, takže sekce nepotřebuje místo na jeho přesah.
-     Nad nadpisem zbývalo 138 px bílé. */
+  /* Na telefonu nad nadpisem zbývalo 138 px bílé. */
   .obsah-ramec > .story { padding-block: 2.2rem; }
 }
 
