@@ -1,0 +1,147 @@
+/* Fotky na šňůře (Snura.tsx). Polaroid je čtverec s širším spodním pruhem,
+   visí na kolíčku a natáčí se kolem něj (transform-origin nahoře uprostřed). */
+
+.obal {
+  --inkoust: #2b2925;
+  --hneda: #6b5340;
+  --zlato: #a8874a;
+  --provazek: #b5a184;
+  --sirka: 232px;
+  --mezera: 46px;
+  --pruves: 56px;
+  /* odstup provázku od horní hrany pásu (místo na kolíčky) */
+  --uchyt: 34px;
+}
+.hlavicka { text-align: center; }
+
+/* ---------- pás ---------- */
+.pas {
+  /* přes celou šířku okna, ne jen obsahu sekce */
+  margin-inline: -16px;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 8vw;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  cursor: grab;
+  /* kraje se ztrácí, ať je jasné, že šňůra pokračuje */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.pas::-webkit-scrollbar { display: none; }
+.pas[data-tah="true"] { scroll-snap-type: none; cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.pas:focus-visible { outline: 2px solid var(--zlato); outline-offset: -4px; }
+
+.snura {
+  position: relative;
+  width: max-content;
+  padding: 0 8vw;
+}
+/* Úsek provázku: od středu fotky (kolíček) ke středu další. Výška krabičky
+   = průvěs / 0,8, aby 80 jednotek SVG odpovídalo celému průvěsu. */
+.usek {
+  position: absolute; left: 50%; top: -9px; z-index: 0;
+  width: calc(100% + var(--mezera)); height: calc(var(--pruves) / .8);
+  overflow: visible; pointer-events: none;
+}
+.usek path { fill: none; stroke: var(--provazek); stroke-width: 1.3; }
+/* volné konce ke krajům pásu */
+.konecL { left: auto; right: 50%; width: calc(8vw + 50% + 16px); }
+.konecP { width: calc(8vw + 50% + 16px); }
+
+.fotky {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: var(--mezera);
+  /* nahoře místo na kolíčky, dole na natočení a stín */
+  padding-block: var(--uchyt) calc(var(--pruves) + 1.8rem);
+  position: relative;
+}
+.bod {
+  position: relative;
+  flex: none; width: var(--sirka);
+  scroll-snap-align: center;
+}
+
+/* ---------- polaroid na kolíčku ---------- */
+.zaves {
+  position: relative; z-index: 1; margin: 0;
+  translate: 0 calc(var(--k) * var(--pruves));
+  rotate: var(--rot);
+  transform-origin: 50% 0;
+  background: #fff;
+  padding: 11px 11px 0;
+  box-shadow:
+    0 1px 2px rgb(43 41 37 / .12),
+    0 18px 28px -16px rgb(43 41 37 / .45);
+}
+.ram { display: block; aspect-ratio: 1; overflow: hidden; background: #f1ede6; }
+.ram img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; user-select: none; }
+.popis {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 58px; padding: 6px 6px 8px;
+  font-family: var(--s1-rukopis), cursive;
+  font-size: 1.3rem; line-height: 1.15; text-align: center;
+  color: var(--hneda);
+  text-wrap: balance;
+}
+
+/* dřevěný kolíček přes horní hranu fotky; středem pružinka */
+.kolicek {
+  position: absolute; left: 50%; top: -24px; z-index: 2;
+  width: 12px; height: 40px; margin-left: -6px;
+  border-radius: 3px 3px 2px 2px;
+  background: linear-gradient(90deg, #b38c5f, #e3c9a1 42%, #d2b183 58%, #a98154);
+  box-shadow: 0 2px 3px rgb(43 41 37 / .3);
+}
+.kolicek::after {
+  content: ""; position: absolute; left: -2px; right: -2px; top: 13px; height: 5px;
+  border-radius: 2px;
+  background: linear-gradient(#cfd2d4, #8f9397);
+}
+
+/* jemné houpnutí kolem kolíčku při najetí myší */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .bod:hover .zaves { animation: houpnuti 1.7s cubic-bezier(.36, .07, .19, .97); }
+}
+@keyframes houpnuti {
+  0%   { rotate: var(--rot); }
+  22%  { rotate: calc(var(--rot) + 3.5deg); }
+  48%  { rotate: calc(var(--rot) - 2.4deg); }
+  72%  { rotate: calc(var(--rot) + 1.1deg); }
+  100% { rotate: var(--rot); }
+}
+
+/* ---------- ovládání ---------- */
+.ovladani {
+  display: flex; align-items: center; justify-content: center; gap: 1.2rem;
+  margin-top: -.6rem;
+}
+.sipka {
+  width: 44px; height: 44px; border: 0; background: none;
+  font: 400 1.7rem/1 var(--serif), Georgia, serif; color: var(--hneda);
+  cursor: pointer;
+}
+.sipka:disabled { opacity: .25; cursor: default; }
+.sipka:focus-visible { outline: 2px solid var(--zlato); outline-offset: 2px; }
+.napoveda { font-size: .68rem; letter-spacing: .3em; text-transform: uppercase; color: #8a755c; }
+
+/* ---------- dopis ---------- */
+.dopis { max-width: 36rem; margin: 2.6rem auto 0; text-align: center; }
+.osloveni, .podpis {
+  font-family: var(--s1-rukopis), cursive; color: var(--hneda);
+  font-size: 1.8rem; line-height: 1.2; margin: 0;
+}
+.text {
+  margin: .9rem 0 1.1rem;
+  font-family: var(--serif), Georgia, serif; font-size: 1.22rem; line-height: 1.7;
+  color: var(--inkoust); text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  .obal { --sirka: 64vw; --mezera: 20px; --pruves: 30px; }
+  .pas { scroll-padding-inline: 18vw; }
+  .snura { padding: 0 18vw; }
+  .popis { font-size: 1.2rem; min-height: 52px; }
+  .napoveda { font-size: .62rem; }
+  .text { font-size: 1.08rem; }
+}

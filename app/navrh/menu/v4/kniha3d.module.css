@@ -1,0 +1,99 @@
+.obal {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+/* Plátno: na šířku na počítači, na výšku na telefonu. Výška se hlídá i podle
+   okna, aby se scéna i s tlačítkem vešla na obrazovku. */
+.scena3d {
+  position: relative;
+  width: min(100%, 1120px, calc((100vh - 150px) * 1.35));
+  aspect-ratio: 1.35;
+}
+/* Květiny u kraje plátna nesmí končit rovným řezem — okraje se ztrácejí. */
+.scena3d canvas {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
+    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
+    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
+
+.nacitam {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; letter-spacing: .24em; text-transform: uppercase;
+  color: #a8874a;
+  animation: dychani 1.6s ease-in-out infinite alternate;
+}
+@keyframes dychani { from { opacity: .35; } to { opacity: 1; } }
+
+/* Celé plátno je jedno tlačítko: klepnutí otevře / zavře. */
+.dotyk {
+  position: absolute; inset: 0; z-index: 1;
+  border: 0; padding: 0; margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* svislý posun stránky nechat prohlížeči, vodorovné táhnutí je naše */
+  touch-action: pan-y;
+  border-radius: 12px;
+}
+.dotyk:focus-visible { outline: 2px solid #a8874a; outline-offset: -2px; }
+
+.ctecky {
+  position: absolute !important;
+  width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.ovladani {
+  margin-top: .6rem;
+  display: flex; flex-direction: column; align-items: center; gap: .8rem;
+}
+.tlacitko, .prepinac button {
+  font: inherit; font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #6b5340; background: transparent;
+  border: 1px solid color-mix(in srgb, #a8874a 60%, transparent);
+  border-radius: 999px;
+  padding: .7em 1.7em;
+  cursor: pointer;
+  transition: background-color .2s, color .2s, opacity .2s;
+}
+.tlacitko:disabled { opacity: .4; cursor: default; }
+.tlacitko:hover:not(:disabled), .prepinac button:hover { background: #ece5d8; }
+.tlacitko:focus-visible, .prepinac button:focus-visible { outline: 2px solid #a8874a; outline-offset: 3px; }
+.prepinac {
+  position: absolute; left: 50%; bottom: 10px; z-index: 2;
+  display: flex; gap: .4rem;
+  transform: translateX(-50%);
+  padding: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #fbf8f2 88%, transparent);
+  box-shadow: 0 6px 18px -8px rgba(90, 70, 50, .35);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s ease, visibility 0s .35s;
+}
+.prepinacVidet { opacity: 1; visibility: visible; transition: opacity .45s ease .9s, visibility 0s .9s; }
+.prepinac button { padding: .55em 1.3em; font-size: .7rem; white-space: nowrap; }
+.prepinac button[aria-pressed="true"] { background: #a8874a; color: #fbf9f4; }
+
+@media (max-width: 720px) {
+  .scena3d { width: min(100%, calc((100vh - 170px) * .66)); aspect-ratio: .66; }
+  .scena3d canvas {
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 4%, #000 96%, transparent),
+      linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+    mask-image:
+      linear-gradient(to right, transparent, #000 4%, #000 96%, transparent),
+      linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nacitam { animation: none; }
+}

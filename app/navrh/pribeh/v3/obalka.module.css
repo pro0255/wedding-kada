@@ -1,0 +1,187 @@
+/* Obálka plná fotek (ObalkaFotek.tsx). Scéna drží poměr stran a všechny
+   rozměry jsou v cqw = procentech šířky scény — stejné zlomky počítá
+   v JS funkce geo(). Pod 600 px šířky scény platí telefonní rozložení. */
+
+.obal {
+  --inkoust: #2b2925;
+  --hneda: #6b5340;
+  --tlumena: #8d8378;
+  --zlato: #a8874a;
+  max-width: 1000px;
+  margin: 0 auto;
+  container-type: inline-size;
+}
+
+.hlavicka { text-align: center; margin-bottom: 1.4rem; }
+.eyebrow {
+  margin: 0 0 1rem;
+  font-family: var(--sans), sans-serif; font-size: .68rem; letter-spacing: .4em; text-transform: uppercase;
+  color: var(--tlumena);
+}
+.nadpis { margin: 0; }
+
+.scena {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 740;
+  /* zvětšená zavřená obálka i vějíř smí přesahovat, nic se neořezává */
+  overflow: visible;
+}
+.svet {
+  position: absolute; inset: 0;
+  /* zvětšuje se kolem středu obálky */
+  transform-origin: 50% 57.4cqw;
+}
+
+/* ---------- díly obálky: všechny na stejném místě scény ---------- */
+.dil {
+  position: absolute;
+  left: 27cqw; top: 43cqw; width: 46cqw; height: 28.75cqw;
+  display: block;
+}
+.zadek {
+  z-index: 1;
+  border-radius: .6cqw;
+  filter: drop-shadow(0 1.6cqw 2.4cqw rgb(63 52 43 / .22));
+}
+.kapsa { z-index: 3; pointer-events: none; }
+.vrchniDily { z-index: 3; pointer-events: none; }
+.chlopenStin { position: absolute; left: 0; top: 0; width: 100%; height: 58%; }
+.chlopen {
+  z-index: 4;
+  height: calc(28.75cqw * .58);
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.chlopenLic, .chlopenRub {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.chlopenRub { transform: rotateX(180deg); }
+
+.pecetMisto { z-index: 5; pointer-events: none; }
+.pecet {
+  position: absolute; left: 50%; top: 52%;
+  width: 15%; aspect-ratio: 400 / 424;
+  translate: -50% -50%;
+}
+.pecetL, .pecetP {
+  position: absolute; inset: 0;
+  background: url("/obalka/vosk.webp") center / 100% 100% no-repeat;
+}
+.pecetL { clip-path: polygon(0 0, 54% 0, 46% 38%, 55% 62%, 47% 100%, 0 100%); }
+.pecetP { clip-path: polygon(54% 0, 100% 0, 100% 100%, 47% 100%, 55% 62%, 46% 38%); }
+
+.otevrit {
+  z-index: 10;
+  margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.otevrit:focus-visible { outline: 2px solid var(--zlato); outline-offset: 6px; }
+
+/* ---------- karty ---------- */
+.vrstva {
+  position: absolute; inset: 0;
+  z-index: 2;
+  touch-action: pan-y;
+  pointer-events: none;
+}
+.scena[data-otevreno="true"] .vrstva { pointer-events: auto; }
+.karta {
+  position: absolute; left: 50%; top: 0;
+  width: 36cqw; aspect-ratio: 1 / 1.22;
+  margin: 0; padding: 0; border: 0;
+  container-type: inline-size;
+  cursor: pointer;
+  user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 .3cqw .8cqw rgb(63 52 43 / .14), 0 2.4cqw 4cqw -2cqw rgb(63 52 43 / .3);
+  backface-visibility: hidden;
+}
+.karta:focus-visible { outline: 2px solid var(--zlato); outline-offset: 4px; }
+
+.polaroid {
+  display: flex; flex-direction: column;
+  background: #fff;
+  padding: 5cqi 5cqi 0;
+}
+.polaroid img {
+  display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+  -webkit-user-drag: none; pointer-events: none;
+}
+/* Popisek: kurzíva Cormorantu — klidná, čitelná, sedí k nadpisům webu. */
+.popis {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 0 4cqi;
+  font-family: var(--serif), Georgia, serif; font-style: italic; font-weight: 500;
+  font-size: clamp(13px, 7cqi, 26px); line-height: 1.1;
+  color: var(--inkoust);
+  text-align: center;
+}
+
+.dopis {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 9cqi 9cqi;
+  background-color: #fbf9f4;
+  background-image: url("/obalka/papir.webp");
+  background-size: 40cqi auto;
+  background-blend-mode: soft-light;
+  outline: 1px solid color-mix(in srgb, var(--zlato) 45%, transparent);
+  outline-offset: -3.4cqi;
+  text-align: left; color: var(--inkoust);
+}
+.osloveni {
+  font-family: var(--serif), Georgia, serif; font-style: italic; font-weight: 500;
+  font-size: clamp(16px, 7.5cqi, 28px); line-height: 1; color: var(--zlato);
+  margin-bottom: 4cqi;
+}
+.text {
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: clamp(12.5px, 4.15cqi, 17px); line-height: 1.42;
+  text-wrap: pretty;
+}
+.podpis {
+  align-self: flex-end; margin-top: 4.5cqi;
+  font-family: var(--serif), Georgia, serif; font-style: italic; font-weight: 500;
+  font-size: clamp(15px, 6.4cqi, 24px); color: var(--zlato);
+}
+
+/* ---------- pod scénou ---------- */
+.pod { min-height: 52px; display: flex; align-items: center; justify-content: center; margin-top: .4rem; }
+.pokyn {
+  margin: 0; display: flex; align-items: center; gap: .7rem;
+  font-family: var(--sans), sans-serif; font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--tlumena);
+}
+.pokyn::before { content: ""; width: 2rem; height: 1px; background: currentColor; }
+.ovladani { display: flex; align-items: center; gap: .6rem; }
+.sipka {
+  width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+  font-size: 1.5rem; color: var(--hneda);
+}
+.pocet {
+  min-width: 4.5rem; text-align: center;
+  font-family: var(--serif), Georgia, serif; font-size: 1.1rem; color: var(--hneda);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.zavrit {
+  margin-left: 1.2rem; padding: .55rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--zlato) 60%, transparent); background: none; cursor: pointer;
+  font-family: var(--sans), sans-serif; font-size: .64rem; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--hneda);
+}
+.sipka:focus-visible, .zavrit:focus-visible { outline: 2px solid var(--zlato); outline-offset: 2px; }
+
+/* ---------- telefon (scéna užší než 600 px) ---------- */
+@container (max-width: 599px) {
+  .scena { aspect-ratio: 1 / 1.4; }
+  .svet { transform-origin: 50% 110.75cqw; }
+  .dil { left: 8cqw; top: 84.5cqw; width: 84cqw; height: 52.5cqw; }
+  .chlopen { height: calc(52.5cqw * .58); }
+  .karta { width: 66cqw; aspect-ratio: 1 / 1.32; }
+  .dopis { padding: 8cqi 8cqi; }
+  .text { line-height: 1.38; }
+  .ovladani { flex-wrap: wrap; justify-content: center; }
+  .zavrit { margin-left: .4rem; }
+}

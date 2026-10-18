@@ -1,0 +1,93 @@
+/* Návrh 3 — karty v kapse. --W/--H je rozměr jedné karty. */
+.obal {
+  --W: min(340px, calc((100vw - 80px) / 2.12), calc((100vh - 240px) / 1.45));
+  --H: calc(var(--W) * 1.45);
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+}
+
+.stul {
+  position: relative;
+  width: calc(var(--W) * 2.12);
+  height: calc(var(--H) * 1.1);
+  /* místo nad kapsou, kam se karty vytahují */
+  margin-top: calc(var(--H) * .3);
+}
+
+.karty { position: absolute; inset: 0; }
+.karta {
+  position: absolute; top: 0; left: 50%;
+  width: var(--W); height: var(--H);
+  margin-left: calc(var(--W) / -2);
+  box-shadow: 0 18px 38px -14px rgba(90, 70, 50, .32), 0 3px 8px rgba(90, 70, 50, .08);
+  will-change: transform;
+}
+
+/* ---------- kapsa ---------- */
+.kapsaZadni, .kapsaPredni {
+  position: absolute; left: 50%;
+  top: calc(var(--H) * .14);
+  width: calc(var(--W) * 1.1);
+  height: calc(var(--H) * .94);
+  margin-left: calc(var(--W) * -.55);
+  will-change: transform, opacity;
+}
+.kapsaZadni {
+  background: #e4dac8;
+  border-radius: 3px;
+  box-shadow: 0 24px 46px -16px rgba(90, 70, 50, .38), 0 4px 10px rgba(90, 70, 50, .1);
+}
+.kapsaPredni { z-index: 5; }
+.kapsaTvar { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.kapsaPlocha { fill: #ece5d8; }
+.kapsaLinka { fill: none; stroke: #a8874a; stroke-width: 1; opacity: .75; }
+
+.kapsaTlacitko {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding-top: 12%;
+  border: 0; background: transparent; font: inherit; color: #a8874a;
+  cursor: pointer;
+  container-type: inline-size;
+}
+.kapsaTlacitko:focus-visible { outline: 2px solid #a8874a; outline-offset: 4px; }
+.kapsaNazev {
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: 13cqi; line-height: 1; letter-spacing: .26em; margin-right: -.26em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.kapsaMonogram {
+  margin-top: 4cqi;
+  font-family: var(--serif), Georgia, serif; font-style: italic;
+  font-size: 8cqi;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.kapsaDatum {
+  margin-top: 4cqi;
+  font-size: 2.9cqi; letter-spacing: .4em; margin-right: -.4em;
+}
+
+/* ---------- ovládání ---------- */
+.ovladani {
+  margin-top: 1.6rem;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+.tlacitko, .prepinac button {
+  font: inherit; font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #6b5340; background: transparent;
+  border: 1px solid color-mix(in srgb, #a8874a 60%, transparent);
+  border-radius: 999px;
+  padding: .7em 1.7em;
+  cursor: pointer;
+  transition: background-color .2s, color .2s;
+}
+.tlacitko:hover, .prepinac button:hover { background: #ece5d8; }
+.tlacitko:focus-visible, .prepinac button:focus-visible { outline: 2px solid #a8874a; outline-offset: 3px; }
+.prepinac { display: flex; gap: .5rem; }
+.prepinac button[aria-pressed="true"] { background: #a8874a; color: #fbf9f4; }
+
+@media (max-width: 720px) {
+  .obal { --W: min(calc(100vw - 64px), 360px); }
+  .stul { width: calc(var(--W) + 24px); margin-top: calc(var(--H) * .12); }
+}

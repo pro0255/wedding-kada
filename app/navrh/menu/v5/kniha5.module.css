@@ -1,0 +1,57 @@
+/* Rozměry knihy stejné jako v návrhu 1 (v1/kniha.module.css), ať květiny
+   sedí kolem desek. --D šířka desky, --H výška. */
+.stul {
+  --D: min(clamp(260px, 32vw, 420px), calc((100vh - 140px) / 1.5));
+  --H: calc(var(--D) * 1.42);
+  position: relative;
+  width: 100%;
+}
+
+/* Vrstva květin: počátek je střed horní hrany zavřené knihy. */
+.kvetiny {
+  position: absolute; left: 50%; top: 1rem;
+  width: 0; height: 0;
+  pointer-events: none;
+}
+.kvet {
+  position: absolute;
+  height: auto;
+  max-width: none;
+  /* Pravé barvy květin: žádný filtr ani stín, nic se tu neanimuje. */
+  translate: -50% -50%;
+}
+/* Shluk vpravo nahoře u rohu desek a vlevo dole — po úhlopříčce, jak se
+   květiny kladou kolem menu na stůl. Nahoře nesmí přes nadpis stránky. */
+.k1 { left: calc(var(--D) * .56); top: calc(var(--D) * .02); width: calc(var(--D) * .28); rotate: 40deg; }
+.k2 { left: calc(var(--D) * .72); top: calc(var(--D) * .22); width: calc(var(--D) * .48); rotate: 12deg; }
+.k3 { left: calc(var(--D) * .84); top: calc(var(--D) * .58); width: calc(var(--D) * .4); rotate: -18deg; }
+.k4 { left: calc(var(--D) * .66); top: calc(var(--D) * .98); width: calc(var(--D) * .14); rotate: -28deg; }
+.k5 { left: calc(var(--D) * -.64); top: calc(var(--H) - var(--D) * .12); width: calc(var(--D) * .42); rotate: 10deg; }
+.k6 { left: calc(var(--D) * -.46); top: calc(var(--H) + var(--D) * .1); width: calc(var(--D) * .27); rotate: -12deg; }
+.k7 { left: calc(var(--D) * -.74); top: calc(var(--H) - var(--D) * .5); width: calc(var(--D) * .18); rotate: -10deg; }
+
+/* Prstýnky: pod knihou vpravo, kousek přes její spodní hranu. */
+.prstynky {
+  position: relative; z-index: 2;
+  width: calc(var(--D) * .62);
+  aspect-ratio: 1.5;
+  margin-top: calc(var(--D) * -.24);
+  margin-bottom: calc(var(--D) * -.08);
+  translate: calc(var(--D) * .42) 0;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .stul { --D: min(calc(100vw - 48px), 400px); }
+  .k1 { left: calc(var(--D) * .36); top: calc(var(--D) * .06); width: calc(var(--D) * .24); }
+  .k2 { left: calc(var(--D) * .5); top: calc(var(--D) * .14); width: calc(var(--D) * .4); }
+  .k3 { left: calc(var(--D) * .54); top: calc(var(--D) * .46); width: calc(var(--D) * .3); }
+  .k4, .k7 { display: none; }
+  .k5 { left: calc(var(--D) * -.44); top: calc(var(--H) + var(--D) * .02); width: calc(var(--D) * .34); }
+  .k6 { left: calc(var(--D) * -.2); top: calc(var(--H) + var(--D) * .14); width: calc(var(--D) * .22); }
+  .prstynky {
+    width: calc(var(--D) * .55);
+    margin-top: calc(var(--D) * -.16);
+    translate: calc(var(--D) * .26) 0;
+  }
+}

@@ -1,0 +1,35 @@
+/* Ukazatel plynulosti v rohu návrhů — malý, ať nezakrývá scénu. */
+.meric {
+  --barva: #8a8376;
+  position: fixed; z-index: 1000;
+  /* vpravo — vlevo dole sedí v dev režimu ikonka Next.js */
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 6px; justify-items: end;
+  font: 500 12px/1.3 var(--sans), system-ui, sans-serif;
+  color: #2b2a28;
+  max-width: min(360px, calc(100vw - 24px));
+}
+.meric[data-stav="dobre"] { --barva: #4f8a5b; }
+.meric[data-stav="hrana"] { --barva: #c08a2e; }
+.meric[data-stav="spatne"] { --barva: #b4483a; }
+
+.pilulka {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid color-mix(in srgb, var(--barva) 45%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
+  font: inherit; color: inherit; cursor: pointer;
+}
+.tecka { width: 9px; height: 9px; border-radius: 50%; background: var(--barva); flex: none; }
+
+.detail {
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid #ddd5c8; border-radius: 10px;
+  padding: 10px 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+  font-weight: 400;
+}
+.detail p { margin: 0 0 6px; }
+.detail ul, .detail ol { margin: 0 0 6px; padding-left: 18px; }
+.nadpis { font-weight: 600; margin-top: 4px !important; }

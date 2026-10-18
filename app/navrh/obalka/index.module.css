@@ -1,0 +1,80 @@
+.stranka {
+  min-height: 100vh;
+  /* pozadí přes celou šířku, obsah v sloupci 760 px */
+  padding: 28px max(16px, calc((100% - 760px) / 2)) 80px;
+  background: #f5f2ec;
+  color: #3f342b;
+  font-family: var(--sans), system-ui, sans-serif;
+}
+.zpet {
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.7;
+  text-decoration: none;
+}
+.zpet:hover,
+.zpet:focus-visible {
+  opacity: 1;
+  text-decoration: underline;
+}
+.nadpis {
+  margin: 14px 0 8px;
+  font-family: var(--serif), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(28px, 5vw, 40px);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.uvod {
+  margin: 0 0 28px;
+  line-height: 1.55;
+  opacity: 0.8;
+}
+.seznam {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.karta {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  background: #fbf9f4;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgb(63 52 43 / 0.08), 0 8px 24px -12px rgb(63 52 43 / 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.karta:hover,
+.karta:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgb(63 52 43 / 0.08), 0 14px 30px -12px rgb(63 52 43 / 0.32);
+}
+.karta:focus-visible {
+  outline: 2px solid #3f342b;
+  outline-offset: 3px;
+}
+.kartaNazev {
+  font-family: var(--serif), Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+.kartaPopis {
+  font-size: 14.5px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+.zdroje {
+  margin-top: 28px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  opacity: 0.6;
+}
+@media (prefers-reduced-motion: reduce) {
+  .karta {
+    transition: none;
+  }
+}

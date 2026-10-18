@@ -1,0 +1,351 @@
+/* V2 — CSS 3D obálka. Rozměry v % / cqw, takže drží poměr v každé šířce.
+   Animuje se jen transform + opacity (z-index se jen přepne v daný okamžik).
+   Žádné filtry ani box-shadow v pohybu; will-change jen kolem animace
+   (data-pripraveno, viz ObalkaCss.tsx); skryté plochy se předem jednou
+   vykreslí (data-predehrev), ať se nerasterizují až v prvním snímku. */
+
+.obalka {
+  --pruzina: linear(0, 0.07 3%, 0.26 8%, 0.56 14%, 0.84 21%, 1.01 28%, 1.05 34%, 1.035 42%, 1.005 55%, 0.996 70%, 1);
+  --ven: cubic-bezier(0.22, 1, 0.36, 1);
+  --tam: cubic-bezier(0.65, 0, 0.35, 1);
+  position: relative;
+  aspect-ratio: 1.6;
+  container-type: inline-size;
+  transform: rotate(4deg);
+}
+
+/* ---------- statické vrstvy ---------- */
+.zadek,
+.kapsa,
+.chlopenStin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  display: block;
+}
+.zadek {
+  height: 100%;
+  z-index: 1;
+  border-radius: 1.2cqw;
+  box-shadow:
+    0 0.3cqw 0.6cqw rgb(63 52 43 / 0.12),
+    0 3cqw 6cqw -1.5cqw rgb(63 52 43 / 0.3);
+}
+.kapsa {
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+.chlopenStin {
+  height: 58%;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.3s ease 1.25s;
+}
+
+/* ---------- chlopeň ---------- */
+.chlopen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 58%;
+  z-index: 4;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  transform: perspective(1400px) rotateX(0deg);
+  pointer-events: none;
+  /* zavírání: chlopeň jde dolů až po zasunutí dopisu */
+  transition:
+    transform 0.75s var(--tam) 1.2s,
+    z-index 0s linear 1.55s;
+}
+.chlopenLic,
+.chlopenRub {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.chlopenRub {
+  transform: rotateX(180deg);
+}
+
+/* ---------- pečeť ---------- */
+.pecet {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 52%;
+  width: 15cqw;
+  aspect-ratio: 400 / 424;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+.pecetL,
+.pecetP {
+  position: absolute;
+  inset: 0;
+  background: url("/obalka/vosk.webp") center / 100% 100% no-repeat;
+  /* zavírání: pečeť se vrátí jako poslední, s pružinou */
+  transition:
+    transform 0.6s var(--pruzina) 1.85s,
+    opacity 0.2s ease 1.85s;
+}
+.pecetL {
+  clip-path: polygon(0 0, 54% 0, 46% 38%, 55% 62%, 47% 100%, 0 100%);
+}
+.pecetP {
+  clip-path: polygon(54% 0, 100% 0, 100% 100%, 47% 100%, 55% 62%, 46% 38%);
+}
+
+/* ---------- dopis ---------- */
+.zdvih {
+  position: absolute;
+  left: 5%;
+  top: 6%;
+  width: 90%;
+  height: 88%;
+  z-index: 2;
+  /* zavírání: počká, až se dopis složí a zvedne, pak sjede dolů a skočí pod kapsu */
+  transition:
+    transform 0.6s var(--tam) 0.75s,
+    z-index 0s linear 0.75s;
+}
+.usazeni {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  transition: transform 0.45s var(--tam) 0.35s;
+}
+.polovinaHorni,
+.dolniLic,
+.dolniRub {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: #fbf9f4;
+  background-image: url("/navrh/obalka/papir.webp");
+  background-size: 12cqw auto;
+  background-blend-mode: soft-light;
+}
+.polovinaHorni {
+  border-radius: 0.6cqw 0.6cqw 0 0;
+  box-shadow: 0 0.2cqw 0.6cqw rgb(63 52 43 / 0.12);
+}
+.polovinaDolni {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  transform: perspective(1600px) rotateX(180deg);
+  transition: transform 0.55s var(--tam) 0s;
+}
+.dolniLic,
+.dolniRub {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.dolniLic {
+  border-radius: 0 0 0.6cqw 0.6cqw;
+  box-shadow: 0 1.5cqw 3cqw -1cqw rgb(63 52 43 / 0.25);
+}
+.dolniRub {
+  transform: rotateX(180deg);
+  display: grid;
+  place-items: center;
+  border-radius: 0.6cqw;
+  background-color: #f7f3ea;
+}
+/* přehyb: stín u hrany, při rozložení zmizí */
+.dolniStin {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(63 52 43 / 0.22), rgb(63 52 43 / 0) 45%);
+  opacity: 1;
+  transition: opacity 0.5s ease 0s;
+}
+.monogram {
+  font-family: var(--serif), Georgia, serif;
+  font-style: italic;
+  font-size: 7cqw;
+  color: #a68a55;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.obsah {
+  position: relative;
+  height: 200%;
+  padding: 6cqw 6.5cqw 5cqw;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #3f342b;
+}
+.obsahDolni {
+  top: -100%;
+}
+.eyebrow {
+  margin: 0 0 1.2cqw;
+  font-family: var(--sans), system-ui, sans-serif;
+  font-size: clamp(10px, 2.2cqw, 12px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.nadpis {
+  margin: 0 0 2.4cqw;
+  font-family: var(--serif), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(21px, 5.6cqw, 30px);
+  line-height: 1.1;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.text {
+  margin: 0;
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(13.5px, 3.45cqw, 17px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.podpis {
+  margin: 3cqw 0 0;
+  align-self: flex-end;
+  font-family: var(--rukopis), cursive;
+  font-size: clamp(20px, 5cqw, 28px);
+  color: #8a6d3b;
+}
+
+/* ---------- tlačítko přes celou obálku ---------- */
+.tlacitko {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 1.2cqw;
+  -webkit-tap-highlight-color: transparent;
+}
+.tlacitko:focus-visible {
+  outline: 2px solid #3f342b;
+  outline-offset: 6px;
+}
+
+/* ---------- will-change jen kolem animace ----------
+   JS ho zapne při záměru (najetí myší, fokus, dotyk) a vypne chvíli po
+   doběhnutí animace — vrstvy tak nedrží paměť celou dobu, co je stránka otevřená. */
+.obalka[data-pripraveno="true"] :is(.kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
+  will-change: transform;
+}
+.obalka[data-pripraveno="true"] :is(.pecetL, .pecetP, .dolniStin) {
+  will-change: transform, opacity;
+}
+
+/* ---------- předehřátí ----------
+   Na dva snímky po načtení se skryté plochy (rub chlopně s podšívkou, líc
+   spodní půlky dopisu, dopis schovaný v kapse) natočí k divákovi s krytím
+   1 % a vytáhnou nad obálku. Prohlížeč je tak vykreslí a rasterizuje hned,
+   ne až v prvním snímku otevírání. Okem to vidět není. */
+.obalka[data-predehrev="true"] .chlopenRub {
+  transform: rotateX(359.9deg);
+  opacity: 0.01;
+}
+.obalka[data-predehrev="true"] .dolniLic {
+  transform: rotateX(179.9deg);
+  opacity: 0.01;
+}
+.obalka[data-predehrev="true"] .zdvih {
+  z-index: 7;
+  opacity: 0.01;
+  transition: none;
+}
+
+/* ---------- hover: chlopeň pootevře, pečeť povyskočí ---------- */
+@media (hover: hover) {
+  .obalka[data-otevreno="false"]:has(.tlacitko:hover) .chlopen {
+    transform: perspective(1400px) rotateX(16deg);
+    transition: transform 0.45s var(--ven) 0s;
+  }
+  .obalka[data-otevreno="false"]:has(.tlacitko:hover) .pecetL,
+  .obalka[data-otevreno="false"]:has(.tlacitko:hover) .pecetP {
+    transform: translateY(1.2cqw) scale(1.03);
+    transition: transform 0.45s var(--ven) 0s;
+  }
+  .obalka[data-otevreno="false"]:has(.tlacitko:hover) .chlopenStin {
+    opacity: 0.6;
+    transition: opacity 0.3s ease 0s;
+  }
+}
+
+/* ================= OTEVŘENO =================
+   0.00 s pečeť se rozlomí a odpadne
+   0.25 s chlopeň se otočí na pantu (v půlce cesty spadne pod dopis)
+   0.90 s dopis vyjede z kapsy (stále pod kapsou)
+   1.55 s dopis přeskočí nad kapsu, usadí se dopředu a narovná se
+   1.90 s spodní půlka se rozloží */
+.obalka[data-otevreno="true"] .pecetL {
+  transform: translate(-60%, 55%) rotate(-28deg);
+  opacity: 0;
+  transition:
+    transform 0.55s var(--ven) 0s,
+    opacity 0.3s ease 0.22s;
+}
+.obalka[data-otevreno="true"] .pecetP {
+  transform: translate(55%, 70%) rotate(24deg);
+  opacity: 0;
+  transition:
+    transform 0.55s var(--ven) 0.03s,
+    opacity 0.3s ease 0.25s;
+}
+.obalka[data-otevreno="true"] .chlopenStin {
+  opacity: 0;
+  transition: opacity 0.25s ease 0.2s;
+}
+.obalka[data-otevreno="true"] .chlopen {
+  z-index: 0;
+  transform: perspective(1400px) rotateX(180deg);
+  transition:
+    transform 0.8s var(--tam) 0.25s,
+    z-index 0s linear 0.62s;
+}
+.obalka[data-otevreno="true"] .zdvih {
+  z-index: 6;
+  transform: translateY(-118%);
+  transition:
+    transform 0.65s var(--ven) 0.9s,
+    z-index 0s linear 1.55s;
+}
+.obalka[data-otevreno="true"] .usazeni {
+  transform: translateY(-22%) scale(1.03) rotate(-4deg);
+  transition: transform 0.7s var(--pruzina) 1.55s;
+}
+.obalka[data-otevreno="true"] .polovinaDolni {
+  transform: perspective(1600px) rotateX(0deg);
+  transition: transform 0.85s var(--ven) 1.9s;
+}
+.obalka[data-otevreno="true"] .dolniStin {
+  opacity: 0;
+  transition: opacity 0.6s ease 2.2s;
+}
+
+/* omezený pohyb: žádná choreografie, jen okamžitý stav */
+@media (prefers-reduced-motion: reduce) {
+  .obalka *,
+  .obalka[data-otevreno] * {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

@@ -1,0 +1,42 @@
+.rada {
+  --linka: #cbbda6;
+  list-style: none; margin: 3.4rem auto 0; padding: 0 6vw;
+  max-width: 1700px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+}
+.bod {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 0 1rem;
+}
+/* vlásečnice mezi body — jako mezi číslicemi odpočtu */
+.bod + .bod::before {
+  content: ""; position: absolute; left: 0; top: 150px; height: 64px;
+  border-left: 1px solid var(--linka);
+}
+.ikona { width: 100%; max-width: 150px; height: 130px; object-fit: contain; object-position: bottom; margin-bottom: 1.2rem; }
+.cas {
+  font-family: var(--serif), Georgia, serif; font-size: 2.3rem; line-height: 1; color: #6b5340;
+  height: 2.5rem; display: flex; align-items: flex-end; white-space: nowrap;
+}
+.bod:nth-child(n + 6) .cas { font-size: 1.55rem; }
+.nazev {
+  margin-top: 1rem; font-family: var(--serif), Georgia, serif;
+  font-size: 1rem; letter-spacing: .14em; text-transform: uppercase; line-height: 1.35; text-wrap: balance;
+}
+.misto { margin-top: .3rem; font-size: .8rem; font-style: italic; color: #8a755c; }
+.popis { margin-top: .4rem; font-size: .86rem; line-height: 1.5; color: #8a755c; text-wrap: pretty; }
+
+@media (max-width: 900px) {
+  .rada { grid-auto-flow: row; grid-auto-columns: auto; max-width: 480px; padding: 0; }
+  .bod {
+    display: grid; grid-template-columns: 84px 1fr; column-gap: 1rem; text-align: left; align-items: start;
+    padding: 1.1rem 0;
+  }
+  .bod + .bod::before { left: 0; right: 0; top: 0; height: 0; border-left: 0; border-top: 1px solid var(--linka); }
+  .ikona { grid-column: 1; grid-row: 1 / span 4; height: 70px; margin: .2rem 0 0; }
+  .cas, .nazev, .misto, .popis { grid-column: 2; }
+  .cas { font-size: 1.8rem; height: auto; }
+  .bod:nth-child(n + 6) .cas { font-size: 1.4rem; }
+  .nazev { margin-top: .4rem; font-size: .92rem; }
+}
