@@ -188,12 +188,15 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
 .loader-vstup,
 .loader-quote,
 .loader-vyzva { position: relative; z-index: 2; }
-/* Iniciály a pod nimi datum svatby. Sloupec s vlastní malou mezerou — .loader
-   má gap 2.4rem a ten by dvojici roztrhl na dva samostatné řádky. */
+/* Jména a pod nimi datum svatby. Sloupec s vlastní malou mezerou — .loader
+   má gap 2.4rem a ten by dvojici roztrhl na dva samostatné řádky. Dřív tu
+   byly iniciály „K & J“ s prostrkáním .45em; celá jména mají proklad menší,
+   ať se na telefonu vejdou na řádek. */
 .loader-brand {
   display: flex; flex-direction: column; align-items: center; gap: .7rem;
   font-family: var(--serif), Georgia, serif;
-  letter-spacing: .45em; font-size: 1.25rem; color: var(--ink-soft);
+  letter-spacing: .2em; font-size: 1.25rem; color: var(--ink-soft);
+  white-space: nowrap;
 }
 /* Datum je to hlavní, co si má host z úvodní obrazovky odnést, takže plná
    tmavá barva a větší stupeň než iniciály. Průhlednost tu dřív byla taky

@@ -107,8 +107,10 @@
   /* Jemná ražba: světlá hrana zdola, nic víc. P2 je ploché a klidné. */
   text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
 }
+/* Celá jména (dřív iniciály „K & J“ v 9cqi) — menší stupeň, ať se vejdou
+   na řádek mezi zlatý rámeček. */
 .licMonogram {
-  font-size: 9cqi; font-style: italic; letter-spacing: .08em;
+  font-size: 7cqi; font-style: italic; letter-spacing: .04em; white-space: nowrap;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
 }
 .licDatum {

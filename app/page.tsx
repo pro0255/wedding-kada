@@ -531,7 +531,7 @@ function UvodniObrazovka() {
         ))}
       </svg>
       <div className="loader-brand">
-        K &amp; J
+        Kateřina &amp; Jakub
         <span className="loader-date">18 · 09 · 2027</span>
       </div>
       {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal

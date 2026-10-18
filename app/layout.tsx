@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     description: "Bereme se — a chceme vás u toho. 18. 9. 2027 u zvoničky v Rekovicích.",
   },
   twitter: { card: "summary_large_image" },
-  appleWebApp: { capable: true, title: "Svatba K & J", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Kateřina & Jakub", statusBarStyle: "default" },
   icons: { apple: "/ikony/apple-180.png" },
 };
 

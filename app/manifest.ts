@@ -5,7 +5,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Svatba Kateřina & Jakub",
-    short_name: "Svatba K & J",
+    short_name: "Kateřina & Jakub",
     description: "Bereme se — a chceme vás u toho. 18. 9. 2027, Rekovice.",
     start_url: "/",
     display: "standalone",

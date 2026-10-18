@@ -274,7 +274,7 @@
   padding-top: 2mm;
 }
 
-/* Iniciály hned pod rámečkem, patkové verzálky jako jména na hlavní kartě. */
+/* Jména hned pod rámečkem, patkové písmo jako jména na hlavní kartě. */
 .rubJmena {
   font-family: var(--serif), Georgia, serif;
   font-size: 8mm;

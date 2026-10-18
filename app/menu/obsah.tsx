@@ -88,7 +88,7 @@ export const Lic = memo(function Lic() {
       <span className={s.licRamecek} aria-hidden="true" />
       <span className={s.licNazev}>Menu</span>
       <Ornament />
-      <span className={s.licMonogram}>K &amp; J</span>
+      <span className={s.licMonogram}>Kateřina &amp; Jakub</span>
       <span className={s.licDatum}>18 · 09 · 2027</span>
     </span>
   );
