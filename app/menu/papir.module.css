@@ -1,0 +1,118 @@
+/* Papír a sazba menu: klidné, ploché, tenký zlatý rámeček uvnitř. Velikosti
+   písma jsou v cqi — jednotkách šířky samotné strany — takže text roste
+   a zmenšuje se se stranou, na počítači i na telefonu. */
+
+.papir {
+  --krem: #f5f2ec;
+  --bezova: #ece5d8;
+  --list: #fdfcf9;
+  --inkoust: #6b5340;
+  --zlato: #a8874a;
+
+  container-type: inline-size;
+  position: absolute; inset: 0;
+  display: flex;
+  background: var(--list);
+  color: var(--inkoust);
+  /* Tenký zlatý rám kousek od kraje, jako na tištěné kartě. */
+  outline: 1px solid color-mix(in srgb, var(--zlato) 55%, transparent);
+  outline-offset: -14px;
+}
+
+.obsah {
+  flex: 1;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 9cqi 9cqi;
+  text-align: center;
+}
+
+.nadstrana, .preji {
+  font-family: var(--serif), Georgia, serif;
+  font-weight: 500;
+  font-size: 4.6cqi;
+  letter-spacing: .28em; text-transform: uppercase;
+  /* proložení přidává mezeru i za poslední písmeno — vyrovnat, ať je na středu */
+  margin-right: -.28em;
+}
+
+.ornament {
+  width: 30cqi; height: auto; margin: 3cqi 0 5cqi;
+  stroke: var(--zlato); stroke-width: 1; fill: var(--zlato);
+  overflow: visible;
+}
+.ornament line { stroke-width: .8; }
+
+.uvod {
+  font-family: var(--serif), Georgia, serif; font-style: italic;
+  font-size: max(12.5px, 3.7cqi); line-height: 1.5;
+  margin: -1cqi 0 5.5cqi;
+  max-width: 86%;
+}
+
+.chody { list-style: none; margin: 0; padding: 0; width: 100%; }
+.chody li + li { margin-top: 5cqi; }
+
+.kurz {
+  display: block;
+  font-family: var(--sans), sans-serif; font-weight: 400;
+  font-size: max(9.5px, 2.4cqi); letter-spacing: .32em; text-transform: uppercase;
+  color: var(--zlato);
+  margin-bottom: 1.4cqi;
+}
+.jidlo {
+  display: block;
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: max(16px, 5.1cqi); line-height: 1.2;
+}
+.detail {
+  display: block; margin-top: 1.2cqi;
+  font-family: var(--serif), Georgia, serif; font-style: italic;
+  font-size: max(13px, 3.7cqi); line-height: 1.35;
+}
+
+.alergeny {
+  margin-top: 6cqi;
+  font-size: max(10.5px, 2.7cqi); line-height: 1.55;
+  max-width: 90%;
+}
+
+.preji {
+  margin-top: 6cqi; padding-top: 4cqi;
+  font-size: 3.6cqi;
+  border-top: 1px solid color-mix(in srgb, var(--zlato) 45%, transparent);
+}
+
+/* --- líc desek --- */
+.lic {
+  container-type: inline-size;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #fbf8f2;
+  color: #a8874a;
+  font-family: var(--serif), Georgia, serif;
+  --zlato: #a8874a;
+}
+.licRamecek {
+  position: absolute; inset: 5.5cqi;
+  border: 1px solid color-mix(in srgb, #a8874a 70%, transparent);
+  pointer-events: none;
+}
+.licRamecek::after {
+  content: ""; position: absolute; inset: 5px;
+  border: 1px solid color-mix(in srgb, #a8874a 35%, transparent);
+}
+.licNazev {
+  font-size: 15cqi; font-weight: 500; line-height: 1;
+  letter-spacing: .26em; margin-right: -.26em; text-transform: uppercase;
+  /* Jemná ražba: světlá hrana zdola, nic víc. P2 je ploché a klidné. */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.licMonogram {
+  font-size: 9cqi; font-style: italic; letter-spacing: .08em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.licDatum {
+  margin-top: 4cqi;
+  font-family: var(--sans), sans-serif; font-weight: 400;
+  font-size: 3.2cqi; letter-spacing: .4em; margin-right: -.4em;
+}

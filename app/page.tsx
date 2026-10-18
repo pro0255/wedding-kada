@@ -22,6 +22,8 @@ import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
+import ObalkaPosta from "./pribeh/ObalkaPosta";
+import Kniha from "./menu/Kniha";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -372,134 +374,6 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
   { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
 ];
 
-/* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
-   modré obálky — zavřené a otevřené (public/fotky). Vrstvy pro web z nich
-   vyřezává scripts/obalka-web.mjs.
-
-   Otevřená obálka je rozřezaná na dvě vrstvy, zadek a předek, a papír s textem
-   leží mezi nimi. Jinak by papír buď překryl celou obálku, nebo zmizel za ní —
-   dovnitř by se nedostal. Pořadí drží z-index: zadek 0, papír 1, předek 2,
-   zavřená obálka 3, pečeť 4.
-
-   Aby to fungovalo, nesmí <button> kolem vrstev založit vlastní vrstvení —
-   proto má position: relative, ale žádný z-index. Papír je jeho sourozenec
-   a mezi obrázky se vejde jen díky tomu.
-
-   Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
-   obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
-   rizika, že se obálka pod rukou zavře. */
-/* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
-   klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
-
-   Otáčí se doopravdy, ne prolnutím. Levá strana menu není samostatná deska,
-   ale RUB obálky — přesně jako v knize, kde je první strana přilepená zevnitř
-   na desku. Díky tomu stačí jediné otočení o 180° a obsah se objeví sám,
-   jakmile obálka přejde přes svislou rovinu.
-
-   Kniha je pořád široká dvě desky, jen se zavřená posune o půl desky doprava,
-   aby ta jedna viditelná stála na střed. Šířka se tím neanimuje, nic v sekci
-   nepodskakuje a 3D se nikde neplácne do roviny — což by se stalo, kdyby měl
-   kterýkoli rodič overflow jiný než visible.
-
-   Desky nejsou fotka. Fotky, které k nim byly po ruce, mají na deskách cizí
-   potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří nápis — takže
-   by z podkladu byla hádanka. Takhle si určujeme barvu i velikost sami. */
-function SvatebniMenu() {
-  const [otevrene, setOtevrene] = useState(false);
-  return (
-    <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
-      {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
-          se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
-      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
-      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
-      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
-      <div className="menu-vnitrek">
-        {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
-        <div className="menu-deska menu-deska-prava">
-          <div className="menu-list">
-            <p className="menu-nadstrana">Pro naše nejmenší</p>
-            <ul className="menu-chody">
-              <li>
-                <span className="menu-kurz">Polévka</span>
-                <span className="menu-jidlo">Svatební vývar</span>
-                <span className="menu-detail">Zelenina, nudle</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Hlavní chod</span>
-                <span className="menu-jidlo">Smažený kuřecí řízek</span>
-                <span className="menu-detail">Bramborové pyré</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Dezert</span>
-                <span className="menu-jidlo">Svatební dort</span>
-                <span className="menu-detail">Čokoládový korpus, pařížský krém</span>
-              </li>
-            </ul>
-            {/* Oddělené linkou a mezerou: nalepené pod dětskými chody to
-                vypadalo jako jejich podnadpis, ne jako závěr celého menu. */}
-            <p className="menu-preji">Dobrou chuť</p>
-            {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
-            <img loading="lazy" decoding="async" className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
-          </div>
-        </div>
-
-        {/* Obálka: líc se zlatým názvem, rub s první stranou menu. */}
-        <div className="menu-obalka">
-          <button
-            type="button"
-            className="menu-deska menu-obalka-lic"
-            onClick={() => setOtevrene(true)}
-            aria-expanded={otevrene}
-          >
-            <span className="menu-obalka-obsah">
-              <span className="menu-ornament" aria-hidden="true" />
-              <span className="menu-nazev">Menu</span>
-              <span className="menu-monogram">K &amp; J</span>
-              <span className="menu-datum">18 · 09 · 2027</span>
-            </span>
-          </button>
-          <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
-            <div className="menu-list">
-              {/* Nadpis první, vtip až pod ním: stránka má začít hlavičkou a
-                  vtip pak funguje jako pointa, ne jako úvodní odstavec. */}
-              <p className="menu-nadstrana">Menu</p>
-              <p className="menu-uvod">
-                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
-                na obřad — my víme svoje.
-              </p>
-              <ul className="menu-chody">
-                <li>
-                  <span className="menu-kurz">Polévka</span>
-                  <span className="menu-jidlo">Svatební vývar</span>
-                  <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
-                </li>
-                <li>
-                  <span className="menu-kurz">Hlavní chod</span>
-                  <span className="menu-jidlo">Vepřová panenka sous-vide</span>
-                  <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
-                </li>
-                <li>
-                  <span className="menu-kurz">Dezert</span>
-                  <span className="menu-jidlo">Svatební dort</span>
-                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
-                </li>
-              </ul>
-              {/* Poznámka o stravovacích požadavcích patří sem, ne na dětskou
-                  stranu: tam se tlačila pod ilustraci, kdežto levá strana má
-                  o chod míň a pod dezertem zůstávala prázdná plocha. */}
-              <p className="menu-alergeny">
-                Speciální stravovací požadavky (vegetariánské, veganské či
-                zdravotní) nám prosím napište nejpozději do 1.&nbsp;8.&nbsp;2027.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Pod knihou, ne na desce — tam by soupeřila se zlatým názvem. */}
-      <p className="menu-napoveda">{otevrene ? "Klepnutím zavřete" : "Klikněte pro otevření"}</p>
-    </div>
-  );
-}
 /* Program dne jako časová osa. `ikona` je název souboru v public/program,
    který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
    dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
@@ -547,43 +421,6 @@ function CasovaOsa() {
     </ol>
   );
 }
-/* Obálka s příběhem: dva stavy, jedno otevření. Dřív měla tři (dopis →
-   oznámení → zavřeno) a host nevěděl, co klepnutí udělá. */
-function ObalkaPribeh({ children }: { children: React.ReactNode }) {
-  const [otevrena, setOtevrena] = useState(false);
-  return (
-    <div className={"obalka" + (otevrena ? " je-otevrena" : "")}>
-      {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
-          grid-template-rows 0fr → 1fr a záporný spodní okraj natáhne obálku
-          přes spodek papíru, takže papír končí schovaný v kapse. Klepnutí na
-          otevřený papír obálku zase zavře. */}
-      <div className="obalka-vysuv" onClick={() => setOtevrena(false)}>
-        <div className="obalka-vysuv-ram">
-          <div className="obalka-listy">
-            <div className="obalka-papir">{children}</div>
-          </div>
-        </div>
-      </div>
-      <button
-        type="button"
-        className="obalka-telo"
-        onClick={() => setOtevrena(!otevrena)}
-        aria-expanded={otevrena}
-        aria-label={otevrena ? "Zavřít dopis" : "Otevřít dopis s naším příběhem"}
-      >
-        <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
-        <img loading="lazy" decoding="async" className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
-        {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
-            chlopně, takže musí mizet spolu s ní. */}
-        <span className="obalka-zavrena-obal" aria-hidden="true">
-          <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
-          <img loading="lazy" decoding="async" className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
-        </span>
-      </button>
-    </div>
-  );
-}
-
 /* Úvodní obrazovka se zlatým prstenem. Svůj stav drží sama: klepnutí na prsten
    ani její zmizení tak nepřekreslí celou stránku — dřív seděl stav v Home
    a obojí v tu chvíli znovu vykreslilo všechny sekce webu a prolínání cukalo.
@@ -742,18 +579,18 @@ export default function Home() {
           <img loading="lazy" decoding="async" className="scena-venec" src="/kytky/venec-pod.webp" alt="" aria-hidden="true" />
           <img loading="lazy" decoding="async" className="scena-venec scena-venec-nad" src="/kytky/venec-nad.webp" alt="" aria-hidden="true" />
           <div className="scena-foto">
-            <FotoHromadka fotky={PRIBEH_FOTKY} />
+            <FotoHromadka fotky={PRIBEH_FOTKY} nazev="Fotky z našeho příběhu" />
           </div>
           <div className="scena-obalka">
-            <ObalkaPribeh>
-              <p className="lead">
+            <ObalkaPosta>
+              <p>
                 Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
                 největší společné dobrodružství. Poznali jsme se, zamilovali se,
                 prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
                 plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
-            </ObalkaPribeh>
+            </ObalkaPosta>
           </div>
           {/* Pokyn pod věncem, ve sloupci obálky — pod ní samotnou leží krásenky
               a písmo by se v nich ztrácelo. */}
@@ -818,7 +655,7 @@ export default function Home() {
           <h2>Svatební menu</h2>
         </Reveal>
         <Reveal>
-          <SvatebniMenu />
+          <Kniha />
         </Reveal>
       </section>
 

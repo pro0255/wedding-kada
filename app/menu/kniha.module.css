@@ -1,0 +1,230 @@
+/* Svatební menu — kniha s tloušťkou. Rozměry:
+   --D  šířka jedné desky, --H výška,
+   --T  tloušťka přední desky, --S tloušťka bloku listů,
+   --pres o kolik deska přesahuje blok (u vázané knihy pár milimetrů). */
+.obal {
+  --D: min(clamp(260px, 32vw, 420px), calc((100vh - 140px) / 1.5));
+  --H: calc(var(--D) * 1.42);
+  --T: 7px;
+  --S: 12px;
+  --pres: 7px;
+  --deska: #efe8dc;
+  --deska-hrana: #e4dccd;
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.perspektiva {
+  perspective: 2200px;
+  perspective-origin: 50% 20%;
+  padding: 1rem 0 2rem;
+}
+
+.kniha {
+  position: relative;
+  width: calc(var(--D) * 2);
+  height: var(--H);
+  transform-style: preserve-3d;
+  transform: rotateX(16deg) translateX(-25%);
+  /* Všechno, co se animuje, má vlastní vrstvu už od načtení. Jinak by ji
+     prohlížeč zakládal (a rastroval) až v prvním snímku po klepnutí. */
+  will-change: transform;
+}
+.kniha.otevrene { transform: rotateX(5deg) translateX(0%); }
+
+/* ---------- zadní deska a blok listů ---------- */
+.zadni {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
+  transform-style: preserve-3d;
+}
+.zadniDeska {
+  position: absolute; inset: 0;
+  transform: translateZ(calc(-1 * var(--S) - 2px));
+  background: var(--deska);
+  border-radius: 2px 6px 6px 2px;
+  box-shadow: 0 26px 50px -10px rgba(90, 70, 50, .35), 0 6px 14px rgba(90, 70, 50, .14);
+}
+.blok {
+  position: absolute; top: var(--pres); bottom: var(--pres); left: 0; right: var(--pres);
+  transform: translateZ(-1px);
+  overflow: hidden;
+}
+/* Ořízka listů: proužky papíru natočené do hloubky. */
+.hranaBlokuPrava {
+  position: absolute; top: var(--pres); bottom: var(--pres); right: var(--pres); width: var(--S);
+  transform-origin: right center;
+  transform: translateZ(-1px) rotateY(-90deg);
+  background: repeating-linear-gradient(90deg, #fbf9f4 0 1.5px, #e2d9c8 1.5px 2.5px);
+}
+.hranaBlokuDolni {
+  position: absolute; left: 0; right: var(--pres); bottom: var(--pres); height: var(--S);
+  transform-origin: center bottom;
+  transform: translateZ(-1px) rotateX(90deg);
+  background: repeating-linear-gradient(180deg, #fbf9f4 0 1.5px, #ddd3c1 1.5px 2.5px);
+}
+.hrbet {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 8%;
+  background: linear-gradient(to right, rgba(80, 62, 44, .16), transparent);
+  pointer-events: none;
+}
+.vrzenyStin {
+  position: absolute; inset: 0;
+  transform-origin: left center;
+  background: linear-gradient(to right, rgba(60, 45, 30, .42), rgba(60, 45, 30, .14) 55%, rgba(60, 45, 30, 0));
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Stín levé (otevřené) desky na stole — objeví se až při dosednutí. */
+.stinLevy {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 50%;
+  transform: translateZ(calc(-1 * var(--S) - 2px));
+  border-radius: 6px 2px 2px 6px;
+  box-shadow: 0 26px 50px -10px rgba(90, 70, 50, .3), 0 6px 14px rgba(90, 70, 50, .12);
+  opacity: 0;
+  will-change: opacity;
+}
+.otevrene .stinLevy { opacity: 1; }
+
+/* ---------- přední deska (kvádr) ---------- */
+.obalka {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
+  will-change: transform;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: translateZ(0px) rotateY(0deg);
+}
+.otevrene .obalka { transform: translateZ(0px) rotateY(-180deg); }
+
+.lic {
+  position: absolute; inset: 0;
+  transform: translateZ(var(--T));
+  backface-visibility: hidden;
+  border: 0; padding: 0; margin: 0; font: inherit;
+  border-radius: 2px 6px 6px 2px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #fbf8f2;
+  /* Lehké světlo shora zleva — hladký papír, žádná textura. */
+  box-shadow: inset 0 0 0 1px rgba(168, 135, 74, .15);
+}
+.lic::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, .35), transparent 60%),
+              linear-gradient(to right, rgba(90, 70, 50, .12), transparent 6%);
+}
+.lic:focus-visible { outline: 2px solid #a8874a; outline-offset: 4px; }
+
+.lesk {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  /* Odlesk jede přes líc posunem (transform), ne background-position —
+     to by se překreslovalo v každém snímku. */
+  background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, .7) 50%, transparent 75%);
+  transform: translateX(100%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.tmaLic {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(to left, rgba(60, 45, 30, .55), rgba(60, 45, 30, .25));
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Hrany desky: tři pásky natočené o 90° kolem svého okraje. */
+.hranaPrava, .hranaHorni, .hranaDolni {
+  position: absolute;
+  background: var(--deska-hrana);
+}
+.hranaPrava {
+  top: 0; bottom: 0; right: 0; width: var(--T);
+  transform-origin: right center;
+  transform: rotateY(90deg);
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(to right, #ddd3c2, #ebe4d7);
+}
+.hranaHorni {
+  top: 0; left: 0; right: 0; height: var(--T);
+  transform-origin: center top;
+  transform: rotateX(90deg);
+  background: #efe9dd;
+}
+.hranaDolni {
+  bottom: 0; left: 0; right: 0; height: var(--T);
+  transform-origin: center bottom;
+  transform: rotateX(-90deg);
+  background: linear-gradient(to bottom, #ddd3c2, #d2c7b4);
+}
+
+/* Rub desky: po otočení leží vlevo, hřbet má po pravé ruce. */
+.rub {
+  position: absolute; inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  background: var(--deska);
+  border-radius: 6px 2px 2px 6px;
+  overflow: hidden;
+}
+.rub > .jenDesktop {
+  position: absolute; top: var(--pres); bottom: var(--pres); left: var(--pres); right: 0;
+}
+.predsadka { display: none; }
+.hrbetRub {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 8%;
+  background: linear-gradient(to left, rgba(80, 62, 44, .16), transparent);
+  pointer-events: none;
+}
+.tmaRub {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to left, rgba(50, 38, 25, .6), rgba(50, 38, 25, .3));
+  opacity: 0;
+  will-change: opacity;
+}
+
+.jenDesktop { position: absolute; inset: 0; }
+.jenTelefon { display: none; }
+.jenTelefonBlok { display: none; }
+
+/* ---------- ovládání ---------- */
+.ovladani {
+  margin-top: 1.4rem;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+.tlacitko, .prepinac button {
+  font: inherit; font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #6b5340; background: transparent;
+  border: 1px solid color-mix(in srgb, #a8874a 60%, transparent);
+  border-radius: 999px;
+  padding: .7em 1.7em;
+  cursor: pointer;
+  transition: background-color .2s, color .2s;
+}
+.tlacitko:hover, .prepinac button:hover { background: #ece5d8; }
+.tlacitko:focus-visible, .prepinac button:focus-visible { outline: 2px solid #a8874a; outline-offset: 3px; }
+.prepinac { gap: .5rem; }
+.prepinac button[aria-pressed="true"] { background: #a8874a; color: #fbf9f4; }
+
+/* ---------- telefon: jedna deska, uvnitř listovací strany ---------- */
+@media (max-width: 720px) {
+  .obal { --D: min(calc(100vw - 48px), 400px); --T: 5px; --S: 9px; --pres: 5px; }
+  .kniha { width: var(--D); transform: rotateX(12deg) translateX(0%); }
+  .kniha.otevrene { transform: rotateX(3deg) translateX(0%); }
+  .zadni, .obalka { width: 100%; }
+  .stinLevy { display: none; }
+  .jenDesktop { display: none; }
+  .jenTelefon { display: block; position: absolute; inset: 0; }
+  .jenTelefonBlok { display: flex; }
+  .predsadka {
+    display: block; position: absolute; inset: var(--pres) 0 var(--pres) var(--pres);
+    background: #fbf9f4;
+  }
+  .slajdy {
+    position: absolute; inset: 0;
+    display: flex; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .slajdy::-webkit-scrollbar { display: none; }
+  .slajd { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
+}
