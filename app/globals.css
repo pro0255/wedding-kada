@@ -2501,6 +2501,7 @@ body,
 .obsah-ramec > .countdown,
 .obsah-ramec > .fotky-odkaz,
 .obsah-ramec > .schedule,
+.obsah-ramec > .menu,
 .obsah-ramec > .location {
   width: 100%;
 
@@ -3203,4 +3204,106 @@ body,
 
 @media (max-width: 760px) {
   .menu-pribor { display: none; }
+}
+
+
+/* ==================== redesign 2026-10: příběh (D1), program a menu (P2) ====================
+   Stojí na konci schválně: přebíjí starší pravidla se stejnou specificitou.
+
+   Program a menu jsou jeden béžový pruh (menu bylo bílé a mezi dvěma béžovými
+   sekcemi trhalo stránku). Každá sekce má jen jednu kytici, střídavě vlevo
+   nahoře a vpravo dole, a ta zůstává uvnitř své sekce. Květiny jsou ztlumené,
+   aby nekřičely přes tlumenou sépii ikon programu. */
+:root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
+
+.scena-kv { filter: saturate(.7) sepia(.08); }
+.program-kytice, .fotky-kytice { filter: saturate(.42) sepia(.16) brightness(1.03); opacity: .9; }
+/* program a menu jsou jeden pruh — mezi nimi stačí běžná mezera, ne dvojitá */
+.obsah-ramec > .schedule { padding-bottom: 2rem; }
+
+.obsah-ramec > .schedule,
+.obsah-ramec > .menu { position: relative; overflow: clip; z-index: auto; }
+.schedule > .wrap, .schedule > .reveal,
+.menu > .wrap, .menu > .reveal { position: relative; z-index: 3; }
+.program-kytice { transform: none; opacity: .92; }
+.program-kytice-vlevo { left: 0; top: 0; height: min(78%, 620px); }
+.menu-kytice { left: auto; right: 0; top: auto; bottom: 0; height: min(70%, 560px); }
+@media (max-width: 2300px) {
+  .program-kytice { max-width: 17vw; object-position: left top; }
+  .menu-kytice { object-position: right bottom; }
+}
+
+/* Menu: o kus menší a placaté — bez žebrovaného papíru, mašlí a rytých příborů.
+   Desky jsou papír s tenkým zlatým rámečkem, jako na tištěné kartě. */
+.menu-kniha { --deska: clamp(330px, 35vw, 540px); }
+.menu-pribor { display: none !important; }
+.menu-deska {
+  background: #fbf8f2;
+  box-shadow: 0 18px 40px rgba(107, 83, 64, .14), 0 2px 6px rgba(107, 83, 64, .08);
+}
+.menu-obalka-lic::after { left: 14px; top: 14px; bottom: 14px; right: 14px; width: auto;
+  background: none; border: 1px solid rgba(168, 135, 74, .55); border-radius: 3px; }
+
+/* ---------- příběh: D1, diagonála ----------
+   Nadpis nad scénou, ať sekce dává smysl i bez klepnutí. Fotky vlevo nahoře,
+   obálka vpravo dole a zakrývá jen roh hromádky. Oba objekty jsou natočené
+   proti sobě a mají stín ze stejné strany. Po otevření dopis vyjede přes
+   fotky a hromádka ustoupí a ztlumí se — jedna animace, jedna křivka. */
+.story > .wrap { margin-bottom: 2.4rem; }
+.scena { max-width: 1240px; aspect-ratio: 1000 / 600; }
+.scena-foto {
+  left: 13%; top: 2%; width: 33%;
+  rotate: -3deg;
+  transition: transform .6s var(--krivka-d1), opacity .6s var(--krivka-d1);
+}
+.scena:has(.obalka.je-otevrena) .scena-foto { transform: translate(-16%, 3%) scale(.94); opacity: .5; }
+.scena-obalka { left: 43%; top: 43%; width: 40%; transition: none; }
+.scena:has(.obalka.je-otevrena) .scena-obalka { transform: none; }
+.obalka { transform: rotate(4deg); transition: transform .6s var(--krivka-d1); }
+.obalka.je-otevrena { transform: rotate(1.5deg) translateY(-1rem); }
+
+/* Papír: bez oznámení je jediný list, takže leží v toku a drží výšku sám. */
+.obalka-papir {
+  position: relative; inset: auto; margin: 0 auto;
+  width: 86%; aspect-ratio: auto; min-height: 0;
+  padding: clamp(1.4rem, 2.6vw, 2.4rem);
+}
+.obalka-papir .lead { font-size: clamp(.8rem, 1.15vw, 1.02rem); }
+
+/* Kytice za průsečíkem — hortenzie, ostrožka, gypsofila. Procenta jsou ze scény. */
+.scena-kytice { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.scena-kv { position: absolute; height: auto; pointer-events: none; user-select: none; }
+.scena-kv-ostrozka { left: 45%; top: 4%; width: 7%; rotate: 12deg; }
+.scena-kv-gypsofila { left: 49%; top: 7%; width: 19%; rotate: 8deg; }
+.scena-kv-hortenzie { left: 36%; top: 26%; width: 16%; }
+/* jediná snítka před obálkou, v jejím pravém dolním rohu */
+.scena-kv-pred { left: 77%; top: 65%; width: 13%; rotate: 18deg; z-index: 6; }
+
+/* Pokyn pod zavřenou obálkou — decentní popisek místo šipky „klikni“. */
+.scena-pokyn {
+  position: absolute; left: 0; right: 0; top: calc(100% + 1.6rem);
+  display: flex; align-items: center; justify-content: center; gap: .7rem;
+  font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--ink-soft);
+  transition: opacity .3s ease;
+}
+.scena-pokyn::before { content: ""; width: 2rem; height: 1px; background: currentColor; }
+.scena:has(.obalka.je-otevrena) .scena-pokyn { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scena-foto, .obalka { transition: none; }
+}
+
+/* Telefon: text a pod ním fotky (obálka se schová, viz starší blok výš). */
+@media (max-width: 700px) {
+  .scena { aspect-ratio: auto; }
+  /* desktopové pozice výš v tomhle bloku by přebily starší mobilní tok */
+  .scena-foto, .scena-obalka { left: auto; top: auto; }
+  .scena-obalka { width: 100%; }
+  .scena-foto { width: 98%; rotate: none; }
+  .scena:has(.obalka.je-otevrena) .scena-foto { transform: none; opacity: 1; }
+  .scena-kytice, .scena-kv-pred, .scena-pokyn { display: none; }
+  .obalka, .obalka.je-otevrena { transform: none; }
+  .obalka-papir { width: 100%; padding: 0; }
+  .obalka-papir .lead { font-size: .98rem; }
 }

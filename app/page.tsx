@@ -21,10 +21,7 @@ import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import { IkonaKlik } from "./StoryDoodles";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
-import Klikni from "./Klikni";
-import { OznameniHlavni } from "./oznameni/Oznameni";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -378,27 +375,6 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
    Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
    obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
    rizika, že se obálka pod rukou zavře. */
-/* Věnec kolem hromádky fotek a obálky.
-
-   Jsou to dvě hotové vrstvy z jedné předlohy (scripts/kytky-venec.mjs) na
-   společném plátně 1622 × 1001: jedna leží za kompozicí, druhá přes ni. Obě
-   vyplní scénu celou, takže se do nich fotky s obálkou usadí v procentech
-   a drží polohu při každé šířce okna.
-
-   Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext vrstvení —
-   z-index uvnitř jednoho obrázku by se k obálce vůbec nedostal. */
-function KvetinyVrstva({ nad }: { nad?: boolean }) {
-  return (
-    <img
-      loading="lazy"
-      decoding="async"
-      className={"scena-kytky" + (nad ? " scena-kytky-nad" : "")}
-      src={nad ? "/kytky/venec-nad.webp" : "/kytky/venec-pod.webp"}
-      alt=""
-      aria-hidden="true"
-    />
-  );
-}
 /* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
    klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
 
@@ -556,52 +532,29 @@ function CasovaOsa() {
     </ol>
   );
 }
-/* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
-   listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
-type StavObalky = "zavreno" | "dopis" | "oznameni";
-
+/* Obálka s příběhem: dva stavy, jedno otevření. Dřív měla tři (dopis →
+   oznámení → zavřeno) a host nevěděl, co klepnutí udělá. */
 function ObalkaPribeh({ children }: { children: React.ReactNode }) {
-  const [stav, setStav] = useState<StavObalky>("zavreno");
-  const otevrena = stav !== "zavreno";
-  const dalsi = () => setStav(stav === "dopis" ? "oznameni" : "zavreno");
-  /* Na telefonu obálka není a oba listy leží pod sebou — klepnutí si je jen
-     prohodí. Na širokém okně se sem klepnutí nedostane: zavřené listy mají
-     pointer-events: none. */
-  const prohodit = () => setStav(stav === "oznameni" ? "zavreno" : "oznameni");
+  const [otevrena, setOtevrena] = useState(false);
   return (
-    <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
+    <div className={"obalka" + (otevrena ? " je-otevrena" : "")}>
       {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
-          grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
-          „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
-          změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
-          spodek papíru, takže papír končí schovaný v kapse. */}
-      {/* Klepnutí na listy je posouvá dál: z dopisu na oznámení, z oznámení
-          zpátky do obálky. Otevřít se jimi nedá — zavřené listy nejsou vidět
-          a tělo obálky je pod nimi. Ovládat se to dá pořád i z tlačítka níž,
-          takže klávesnici ani odečítači tohle nic nebere; proto je to obyčejný
-          div bez role. */}
-      <div className="obalka-vysuv" onClick={otevrena ? dalsi : prohodit}>
+          grid-template-rows 0fr → 1fr a záporný spodní okraj natáhne obálku
+          přes spodek papíru, takže papír končí schovaný v kapse. Klepnutí na
+          otevřený papír obálku zase zavře. */}
+      <div className="obalka-vysuv" onClick={() => setOtevrena(false)}>
         <div className="obalka-vysuv-ram">
           <div className="obalka-listy">
-            {/* Oznámení je z obou listů vyšší, takže drží výšku obalu a dopis
-                na něm leží. Kouká za ním ven; po klepnutí si místa prohodí. */}
-            <span className="obalka-oznameni" aria-hidden="true">
-              <OznameniHlavni />
-            </span>
             <div className="obalka-papir">{children}</div>
-            {/* Odznak s kurzorem — na telefonu zve k prohození listů. Na širokém
-                okně ho CSS schová, tam vede cestu šipka u zavřené obálky. */}
-            <span className="doodle-obal obalka-klik" aria-hidden="true">
-              <IkonaKlik />
-            </span>
           </div>
         </div>
       </div>
       <button
         type="button"
         className="obalka-telo"
-        onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
+        onClick={() => setOtevrena(!otevrena)}
         aria-expanded={otevrena}
+        aria-label={otevrena ? "Zavřít dopis" : "Otevřít dopis s naším příběhem"}
       >
         <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
         <img loading="lazy" decoding="async" className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
@@ -611,12 +564,11 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
           <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
           <img loading="lazy" decoding="async" className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
         </span>
-        {/* Popisek jen u otevřené obálky. Zavřené ukazuje cestu šipka. */}
-        {otevrena && <span className="obalka-popisek">Zavřít</span>}
       </button>
     </div>
   );
 }
+
 export default function Home() {
   // loading → done (loader pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
@@ -753,15 +705,23 @@ export default function Home() {
 
       {/* příběh */}
       <section className="story" id="story">
+        <Reveal className="wrap">
+          <p className="eyebrow">Náš příběh</p>
+          <h2>Jak to celé začalo</h2>
+        </Reveal>
+        {/* Fotky vlevo, obálka vpravo dole přes roh hromádky. Kytice leží jen
+            za místem, kde se potkají; před ně jde jediná snítka. */}
         <Reveal className="scena">
-          <KvetinyVrstva />
+          <span className="scena-kytice" aria-hidden="true">
+            <img loading="lazy" decoding="async" className="scena-kv scena-kv-ostrozka" src="/kytky/12_ostrozka_modra.webp" alt="" />
+            <img loading="lazy" decoding="async" className="scena-kv scena-kv-gypsofila" src="/kytky/04_gypsophila.webp" alt="" />
+            <img loading="lazy" decoding="async" className="scena-kv scena-kv-hortenzie" src="/kytky/06_hortenzie.webp" alt="" />
+          </span>
           <div className="scena-foto">
             <FotoHromadka fotky={PRIBEH_FOTKY} />
           </div>
           <div className="scena-obalka">
             <ObalkaPribeh>
-              <p className="eyebrow">Náš příběh</p>
-              <h2>Jak to celé začalo</h2>
               <p className="lead">
                 Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
                 největší společné dobrodružství. Poznali jsme se, zamilovali se,
@@ -770,13 +730,9 @@ export default function Home() {
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
             </ObalkaPribeh>
-            {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
-                Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
-                po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
-                šla obálka pořád otevřít. */}
-            <Klikni id="klikni-drah-obalka" />
+            <span className="scena-pokyn" aria-hidden="true">otevřete dopis</span>
           </div>
-          <KvetinyVrstva nad />
+          <img loading="lazy" decoding="async" className="scena-kv scena-kv-pred" src="/kytky/07_hermanek.webp" alt="" aria-hidden="true" />
         </Reveal>
       </section>
 
@@ -813,11 +769,9 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
-        {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
-            takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
-            mimo béžový pruh. */}
+        {/* Jediná kytice sekce, vlevo nahoře a uvnitř pruhu — menu pod ním má
+            svou vpravo dole. */}
         <img loading="lazy" decoding="async" className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
-        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
@@ -829,6 +783,8 @@ export default function Home() {
 
       {/* menu */}
       <section className="menu" id="menu">
+        {/* Jediná kytice sekce, vpravo dole — program má svou vlevo nahoře. */}
+        <img loading="lazy" decoding="async" className="program-kytice menu-kytice" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Dobrou chuť</p>
           <h2>Svatební menu</h2>
