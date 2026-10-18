@@ -52,6 +52,8 @@ export default function FotoHromadka({ fotky }: { fotky: FotkaNaHromadce[] }) {
         const poloha = HROMADKA_SLOTY[Math.min(slot, HROMADKA_SLOTY.length - 1)];
         return (
           <motion.img
+            loading="lazy"
+            decoding="async"
             key={foto.src}
             src={foto.src}
             alt={slot === 0 ? foto.alt : ""}
@@ -88,7 +90,7 @@ export default function FotoHromadka({ fotky }: { fotky: FotkaNaHromadce[] }) {
         style={{ opacity: fotky[aktivni].popis || fotky[aktivni].popisSrc ? 1 : 0, zIndex: pocet + 1 }}
       >
         {fotky[aktivni].popisSrc ? (
-          <img className="foto-popis-obrazek" src={fotky[aktivni].popisSrc} alt={fotky[aktivni].popis ?? ""} />
+          <img loading="lazy" decoding="async" className="foto-popis-obrazek" src={fotky[aktivni].popisSrc} alt={fotky[aktivni].popis ?? ""} />
         ) : (
           <span className="foto-popis-text">{fotky[aktivni].popis}</span>
         )}

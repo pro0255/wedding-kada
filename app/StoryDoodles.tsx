@@ -34,7 +34,7 @@ const PISMO = { className: "doodle-napis" };
    zaoblený čtverec pod ní dělá .ikona-klik-obal v CSS — odznak leží přes fotku
    a samotný obrys by se na světlém snímku ztratil. */
 export function IkonaKlik() {
-  return <img className="ikona-klik" src="/ikony/klik.png" alt="" aria-hidden="true" width={512} height={512} />;
+  return <img loading="lazy" decoding="async" className="ikona-klik" src="/ikony/klik.png" alt="" aria-hidden="true" width={512} height={512} />;
 }
 
 /* „první společná fotka“ + stejná šipka jako u zásnub — patří k zimní fotce

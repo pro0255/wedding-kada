@@ -2,16 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
   loading: () => <div className="venue-map-scene venue-map-loading" />,
 });
 
-import Ring3D from "./Ring3D";
+/* three.js (~180 kB gz) mimo úvodní bundle — stránka se hydratuje dřív
+   a do té doby na místě prstenu svítí jen zlatá záře z .loader-ring3d. */
+const Ring3D = dynamic(() => import("./Ring3D"), {
+  ssr: false,
+  loading: () => <div className="loader-ring3d" />,
+});
+
 import Ubytovani from "./Ubytovani";
-import { VenueAkce } from "./VenueMap";
+import { VenueAkce } from "./VenueAkce";
 import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
@@ -68,6 +73,30 @@ function useCountdown(target: Date) {
     return () => clearInterval(id);
   }, [target]);
   return left;
+}
+
+/* Mapa (maplibre + WebGL + dlaždice) se stáhne a spustí, až když k ní host
+   doscrolluje — do té doby stojí na jejím místě prázdný rámeček. */
+function MapaNaDohled() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [blizko, setBlizko] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setBlizko(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  if (blizko) return <VenueMap />;
+  return <div ref={ref} className="venue-map-scene venue-map-loading" />;
 }
 
 function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -253,7 +282,7 @@ function Dotaz({ q, a, barvy, kontakty, obrazek }: { q: string; a: string; barvy
              animací výšky jako text — neobjeví se dřív ani zvlášť. */}
           {obrazek && (
             <span className="faq-obrazek" aria-hidden="true">
-              <img src={obrazek} alt="" />
+              <img loading="lazy" decoding="async" src={obrazek} alt="" />
             </span>
           )}
         </div>
@@ -316,21 +345,21 @@ function Odpocet() {
    Popisky nese jen ta trojice, co je měla od začátku — u ostatních mluví fotka
    sama a zůstává pod ní jen datum. */
 const PRIBEH_FOTKY: FotkaNaHromadce[] = [
-  { src: "/fotky/2.jpeg", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
-  { src: "/fotky/27.jpeg", alt: "ZOO Ostrava" },
-  { src: "/fotky/28.jpeg", alt: "Bílovec" },
-  { src: "/fotky/4.jpeg", alt: "Chorvatsko" },
-  { src: "/fotky/6.jpeg", alt: "Kozmice" },
-  { src: "/fotky/11.jpeg", alt: "Sicílie" },
-  { src: "/fotky/21.jpeg", alt: "Svatba I a O" },
-  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
-  { src: "/fotky/22.jpeg", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
-  { src: "/fotky/20.jpeg", alt: "Slovensko" },
-  { src: "/fotky/23.jpeg", alt: "Štramberk" },
-  { src: "/fotky/24.jpeg", alt: "FM City Fest" },
-  { src: "/fotky/25.jpeg", alt: "Trogir" },
-  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
-  { src: "/fotky/26.jpeg", alt: "Kutná Hora" },
+  { src: "/fotky/web/2.webp", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
+  { src: "/fotky/web/27.webp", alt: "ZOO Ostrava" },
+  { src: "/fotky/web/28.webp", alt: "Bílovec" },
+  { src: "/fotky/web/4.webp", alt: "Chorvatsko" },
+  { src: "/fotky/web/6.webp", alt: "Kozmice" },
+  { src: "/fotky/web/11.webp", alt: "Sicílie" },
+  { src: "/fotky/web/21.webp", alt: "Svatba I a O" },
+  { src: "/fotky/web/16.webp", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
+  { src: "/fotky/web/22.webp", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
+  { src: "/fotky/web/20.webp", alt: "Slovensko" },
+  { src: "/fotky/web/23.webp", alt: "Štramberk" },
+  { src: "/fotky/web/24.webp", alt: "FM City Fest" },
+  { src: "/fotky/web/25.webp", alt: "Trogir" },
+  { src: "/fotky/web/1.webp", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
+  { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
 ];
 
 /* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
@@ -361,6 +390,8 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
 function KvetinyVrstva({ nad }: { nad?: boolean }) {
   return (
     <img
+      loading="lazy"
+      decoding="async"
       className={"scena-kytky" + (nad ? " scena-kytky-nad" : "")}
       src={nad ? "/kytky/venec-nad.webp" : "/kytky/venec-pod.webp"}
       alt=""
@@ -390,9 +421,9 @@ function SvatebniMenu() {
     <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
       {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
           se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
-      <img className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
-      <img className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
-      <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
+      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
+      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
+      <img loading="lazy" decoding="async" className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
       <div className="menu-vnitrek">
         {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
         <div className="menu-deska menu-deska-prava">
@@ -419,7 +450,7 @@ function SvatebniMenu() {
                 vypadalo jako jejich podnadpis, ne jako závěr celého menu. */}
             <p className="menu-preji">Dobrou chuť</p>
             {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
-            <img className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
           </div>
         </div>
 
@@ -508,6 +539,8 @@ function CasovaOsa() {
         <li key={b.nazev} className="osa-bod">
           <span className="osa-ikona">
             <img
+              loading="lazy"
+              decoding="async"
               src={`/program/${b.ikona}.webp`}
               alt=""
               aria-hidden="true"
@@ -570,13 +603,13 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
         onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
         aria-expanded={otevrena}
       >
-        <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
-        <img className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
         {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
             chlopně, takže musí mizet spolu s ní. */}
         <span className="obalka-zavrena-obal" aria-hidden="true">
-          <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
-          <img className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
+          <img loading="lazy" decoding="async" className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
+          <img loading="lazy" decoding="async" className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
         </span>
         {/* Popisek jen u otevřené obálky. Zavřené ukazuje cestu šipka. */}
         {otevrena && <span className="obalka-popisek">Zavřít</span>}
@@ -700,7 +733,7 @@ export default function Home() {
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}
       <section className="hero-full" id="hero">
-        <img className="hero-bg" src="/fotky/kaplicka.jpg" alt="Kaplička" />
+        <img className="hero-bg" fetchPriority="high" src="/fotky/kaplicka.jpg" alt="Kaplička" />
         <div className={`hero-content ${stage === "done" ? "in" : ""}`}>
           <p className="hero-eyebrow">Bereme se</p>
           <h1 className="hero-title">Kateřina &amp; Jakub</h1>
@@ -771,7 +804,7 @@ export default function Home() {
           <VenueAkce />
           </div>
           <div className="location-mapa">
-            <VenueMap />
+            <MapaNaDohled />
           </div>
           </div>
           <Ubytovani />
@@ -783,8 +816,8 @@ export default function Home() {
         {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
             takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
             mimo béžový pruh. */}
-        <img className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
-        <img className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
@@ -812,8 +845,8 @@ export default function Home() {
         {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
             takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
             mimo béžový pruh. */}
-        <img className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
-        <img className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Vzpomínky</p>
           <h2>Fotky od vás</h2>

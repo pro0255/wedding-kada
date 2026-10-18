@@ -31,6 +31,8 @@ const kaligrafie = Parisienne({
   subsets: ["latin", "latin-ext"],
   weight: "400",
   variable: "--kaligrafie",
+  // na úvodní stránce je oznámení schované v obálce — preload by jen zdržoval
+  preload: false,
 });
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
@@ -620,6 +622,8 @@ export function OznameniHlavni() {
         {KYTKY.map((k, i) => (
           <img
             key={i}
+            loading="lazy"
+            decoding="async"
             className={s.kytka}
             src={`/oznameni/kyticky/${k.snitka}.png`}
             alt=""

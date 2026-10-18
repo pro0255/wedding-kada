@@ -21,6 +21,8 @@ const rukopis = Caveat({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "600"],
   variable: "--rukopis",
+  // jen popisky u příběhu hluboko pod úvodem — preload by soupeřil s hero
+  preload: false,
 });
 
 /* Absolutní adresa pro OG obrázek a odkazy ve sdílení. Na Vercelu se bere

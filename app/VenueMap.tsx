@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Map as MaplibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { VENUE_COORDS as VENUE, VENUE_MAP_URL } from "./venue";
-import { Navigace } from "./Akce";
+import { VENUE_COORDS as VENUE } from "./venue";
 
 // Turbopack rozbije cestu k maplibre workeru (import.meta.url míří do chunku),
 // worker se tiše nespustí a mapa zůstane prázdná. Proto kopie workeru
@@ -207,7 +206,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
             <div ref={containerRef} style={{ width: "100%", height: "100%", pointerEvents: "none" }} />
           </div>
           <div className="venue-flip-back">
-            <img src="/fotky/rekovice.png" alt="Hotel Rekovice" className="venue-flip-photo" />
+            <img loading="lazy" decoding="async" src="/fotky/rekovice.webp" alt="Hotel Rekovice" className="venue-flip-photo" />
           </div>
         </div>
         {/* Ikonka stojí mimo otáčející se kartu, aby se neodtočila pryč.
@@ -246,19 +245,5 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
         </span>
       </div>
     </>
-  );
-}
-
-/* Tlačítka pod adresou, ne pod mapou. Stojí zvlášť, protože v rozvržení sekce
-   patří k textu vlevo, kdežto mapa je v pravém sloupci — jedna komponenta by
-   je držela pohromadě a do levého sloupce by se nedostala. */
-export function VenueAkce() {
-  return (
-    <div className="venue-map-actions">
-      <a href={VENUE_MAP_URL} target="_blank" rel="noopener">
-        Zobrazit v mapách
-      </a>
-      <Navigace />
-    </div>
   );
 }

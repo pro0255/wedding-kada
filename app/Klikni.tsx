@@ -20,7 +20,7 @@ export default function Klikni({ id, trida = "" }: { id: string; trida?: string 
           </textPath>
         </text>
       </svg>
-      <img className="klikni-sipka" src="/obalka/sipka.webp" alt="" />
+      <img loading="lazy" decoding="async" className="klikni-sipka" src="/obalka/sipka.webp" alt="" />
     </span>
   );
 }

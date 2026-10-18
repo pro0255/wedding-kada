@@ -213,7 +213,8 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   position: relative;
   width: 221px; height: 221px;
   display: flex; align-items: center; justify-content: center;
-  filter: drop-shadow(0 0 26px rgba(200,168,105,.4));
+  /* žádný filter: drop-shadow nad canvasem by se přepočítával každý snímek
+     three.js smyčky — záři nese ::before */
 }
 .loader-ring3d canvas { position: relative; z-index: 1; }
 /* Na telefonu je prsten menší: ve 221 px zabíral přes polovinu šířky okna
@@ -1313,7 +1314,7 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   width: var(--auto-sirka); height: auto; overflow: visible;
   color: var(--palette-rose-text);
 }
-/* Mlha na obou koncích: auto se z rozostření vynoří, kus cesty jede ostré a
+/* Na obou koncích: auto se vynoří, kus cesty jede ostré a
    zase se do něj ztratí. Krajní dvacetiny cyklu je úplně pryč, aby mezi
    dvěma průjezdy byla pauza a linka si odpočala. */
 /* Krajní hodnoty drží auto celou dobu nad linkou: na začátku sedí jeho levá
@@ -1322,11 +1323,11 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
    žádná čára není. Vyjádřeno v calc, ne v procentech, aby to platilo při
    každé šířce okna. */
 @keyframes auto-jede {
-  0%        { transform: translateX(calc(-100% + var(--auto-sirka))); opacity: 0; filter: blur(4px); }
-  14%       { opacity: 1; filter: blur(0); }
-  78%       { opacity: 1; filter: blur(0); }
-  90%       { opacity: 0; filter: blur(4px); }
-  100%      { transform: translateX(0); opacity: 0; filter: blur(4px); }
+  0%        { transform: translateX(calc(-100% + var(--auto-sirka))); opacity: 0; }
+  14%       { opacity: 1; }
+  78%       { opacity: 1; }
+  90%       { opacity: 0; }
+  100%      { transform: translateX(0); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .auto-drah { display: none; }
@@ -1535,13 +1536,15 @@ footer {
 }
 
 /* reveal on scroll */
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease, filter .8s ease; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease; }
 .reveal.in { opacity: 1; transform: none; }
 /* Sekce, ze které host odjel, se lehce zamlží — třídu přepíná useZaostreniSekci
    v page.tsx podle toho, jestli sekce prochází prostředkem okna. Selektor musí
    být na .reveal.in, ne na .reveal: jinak by přebil úvodní opacity: 0 a obsah
-   sekcí, které host ještě neviděl, by prosvítal rozmazaný místo aby čekal. */
-.sekce-mimo .reveal.in { filter: blur(2.5px); opacity: .55; }
+   sekcí, které host ještě neviděl, by prosvítal místo aby čekal.
+   Jen opacita, žádný blur: rozmazávat skoro celou stránku (fotky, mapu,
+   3D menu) bylo na telefonu při scrollu drahé. */
+.sekce-mimo .reveal.in { opacity: .55; }
 
 /* ---------- nejčastější dotazy ---------- */
 /* menu končí růžovou, FAQ střídání uzavírá modrou — a v ní pokračuje i
