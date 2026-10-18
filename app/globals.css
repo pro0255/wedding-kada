@@ -92,6 +92,12 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
   transition: opacity .9s ease, visibility .9s;
 }
 .loader-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+/* Vrstva je připravená předem, takže prolínání běží na kompozitoru od prvního
+   snímku a nečeká na hlavní vlákno. Při odchodu se zastaví i nekonečné
+   animace majáků a výzvy — nikdo je už nevidí a jen by se překreslovaly. */
+.loader { will-change: opacity; }
+.loader-hide .majak, .loader-hide .majak-zar, .loader-hide .majak-plamen,
+.loader-hide .loader-vyzva { animation-play-state: paused; }
 /* Úvodní obrazovka nemá květinový dekor jako zbytek webu — prsten je jediné,
    na co má host kliknout, a v květinovém rámu o pozornost soupeřil s pozadím.
    Kytky přijdou hned za ním na samotném webu.
@@ -122,6 +128,8 @@ h1, h2, h3, .serif { font-family: var(--serif), Georgia, serif; font-weight: 500
 @media (max-height: 900px) {
   .loader { padding-bottom: min(calc(var(--hory-vyska) * .55), 18vh); }
 }
+/* Po doznění zůstává z loaderu prázdný obal kvůli selektoru úvodu výš. */
+.loader-pryc { display: none; }
 /* Panorama Beskyd přes celou šířku spodní hrany. Obě vrstvy — pozadí s horami
    i překryv s majáky — mají krabici v poměru samotného obrázku (1400 × 300),
    takže se škálují úplně stejně a plamínky sedí přesně na hřebenech. Dřív se
@@ -332,7 +340,9 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   opacity: 0; transform: translateY(18px);
   transition: opacity 1.2s ease .15s, transform 1.2s ease .15s;
 }
-.hero-content.in { opacity: 1; transform: none; }
+/* Úvod se rozsvítí, jakmile se loader (sourozenec před ním) začne prolínat
+   pryč. Přes CSS, ne přes stav v Reactu — viz UvodniObrazovka v page.tsx. */
+.loader-hide ~ .hero-full .hero-content { opacity: 1; transform: none; }
 .hero-eyebrow { font-size: .72rem; letter-spacing: .5em; text-transform: uppercase; opacity: .85; margin-bottom: 1.4rem; }
 .hero-title {
   font-size: clamp(2.6rem, 8vw, 5.2rem); font-weight: 500;

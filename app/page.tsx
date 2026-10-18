@@ -72,25 +72,38 @@ function useCountdown(target: Date) {
   return left;
 }
 
-/* Mapa (maplibre + WebGL + dlaždice) se stáhne a spustí, až když k ní host
-   doscrolluje — do té doby stojí na jejím místě prázdný rámeček. */
+/* Mapa (maplibre + WebGL + dlaždice) se stáhne a spustí, až když se k ní host
+   blíží — do té doby stojí na jejím místě prázdný rámeček.
+
+   První vykreslení mapy je jedna dlouhá úloha (na pomalém telefonu kolem
+   stovky ms). Kdyby přišla uprostřed scrollování, stránka by cukla, proto se
+   mapa chystá už 1200 px předem a spouští se, až prohlížeč nemá co dělat
+   (requestIdleCallback; Safari ho nemá, tam krátké zpoždění). */
 function MapaNaDohled() {
   const ref = useRef<HTMLDivElement>(null);
   const [blizko, setBlizko] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let odlozeno = 0;
+    const spust = () => setBlizko(true);
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setBlizko(true);
-          io.disconnect();
-        }
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        odlozeno =
+          typeof requestIdleCallback === "function"
+            ? requestIdleCallback(spust, { timeout: 1500 })
+            : window.setTimeout(spust, 300);
       },
-      { rootMargin: "400px 0px" },
+      { rootMargin: "1200px 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (typeof cancelIdleCallback === "function") cancelIdleCallback(odlozeno);
+      window.clearTimeout(odlozeno);
+    };
   }, []);
   if (blizko) return <VenueMap />;
   return <div ref={ref} className="venue-map-scene venue-map-loading" />;
@@ -571,28 +584,29 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Home() {
-  // loading → done (loader pryč, web odemčený)
+/* Úvodní obrazovka se zlatým prstenem. Svůj stav drží sama: klepnutí na prsten
+   ani její zmizení tak nepřekreslí celou stránku — dřív seděl stav v Home
+   a obojí v tu chvíli znovu vykreslilo všechny sekce webu a prolínání cukalo.
+   Text v úvodu se rozsvítí přes CSS podle .loader-hide (sourozenec v DOM). */
+function UvodniObrazovka() {
+  // loading → done (loader se prolíná pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
   const [quote, setQuote] = useState<string | null>(null);
-  // po doznění fade-outu loader úplně odmountujeme — jinak by three.js
-  // prsten (requestAnimationFrame + WebGL) běžel skrytý celou návštěvu
+  // po doznění fade-outu se obsah loaderu odmountuje — jinak by three.js
+  // prsten (requestAnimationFrame + WebGL) zůstal v paměti celou návštěvu
   const [loaderGone, setLoaderGone] = useState(false);
 
   useEffect(() => {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
-  useZaostreniSekci();
-  const poSvatbe = usePoSvatbe();
-
   /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
      tak počká, dokud host sám nechce dál. */
   const vstup = () => {
     if (stage !== "loading") return;
     setStage("done");
-    // 1s = rezerva na .9s opacity transition loaderu; teprve pak ho
-    // odmountujeme, jinak by three.js prsten běžel skrytý celou návštěvu
+    // 1s = rezerva na .9s opacity transition loaderu; teprve pak obsah
+    // odmountujeme
     setTimeout(() => setLoaderGone(true), 1000);
   };
 
@@ -604,91 +618,99 @@ export default function Home() {
     };
   }, [stage]);
 
+  // Prázdný obal zůstává v DOM: podle jeho .loader-hide se rozsvítí úvod.
+  if (loaderGone) return <div className="loader loader-hide loader-pryc" aria-hidden="true" />;
+
+  /* Klepnout jde kamkoli, nejen na prsten — kdo netrefí kroužek o 170 px,
+     zůstal by na úvodní obrazovce stát a dál se nedostal. Tlačítko pod
+     prstenem zůstává kvůli klávesnici a čtečkám; jeho klepnutí probublá
+     na obal, ale vstup() druhé volání ignoruje. */
+  return (
+    <div
+      className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
+      aria-hidden={stage !== "loading"}
+      onClick={vstup}
+    >
+      {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
+         druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
+         kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
+         nebyly světlejší než hory. Zarovnání drží tím, že mají stejnou
+         krabici a preserveAspectRatio xMidYMax odpovídá background-size
+         auto 100 % / center bottom. */}
+      <span className="loader-hory" aria-hidden="true" />
+      <svg
+        className="loader-majaky"
+        viewBox="0 0 1400 300"
+        preserveAspectRatio="xMidYMax meet"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <radialGradient id="majak-zar">
+            <stop offset="0%" stopColor="#ffd9a0" stopOpacity=".95" />
+            <stop offset="45%" stopColor="#e8a24c" stopOpacity=".4" />
+            <stop offset="100%" stopColor="#e8a24c" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {MAJAKY.map(([x, y, zpozdeni]) => (
+          <g
+            key={x}
+            className="majak"
+            transform={`translate(${x} ${y})`}
+            style={{ animationDelay: `${zpozdeni}s` }}
+          >
+            {/* hranice ze zkřížených polen; kreslí se ve stejné barvě jako
+               hory, jen o něco sytěji, ať je pod plamenem vidět */}
+            <path
+              className="majak-hranice"
+              d="M -5.5 0 L 3.5 -6.5 M 5.5 0 L -3.5 -6.5 M 0 0 L 0 -7"
+              fill="none"
+              stroke="#9a8158"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <circle className="majak-zar" cy="-13" r="26" fill="url(#majak-zar)" />
+            {/* plamen začíná až nad hranicí (y = −6), ne na zemi */}
+            <path
+              className="majak-plamen"
+              d="M 0 -6 C -4.5 -11, -4 -18, 0 -23 C 4 -18, 4.5 -11, 0 -6 Z"
+              fill="#f0b45e"
+            />
+          </g>
+        ))}
+      </svg>
+      <div className="loader-brand">
+        K &amp; J
+        <span className="loader-date">18 · 09 · 2027</span>
+      </div>
+      {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal
+         nikdo, kdo web ovládá klávesnicí nebo čtečkou */}
+      <button
+        type="button"
+        className="loader-vstup"
+        onClick={vstup}
+        aria-label="Vstoupit na svatební web"
+      >
+        <Ring3D zastaveno={stage !== "loading"} />
+      </button>
+      {quote && <p className="loader-quote">{quote}</p>}
+      <p className="loader-vyzva">Klepněte</p>
+    </div>
+  );
+}
+
+export default function Home() {
+  useZaostreniSekci();
+  const poSvatbe = usePoSvatbe();
+
   return (
     <>
-      {/* Úvodní obrazovka: zlatý prsten a hláška.
-
-         Klepnout jde kamkoli, nejen na prsten — kdo netrefí kroužek o 170 px,
-         zůstal by na úvodní obrazovce stát a dál se nedostal. Tlačítko pod
-         prstenem zůstává kvůli klávesnici a čtečkám; jeho klepnutí probublá
-         na obal, ale vstup() druhé volání ignoruje. */}
-      {!loaderGone && (
-        <div
-          className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
-          aria-hidden={stage !== "loading"}
-          onClick={vstup}
-        >
-          {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
-             druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
-             kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
-             nebyly světlejší než hory. Zarovnání drží tím, že mají stejnou
-             krabici a preserveAspectRatio xMidYMax odpovídá background-size
-             auto 100 % / center bottom. */}
-          <span className="loader-hory" aria-hidden="true" />
-          <svg
-            className="loader-majaky"
-            viewBox="0 0 1400 300"
-            preserveAspectRatio="xMidYMax meet"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <defs>
-              <radialGradient id="majak-zar">
-                <stop offset="0%" stopColor="#ffd9a0" stopOpacity=".95" />
-                <stop offset="45%" stopColor="#e8a24c" stopOpacity=".4" />
-                <stop offset="100%" stopColor="#e8a24c" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            {MAJAKY.map(([x, y, zpozdeni]) => (
-              <g
-                key={x}
-                className="majak"
-                transform={`translate(${x} ${y})`}
-                style={{ animationDelay: `${zpozdeni}s` }}
-              >
-                {/* hranice ze zkřížených polen; kreslí se ve stejné barvě jako
-                   hory, jen o něco sytěji, ať je pod plamenem vidět */}
-                <path
-                  className="majak-hranice"
-                  d="M -5.5 0 L 3.5 -6.5 M 5.5 0 L -3.5 -6.5 M 0 0 L 0 -7"
-                  fill="none"
-                  stroke="#9a8158"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-                <circle className="majak-zar" cy="-13" r="26" fill="url(#majak-zar)" />
-                {/* plamen začíná až nad hranicí (y = −6), ne na zemi */}
-                <path
-                  className="majak-plamen"
-                  d="M 0 -6 C -4.5 -11, -4 -18, 0 -23 C 4 -18, 4.5 -11, 0 -6 Z"
-                  fill="#f0b45e"
-                />
-              </g>
-            ))}
-          </svg>
-          <div className="loader-brand">
-            K &amp; J
-            <span className="loader-date">18 · 09 · 2027</span>
-          </div>
-          {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal
-             nikdo, kdo web ovládá klávesnicí nebo čtečkou */}
-          <button
-            type="button"
-            className="loader-vstup"
-            onClick={vstup}
-            aria-label="Vstoupit na svatební web"
-          >
-            <Ring3D />
-          </button>
-          {quote && <p className="loader-quote">{quote}</p>}
-          <p className="loader-vyzva">Klepněte</p>
-        </div>
-      )}
+      <UvodniObrazovka />
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}
       <section className="hero-full" id="hero">
         <img className="hero-bg" fetchPriority="high" src="/fotky/kaplicka.jpg" alt="Kaplička" />
-        <div className={`hero-content ${stage === "done" ? "in" : ""}`}>
+        <div className="hero-content">
           <p className="hero-eyebrow">Bereme se</p>
           <h1 className="hero-title">Kateřina &amp; Jakub</h1>
           <div className="hero-date">18 · 09 · 2027</div>
