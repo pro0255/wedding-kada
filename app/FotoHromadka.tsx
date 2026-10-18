@@ -8,8 +8,8 @@
    dovézt nedala.
 
    Listuje se, jak kdo zvykne: klepnutím na pravou část fotky dál, na levou
-   třetinu zpět, tahem prstu do strany, šipkami na klávesnici a tlačítky
-   pod hromádkou, kde je i počítadlo. */
+   třetinu zpět, tahem prstu do strany, šipkami na klávesnici a tečkami pod hromádkou,
+   které rovnou skočí na danou fotku. */
 
 import { startTransition, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
@@ -90,6 +90,12 @@ export default function FotoHromadka({
     startTransition(() => {
       setSmer("zpet");
       setAktivni((i) => (i - 1 + pocet) % pocet);
+    });
+  // skok tečkou rovnou na fotku
+  const jdi = (cil: number) =>
+    startTransition(() => {
+      setSmer(cil > aktivni ? "dal" : "zpet");
+      setAktivni(cil);
     });
 
   return (
@@ -187,20 +193,28 @@ export default function FotoHromadka({
         </span>
       </div>
 
+      {/* Pod hromádkou jen tečky — kolik je fotek a kde host je; aktuální je
+          delší zlatá čárka a na tečku jde klepnout. Pod nimi tichá nápověda,
+          že se listuje klepnutím na fotku; po prvním listování zmizí.
+          Šipky ani číslo „5 / 7“ tu nejsou: Cormorant sází minuskové číslice,
+          které skákaly z řádku, a šipky byly zbytečné vedle klepání. */}
       <div className="foto-ovladani">
-        <button type="button" className="foto-tlacitko" onClick={zpet} aria-label="Předchozí fotka">
-          ‹
-        </button>
-        <span className="foto-pocet" aria-live="polite">
-          <span className="jen-pro-odecitace">Fotka </span>
-          {aktivni + 1}
-          <span aria-hidden="true"> / </span>
-          <span className="jen-pro-odecitace"> z </span>
-          {pocet}
+        <span className="foto-tecky">
+          {fotky.map((f, i) => (
+            <button
+              key={f.src}
+              type="button"
+              className={`foto-tecka${i === aktivni ? " aktivni" : ""}`}
+              onClick={() => i !== aktivni && jdi(i)}
+              aria-label={`Fotka ${i + 1} z ${pocet}`}
+              aria-current={i === aktivni ? "true" : undefined}
+            />
+          ))}
         </span>
-        <button type="button" className="foto-tlacitko" onClick={dal} aria-label="Další fotka">
-          ›
-        </button>
+        <span className="jen-pro-odecitace" aria-live="polite">
+          Fotka {aktivni + 1} z {pocet}
+        </span>
+        <span className="foto-napoveda" aria-hidden="true">klepněte na fotku</span>
       </div>
     </div>
   );

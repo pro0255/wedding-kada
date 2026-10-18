@@ -720,22 +720,38 @@ h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: .12em; text-transfor
   margin-top: 1.4rem;
   position: relative; z-index: 5;
 }
-/* Tiché ovládání: jen znak, bez kroužku — plocha 44 px zůstává kvůli prstu. */
-.foto-tlacitko {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: grid; place-items: center; padding: 0 0 3px;
-  border: 1px solid transparent;
-  background: none; color: var(--ink-soft);
-  font: 400 24px/1 var(--serif), Georgia, serif;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: border-color .2s ease;
+/* Tečky a pod nimi nápověda — sloupec na střed. */
+.foto-ovladani { flex-direction: column; gap: .35rem; }
+.foto-hromadka { cursor: pointer; }
+.foto-napoveda {
+  font-size: .62rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--ink-soft); opacity: .8;
+  transition: opacity .5s ease;
 }
-.foto-tlacitko:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 25%, transparent); }
-.foto-tlacitko:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.foto-pocet {
-  min-width: 4.4em; text-align: center;
-  font-family: var(--serif), Georgia, serif; font-size: 1.05rem; letter-spacing: .08em;
-  color: var(--ink-soft); font-variant-numeric: tabular-nums;
+/* host už listuje — víc nápovědy netřeba */
+.foto-hromadka-obal:has(.je-listovano) .foto-napoveda { opacity: 0; }
+
+/* Tečky: každá je tlačítko 20 × 28 px (kvůli prstu), kreslí se jen malý
+   kroužek uvnitř. Aktuální fotka je delší zlatá čárka — roztahuje se přes
+   transform (scaleX), ne přes šířku, ať se nepřepočítává rozvržení. */
+.foto-tecky { display: flex; align-items: center; }
+.foto-tecka {
+  position: relative; width: 20px; height: 28px; padding: 0;
+  border: 0; background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.foto-tecka::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 3px;
+  background: color-mix(in srgb, var(--ink-soft) 40%, transparent);
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1), background-color .35s ease;
+}
+.foto-tecka:hover::before { background: var(--ink-soft); }
+.foto-tecka.aktivni { cursor: default; }
+.foto-tecka.aktivni::before { background: #a8874a; transform: scaleX(2.8); }
+.foto-tecka:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .foto-tecka::before, .foto-napoveda { transition: none; }
 }
 @media (max-width: 760px) {
   /* Rámeček se zmenší s hromádkou — 22/92 px by na úzké obrazovce sežralo
@@ -2154,7 +2170,7 @@ body,
    určuje text vedle — poměr stran 4/5 tu tedy neplatí a fotky si tvar drží
    samy přes object-fit: cover. */
 /* Spodní okraj = místo na ovládání pod hromádkou, ať nevisí přes hranu pruhu. */
-.ubytovani-fotky { position: relative; margin-bottom: 4.2rem; }
+.ubytovani-fotky { position: relative; margin-bottom: 5.4rem; }
 .ubytovani-fotky .foto-hromadka {
   position: absolute; inset: 0;
   width: 100%; height: 100%; aspect-ratio: auto;
@@ -2170,7 +2186,7 @@ body,
 .ubytovani-fotky .foto-list { border-bottom-width: 42px; }
 /* Hromádka tu vyplňuje buňku absolutně, ovládání proto visí pod ní. */
 .ubytovani-fotky .foto-ovladani {
-  position: absolute; left: 0; right: 0; top: calc(100% + 1.2rem);
+  position: absolute; left: 0; right: 0; top: calc(100% + 2rem);
   margin: 0;
 }
 @media (min-width: 1150px) {
