@@ -10,7 +10,7 @@
 
    2) Předehřátí. Jakmile se obálka poprvé objeví v okně, počká se na písma
       a dekódování obrázků a na pár snímků se nastaví data-predehrev: CSS
-      verze tím natočí skryté plochy (rub, schovaný dopis) k divákovi
+      verze tím natočí skryté plochy (rub chlopně, schovaný dopis) k divákovi
       s krytím 1 %. Prohlížeč je vykreslí a rasterizuje hned — ne až
       v prvním snímku otevírání, kde by to byl záškub. */
 

@@ -1,5 +1,5 @@
-/* Obálka s příběhem (ObalkaPosta.tsx) — líc s adresou, rub s kapsou, chlopní
-   a dopisem. Rozměry v % a cqw, takže drží poměr v každé šířce. Animuje se jen
+/* Obálka s příběhem (ObalkaPosta.tsx) — kapsa, chlopeň s pečetí a dopis.
+   Rozměry v % a cqw, takže drží poměr v každé šířce. Animuje se jen
    transform a opacity (z-index se jen přepne v daný okamžik). Žádné filtry
    na pohyblivých vrstvách; will-change jen kolem animace (data-pripraveno)
    a skryté plochy se po načtení jednou předehřejí (data-predehrev) — viz
@@ -31,57 +31,9 @@
   inset: 0;
   transform-style: preserve-3d;
 }
-.lic,
-.rub {
+.plocha {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.rub {
-  transform: rotateY(180deg);
-}
-.vypln {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 1.2cqw;
-  box-shadow: inset 0 0 0 0.15cqw rgb(255 255 255 / 0.45);
-}
-/* Razítko sedí v rohu, kde by byla známka — ta tu schválně není. */
-.razitko {
-  position: absolute;
-  right: 6%;
-  top: 9%;
-  width: 26cqw;
-  color: rgb(63 52 43 / 0.5);
-  font-family: var(--sans), system-ui, sans-serif;
-  transform: rotate(-14deg);
-}
-.adresa {
-  position: absolute;
-  left: 30%;
-  top: 52%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6cqw;
-  font-family: var(--rukopis), cursive;
-  color: #3f342b;
-  transform: rotate(-2deg);
-}
-.adresaJmeno {
-  font-size: 6.4cqw;
-  line-height: 1;
-  margin-bottom: 1cqw;
-}
-.adresaRadek {
-  font-size: 4cqw;
-  line-height: 1.1;
-  opacity: 0.8;
-  border-bottom: 0.15cqw solid rgb(63 52 43 / 0.18);
-  padding-bottom: 0.4cqw;
-  width: 46cqw;
 }
 .jiskra {
   position: absolute;
@@ -306,7 +258,7 @@
 }
 
 /* ---------- will-change jen kolem animace (viz plynulost.ts) ---------- */
-.obalka[data-pripraveno="true"] :is(.stinKarty, .naklon, .zdvihKarty, .karta, .kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
+.obalka[data-pripraveno="true"] :is(.stinKarty, .naklon, .zdvihKarty, .kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
   will-change: transform;
 }
 .obalka[data-pripraveno="true"] :is(.pecetL, .pecetP, .jiskra, .dolniStin) {
@@ -314,10 +266,6 @@
 }
 
 /* ---------- předehřátí: skryté plochy na 3 snímky k divákovi s krytím 1 % ---------- */
-.obalka[data-predehrev="true"] .rub {
-  transform: rotateY(0.1deg);
-  opacity: 0.01;
-}
 .obalka[data-predehrev="true"] .chlopenRub {
   transform: rotateX(359.9deg);
   opacity: 0.01;

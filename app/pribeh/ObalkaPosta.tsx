@@ -6,19 +6,19 @@ import { predehrat, pripojOvladani, vytvorPripravenost } from "./plynulost";
 import { BOK_L, BOK_P, CHLOPEN, CHLOPEN_RUB, CHLOPEN_RUB_PODSIVKA, Defs, SPODEK, Zrno } from "./svg";
 import s from "./obalka.module.css";
 
-/* Obálka s příběhem — „dopis poštou“. Zavřená leží adresou nahoru (ručně psaná
-   adresa a razítko Rekovic). Jedno klepnutí spustí celý příběh: obálka se
-   zvedne a otočí na rub → pečeť praskne a odletí zlaté jiskry → chlopeň se
-   otevře → dopis vyjede a rozloží se. Druhé klepnutí pustí tutéž timeline
-   pozpátku a rychleji. Myš obálku jemně naklání.
+/* Obálka s příběhem. Leží pečetí nahoru jako v dřívější verzi webu — zlatá
+   pečeť je jediný teplý akcent scény a host hned ví, kam klepnout. Jedno
+   klepnutí spustí celý příběh: obálka se zvedne → pečeť praskne a odletí
+   zlaté jiskry → chlopeň se otevře → dopis vyjede a rozloží se. Druhé
+   klepnutí pustí tutéž timeline pozpátku a rychleji. Myš obálku jemně naklání.
 
    GSAP 3 (od 2025 zdarma včetně pluginů — https://gsap.com/licensing/).
    Animuje se jen transform a opacity, z-index se jen přepíná přes tl.set.
    Plynulost: klik nesahá na React stav (nativní posluchače, práce rozložená do
    snímků — plynulost.ts), timeline se při připojení jednou „protočí“
-   (progress 1 → 0), takže si GSAP načte výchozí hodnoty hned, a rub obálky se
-   po načtení předehřeje. Na telefonu se 4× pomalejším procesorem měřeno bez
-   jediného snímku nad 25 ms.
+   (progress 1 → 0), takže si GSAP načte výchozí hodnoty hned, a skryté plochy
+   (rub chlopně, dolní půlka dopisu) se po načtení předehřejí. Na telefonu
+   se 4× pomalejším procesorem měřeno bez jediného snímku nad 25 ms.
 
    Text dopisu přichází zvenku (children) a vykreslí se dvakrát: horní
    a dolní půlka přeloženého listu jsou dvě kopie posunuté o výšku půlky.
@@ -29,6 +29,11 @@ const JISKRY = Array.from({ length: 14 }, (_, i) => {
   const r = 60 + (i % 3) * 28; // % velikosti pečeti
   return { x: Math.cos(uhel) * r, y: Math.sin(uhel) * r * 0.8 + 20, s: 0.5 + (i % 4) * 0.25 };
 });
+
+/* Na širokém displeji je obálka velká a rozložený dopis by vyjel přes nadpis,
+   proto se usadí menší. Na telefonu je obálka užší a písmo dopisu by po
+   zmenšení bylo nečitelné. Čte se jednou při připojení (viz předehřátí). */
+const uzka = () => window.matchMedia("(max-width: 700px)").matches;
 
 const POPIS = { zavreno: "Otevřít obálku s naším příběhem", otevreno: "Zavřít dopis" };
 
@@ -65,32 +70,31 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
       gsap.set(q(`.${s.jiskra}`), { scale: 0, opacity: 0 });
 
       const t = gsap.timeline({ paused: true, onComplete: pr.konec, onReverseComplete: pr.konec });
-      // 1) zvednout a otočit na rub
-      t.to(q(`.${s.zdvihKarty}`), { yPercent: -5, scale: 1.04, duration: 0.45, ease: "power2.out" }, 0)
-        .to(q(`.${s.karta}`), { rotationY: 180, duration: 0.95, ease: "power3.inOut" }, 0.05)
-        .to(q(`.${s.stinKarty}`), { opacity: 0.55, scale: 0.96, duration: 0.45, ease: "power2.out" }, 0)
-        .to(q(`.${s.zdvihKarty}`), { yPercent: 0, scale: 1, duration: 0.5, ease: "power2.inOut" }, 0.75)
-        .to(q(`.${s.stinKarty}`), { opacity: 1, scale: 1, duration: 0.5, ease: "power2.inOut" }, 0.75)
+      // 1) zvednout
+      t.to(q(`.${s.zdvihKarty}`), { yPercent: -4, scale: 1.035, duration: 0.35, ease: "power2.out" }, 0)
+        .to(q(`.${s.stinKarty}`), { opacity: 0.6, scale: 0.97, duration: 0.35, ease: "power2.out" }, 0)
+        .to(q(`.${s.zdvihKarty}`), { yPercent: 0, scale: 1, duration: 0.45, ease: "power2.inOut" }, 0.4)
+        .to(q(`.${s.stinKarty}`), { opacity: 1, scale: 1, duration: 0.45, ease: "power2.inOut" }, 0.4)
         // 2) pečeť praskne, jiskry
-        .to(q(`.${s.pecetL}`), { xPercent: -40, yPercent: 45, rotation: -28, opacity: 0, duration: 0.6, ease: "power2.out" }, 1.15)
-        .to(q(`.${s.pecetP}`), { xPercent: 40, yPercent: 58, rotation: 24, opacity: 0, duration: 0.6, ease: "power2.out" }, 1.17)
+        .to(q(`.${s.pecetL}`), { xPercent: -40, yPercent: 45, rotation: -28, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.2)
+        .to(q(`.${s.pecetP}`), { xPercent: 40, yPercent: 58, rotation: 24, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.22)
         .to(q(`.${s.jiskra}`), {
           keyframes: [
             { scale: 1, opacity: 1, duration: 0.12, ease: "power1.out" },
             { xPercent: (i: number) => JISKRY[i].x, yPercent: (i: number) => JISKRY[i].y, scale: (i: number) => JISKRY[i].s, opacity: 0, duration: 0.7, ease: "power3.out" },
           ],
           stagger: 0.012,
-        }, 1.12)
+        }, 0.17)
         // 3) chlopeň
-        .to(q(`.${s.chlopenStin}`), { opacity: 0, duration: 0.25 }, 1.3)
-        .to(q(`.${s.chlopen}`), { rotationX: 180, duration: 0.8, ease: "power2.inOut" }, 1.3)
-        .set(q(`.${s.chlopen}`), { zIndex: 0 }, 1.7)
+        .to(q(`.${s.chlopenStin}`), { opacity: 0, duration: 0.25 }, 0.35)
+        .to(q(`.${s.chlopen}`), { rotationX: 180, duration: 0.8, ease: "power2.inOut" }, 0.35)
+        .set(q(`.${s.chlopen}`), { zIndex: 0 }, 0.75)
         // 4) dopis vyjede, přeskočí nad kapsu, usadí se a rozloží
-        .to(q(`.${s.zdvih}`), { yPercent: -118, duration: 0.65, ease: "power3.out" }, 1.95)
-        .set(q(`.${s.zdvih}`), { zIndex: 6 }, 2.55)
-        .to(q(`.${s.usazeni}`), { yPercent: -22, scale: 1.03, rotation: -4, duration: 0.75, ease: "back.out(1.5)" }, 2.55)
-        .to(q(`.${s.polovinaDolni}`), { rotationX: 0, duration: 0.85, ease: "power3.out" }, 2.85)
-        .to(q(`.${s.dolniStin}`), { opacity: 0, duration: 0.6 }, 3.1);
+        .to(q(`.${s.zdvih}`), { yPercent: -118, duration: 0.65, ease: "power3.out" }, 1)
+        .set(q(`.${s.zdvih}`), { zIndex: 6 }, 1.6)
+        .to(q(`.${s.usazeni}`), { yPercent: () => (uzka() ? -22 : -8), scale: () => (uzka() ? 1.03 : 0.86), rotation: -4, duration: 0.75, ease: "back.out(1.5)" }, 1.6)
+        .to(q(`.${s.polovinaDolni}`), { rotationX: 0, duration: 0.85, ease: "power3.out" }, 1.9)
+        .to(q(`.${s.dolniStin}`), { opacity: 0, duration: 0.6 }, 2.15);
       // předehřátí: všechny tweeny si teď (ne v prvním snímku) přečtou výchozí
       // hodnoty; konec i návrat proběhnou v jedné úloze, takže nic nebliká
       t.progress(1).progress(0);
@@ -148,34 +152,8 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
       <div className={s.naklon}>
         <div className={s.zdvihKarty}>
           <div className={s.karta}>
-            {/* ---------- líc: adresa a razítko ---------- */}
-            <div className={s.lic} aria-hidden="true">
-              <svg className={s.vypln} viewBox="0 0 160 100" preserveAspectRatio="none">
-                <Defs p={p + "l"} />
-                <rect width="160" height="100" rx="2" fill="#d6e0e9" />
-                <Zrno p={p + "l"} d="M0,0 H160 V100 H0 Z" />
-              </svg>
-              <svg className={s.razitko} viewBox="0 0 120 60">
-                <defs>
-                  <path id={p + "kruh"} d="M30,30 m-21,0 a21,21 0 1,1 42,0 a21,21 0 1,1 -42,0" />
-                </defs>
-                <circle cx="30" cy="30" r="27" fill="none" stroke="currentColor" strokeWidth="1.1" />
-                <circle cx="30" cy="30" r="15" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                <text fontSize="6.4" letterSpacing="1.4" fill="currentColor">
-                  <textPath href={`#${p}kruh`}>REKOVICE · ZVONIČKA ·</textPath>
-                </text>
-                <text x="30" y="32.5" fontSize="6.5" textAnchor="middle" fill="currentColor">18.9.27</text>
-                <path d="M60,18 q8,-5 16,0 t16,0 t16,0 M60,30 q8,-5 16,0 t16,0 t16,0 M60,42 q8,-5 16,0 t16,0 t16,0" fill="none" stroke="currentColor" strokeWidth="1" />
-              </svg>
-              <span className={s.adresa}>
-                <span className={s.adresaJmeno}>Naši milí hosté</span>
-                <span className={s.adresaRadek}>u zvoničky v Rekovicích</span>
-                <span className={s.adresaRadek}>18. září 2027</span>
-              </span>
-            </div>
-
-            {/* ---------- rub: kapsa, chlopeň, pečeť, dopis ---------- */}
-            <div className={s.rub}>
+            {/* kapsa, chlopeň, pečeť, dopis */}
+            <div className={s.plocha}>
               <svg className={s.zadek} viewBox="0 0 160 100" aria-hidden="true">
                 <Defs p={p} />
                 <rect width="160" height="100" rx="2" fill={`url(#${p}zadek)`} />
@@ -228,7 +206,7 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
                 </svg>
                 <svg className={s.chlopenRub} viewBox="0 0 160 58">
                   <Defs p={p + "r"} />
-                  <path d={CHLOPEN_RUB} fill="#c3d0dc" />
+                  <path d={CHLOPEN_RUB} fill="#a9bccd" />
                   <path d={CHLOPEN_RUB_PODSIVKA} fill={`url(#${p}rpodsivka)`} />
                   <Zrno p={p + "r"} d={CHLOPEN_RUB} />
                 </svg>

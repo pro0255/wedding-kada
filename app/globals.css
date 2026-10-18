@@ -1909,9 +1909,10 @@ body,
 }
 
 /* ---------- scéna příběhu ----------
-   Diagonála: fotky vlevo nahoře, obálka vpravo dole, mezi nimi vzduch. Oba
-   objekty jsou natočené proti sobě a mají stín ze stejné strany. Květiny tu
-   nejsou — s věncem kolem byla scéna přeplněná.
+   Jako v dřívější verzi webu: velká hromádka polaroidů vlevo a velká obálka
+   pečetí nahoru vpravo, svisle na středu, obálka se rohem jen dotkne
+   okraje fotek. Prvky vyplní šířku, takže scéna nepůsobí prázdně, a zlatá
+   pečeť dává teplý akcent. Květiny tu nejsou — s věncem byla přeplněná.
 
    Všechno se sází v procentech scény, která drží poměr stran — kompozice
    tak drží tvar při každé šířce okna. Po otevření dopis vyjede z obálky
@@ -1919,12 +1920,14 @@ body,
 :root { --krivka-d1: cubic-bezier(.2, .7, .2, 1); }
 .scena {
   position: relative;
-  width: 100%; max-width: 1000px;
-  aspect-ratio: 1000 / 660;
+  width: 100%; max-width: 1080px;
+  aspect-ratio: 1080 / 600;
   margin: 0 auto;
+  container-type: inline-size;
+  --obalka-dolu: 9cqw;
 }
 .scena-foto {
-  position: absolute; left: 11%; top: 6%; width: 33%;
+  position: absolute; left: 8%; top: 2%; width: 40%;
   z-index: 2;
   transition: transform .6s var(--krivka-d1);
 }
@@ -1934,14 +1937,19 @@ body,
    Průhlednost ne — fotky by vybledly. */
 .scena:has([data-otevreno="true"]) .scena-foto { transform: translate(-3%, 1%) scale(.97); }
 .scena-obalka {
-  position: absolute; left: 52%; top: 40%; width: 38%;
+  position: absolute; left: 44%; top: 26%; width: 48%;
   z-index: 3;
+  transition: transform .8s var(--krivka-d1);
 }
+/* Obálka je velká, rozložený dopis by vyjel přes nadpis — při otevření
+   proto obálka sjede níž (a pokyn s ní). */
+.scena:has([data-otevreno="true"]) :is(.scena-obalka, .scena-pokyn) { transform: translateY(var(--obalka-dolu)); }
 
 /* Pokyn pod obálkou — decentní popisek místo kreslené
    šipky. Text se po otevření vymění, ať host ví, jak dopis zase zavřít. */
 .scena-pokyn {
-  position: absolute; left: 52%; width: 38%; top: 83%;
+  position: absolute; left: 44%; width: 48%; top: 91%;
+  transition: transform .8s var(--krivka-d1);
   display: flex; align-items: center; justify-content: center; gap: .7rem;
   font-size: .72rem; letter-spacing: .26em; text-transform: uppercase;
   color: var(--ink-soft);
@@ -1953,7 +1961,7 @@ body,
 .scena:has([data-otevreno="true"]) .scena-pokyn-zavrit { display: inline; }
 
 @media (prefers-reduced-motion: reduce) {
-  .scena-foto { transition: none; }
+  .scena-foto, .scena-obalka, .scena-pokyn { transition: none; }
 }
 
 /* Rozložený dopis vyjede z obálky nahoru a scéna by ho ořízla — proto smí
@@ -1975,6 +1983,7 @@ body,
     padding-block: 0 1.2rem;
   }
   /* Z absolutních pozic do běžného toku. */
+  .scena { --obalka-dolu: 0px; }
   .scena-foto, .scena-obalka {
     position: relative; inset: auto; transform: none;
     margin-inline: auto;

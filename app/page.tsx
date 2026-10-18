@@ -570,8 +570,8 @@ export default function Home() {
           <p className="eyebrow">Náš příběh</p>
           <h2>Jak to celé začalo</h2>
         </Reveal>
-        {/* Fotky vlevo, obálka vpravo dole, mezi nimi vzduch. Květiny tu nejsou —
-            scéna s nimi byla přeplněná, mají místo jinde na stránce. */}
+        {/* Velké fotky vlevo, obálka pečetí nahoru vpravo — jako dřívější
+            verze webu. Květiny tu nejsou, scéna s nimi byla přeplněná. */}
         <Reveal className="scena">
           <div className="scena-foto">
             <FotoHromadka fotky={PRIBEH_FOTKY} nazev="Fotky z našeho příběhu" />
@@ -590,7 +590,7 @@ export default function Home() {
           {/* Pokyn pod věncem, ve sloupci obálky — pod ní samotnou leží krásenky
               a písmo by se v nich ztrácelo. */}
           <span className="scena-pokyn" aria-hidden="true">
-            <span className="scena-pokyn-otevrit">otevřete dopis</span>
+            <span className="scena-pokyn-otevrit">klepněte na pečeť</span>
             <span className="scena-pokyn-zavrit">zavřít dopis</span>
           </span>
         </Reveal>

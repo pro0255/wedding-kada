@@ -14,20 +14,20 @@ export function Defs({ p }: { p: string }) {
         <circle cx="5.25" cy="5.25" r="0.55" fill="#9fb3c6" opacity="0.6" />
       </pattern>
       <linearGradient id={`${p}chlopen`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#d9e2eb" />
-        <stop offset="1" stopColor="#e4ebf2" />
+        <stop offset="0" stopColor="#bccddc" />
+        <stop offset="1" stopColor="#c9d8e5" />
       </linearGradient>
       <linearGradient id={`${p}spodek`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#dbe4ec" />
-        <stop offset="1" stopColor="#cfdae4" />
+        <stop offset="0" stopColor="#c3d3e1" />
+        <stop offset="1" stopColor="#b6c8d8" />
       </linearGradient>
       <linearGradient id={`${p}bokL`} x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stopColor="#d2dce6" />
-        <stop offset="1" stopColor="#c6d2de" />
+        <stop offset="0" stopColor="#b4c6d6" />
+        <stop offset="1" stopColor="#a9bccd" />
       </linearGradient>
       <linearGradient id={`${p}bokP`} x1="1" y1="0" x2="0" y2="0">
-        <stop offset="0" stopColor="#d2dce6" />
-        <stop offset="1" stopColor="#c6d2de" />
+        <stop offset="0" stopColor="#b4c6d6" />
+        <stop offset="1" stopColor="#a9bccd" />
       </linearGradient>
       <linearGradient id={`${p}zadek`} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#a9b9c8" />
