@@ -21,8 +21,7 @@ import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
-import ObalkaPosta from "./pribeh/ObalkaPosta";
+import Snura, { type FotkaNaSnure } from "./pribeh/Snura";
 import Kniha from "./menu/Kniha";
 
 
@@ -349,29 +348,25 @@ function Odpocet() {
   );
 }
 
-/* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
-/* `popis` se vypíše ručním písmem do bílého pruhu pod fotkou, jako by ho tam
-   někdo dopsal. Má ho jen pár fotek — u ostatních pruh zůstává prázdný. */
-/* Fotky z našeho příběhu, seřazené od nejstarší. Datum i popisek jsou z Kátina
-   zápisníku; podle data jsou seřazené, samotná data se ale nevypisují.
-   Popisky nese jen ta trojice, co je měla od začátku — u ostatních mluví fotka
-   sama a zůstává pod ní jen datum. */
-const PRIBEH_FOTKY: FotkaNaHromadce[] = [
-  { src: "/fotky/web/2.webp", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
-  { src: "/fotky/web/27.webp", alt: "ZOO Ostrava" },
-  { src: "/fotky/web/28.webp", alt: "Bílovec" },
-  { src: "/fotky/web/4.webp", alt: "Chorvatsko" },
-  { src: "/fotky/web/6.webp", alt: "Kozmice" },
-  { src: "/fotky/web/11.webp", alt: "Sicílie" },
-  { src: "/fotky/web/21.webp", alt: "Svatba I a O" },
-  { src: "/fotky/web/16.webp", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
-  { src: "/fotky/web/22.webp", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
-  { src: "/fotky/web/20.webp", alt: "Slovensko" },
-  { src: "/fotky/web/23.webp", alt: "Štramberk" },
-  { src: "/fotky/web/24.webp", alt: "FM City Fest" },
-  { src: "/fotky/web/25.webp", alt: "Trogir" },
-  { src: "/fotky/web/1.webp", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
-  { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
+/* Fotky z našeho příběhu na šňůře, seřazené od nejstarší podle Kátina
+   zápisníku (samotná data se nevypisují). `popis` je ručně psaný popisek na
+   spodním pruhu polaroidu a zároveň alt fotky. */
+const PRIBEH_FOTKY: FotkaNaSnure[] = [
+  { src: "/fotky/web/2.webp", popis: "První společná fotka" },
+  { src: "/fotky/web/27.webp", popis: "ZOO Ostrava" },
+  { src: "/fotky/web/28.webp", popis: "Bílovec" },
+  { src: "/fotky/web/4.webp", popis: "Chorvatsko" },
+  { src: "/fotky/web/6.webp", popis: "Kozmice" },
+  { src: "/fotky/web/11.webp", popis: "Sicílie" },
+  { src: "/fotky/web/21.webp", popis: "Svatba I & O" },
+  { src: "/fotky/web/16.webp", popis: "Těhotenské focení" },
+  { src: "/fotky/web/22.webp", popis: "První Chorvatsko jako rodina" },
+  { src: "/fotky/web/20.webp", popis: "Slovensko" },
+  { src: "/fotky/web/23.webp", popis: "Štramberk" },
+  { src: "/fotky/web/24.webp", popis: "FM City Fest" },
+  { src: "/fotky/web/25.webp", popis: "Trogir" },
+  { src: "/fotky/web/1.webp", popis: "Zásnuby na Troskách" },
+  { src: "/fotky/web/26.webp", popis: "Kutná Hora" },
 ];
 
 /* Program dne. `ikona` je název souboru v public/program,
@@ -589,29 +584,17 @@ export default function Home() {
           <p className="eyebrow">Náš příběh</p>
           <h2>Jak to celé začalo</h2>
         </Reveal>
-        {/* Velké fotky vlevo, obálka pečetí nahoru vpravo — jako dřívější
-            verze webu. Květiny tu nejsou, scéna s nimi byla přeplněná. */}
-        <Reveal className="scena">
-          <div className="scena-foto">
-            <FotoHromadka fotky={PRIBEH_FOTKY} nazev="Fotky z našeho příběhu" />
-          </div>
-          <div className="scena-obalka">
-            <ObalkaPosta>
-              <p>
-                Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
-                největší společné dobrodružství. Poznali jsme se, zamilovali se,
-                prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
-                plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-                jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
-              </p>
-            </ObalkaPosta>
-          </div>
-          {/* Pokyn pod věncem, ve sloupci obálky — pod ní samotnou leží krásenky
-              a písmo by se v nich ztrácelo. */}
-          <span className="scena-pokyn" aria-hidden="true">
-            <span className="scena-pokyn-otevrit">klepněte na pečeť</span>
-            <span className="scena-pokyn-zavrit">zavřít dopis</span>
-          </span>
+        {/* Polaroidy na šňůře přes celou šířku okna a pod nimi dopis hostům. */}
+        <Reveal>
+          <Snura fotky={PRIBEH_FOTKY}>
+            <p>
+              Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
+              největší společné dobrodružství. Poznali jsme se, zamilovali se,
+              prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
+              plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
+              jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
+            </p>
+          </Snura>
         </Reveal>
       </section>
 
