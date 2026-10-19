@@ -502,7 +502,7 @@ function SvatebniMenu() {
       <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
       <div className="menu-vnitrek" id="svatebni-menu-obsah">
         {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
-        <div className="menu-deska menu-deska-prava">
+        <div className="menu-deska menu-deska-prava" onClick={() => setOtevrene(false)}>
           <div className="menu-list">
             <p className="menu-nadstrana">Pro naše nejmenší</p>
             <ul className="menu-chody">
@@ -883,8 +883,6 @@ export default function Home() {
 
       {/* menu */}
       <section className="menu" id="menu">
-        {/* Jediná kytice sekce, vpravo dole — program má svou vlevo nahoře. */}
-        <img loading="lazy" decoding="async" className="program-kytice menu-kytice" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Dobrou chuť</p>
           <h2>Svatební menu</h2>
