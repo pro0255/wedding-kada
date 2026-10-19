@@ -2246,8 +2246,9 @@ body,
    Velikost drží poměr k papíru stejně jako text pod nimi. */
 .obalka-osloveni, .obalka-podpis {
   margin: 0; text-align: center;
-  font-family: var(--rukopis), "Segoe Script", cursive;
-  font-size: clamp(.95rem, 2.1vw, 1.55rem); line-height: 1.2;
+  font-family: var(--dopis-ruka), var(--rukopis), cursive;
+  /* Allura je drobná a tenká, proto větší stupeň než u běžného rukopisu. */
+  font-size: clamp(1.35rem, 3vw, 2.1rem); line-height: 1.15;
   color: color-mix(in srgb, var(--ink) 88%, transparent);
 }
 .obalka-osloveni { margin-bottom: .5rem; }

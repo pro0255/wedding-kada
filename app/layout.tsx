@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Cormorant_Garamond, Jost } from "next/font/google";
+import { Allura, Caveat, Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import ServiceWorker from "./ServiceWorker";
 
@@ -22,6 +22,17 @@ const rukopis = Caveat({
   weight: ["400", "600"],
   variable: "--rukopis",
   // jen popisky u příběhu hluboko pod úvodem — preload by soupeřil s hero
+  preload: false,
+});
+
+/* Tenký psaný rukopis pro oslovení a podpis v dopise — nejbližší webová obdoba
+   písma, kterým jsou vysázené popisky na polaroidech. Ty jsou obrázky, protože
+   to písmo jako web font nemáme; tohle je text, takže se dá kdykoli přepsat.
+   Sekce je hluboko pod úvodem, preload by soupeřil s hero. */
+const dopisRuka = Allura({
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
+  variable: "--dopis-ruka",
   preload: false,
 });
 
@@ -57,7 +68,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="cs">
-      <body className={`${serif.variable} ${sans.variable} ${rukopis.variable}`}>
+      <body className={`${serif.variable} ${sans.variable} ${rukopis.variable} ${dopisRuka.variable}`}>
         {children}
         <ServiceWorker />
       </body>

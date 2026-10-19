@@ -683,7 +683,7 @@ export default function Home() {
                 plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
-              <p className="obalka-podpis">Káťa &amp; Kuba</p>
+              <p className="obalka-podpis">Kačka &amp; Kuba</p>
             </ObalkaPribeh>
             {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
                 Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
