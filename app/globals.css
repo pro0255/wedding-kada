@@ -2851,11 +2851,18 @@ body,
 
 @media (min-width: 861px) {
   /* minmax(0, 1fr) a min-width: 0: prvky mřížky se jinak nesmrští pod svou
-     nejmenší obsahovou šířku („PŘÍPITEK A SVATEBNÍ OBĚD“), sloupce přerostou
-     odsazení a poslední bod skončí pod pravou kyticí. */
+     nejmenší obsahovou šířku („PŘÍPITEK A SVATEBNÍ OBĚD“) a celá osa přeteče.
+
+     Odsazení se nepočítá z okna, ale z toho, co zbývá VEDLE sekce: sekce je
+     široká nanejvýš 1600 px a na širokém monitoru kolem ní zbývá dost místa,
+     aby se kytice vešly mimo osu a odsazení nebylo potřeba vůbec. Pevných
+     21vw naopak na užším okně sežralo skoro 700 px a na sloupec zbývalo 124,
+     takže se názvy přelévaly do sousedních. */
   .osa {
-    display: grid; padding-inline: 21vw;
+    --mimo-sekci: calc((100vw - min(1600px, 100vw - 3rem)) / 2);
+    display: grid;
     grid-auto-columns: minmax(0, 1fr);
+    padding-inline: max(0px, calc(265px - var(--mimo-sekci)));
   }
   .osa-bod { min-width: 0; }
   .den { display: none; }
@@ -2871,10 +2878,16 @@ body,
   .program-kytice-vpravo { right: 0; left: auto; top: -6%; height: 125%; object-position: center; }
 }
 
-@media (min-width: 861px) and (max-width: 2300px) {
-  /* Osa si nechává po stranách 21vw, kytice tedy smí mít nanejvýš 20vw.
-     Bez stropu přerostla odsazení a lezla do prvního a posledního bodu. */
-  .program-kytice { max-width: 20vw; object-fit: contain; }
+@media (min-width: 1401px) and (max-width: 2300px) {
+  /* Na střední šířce se kytice musí uskromnit, jinak na osu nezbude místo. */
+  .program-kytice { max-width: 15vw; object-fit: contain; }
+}
+
+@media (min-width: 861px) and (max-width: 1400px) {
+  /* Pod 1400 px by kytice i po zmenšení ukrojily z osy tolik, že by se do
+     sloupce nevešly ani názvy. Osa dostane celou šířku, kytice jdou pryč. */
+  .program-kytice { display: none; }
+  .osa { padding-inline: 0; }
 }
 
 @media (max-width: 860px) {
