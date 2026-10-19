@@ -569,3 +569,68 @@ function Zvani({ uvod, hlavni, detail }: { uvod: string; hlavni: string; detail?
     </>
   );
 }
+
+/* Přední strana oznámení pro web — tatáž karta, jakou tiskneme, jen zmenšená.
+   Leží v obálce v sekci s příběhem, pod dopisem.
+
+   Není to obrázek, ale živá karta: kdyby to byl export, rozešla by se
+   s tištěnou předlohou při první změně textu. Cenou je, že si sem táhne
+   proměnné a resety z modulu (.zaklad) a písmo.
+
+   Měřítko se počítá z šířky obalu, ne z pevné hodnoty: kartu drží rozměry
+   v milimetrech a scéna příběhu své šířky mění po breakpointech. Než se
+   změří, je měřítko nula a karta není vidět — je dekorativní, blik nevadí. */
+export function OznameniHlavni() {
+  const obal = useRef<HTMLDivElement>(null);
+  const [skala, setSkala] = useState(0);
+
+  const karta = KARTY.find((k) => k.klic === "hlavni")!;
+  const spad = karta.spad ?? SPAD;
+  const spadSirka = karta.sirka + spad * 2;
+  const spadVyska = karta.vyska + spad * 2;
+
+  useEffect(() => {
+    const el = obal.current;
+    if (!el) return;
+    const sirkaPx = (spadSirka / 25.4) * 96;
+    const zmer = () => setSkala(el.clientWidth / sirkaPx);
+    zmer();
+    const ro = new ResizeObserver(zmer);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [spadSirka]);
+
+  return (
+    <div
+      ref={obal}
+      className={`${s.zaklad} ${kaligrafie.variable}`}
+      style={
+        {
+          "--skala": skala,
+          "--karta-sirka": `${spadSirka}mm`,
+          "--karta-vyska": `${spadVyska}mm`,
+          "--spad": `${spad}mm`,
+          "--zona": `${karta.zona}mm`,
+          width: "100%",
+          height: "100%",
+        } as React.CSSProperties
+      }
+    >
+      <section className={`${s.karta} ${s["k-hlavni"]}`} aria-hidden="true">
+        {KYTKY.map((k, i) => (
+          <img
+            key={i}
+            className={s.kytka}
+            src={`/oznameni/kyticky/${k.snitka}.png`}
+            alt=""
+            aria-hidden="true"
+            style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+          />
+        ))}
+        <div className={s.text}>
+          <Hlavni />
+        </div>
+      </section>
+    </div>
+  );
+}

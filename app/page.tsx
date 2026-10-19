@@ -21,7 +21,10 @@ import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import Snura, { type FotkaNaSnure } from "./pribeh/Snura";
+import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
+import Klikni from "./Klikni";
+import { IkonaKlik } from "./StoryDoodles";
+import { OznameniHlavni } from "./oznameni/Oznameni";
 import Kniha from "./menu/Kniha";
 
 
@@ -110,6 +113,86 @@ function MapaNaDohled() {
   return <div ref={ref} className="venue-map-scene venue-map-loading" />;
 }
 
+/* Věnec kolem hromádky fotek a obálky.
+
+   Jsou to dvě hotové vrstvy z jedné předlohy (scripts/kytky-venec.mjs) na
+   společném plátně 1622 × 1001: jedna leží za kompozicí, druhá přes ni. Obě
+   vyplní scénu celou, takže se do nich fotky s obálkou usadí v procentech
+   a drží polohu při každé šířce okna.
+
+   Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext vrstvení —
+   z-index uvnitř jednoho obrázku by se k obálce vůbec nedostal. */
+function KvetinyVrstva({ nad }: { nad?: boolean }) {
+  return (
+    <img
+      className={"scena-kytky" + (nad ? " scena-kytky-nad" : "")}
+      src={nad ? "/kytky/venec-nad.webp" : "/kytky/venec-pod.webp"}
+      alt=""
+      aria-hidden="true"
+    />
+  );
+}
+/* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
+   listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
+type StavObalky = "zavreno" | "dopis" | "oznameni";
+
+function ObalkaPribeh({ children }: { children: React.ReactNode }) {
+  const [stav, setStav] = useState<StavObalky>("zavreno");
+  const otevrena = stav !== "zavreno";
+  const dalsi = () => setStav(stav === "dopis" ? "oznameni" : "zavreno");
+  /* Na telefonu obálka není a oba listy leží pod sebou — klepnutí si je jen
+     prohodí. Na širokém okně se sem klepnutí nedostane: zavřené listy mají
+     pointer-events: none. */
+  const prohodit = () => setStav(stav === "oznameni" ? "zavreno" : "oznameni");
+  return (
+    <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
+      {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
+          grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
+          „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
+          změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
+          spodek papíru, takže papír končí schovaný v kapse. */}
+      {/* Klepnutí na listy je posouvá dál: z dopisu na oznámení, z oznámení
+          zpátky do obálky. Otevřít se jimi nedá — zavřené listy nejsou vidět
+          a tělo obálky je pod nimi. Ovládat se to dá pořád i z tlačítka níž,
+          takže klávesnici ani odečítači tohle nic nebere; proto je to obyčejný
+          div bez role. */}
+      <div className="obalka-vysuv" onClick={otevrena ? dalsi : prohodit}>
+        <div className="obalka-vysuv-ram">
+          <div className="obalka-listy">
+            {/* Oznámení je z obou listů vyšší, takže drží výšku obalu a dopis
+                na něm leží. Kouká za ním ven; po klepnutí si místa prohodí. */}
+            <span className="obalka-oznameni" aria-hidden="true">
+              <OznameniHlavni />
+            </span>
+            <div className="obalka-papir">{children}</div>
+            {/* Odznak s kurzorem — na telefonu zve k prohození listů. Na širokém
+                okně ho CSS schová, tam vede cestu šipka u zavřené obálky. */}
+            <span className="doodle-obal obalka-klik" aria-hidden="true">
+              <IkonaKlik />
+            </span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        className="obalka-telo"
+        onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
+        aria-expanded={otevrena}
+      >
+        <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
+        <img className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
+        {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
+            chlopně, takže musí mizet spolu s ní. */}
+        <span className="obalka-zavrena-obal" aria-hidden="true">
+          <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
+          <img className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
+        </span>
+        {/* Popisek jen u otevřené obálky. Zavřené ukazuje cestu šipka. */}
+        {otevrena && <span className="obalka-popisek">Zavřít</span>}
+      </button>
+    </div>
+  );
+}
 function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -351,22 +434,22 @@ function Odpocet() {
 /* Fotky z našeho příběhu na šňůře, seřazené od nejstarší podle Kátina
    zápisníku (samotná data se nevypisují). `popis` je ručně psaný popisek na
    spodním pruhu polaroidu a zároveň alt fotky. */
-const PRIBEH_FOTKY: FotkaNaSnure[] = [
-  { src: "/fotky/web/2.webp", popis: "První společná fotka" },
-  { src: "/fotky/web/27.webp", popis: "ZOO Ostrava" },
-  { src: "/fotky/web/28.webp", popis: "Bílovec" },
-  { src: "/fotky/web/4.webp", popis: "Chorvatsko" },
-  { src: "/fotky/web/6.webp", popis: "Kozmice" },
-  { src: "/fotky/web/11.webp", popis: "Sicílie" },
-  { src: "/fotky/web/21.webp", popis: "Svatba I & O" },
-  { src: "/fotky/web/16.webp", popis: "Těhotenské focení" },
-  { src: "/fotky/web/22.webp", popis: "První Chorvatsko jako rodina" },
-  { src: "/fotky/web/20.webp", popis: "Slovensko" },
-  { src: "/fotky/web/23.webp", popis: "Štramberk" },
-  { src: "/fotky/web/24.webp", popis: "FM City Fest" },
-  { src: "/fotky/web/25.webp", popis: "Trogir" },
-  { src: "/fotky/web/1.webp", popis: "Zásnuby na Troskách" },
-  { src: "/fotky/web/26.webp", popis: "Kutná Hora" },
+const PRIBEH_FOTKY: FotkaNaHromadce[] = [
+  { src: "/fotky/web/2.webp", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
+  { src: "/fotky/web/27.webp", alt: "ZOO Ostrava" },
+  { src: "/fotky/web/28.webp", alt: "Bílovec" },
+  { src: "/fotky/web/4.webp", alt: "Chorvatsko" },
+  { src: "/fotky/web/6.webp", alt: "Kozmice" },
+  { src: "/fotky/web/11.webp", alt: "Sicílie" },
+  { src: "/fotky/web/21.webp", alt: "Svatba I a O" },
+  { src: "/fotky/web/16.webp", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
+  { src: "/fotky/web/22.webp", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
+  { src: "/fotky/web/20.webp", alt: "Slovensko" },
+  { src: "/fotky/web/23.webp", alt: "Štramberk" },
+  { src: "/fotky/web/24.webp", alt: "FM City Fest" },
+  { src: "/fotky/web/25.webp", alt: "Trogir" },
+  { src: "/fotky/web/1.webp", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
+  { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
 ];
 
 /* Program dne. `ikona` je název souboru v public/program,
@@ -580,21 +663,30 @@ export default function Home() {
 
       {/* příběh */}
       <section className="story" id="story">
-        <Reveal className="wrap">
-          <p className="eyebrow">Náš příběh</p>
-          <h2>Jak to celé začalo</h2>
-        </Reveal>
-        {/* Polaroidy na šňůře přes celou šířku okna a pod nimi dopis hostům. */}
-        <Reveal>
-          <Snura fotky={PRIBEH_FOTKY}>
-            <p>
-              Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
-              největší společné dobrodružství. Poznali jsme se, zamilovali se,
-              prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
-              plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-              jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
-            </p>
-          </Snura>
+        <Reveal className="scena">
+          <KvetinyVrstva />
+          <div className="scena-foto">
+            <FotoHromadka fotky={PRIBEH_FOTKY} />
+          </div>
+          <div className="scena-obalka">
+            <ObalkaPribeh>
+              <p className="eyebrow">Náš příběh</p>
+              <h2>Jak to celé začalo</h2>
+              <p className="lead">
+                Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
+                největší společné dobrodružství. Poznali jsme se, zamilovali se,
+                prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
+                plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
+                jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
+              </p>
+            </ObalkaPribeh>
+            {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
+                Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
+                po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
+                šla obálka pořád otevřít. */}
+            <Klikni id="klikni-drah-obalka" />
+          </div>
+          <KvetinyVrstva nad />
         </Reveal>
       </section>
 
