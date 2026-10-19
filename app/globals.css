@@ -2409,9 +2409,11 @@ body,
 .obalka-popisek {
   /* Níž, než by se zdálo: obálka je natočená o 7°, takže jí spodní roh
      zajíždí pod vlastní rámec a popisek by z poloviny schoval. */
-  position: absolute; left: 0; right: 0; bottom: -3.4rem;
-  font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  position: absolute; left: 0; right: 0; bottom: -2.4rem;
+  /* V 10,5 px na 55 % krytí a přisazený až na hranu sekce nebyl skoro vidět —
+     dolní půlka mu padala do sekce pod příběhem. */
+  font-size: .86rem; letter-spacing: .2em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
