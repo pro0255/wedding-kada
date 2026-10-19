@@ -1,0 +1,134 @@
+/* S5 — příběh při scrollu. Výška celku = počet kroků × výška kroku; scéna
+   uvnitř je sticky přes celou výšku okna. Značky kroků leží absolutně přes
+   celou výšku a IntersectionObserver je hlídá (Pribeh.tsx). */
+.pribeh {
+  --krok: 62vh;
+  --inkoust: #2b2925;
+  --hneda: #6b5340;
+  --zlato: #a8874a;
+  position: relative;
+  height: calc(var(--kroku) * var(--krok) + 100vh - var(--krok));
+  margin-block: -2rem;
+}
+.znacky {
+  position: absolute; inset: 0 0 auto; display: flex; flex-direction: column;
+  /* první značka začíná půl obrazovky pod horní hranou, aby krok 0 platil hned */
+  padding-top: calc(50vh - var(--krok) / 2);
+  pointer-events: none;
+}
+.znacky span { height: var(--krok); }
+
+.scena {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  max-width: 1180px; margin: 0 auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center; gap: clamp(2rem, 5vw, 5rem);
+}
+
+/* ---------- text ---------- */
+.text { min-width: 0; }
+.stitek {
+  margin: 0 0 1rem;
+  font-size: .68rem; letter-spacing: .4em; text-transform: uppercase; color: var(--zlato);
+}
+.nadpis {
+  margin: 0 0 2rem;
+  font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--inkoust);
+}
+.dopis {
+  margin: 0;
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(1.35rem, 2.1vw, 1.85rem); line-height: 1.45;
+  color: var(--inkoust);
+  text-wrap: pretty;
+}
+.veta {
+  transition: opacity .6s ease, color .6s ease;
+}
+.veta[data-stav="minula"] { opacity: .32; }
+.veta[data-stav="budouci"] { opacity: 0; }
+/* U podpisu se rozsvítí celý dopis — host si ho na konci přečte vcelku. */
+@media (min-width: 761px) {
+  .pribeh[data-konec] .veta { opacity: 1; }
+}
+
+.podpis {
+  margin: 1.8rem 0 0;
+  display: flex; flex-direction: column; gap: .3rem;
+  transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.podpis[data-stav="budouci"] { opacity: 0; transform: translateY(14px); }
+.podpisJmena {
+  font-family: var(--rukopis-s5), cursive; font-size: 2.1rem; line-height: 1.1;
+  color: var(--hneda);
+}
+.podpisDatum {
+  font-size: .72rem; letter-spacing: .26em; text-transform: uppercase; color: var(--zlato);
+}
+
+/* ---------- stůl s fotkami ---------- */
+.stul {
+  position: relative;
+  width: min(100%, 440px); aspect-ratio: 4 / 5;
+  justify-self: center;
+}
+.polaroid {
+  position: absolute; left: 14%; top: 8%; width: 72%;
+  margin: 0;
+  padding: 4% 4% 0;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(43 41 37 / .1), 0 14px 30px -14px rgb(43 41 37 / .4);
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  transition: transform .9s cubic-bezier(.2, .75, .25, 1), opacity .5s ease;
+}
+/* Fotka, která na stůl teprve přijde: čeká mimo, výš a víc natočená —
+   pak „dosedne“ na své místo. */
+.polaroid[data-stav="budouci"] {
+  opacity: 0;
+  transform: translate(calc(var(--x) + 38%), calc(var(--y) - 22%)) rotate(calc(var(--r) + 14deg)) scale(1.06);
+}
+.polaroid img {
+  display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover;
+  -webkit-user-drag: none; user-select: none;
+}
+.polaroid figcaption {
+  padding: .5rem .3rem .75rem;
+  text-align: center;
+  font-family: var(--rukopis-s5), cursive;
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.25;
+  color: var(--inkoust);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veta, .podpis, .polaroid { transition: none; }
+}
+
+/* ---------- telefon ----------
+   Scéna zůstává sticky, jen pod sebou: fotky nahoře, pod nimi jen aktuální
+   věta (celý odstavec by se na výšku nevešel). Věty leží přes sebe ve stejném
+   místě a prolínají se. */
+@media (max-width: 760px) {
+  .pribeh { --krok: 70vh; margin-block: -1rem; }
+  .scena {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start; align-content: center; gap: 1.1rem;
+    padding-block: 1rem;
+  }
+  .text { display: contents; }
+  .stitek { order: 1; margin: 0; text-align: center; }
+  .nadpis { order: 2; margin: -.4rem 0 0; text-align: center; font-size: 1.45rem; }
+  .stul { order: 3; width: min(66vw, 270px); margin-block: .4rem 1rem; }
+  .dopis {
+    order: 4; display: grid; text-align: center;
+    font-size: 1.28rem; line-height: 1.4; min-height: 5.8em;
+  }
+  .veta { grid-area: 1 / 1; align-self: center; }
+  .veta[data-stav="minula"] { opacity: 0; }
+  .podpis { order: 5; align-items: center; margin-top: 0; }
+  .podpisJmena { font-size: 1.8rem; }
+  .podpisDatum { text-align: center; font-size: .64rem; letter-spacing: .18em; }
+  .polaroid figcaption { font-size: 1.05rem; }
+}

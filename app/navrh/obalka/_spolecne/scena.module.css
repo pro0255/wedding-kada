@@ -1,0 +1,164 @@
+.stranka {
+  min-height: 100vh;
+  background: #f5f2ec;
+  color: #3f342b;
+  font-family: var(--sans), system-ui, sans-serif;
+  padding: 24px 16px 140px;
+  overflow-x: clip;
+}
+
+.hlavicka {
+  max-width: 980px;
+  margin: 0 auto 24px;
+}
+
+.zpet {
+  font-size: 14px;
+  color: #3f342b;
+  opacity: 0.7;
+  text-decoration: none;
+}
+.zpet:hover,
+.zpet:focus-visible {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.nazev {
+  font-family: var(--serif), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(26px, 3.6vw, 36px);
+  margin: 10px 0 6px;
+}
+
+.popis {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 14.5px;
+  line-height: 1.55;
+  opacity: 0.75;
+}
+
+/* D1: hromádka vlevo, obálka vpravo dole přes roh hromádky (~20 %).
+   Souřadnice květin jsou v cqw (procenta šířky scény) i svisle, ať drží
+   tvar kompozice v každé šířce; --nahore = horní odsazení scény. */
+.scena {
+  --nahore: 40px;
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  max-width: 980px;
+  margin: 0 auto;
+  /* celý padding natvrdo — globální `section { padding }` z webu by sem prosákl */
+  padding: var(--nahore) 0 0;
+}
+
+.hromadka {
+  position: relative;
+  z-index: 1;
+  width: 44%;
+  aspect-ratio: 0.86;
+}
+
+.polaroid {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  background: #fbf9f4;
+  padding: 5% 5% 18%;
+  box-shadow:
+    0 1px 2px rgb(63 52 43 / 0.12),
+    0 10px 30px -8px rgb(63 52 43 / 0.25);
+}
+.polaroid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slotObalky {
+  position: relative;
+  z-index: 5;
+  width: 50%;
+  margin-left: 35%;
+  margin-top: -10%;
+}
+
+/* ---------- květiny ---------- */
+.za,
+.pred {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.za {
+  z-index: 0;
+}
+.pred {
+  z-index: 6;
+}
+.kv {
+  position: absolute;
+  display: block;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* jen měkký stín, barvy zůstávají plné */
+  filter: drop-shadow(0 0.5cqw 0.7cqw rgb(63 52 43 / 0.16));
+}
+.pred .kv {
+  filter: drop-shadow(0 0.8cqw 1cqw rgb(63 52 43 / 0.22));
+}
+
+/* desktop — kytice za průsečíkem (pravý okraj hromádky × horní hrana obálky) */
+.kvOstrozkaModra { left: 47cqw; top: calc(var(--nahore) + 12cqw); width: 6cqw; rotate: 20deg; }
+.kvOstrozkaRuzova { left: 56cqw; top: calc(var(--nahore) + 18cqw); width: 5.5cqw; rotate: 40deg; }
+.kvGypsophila { left: 51cqw; top: calc(var(--nahore) + 18cqw); width: 14cqw; rotate: 6deg; }
+.kvPomnenky { left: 68cqw; top: calc(var(--nahore) + 27cqw); width: 6cqw; rotate: 46deg; }
+.kvGerberaZluta { left: 67.5cqw; top: calc(var(--nahore) + 33.5cqw); width: 9cqw; rotate: 14deg; }
+.kvPivonka { left: 58cqw; top: calc(var(--nahore) + 30.5cqw); width: 12cqw; }
+.kvHortenzie { left: 42cqw; top: calc(var(--nahore) + 28.5cqw); width: 17cqw; rotate: -8deg; }
+/* pod spodní hranou hromádky, vlevo od obálky */
+.kvPivonkaZluta { left: 11cqw; top: calc(var(--nahore) + 49cqw); width: 9cqw; rotate: -8deg; }
+.kvKarafiatBroskvovy { left: 18.5cqw; top: calc(var(--nahore) + 51.5cqw); width: 9.5cqw; rotate: 10deg; }
+.kvGerbera { left: 25.5cqw; top: calc(var(--nahore) + 50cqw); width: 10cqw; }
+.kvKarafiatRuzovy { left: 30.5cqw; top: calc(var(--nahore) + 54.5cqw); width: 8.5cqw; rotate: -12deg; }
+/* před scénou */
+.kvHermanek { left: 78cqw; top: calc(var(--nahore) + 63cqw); width: 12cqw; rotate: 22deg; }
+.kvKrasenka { left: 74.5cqw; top: calc(var(--nahore) + 70cqw); width: 6.5cqw; }
+.kvRuze { left: -3cqw; top: calc(var(--nahore) + 42cqw); width: 9cqw; rotate: -20deg; }
+
+@media (max-width: 700px) {
+  .stranka {
+    padding-bottom: 110px;
+  }
+  .scena {
+    --nahore: 16px;
+  }
+  .hromadka {
+    width: 68%;
+  }
+  .slotObalky {
+    width: 88%;
+    margin-left: 12%;
+    margin-top: -17%;
+  }
+
+  /* telefon: kytice vykukuje vpravo od hromádky nad obálkou */
+  .kvOstrozkaModra { left: 71cqw; top: calc(var(--nahore) + 21cqw); width: 8cqw; rotate: 10deg; }
+  .kvOstrozkaRuzova { left: 84cqw; top: calc(var(--nahore) + 31cqw); width: 7cqw; rotate: 28deg; }
+  .kvGypsophila { left: 75cqw; top: calc(var(--nahore) + 27cqw); width: 18cqw; rotate: 10deg; }
+  .kvPomnenky,
+  .kvGerberaZluta { display: none; }
+  .kvPivonka { left: 84cqw; top: calc(var(--nahore) + 50cqw); width: 15cqw; }
+  .kvHortenzie { left: 63cqw; top: calc(var(--nahore) + 46cqw); width: 22cqw; rotate: -8deg; }
+  .kvPivonkaZluta,
+  .kvGerbera { display: none; }
+  .kvKarafiatRuzovy { left: -2cqw; top: calc(var(--nahore) + 79cqw); width: 13cqw; rotate: -12deg; }
+  .kvKarafiatBroskvovy { display: none; }
+
+  .kvHermanek { left: 82cqw; top: calc(var(--nahore) + 101cqw); width: 18cqw; }
+  .kvKrasenka { left: 76cqw; top: calc(var(--nahore) + 112cqw); width: 9cqw; }
+  .kvRuze { left: -3cqw; top: calc(var(--nahore) + 64cqw); width: 13cqw; }
+}

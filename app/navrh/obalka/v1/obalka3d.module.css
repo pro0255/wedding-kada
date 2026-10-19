@@ -1,0 +1,71 @@
+/* Slot má poměr těla obálky (7.9 : 5.04). Plátno je větší než obálka —
+   dopis vyjíždí nad ni — a jeho rozměry musí sedět s konstantou SVET v Obalka3D.tsx. */
+.slot {
+  position: relative;
+  aspect-ratio: 7.9 / 5.04;
+}
+.platno {
+  position: absolute;
+  left: -16%;
+  width: 132%;
+  top: -128.57%;
+  height: 261.9%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.platno canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.slot[data-pripraveno="true"] .platno {
+  opacity: 1;
+}
+.slot[data-otevreno="true"] .platno {
+  pointer-events: auto;
+  cursor: pointer;
+}
+/* než se načte model, ukáže se jemná silueta obálky */
+.slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5%;
+  background: #dfe7ef;
+  opacity: 0.6;
+  transition: opacity 0.4s ease;
+}
+.slot[data-pripraveno="true"]::before {
+  opacity: 0;
+}
+.tlacitko {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tlacitko:focus-visible {
+  outline: 2px solid #3f342b;
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .platno,
+  .slot::before {
+    transition: none;
+  }
+}

@@ -1,23 +1,16 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 
 /**
  * Fotky od hostů: soubory žijí v Cloudinary (free tier), metadata a lajky
- * v Airtable — stejná base jako rezervace ubytování. Smazání řádku v tabulce
- * „Fotky“ fotku okamžitě schová z galerie (soubor v Cloudinary přežije,
- * na free tieru nevadí).
+ * v Redisu (hash fotek + set lajků). Smazání záznamu fotku okamžitě schová
+ * z galerie (soubor v Cloudinary přežije, na free tieru nevadí).
  *
  * Hosté nemají účty — každý prohlížeč se pozná podle náhodného deviceId
  * v localStorage. Přes něj se párují „moje fotky“, mazání i lajky.
  */
-import { apiTabulky, doFormule, hlavicky, nactiZaznamy as nactiObecne } from "./airtable.ts";
-import type { Zaznam as ZaznamObecny } from "./airtable.ts";
+import { KLIC, kratkaPamet, redis } from "./redis.ts";
 
-const API_FOTKY = apiTabulky("Fotky");
-const API_LAJKY = apiTabulky("Lajky");
-
-type Zaznam = ZaznamObecny<Record<string, string | undefined>>;
-const nactiZaznamy = (api: string, filtr?: string) =>
-  nactiObecne<Record<string, string | undefined>>(api, filtr);
+type Fotka = { url: string; publicId: string; deviceId: string; nahrano: string };
 
 /** Jedna fotka tak, jak ji vidí konkrétní zařízení (lajky, vlastnictví). */
 export type FotkaVypis = {
@@ -29,94 +22,62 @@ export type FotkaVypis = {
   moje: boolean;
 };
 
+/** Id ve stejném tvaru jako dřív z Airtable (rec + 14 znaků), ať platí staré odkazy. */
+function noveId(): string {
+  const znaky = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return "rec" + [...randomBytes(14)].map((b) => znaky[b % znaky.length]).join("");
+}
+
+const lajkKlic = (fotkaId: string, deviceId: string) => `${fotkaId}:${deviceId}`;
+
+// celá galerie pro všechna zařízení naráz; „moje“ a „lajkl jsem“ se dopočítá zvlášť
+const galerie = kratkaPamet(5_000, async () => {
+  const [fotky, lajky] = await redis()
+    .pipeline()
+    .hgetall<Record<string, Fotka>>(KLIC.fotky)
+    .smembers(KLIC.lajky)
+    .exec<[Record<string, Fotka> | null, string[]]>();
+  return { fotky: fotky ?? {}, lajky: new Set(lajky) };
+});
+
 /** Galerie pro dané zařízení — nejnovější první. */
 export async function seznamFotek(deviceId: string): Promise<FotkaVypis[]> {
-  const [fotky, lajky] = await Promise.all([
-    nactiZaznamy(API_FOTKY),
-    nactiZaznamy(API_LAJKY),
-  ]);
+  const { fotky, lajky } = await galerie.get();
 
   const pocty = new Map<string, number>();
-  const moje = new Set<string>();
   for (const l of lajky) {
-    const fotkaId = l.fields.FotkaId ?? "";
+    const fotkaId = l.slice(0, l.indexOf(":"));
     pocty.set(fotkaId, (pocty.get(fotkaId) ?? 0) + 1);
-    if (l.fields.DeviceId === deviceId) moje.add(fotkaId);
   }
 
-  return fotky
-    .filter((f) => !!f.fields.Url)
-    .map((f) => ({
-      id: f.id,
-      url: f.fields.Url!,
-      nahrano: f.fields["Nahráno"] ?? "",
-      lajky: pocty.get(f.id) ?? 0,
-      lajklJsem: moje.has(f.id),
-      moje: f.fields.DeviceId === deviceId,
+  return Object.entries(fotky)
+    .map(([id, f]) => ({
+      id,
+      url: f.url,
+      nahrano: f.nahrano,
+      lajky: pocty.get(id) ?? 0,
+      lajklJsem: lajky.has(lajkKlic(id, deviceId)),
+      moje: f.deviceId === deviceId,
     }))
     .sort((a, b) => b.nahrano.localeCompare(a.nahrano));
 }
 
-/** Zapíše nahranou fotku do Airtable. */
-export async function pridejFotku(
-  url: string,
-  publicId: string,
-  deviceId: string
-): Promise<string> {
-  const odpoved = await fetch(API_FOTKY, {
-    method: "POST",
-    headers: hlavicky(),
-    body: JSON.stringify({
-      records: [
-        {
-          fields: {
-            Url: url,
-            PublicId: publicId,
-            DeviceId: deviceId,
-            "Nahráno": new Date().toISOString(),
-          },
-        },
-      ],
-    }),
-  });
-  if (!odpoved.ok) {
-    throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
-  }
-  const data = (await odpoved.json()) as { records: { id: string }[] };
-  return data.records[0].id;
+/** Zapíše nahranou fotku. */
+export async function pridejFotku(url: string, publicId: string, deviceId: string): Promise<string> {
+  const id = noveId();
+  const fotka: Fotka = { url, publicId, deviceId, nahrano: new Date().toISOString() };
+  await redis().hset(KLIC.fotky, { [id]: fotka });
+  galerie.zahod();
+  return id;
 }
 
 /** Přepne lajk zařízení na fotce. Vrací, jestli po přepnutí lajk je. */
-export async function prepniLajk(
-  fotkaId: string,
-  deviceId: string
-): Promise<{ lajknuto: boolean }> {
-  const existujici = await nactiZaznamy(
-    API_LAJKY,
-    `AND({FotkaId}='${doFormule(fotkaId)}',{DeviceId}='${doFormule(deviceId)}')`
-  );
-
-  if (existujici.length > 0) {
-    const url = new URL(API_LAJKY);
-    for (const l of existujici) url.searchParams.append("records[]", l.id);
-    const odpoved = await fetch(url, { method: "DELETE", headers: hlavicky() });
-    if (!odpoved.ok) {
-      throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
-    }
-    return { lajknuto: false };
-  }
-
-  const odpoved = await fetch(API_LAJKY, {
-    method: "POST",
-    headers: hlavicky(),
-    body: JSON.stringify({
-      records: [{ fields: { FotkaId: fotkaId, DeviceId: deviceId } }],
-    }),
-  });
-  if (!odpoved.ok) {
-    throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
-  }
-  return { lajknuto: true };
+export async function prepniLajk(fotkaId: string, deviceId: string): Promise<{ lajknuto: boolean }> {
+  const klic = lajkKlic(fotkaId, deviceId);
+  const odebrano = await redis().srem(KLIC.lajky, klic);
+  if (odebrano === 0) await redis().sadd(KLIC.lajky, klic);
+  galerie.zahod();
+  return { lajknuto: odebrano === 0 };
 }
 
 /** Smaže soubor v Cloudinary (podepsaný Admin API request). */
@@ -152,35 +113,22 @@ async function smazZCloudinary(publicId: string, typ: "image" | "video"): Promis
 export type VysledekSmazani = { ok: true } | { ok: false; duvod: "cizi" | "neexistuje" };
 
 /** Smaže fotku — jen pokud patří danému zařízení. Uklidí i její lajky. */
-export async function smazFotku(
-  id: string,
-  deviceId: string
-): Promise<VysledekSmazani> {
-  const odpoved = await fetch(`${API_FOTKY}/${id}`, { headers: hlavicky(), cache: "no-store" });
-  if (odpoved.status === 404) return { ok: false, duvod: "neexistuje" };
-  if (!odpoved.ok) {
-    throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
-  }
-  const zaznam = (await odpoved.json()) as Zaznam;
-  if (zaznam.fields.DeviceId !== deviceId) return { ok: false, duvod: "cizi" };
+export async function smazFotku(id: string, deviceId: string): Promise<VysledekSmazani> {
+  const fotka = await redis().hget<Fotka>(KLIC.fotky, id);
+  if (!fotka) return { ok: false, duvod: "neexistuje" };
+  if (fotka.deviceId !== deviceId) return { ok: false, duvod: "cizi" };
 
-  const smazani = await fetch(`${API_FOTKY}/${id}`, { method: "DELETE", headers: hlavicky() });
-  if (!smazani.ok) {
-    throw new Error(`Airtable vrátil ${smazani.status}: ${await smazani.text()}`);
+  await redis().hdel(KLIC.fotky, id);
+  galerie.zahod();
+
+  if (fotka.publicId) {
+    const typ = fotka.url.includes("/video/upload/") ? "video" : "image";
+    await smazZCloudinary(fotka.publicId, typ);
   }
 
-  if (zaznam.fields.PublicId) {
-    const typ = zaznam.fields.Url?.includes("/video/upload/") ? "video" : "image";
-    await smazZCloudinary(zaznam.fields.PublicId, typ);
-  }
-
-  // sirotčí lajky smazané fotky — po 10, víc Airtable v jednom requestu nevezme
-  const lajky = await nactiZaznamy(API_LAJKY, `{FotkaId}='${doFormule(id)}'`);
-  for (let i = 0; i < lajky.length; i += 10) {
-    const url = new URL(API_LAJKY);
-    for (const l of lajky.slice(i, i + 10)) url.searchParams.append("records[]", l.id);
-    await fetch(url, { method: "DELETE", headers: hlavicky() });
-  }
+  // sirotčí lajky smazané fotky
+  const sirotci = (await redis().smembers(KLIC.lajky)).filter((l) => l.startsWith(`${id}:`));
+  if (sirotci.length > 0) await redis().srem(KLIC.lajky, ...sirotci);
 
   return { ok: true };
 }

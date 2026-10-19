@@ -1,0 +1,18 @@
+.stranka { min-height: 100vh; background: #fff; color: #2b2925; padding-bottom: 2.5rem; overflow-x: clip; }
+.hlava { position: relative; padding: .9rem 16px .3rem; text-align: center; }
+.zpet {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+  color: #a8874a; text-decoration: none;
+}
+.kod {
+  font-family: var(--sans), sans-serif; font-size: .62rem; letter-spacing: .3em;
+  color: #a8874a; vertical-align: middle; margin-right: .5em;
+}
+.nazev { font-family: var(--serif), Georgia, serif; font-weight: 500; font-size: clamp(1.1rem, 2.4vw, 1.45rem); line-height: 1.3; margin: 0 0 .6rem; letter-spacing: 0; text-transform: none; }
+/* béžové pruhy = sousední sekce webu (odpočet nad, místo konání pod) */
+.pruh { height: 56px; background: #ece5d8; }
+/* globals.css dává <section> odsazení — tady vlastní, jako na webu */
+.sekce { position: relative; padding: 5rem 16px; }
+.popis { max-width: 40rem; margin: 1.6rem auto 0; padding: 0 16px; font-size: .85rem; line-height: 1.6; text-align: center; color: #6b5340; }
+@media (max-width: 520px) { .hlava { padding-left: 6rem; text-align: right; } .sekce { padding: 3.2rem 16px; } }

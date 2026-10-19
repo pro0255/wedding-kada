@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import FotoGalerie from "../FotoGalerie";
+import FotkyBrana from "../FotkyBrana";
 import VyberHry from "../hry/VyberHry";
 import s from "./podekovani.module.css";
 
@@ -40,7 +40,7 @@ export default function Podekovani() {
           <p className="eyebrow">Vzpomínky</p>
           <h2>Fotky od vás</h2>
         </div>
-        <FotoGalerie />
+        <FotkyBrana />
       </section>
 
       <section className={s.hry}>
@@ -55,7 +55,7 @@ export default function Podekovani() {
       </section>
 
       <footer className={s.paticka}>
-        <p className="serif">Kateřina &amp; Jakub</p>
+        <p className="serif">Káťa &amp; Kuba</p>
         <Link href="/?svatba=1">Původní svatební web</Link>
       </footer>
     </main>

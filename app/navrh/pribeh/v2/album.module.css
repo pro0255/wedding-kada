@@ -1,0 +1,170 @@
+/* Fotoalbum (Album.tsx). Velikosti uvnitř stran jsou v cqi — jednotkách
+   šířky jedné strany — takže obsah roste a zmenšuje se se stranou. */
+
+.obal {
+  --inkoust: #2b2925;
+  --hneda: #6b5340;
+  --zlato: #a8874a;
+  --papir: #fbf8f1;
+  --platno: #b9cbdb;
+}
+.hlavicka { text-align: center; }
+
+/* ---------- desky a blok ---------- */
+.desky {
+  position: relative;
+  width: min(960px, 100%);
+  margin: 2.2rem auto 0;
+  padding: 14px;
+  border-radius: 8px;
+  /* plátno: jemná tkaná struktura dvěma pruhovanými vzory */
+  background:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / .07) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(40 50 60 / .05) 0 1px, transparent 1px 3px),
+    var(--platno);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / .25),
+    0 2px 4px rgb(43 41 37 / .12),
+    0 34px 60px -30px rgb(43 41 37 / .5);
+}
+.desky:focus-visible { outline: 2px solid var(--zlato); outline-offset: 6px; }
+.blok {
+  position: relative;
+  aspect-ratio: 1000 / 640;
+  perspective: 2600px;
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ---------- strany ---------- */
+.strana {
+  position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+  container-type: inline-size;
+  overflow: hidden;
+  background-color: var(--papir);
+  color: var(--inkoust);
+}
+/* stín do hřbetu — levá strana tmavne doprava, pravá doleva */
+.leva { background-image: linear-gradient(to left, rgb(90 70 45 / .16), rgb(90 70 45 / 0) 9%); }
+.prava { background-image: linear-gradient(to right, rgb(90 70 45 / .16), rgb(90 70 45 / 0) 9%); }
+/* pevné strany: tloušťka bloku listů na vnější hraně */
+.pevna.leva {
+  right: 50%;
+  box-shadow: -1px 1px 0 #ede6d8, -2px 2px 0 #e2d9c8, -3px 3px 0 #ede6d8, -4px 4px 0 #d9cfbd;
+}
+.pevna.prava {
+  left: 50%;
+  box-shadow: 1px 1px 0 #ede6d8, 2px 2px 0 #e2d9c8, 3px 3px 0 #ede6d8, 4px 4px 0 #d9cfbd;
+}
+
+/* ---------- list (přetáčí se kolem hřbetu) ---------- */
+.list {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: 50%;
+  transform-style: preserve-3d;
+  transform-origin: 0 50%;
+  transform: rotateY(0deg);
+  transition: transform .95s cubic-bezier(.42, .08, .2, 1);
+  will-change: transform;
+}
+.list[data-otoceny="true"] { transform: rotateY(-180deg); }
+.lic, .rub { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rub { transform: rotateY(180deg); }
+
+/* stín hřbetu přes obě strany */
+.hrbet {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: 5%; translate: -50% 0;
+  z-index: 60; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(60 45 30 / .14) 46%, rgb(60 45 30 / .22) 50%, rgb(60 45 30 / .14) 54%, transparent);
+}
+
+/* telefon: jedna strana, otáčí se přes levý okraj */
+.uzke { width: min(430px, 100%); padding: 10px; }
+.uzke .blok { aspect-ratio: 500 / 640; perspective: 1700px; }
+.uzke .list { left: 0; width: 100%; }
+.uzke .list[data-otoceny="true"] { transform: rotateY(-180deg); }
+.uzke .strana { box-shadow: 1px 1px 0 #ede6d8, 2px 2px 0 #e2d9c8, 3px 3px 0 #d9cfbd; }
+
+/* ---------- dopis a závěr ---------- */
+.dopis, .zaver {
+  height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 9cqi 10cqi;
+}
+.osloveni, .podpis, .pokracovani {
+  font-family: var(--s2-pero), cursive; color: var(--hneda);
+  font-size: 10cqi; line-height: 1; margin: 0;
+}
+.text {
+  margin: 4cqi 0 3cqi;
+  font-family: var(--serif), Georgia, serif;
+  font-size: max(12px, 3.75cqi); line-height: 1.6;
+  text-wrap: pretty;
+}
+.podpis { align-self: flex-end; }
+.zaver { align-items: center; text-align: center; gap: 4cqi; }
+.pokracovani { font-size: 12cqi; }
+.datum {
+  margin: 0;
+  font-size: max(9px, 2.3cqi); letter-spacing: .3em; text-transform: uppercase; color: var(--zlato);
+}
+
+/* ---------- fotky na stranách ---------- */
+.fotky { height: 100%; padding: 8cqi 8cqi; display: flex; }
+.sada_nasirku { flex-direction: column; justify-content: center; gap: 7cqi; }
+.sada_navysku { align-items: center; justify-content: center; gap: 6cqi; }
+.sada_jedna { align-items: center; justify-content: center; }
+
+.fotka { margin: 0; rotate: var(--rot); }
+.snimek {
+  position: relative; display: block;
+  box-shadow: 0 1px 2px rgb(43 41 37 / .18), 0 10px 18px -10px rgb(43 41 37 / .45);
+}
+.snimek img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; }
+.popis {
+  font-family: var(--s2-pero), cursive; color: var(--hneda);
+  font-size: 6.6cqi; line-height: 1.05;
+}
+
+/* na šířku: fotka a vedle ní popisek, druhá zrcadlově */
+.nasirku { display: flex; align-items: center; gap: 4cqi; }
+.nasirku .snimek { flex: none; width: 58cqi; aspect-ratio: 4 / 3; }
+.nasirku:nth-child(2) { flex-direction: row-reverse; text-align: right; }
+.nasirku .popis { flex: 1; }
+/* na výšku: dvě vedle sebe, popisek pod */
+.navysku { width: 38cqi; text-align: center; }
+.navysku .snimek { aspect-ratio: 3 / 4; }
+.navysku .popis { margin-top: 3cqi; }
+.navysku:nth-child(2) { margin-top: 12cqi; }
+.jedna { width: 52cqi; text-align: center; }
+.jedna .snimek { aspect-ratio: 3 / 4; }
+.jedna .popis { margin-top: 3.5cqi; font-size: 7.6cqi; }
+
+/* rožky: tmavé papírové trojúhelníky přes rohy fotky */
+.rozek {
+  position: absolute; width: 7cqi; height: 7cqi;
+  background: linear-gradient(135deg, #4a4038, #2c2621);
+  box-shadow: 0 0 0 .2px rgb(0 0 0 / .2);
+}
+.lh { left: -1px; top: -1px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.ph { right: -1px; top: -1px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.ld { left: -1px; bottom: -1px; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+.pd { right: -1px; bottom: -1px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* ---------- ovládání ---------- */
+.ovladani {
+  display: flex; align-items: center; justify-content: center; gap: .8rem;
+  margin-top: 1.6rem;
+}
+.sipka {
+  width: 44px; height: 44px; border: 0; background: none;
+  font: 400 1.7rem/1 var(--serif), Georgia, serif; color: var(--hneda);
+  cursor: pointer;
+}
+.sipka:disabled { opacity: .25; cursor: default; }
+.sipka:focus-visible { outline: 2px solid var(--zlato); outline-offset: 2px; }
+.pocet { min-width: 4.5em; text-align: center; font-family: var(--serif), Georgia, serif; font-size: 1.1rem; color: var(--hneda); }
+
+@media (prefers-reduced-motion: reduce) {
+  .list { transition: none; }
+}

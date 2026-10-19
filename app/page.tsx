@@ -2,24 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
 
 const VenueMap = dynamic(() => import("./VenueMap"), {
   ssr: false,
   loading: () => <div className="venue-map-scene venue-map-loading" />,
 });
 
-import Ring3D from "./Ring3D";
+/* three.js (~180 kB gz) mimo úvodní bundle — stránka se hydratuje dřív
+   a do té doby na místě prstenu svítí jen zlatá záře z .loader-ring3d. */
+const Ring3D = dynamic(() => import("./Ring3D"), {
+  ssr: false,
+  loading: () => <div className="loader-ring3d" />,
+});
+
 import Ubytovani from "./Ubytovani";
-import { VenueAkce } from "./VenueMap";
+import { VenueAkce } from "./VenueAkce";
 import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
 import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import { VENUE_ADDRESS } from "./venue";
-import { IkonaKlik } from "./StoryDoodles";
-import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
-import Klikni from "./Klikni";
-import { OznameniHlavni } from "./oznameni/Oznameni";
+import Snura, { type FotkaNaSnure } from "./pribeh/Snura";
+import Kniha from "./menu/Kniha";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -68,6 +71,43 @@ function useCountdown(target: Date) {
     return () => clearInterval(id);
   }, [target]);
   return left;
+}
+
+/* Mapa (maplibre + WebGL + dlaždice) se stáhne a spustí, až když se k ní host
+   blíží — do té doby stojí na jejím místě prázdný rámeček.
+
+   První vykreslení mapy je jedna dlouhá úloha (na pomalém telefonu kolem
+   stovky ms). Kdyby přišla uprostřed scrollování, stránka by cukla, proto se
+   mapa chystá už 1200 px předem a spouští se, až prohlížeč nemá co dělat
+   (requestIdleCallback; Safari ho nemá, tam krátké zpoždění). */
+function MapaNaDohled() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [blizko, setBlizko] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let odlozeno = 0;
+    const spust = () => setBlizko(true);
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        odlozeno =
+          typeof requestIdleCallback === "function"
+            ? requestIdleCallback(spust, { timeout: 1500 })
+            : window.setTimeout(spust, 300);
+      },
+      { rootMargin: "1200px 0px" },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (typeof cancelIdleCallback === "function") cancelIdleCallback(odlozeno);
+      window.clearTimeout(odlozeno);
+    };
+  }, []);
+  if (blizko) return <VenueMap />;
+  return <div ref={ref} className="venue-map-scene venue-map-loading" />;
 }
 
 function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -180,7 +220,7 @@ const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obr
   },
   {
     q: "Co si přejete za dar?",
-    obrazek: "/fotky/pluto-kytice.png",
+    obrazek: "/fotky/pes-s-kytici.png",
     a: "Hrnce, ručníky i sklenice už doma máme, a tak nám nejvíc pomůže příspěvek do svatební kasičky. A místo kytky nebo lahve rádi odvezeme krmivo, deky nebo hračky našim chlupatým kamarádům do útulku. Tam udělají větší radost než další vázička u nás na poličce.",
   },
 ];
@@ -253,7 +293,7 @@ function Dotaz({ q, a, barvy, kontakty, obrazek }: { q: string; a: string; barvy
              animací výšky jako text — neobjeví se dřív ani zvlášť. */}
           {obrazek && (
             <span className="faq-obrazek" aria-hidden="true">
-              <img src={obrazek} alt="" />
+              <img loading="lazy" decoding="async" src={obrazek} alt="" />
             </span>
           )}
         </div>
@@ -308,304 +348,116 @@ function Odpocet() {
   );
 }
 
-/* hromádka fotek u „Náš příběh“ — kliknutím se přeloží vrchní fotka dozadu */
-/* `popis` se vypíše ručním písmem do bílého pruhu pod fotkou, jako by ho tam
-   někdo dopsal. Má ho jen pár fotek — u ostatních pruh zůstává prázdný. */
-/* Fotky z našeho příběhu, seřazené od nejstarší. Datum i popisek jsou z Kátina
-   zápisníku; podle data jsou seřazené, samotná data se ale nevypisují.
-   Popisky nese jen ta trojice, co je měla od začátku — u ostatních mluví fotka
-   sama a zůstává pod ní jen datum. */
-const PRIBEH_FOTKY: FotkaNaHromadce[] = [
-  { src: "/fotky/2.jpeg", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
-  { src: "/fotky/27.jpeg", alt: "ZOO Ostrava" },
-  { src: "/fotky/28.jpeg", alt: "Bílovec" },
-  { src: "/fotky/4.jpeg", alt: "Chorvatsko" },
-  { src: "/fotky/6.jpeg", alt: "Kozmice" },
-  { src: "/fotky/11.jpeg", alt: "Sicílie" },
-  { src: "/fotky/21.jpeg", alt: "Svatba I a O" },
-  { src: "/fotky/16.jpeg", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
-  { src: "/fotky/22.jpeg", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
-  { src: "/fotky/20.jpeg", alt: "Slovensko" },
-  { src: "/fotky/23.jpeg", alt: "Štramberk" },
-  { src: "/fotky/24.jpeg", alt: "FM City Fest" },
-  { src: "/fotky/25.jpeg", alt: "Trogir" },
-  { src: "/fotky/1.jpeg", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
-  { src: "/fotky/26.jpeg", alt: "Kutná Hora" },
+/* Fotky z našeho příběhu na šňůře, seřazené od nejstarší podle Kátina
+   zápisníku (samotná data se nevypisují). `popis` je ručně psaný popisek na
+   spodním pruhu polaroidu a zároveň alt fotky. */
+const PRIBEH_FOTKY: FotkaNaSnure[] = [
+  { src: "/fotky/web/2.webp", popis: "První společná fotka" },
+  { src: "/fotky/web/27.webp", popis: "ZOO Ostrava" },
+  { src: "/fotky/web/28.webp", popis: "Bílovec" },
+  { src: "/fotky/web/4.webp", popis: "Chorvatsko" },
+  { src: "/fotky/web/6.webp", popis: "Kozmice" },
+  { src: "/fotky/web/11.webp", popis: "Sicílie" },
+  { src: "/fotky/web/21.webp", popis: "Svatba I & O" },
+  { src: "/fotky/web/16.webp", popis: "Těhotenské focení" },
+  { src: "/fotky/web/22.webp", popis: "První Chorvatsko jako rodina" },
+  { src: "/fotky/web/20.webp", popis: "Slovensko" },
+  { src: "/fotky/web/23.webp", popis: "Štramberk" },
+  { src: "/fotky/web/24.webp", popis: "FM City Fest" },
+  { src: "/fotky/web/25.webp", popis: "Trogir" },
+  { src: "/fotky/web/1.webp", popis: "Zásnuby na Troskách" },
+  { src: "/fotky/web/26.webp", popis: "Kutná Hora" },
 ];
 
-/* Obálka s příběhem. Není kreslená v CSS, ale složená ze dvou fotek světle
-   modré obálky — zavřené a otevřené (public/fotky). Vrstvy pro web z nich
-   vyřezává scripts/obalka-web.mjs.
-
-   Otevřená obálka je rozřezaná na dvě vrstvy, zadek a předek, a papír s textem
-   leží mezi nimi. Jinak by papír buď překryl celou obálku, nebo zmizel za ní —
-   dovnitř by se nedostal. Pořadí drží z-index: zadek 0, papír 1, předek 2,
-   zavřená obálka 3, pečeť 4.
-
-   Aby to fungovalo, nesmí <button> kolem vrstev založit vlastní vrstvení —
-   proto má position: relative, ale žádný z-index. Papír je jeho sourozenec
-   a mezi obrázky se vejde jen díky tomu.
-
-   Klikací je celé tělo obálky, ne jen pečeť: pečeť je malý terč a host míří na
-   obálku jako na celek. Papír klikací není, aby šel text označit a číst bez
-   rizika, že se obálka pod rukou zavře. */
-/* Věnec kolem hromádky fotek a obálky.
-
-   Jsou to dvě hotové vrstvy z jedné předlohy (scripts/kytky-venec.mjs) na
-   společném plátně 1622 × 1001: jedna leží za kompozicí, druhá přes ni. Obě
-   vyplní scénu celou, takže se do nich fotky s obálkou usadí v procentech
-   a drží polohu při každé šířce okna.
-
-   Dvě vrstvy musí být proto, že vrstva zakládá vlastní kontext vrstvení —
-   z-index uvnitř jednoho obrázku by se k obálce vůbec nedostal. */
-function KvetinyVrstva({ nad }: { nad?: boolean }) {
-  return (
-    <img
-      className={"scena-kytky" + (nad ? " scena-kytky-nad" : "")}
-      src={nad ? "/kytky/venec-nad.webp" : "/kytky/venec-pod.webp"}
-      alt=""
-      aria-hidden="true"
-    />
-  );
-}
-/* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
-   klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
-
-   Otáčí se doopravdy, ne prolnutím. Levá strana menu není samostatná deska,
-   ale RUB obálky — přesně jako v knize, kde je první strana přilepená zevnitř
-   na desku. Díky tomu stačí jediné otočení o 180° a obsah se objeví sám,
-   jakmile obálka přejde přes svislou rovinu.
-
-   Kniha je pořád široká dvě desky, jen se zavřená posune o půl desky doprava,
-   aby ta jedna viditelná stála na střed. Šířka se tím neanimuje, nic v sekci
-   nepodskakuje a 3D se nikde neplácne do roviny — což by se stalo, kdyby měl
-   kterýkoli rodič overflow jiný než visible.
-
-   Desky nejsou fotka. Fotky, které k nim byly po ruce, mají na deskách cizí
-   potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří nápis — takže
-   by z podkladu byla hádanka. Takhle si určujeme barvu i velikost sami. */
-function SvatebniMenu() {
-  const [otevrene, setOtevrene] = useState(false);
-  return (
-    <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
-      {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
-          se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
-      <img className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
-      <img className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
-      <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
-      <div className="menu-vnitrek">
-        {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
-        <div className="menu-deska menu-deska-prava">
-          <div className="menu-list">
-            <p className="menu-nadstrana">Pro naše nejmenší</p>
-            <ul className="menu-chody">
-              <li>
-                <span className="menu-kurz">Polévka</span>
-                <span className="menu-jidlo">Svatební vývar</span>
-                <span className="menu-detail">Zelenina, nudle</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Hlavní chod</span>
-                <span className="menu-jidlo">Smažený kuřecí řízek</span>
-                <span className="menu-detail">Bramborové pyré</span>
-              </li>
-              <li>
-                <span className="menu-kurz">Dezert</span>
-                <span className="menu-jidlo">Svatební dort</span>
-                <span className="menu-detail">Čokoládový korpus, pařížský krém</span>
-              </li>
-            </ul>
-            {/* Oddělené linkou a mezerou: nalepené pod dětskými chody to
-                vypadalo jako jejich podnadpis, ne jako závěr celého menu. */}
-            <p className="menu-preji">Dobrou chuť</p>
-            {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
-            <img className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
-          </div>
-        </div>
-
-        {/* Obálka: líc se zlatým názvem, rub s první stranou menu. */}
-        <div className="menu-obalka">
-          <button
-            type="button"
-            className="menu-deska menu-obalka-lic"
-            onClick={() => setOtevrene(true)}
-            aria-expanded={otevrene}
-          >
-            <span className="menu-obalka-obsah">
-              <span className="menu-ornament" aria-hidden="true" />
-              <span className="menu-nazev">Menu</span>
-              <span className="menu-monogram">K &amp; J</span>
-              <span className="menu-datum">18 · 09 · 2027</span>
-            </span>
-          </button>
-          <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
-            <div className="menu-list">
-              {/* Nadpis první, vtip až pod ním: stránka má začít hlavičkou a
-                  vtip pak funguje jako pointa, ne jako úvodní odstavec. */}
-              <p className="menu-nadstrana">Menu</p>
-              <p className="menu-uvod">
-                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
-                na obřad — my víme svoje.
-              </p>
-              <ul className="menu-chody">
-                <li>
-                  <span className="menu-kurz">Polévka</span>
-                  <span className="menu-jidlo">Svatební vývar</span>
-                  <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
-                </li>
-                <li>
-                  <span className="menu-kurz">Hlavní chod</span>
-                  <span className="menu-jidlo">Vepřová panenka sous-vide</span>
-                  <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
-                </li>
-                <li>
-                  <span className="menu-kurz">Dezert</span>
-                  <span className="menu-jidlo">Svatební dort</span>
-                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
-                </li>
-              </ul>
-              {/* Poznámka o stravovacích požadavcích patří sem, ne na dětskou
-                  stranu: tam se tlačila pod ilustraci, kdežto levá strana má
-                  o chod míň a pod dezertem zůstávala prázdná plocha. */}
-              <p className="menu-alergeny">
-                Speciální stravovací požadavky (vegetariánské, veganské či
-                zdravotní) nám prosím napište nejpozději do 1.&nbsp;8.&nbsp;2027.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Pod knihou, ne na desce — tam by soupeřila se zlatým názvem. */}
-      <p className="menu-napoveda">{otevrene ? "Klepnutím zavřete" : "Klikněte pro otevření"}</p>
-    </div>
-  );
-}
-/* Program dne jako časová osa. `ikona` je název souboru v public/program,
+/* Program dne. `ikona` je název souboru v public/program,
    který z kreseb vyrábí scripts/program-ikony.mjs. Kresby přibývají postupně —
    dokud pro bod žádná není, obrázek se sám schová (viz onError) a zůstane po
    něm prázdné místo, ne rozbitá ikona. */
+/* Za jednopísmennými předložkami a spojkami je nezlomitelná mezera (\u00a0),
+   ať „v“ nebo „a“ nezůstane viset na konci řádku. */
 const PROGRAM = [
-  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U ženicha a nevěsty",
+  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U\u00a0ženicha a\u00a0nevěsty",
     popis: "Poslední klidné sousto předtím, než to celé začne." },
-  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U zvoničky v Rekovicích",
+  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
     popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
-  { cas: "13:30", nazev: "Přípitek a svatební oběd", ikona: "obed",
-    popis: "Na zdraví, na lásku a na pořádný hlad." },
+  { cas: "13:30", nazev: "Přípitek a\u00a0svatební oběd", ikona: "obed",
+    popis: "Na zdraví, na lásku a\u00a0na pořádný hlad." },
   { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
     popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
   { cas: "16:30", nazev: "První tanec", ikona: "tanec",
-    popis: "Jeden tanec a žádné záruky elegance." },
+    popis: "Jeden tanec a\u00a0žádné záruky elegance." },
   { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
-    popis: "Dobré jídlo, sklenka v ruce a čas užít si den naplno." },
+    popis: "Dobré jídlo, sklenka v\u00a0ruce a\u00a0čas užít si den naplno." },
   { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
     popis: "Boty dolů, hudbu nahoru." },
 ];
 
-function CasovaOsa() {
-  return (
-    <ol className="osa">
-      {PROGRAM.map((b) => (
-        <li key={b.nazev} className="osa-bod">
-          <span className="osa-ikona">
-            <img
-              src={`/program/${b.ikona}.webp`}
-              alt=""
-              aria-hidden="true"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-          </span>
-          <span className="osa-cas"><b>{b.cas}</b></span>
-          <span className="osa-nazev">{b.nazev}</span>
-          {b.misto && <span className="osa-misto">{b.misto}</span>}
-          <span className="osa-popis">{b.popis}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-/* Tři stavy, ne dva: zavřeno → dopis → oznámení → zavřeno. V obálce jsou dva
-   listy a klepnutí na ně je prohazuje; teprve třetí klepnutí je zase zasune. */
-type StavObalky = "zavreno" | "dopis" | "oznameni";
+/* Den ve dvou půlkách: Obřad (do oběda) a Oslava. */
+const PULKY_DNE = [
+  { stitek: "Dopoledne", nazev: "Obřad", body: PROGRAM.slice(0, 3) },
+  { stitek: "Odpoledne a\u00a0večer", nazev: "Oslava", body: PROGRAM.slice(3) },
+];
 
-function ObalkaPribeh({ children }: { children: React.ReactNode }) {
-  const [stav, setStav] = useState<StavObalky>("zavreno");
-  const otevrena = stav !== "zavreno";
-  const dalsi = () => setStav(stav === "dopis" ? "oznameni" : "zavreno");
-  /* Na telefonu obálka není a oba listy leží pod sebou — klepnutí si je jen
-     prohodí. Na širokém okně se sem klepnutí nedostane: zavřené listy mají
-     pointer-events: none. */
-  const prohodit = () => setStav(stav === "oznameni" ? "zavreno" : "oznameni");
+/* Program jako dvě tištěné karty vedle sebe, lehce natočené jako polaroidy
+   v příběhu — papír a zlatý rámeček stejné jako u svatebního menu. Dřív to
+   byla osa se sedmi úzkými sloupci a pilulkami s časem: jediná sekce webu,
+   která nebyla papírový předmět, a popisy se lámaly do pěti řádků. */
+function ProgramDne() {
   return (
-    <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
-      {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
-          grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
-          „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
-          změně šířky okna. Záporný spodní okraj pak natáhne obálku nahoru přes
-          spodek papíru, takže papír končí schovaný v kapse. */}
-      {/* Klepnutí na listy je posouvá dál: z dopisu na oznámení, z oznámení
-          zpátky do obálky. Otevřít se jimi nedá — zavřené listy nejsou vidět
-          a tělo obálky je pod nimi. Ovládat se to dá pořád i z tlačítka níž,
-          takže klávesnici ani odečítači tohle nic nebere; proto je to obyčejný
-          div bez role. */}
-      <div className="obalka-vysuv" onClick={otevrena ? dalsi : prohodit}>
-        <div className="obalka-vysuv-ram">
-          <div className="obalka-listy">
-            {/* Oznámení je z obou listů vyšší, takže drží výšku obalu a dopis
-                na něm leží. Kouká za ním ven; po klepnutí si místa prohodí. */}
-            <span className="obalka-oznameni" aria-hidden="true">
-              <OznameniHlavni />
-            </span>
-            <div className="obalka-papir">{children}</div>
-            {/* Odznak s kurzorem — na telefonu zve k prohození listů. Na širokém
-                okně ho CSS schová, tam vede cestu šipka u zavřené obálky. */}
-            <span className="doodle-obal obalka-klik" aria-hidden="true">
-              <IkonaKlik />
-            </span>
-          </div>
-        </div>
-      </div>
-      <button
-        type="button"
-        className="obalka-telo"
-        onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
-        aria-expanded={otevrena}
-      >
-        <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
-        <img className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
-        {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
-            chlopně, takže musí mizet spolu s ní. */}
-        <span className="obalka-zavrena-obal" aria-hidden="true">
-          <img className="obalka-vrstva obalka-zavrena" src="/obalka/zavrena.webp" alt="" />
-          <img className="obalka-pecet" src="/obalka/vosk.webp" alt="" />
-        </span>
-        {/* Popisek jen u otevřené obálky. Zavřené ukazuje cestu šipka. */}
-        {otevrena && <span className="obalka-popisek">Zavřít</span>}
-      </button>
+    <div className="den">
+      {PULKY_DNE.map((p) => (
+        <article key={p.nazev} className="den-karta">
+          <p className="den-stitek">{p.stitek}</p>
+          <h3 className="den-nadpis">{p.nazev}</h3>
+          <ol className="den-seznam">
+            {p.body.map((b) => (
+              <li key={b.nazev} className="den-bod">
+                <img
+                  loading="lazy"
+                  decoding="async"
+                  className="den-ikona"
+                  src={`/program/${b.ikona}.webp`}
+                  alt=""
+                  aria-hidden="true"
+                  onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                />
+                <span className="den-text">
+                  <span className="den-cas">{b.cas}</span>
+                  <span className="den-nazev">{b.nazev}</span>
+                  {b.misto && <span className="den-misto">{b.misto}</span>}
+                  <span className="den-popis">{b.popis}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
     </div>
   );
 }
-export default function Home() {
-  // loading → done (loader pryč, web odemčený)
+/* Úvodní obrazovka se zlatým prstenem. Svůj stav drží sama: klepnutí na prsten
+   ani její zmizení tak nepřekreslí celou stránku — dřív seděl stav v Home
+   a obojí v tu chvíli znovu vykreslilo všechny sekce webu a prolínání cukalo.
+   Text v úvodu se rozsvítí přes CSS podle .loader-hide (sourozenec v DOM). */
+function UvodniObrazovka() {
+  // loading → done (loader se prolíná pryč, web odemčený)
   const [stage, setStage] = useState<"loading" | "done">("loading");
   const [quote, setQuote] = useState<string | null>(null);
-  // po doznění fade-outu loader úplně odmountujeme — jinak by three.js
-  // prsten (requestAnimationFrame + WebGL) běžel skrytý celou návštěvu
+  // po doznění fade-outu se obsah loaderu odmountuje — jinak by three.js
+  // prsten (requestAnimationFrame + WebGL) zůstal v paměti celou návštěvu
   const [loaderGone, setLoaderGone] = useState(false);
 
   useEffect(() => {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
-  useZaostreniSekci();
-  const poSvatbe = usePoSvatbe();
-
   /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
      tak počká, dokud host sám nechce dál. */
   const vstup = () => {
     if (stage !== "loading") return;
     setStage("done");
-    // 1s = rezerva na .9s opacity transition loaderu; teprve pak ho
-    // odmountujeme, jinak by three.js prsten běžel skrytý celou návštěvu
+    // 1s = rezerva na .9s opacity transition loaderu; teprve pak obsah
+    // odmountujeme
     setTimeout(() => setLoaderGone(true), 1000);
   };
 
@@ -617,91 +469,99 @@ export default function Home() {
     };
   }, [stage]);
 
+  // Prázdný obal zůstává v DOM: podle jeho .loader-hide se rozsvítí úvod.
+  if (loaderGone) return <div className="loader loader-hide loader-pryc" aria-hidden="true" />;
+
+  /* Klepnout jde kamkoli, nejen na prsten — kdo netrefí kroužek o 170 px,
+     zůstal by na úvodní obrazovce stát a dál se nedostal. Tlačítko pod
+     prstenem zůstává kvůli klávesnici a čtečkám; jeho klepnutí probublá
+     na obal, ale vstup() druhé volání ignoruje. */
+  return (
+    <div
+      className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
+      aria-hidden={stage !== "loading"}
+      onClick={vstup}
+    >
+      {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
+         druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
+         kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
+         nebyly světlejší než hory. Zarovnání drží tím, že mají stejnou
+         krabici a preserveAspectRatio xMidYMax odpovídá background-size
+         auto 100 % / center bottom. */}
+      <span className="loader-hory" aria-hidden="true" />
+      <svg
+        className="loader-majaky"
+        viewBox="0 0 1400 300"
+        preserveAspectRatio="xMidYMax meet"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <radialGradient id="majak-zar">
+            <stop offset="0%" stopColor="#ffd9a0" stopOpacity=".95" />
+            <stop offset="45%" stopColor="#e8a24c" stopOpacity=".4" />
+            <stop offset="100%" stopColor="#e8a24c" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {MAJAKY.map(([x, y, zpozdeni]) => (
+          <g
+            key={x}
+            className="majak"
+            transform={`translate(${x} ${y})`}
+            style={{ animationDelay: `${zpozdeni}s` }}
+          >
+            {/* hranice ze zkřížených polen; kreslí se ve stejné barvě jako
+               hory, jen o něco sytěji, ať je pod plamenem vidět */}
+            <path
+              className="majak-hranice"
+              d="M -5.5 0 L 3.5 -6.5 M 5.5 0 L -3.5 -6.5 M 0 0 L 0 -7"
+              fill="none"
+              stroke="#9a8158"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <circle className="majak-zar" cy="-13" r="26" fill="url(#majak-zar)" />
+            {/* plamen začíná až nad hranicí (y = −6), ne na zemi */}
+            <path
+              className="majak-plamen"
+              d="M 0 -6 C -4.5 -11, -4 -18, 0 -23 C 4 -18, 4.5 -11, 0 -6 Z"
+              fill="#f0b45e"
+            />
+          </g>
+        ))}
+      </svg>
+      <div className="loader-brand">
+        Kateřina &amp; Jakub
+        <span className="loader-date">18 · 09 · 2027</span>
+      </div>
+      {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal
+         nikdo, kdo web ovládá klávesnicí nebo čtečkou */}
+      <button
+        type="button"
+        className="loader-vstup"
+        onClick={vstup}
+        aria-label="Vstoupit na svatební web"
+      >
+        <Ring3D zastaveno={stage !== "loading"} />
+      </button>
+      {quote && <p className="loader-quote">{quote}</p>}
+      <p className="loader-vyzva">Klepněte</p>
+    </div>
+  );
+}
+
+export default function Home() {
+  useZaostreniSekci();
+  const poSvatbe = usePoSvatbe();
+
   return (
     <>
-      {/* Úvodní obrazovka: zlatý prsten a hláška.
-
-         Klepnout jde kamkoli, nejen na prsten — kdo netrefí kroužek o 170 px,
-         zůstal by na úvodní obrazovce stát a dál se nedostal. Tlačítko pod
-         prstenem zůstává kvůli klávesnici a čtečkám; jeho klepnutí probublá
-         na obal, ale vstup() druhé volání ignoruje. */}
-      {!loaderGone && (
-        <div
-          className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
-          aria-hidden={stage !== "loading"}
-          onClick={vstup}
-        >
-          {/* Panorama Beskyd a na třech hřebenech majáky, které se jeden po
-             druhém rozhoří. Panorama je pozadí .loader-hory, majáky zvlášť —
-             kdyby byly uvnitř, srazila by je jeho opacita .55 a plamínky by
-             nebyly světlejší než hory. Zarovnání drží tím, že mají stejnou
-             krabici a preserveAspectRatio xMidYMax odpovídá background-size
-             auto 100 % / center bottom. */}
-          <span className="loader-hory" aria-hidden="true" />
-          <svg
-            className="loader-majaky"
-            viewBox="0 0 1400 300"
-            preserveAspectRatio="xMidYMax meet"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <defs>
-              <radialGradient id="majak-zar">
-                <stop offset="0%" stopColor="#ffd9a0" stopOpacity=".95" />
-                <stop offset="45%" stopColor="#e8a24c" stopOpacity=".4" />
-                <stop offset="100%" stopColor="#e8a24c" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            {MAJAKY.map(([x, y, zpozdeni]) => (
-              <g
-                key={x}
-                className="majak"
-                transform={`translate(${x} ${y})`}
-                style={{ animationDelay: `${zpozdeni}s` }}
-              >
-                {/* hranice ze zkřížených polen; kreslí se ve stejné barvě jako
-                   hory, jen o něco sytěji, ať je pod plamenem vidět */}
-                <path
-                  className="majak-hranice"
-                  d="M -5.5 0 L 3.5 -6.5 M 5.5 0 L -3.5 -6.5 M 0 0 L 0 -7"
-                  fill="none"
-                  stroke="#9a8158"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-                <circle className="majak-zar" cy="-13" r="26" fill="url(#majak-zar)" />
-                {/* plamen začíná až nad hranicí (y = −6), ne na zemi */}
-                <path
-                  className="majak-plamen"
-                  d="M 0 -6 C -4.5 -11, -4 -18, 0 -23 C 4 -18, 4.5 -11, 0 -6 Z"
-                  fill="#f0b45e"
-                />
-              </g>
-            ))}
-          </svg>
-          <div className="loader-brand">
-            K &amp; J
-            <span className="loader-date">18 · 09 · 2027</span>
-          </div>
-          {/* prsten je tlačítko, ne jen obrázek — jinak by se dovnitř nedostal
-             nikdo, kdo web ovládá klávesnicí nebo čtečkou */}
-          <button
-            type="button"
-            className="loader-vstup"
-            onClick={vstup}
-            aria-label="Vstoupit na svatební web"
-          >
-            <Ring3D />
-          </button>
-          {quote && <p className="loader-quote">{quote}</p>}
-          <p className="loader-vyzva">Klepněte</p>
-        </div>
-      )}
+      <UvodniObrazovka />
 
       {/* fullscreen hero — fotka přes celou obrazovku, bez hlavičky */}
       <section className="hero-full" id="hero">
-        <img className="hero-bg" src="/fotky/kaplicka.jpg" alt="Kaplička" />
-        <div className={`hero-content ${stage === "done" ? "in" : ""}`}>
+        <img className="hero-bg" fetchPriority="high" src="/fotky/kaplicka.jpg" alt="Kaplička" />
+        <div className="hero-content">
           <p className="hero-eyebrow">Bereme se</p>
           <h1 className="hero-title">Kateřina &amp; Jakub</h1>
           <div className="hero-date">18 · 09 · 2027</div>
@@ -720,30 +580,21 @@ export default function Home() {
 
       {/* příběh */}
       <section className="story" id="story">
-        <Reveal className="scena">
-          <KvetinyVrstva />
-          <div className="scena-foto">
-            <FotoHromadka fotky={PRIBEH_FOTKY} />
-          </div>
-          <div className="scena-obalka">
-            <ObalkaPribeh>
-              <p className="eyebrow">Náš příběh</p>
-              <h2>Jak to celé začalo</h2>
-              <p className="lead">
-                Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
-                největší společné dobrodružství. Poznali jsme se, zamilovali se,
-                prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
-                plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-                jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
-              </p>
-            </ObalkaPribeh>
-            {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
-                Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
-                po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
-                šla obálka pořád otevřít. */}
-            <Klikni id="klikni-drah-obalka" />
-          </div>
-          <KvetinyVrstva nad />
+        <Reveal className="wrap">
+          <p className="eyebrow">Náš příběh</p>
+          <h2>Jak to celé začalo</h2>
+        </Reveal>
+        {/* Polaroidy na šňůře přes celou šířku okna a pod nimi dopis hostům. */}
+        <Reveal>
+          <Snura fotky={PRIBEH_FOTKY}>
+            <p>
+              Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
+              největší společné dobrodružství. Poznali jsme se, zamilovali se,
+              prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
+              plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
+              jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
+            </p>
+          </Snura>
         </Reveal>
       </section>
 
@@ -771,7 +622,7 @@ export default function Home() {
           <VenueAkce />
           </div>
           <div className="location-mapa">
-            <VenueMap />
+            <MapaNaDohled />
           </div>
           </div>
           <Ubytovani />
@@ -780,28 +631,28 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
-        {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
-            takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
-            mimo béžový pruh. */}
-        <img className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
-        <img className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
+        {/* Jediná kytice sekce, vlevo nahoře a uvnitř pruhu — menu pod ním má
+            svou vpravo dole. */}
+        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
         </Reveal>
         <Reveal>
-          <CasovaOsa />
+          <ProgramDne />
         </Reveal>
       </section>
 
       {/* menu */}
       <section className="menu" id="menu">
+        {/* Jediná kytice sekce, vpravo dole — program má svou vlevo nahoře. */}
+        <img loading="lazy" decoding="async" className="program-kytice menu-kytice" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Dobrou chuť</p>
           <h2>Svatební menu</h2>
         </Reveal>
         <Reveal>
-          <SvatebniMenu />
+          <Kniha />
         </Reveal>
       </section>
 
@@ -812,8 +663,8 @@ export default function Home() {
         {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
             takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
             mimo béžový pruh. */}
-        <img className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
-        <img className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Vzpomínky</p>
           <h2>Fotky od vás</h2>
@@ -858,10 +709,12 @@ export default function Home() {
 
       <footer>
         {/* Béžový pruh přes celé okno a na něm medailonek: fotka zvoničky
-           v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala. */}
+           v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala.
+           Jména jsou tu domácky — je to podpis pod „Těšíme se na vás“
+           (pravidlo jmen viz AGENTS.md). */}
         <div className="paticka-pas">
           <div className="paticka-kolecko">
-            <p className="paticka-jmena">Kateřina &amp; Jakub</p>
+            <p className="paticka-jmena">Káťa &amp; Kuba</p>
             <p className="paticka-datum">18 · 09 · 2027</p>
             <p className="paticka-vzkaz">Těšíme se na vás</p>
           </div>

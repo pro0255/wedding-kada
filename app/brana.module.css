@@ -1,0 +1,78 @@
+/* Vstup do galerie (FotkyBrana.tsx): pes s kyticí, nad ním bublina, pod ním
+   pole a tlačítko. Animuje se jen transform a opacity. */
+
+.brana {
+  --hneda: #6b5340;
+  --tlumena: #8a755c;
+  --zlato: #a8874a;
+  --inkoust: #2b2925;
+  display: flex; flex-direction: column; align-items: center;
+  margin: 2rem auto 0; text-align: center;
+}
+/* než server řekne, jestli host už vstoupil */
+.cekani { min-height: 420px; }
+
+.scena { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.6rem; }
+.bublina {
+  position: relative; max-width: 18rem; margin: 0 0 1rem; padding: .9rem 1.2rem;
+  background: #fff; border-radius: 18px;
+  font: 400 1.5rem/1.2 var(--rukopis), cursive; color: var(--hneda);
+  box-shadow: 0 10px 24px -14px rgb(63 52 43 / .4);
+  animation: bublina .35s cubic-bezier(.2, .7, .2, 1) both;
+}
+/* ocásek bubliny směrem k psovi */
+.bublina::after {
+  content: ""; position: absolute; left: 50%; bottom: -9px; width: 18px; height: 18px; margin-left: -9px;
+  background: #fff; transform: rotate(45deg); border-radius: 0 0 4px 0;
+}
+@keyframes bublina { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: none; } }
+
+.pes { width: min(240px, 62vw); height: auto; transform-origin: 50% 92%; }
+/* nakloní hlavu — zhoupne se na bok a zůstane trochu nakloněný */
+.nakloni { animation: nakloni .7s cubic-bezier(.3, .7, .3, 1) forwards; }
+@keyframes nakloni {
+  0% { transform: rotate(0); }
+  45% { transform: rotate(-9deg); }
+  100% { transform: rotate(-6deg); }
+}
+/* vrtí — rychlé kmitání, pak se narovná */
+.vrti { animation: vrti 1.1s ease-in-out; }
+@keyframes vrti {
+  0%, 100% { transform: rotate(0); }
+  12% { transform: rotate(6deg) translateY(-4px); }
+  25% { transform: rotate(-6deg); }
+  38% { transform: rotate(5deg) translateY(-3px); }
+  51% { transform: rotate(-5deg); }
+  64% { transform: rotate(3deg); }
+  77% { transform: rotate(-2deg); }
+}
+
+/* pole + tlačítko — tenké linky jako zbytek webu */
+.formular { display: flex; flex-direction: column; align-items: center; gap: .9rem; width: min(320px, 100%); }
+.popisek { font-size: .68rem; letter-spacing: .32em; text-transform: uppercase; color: var(--tlumena); }
+.pole {
+  width: 100%; padding: .7rem .2rem; border: 0; border-bottom: 1px solid var(--hneda);
+  background: transparent; text-align: center; border-radius: 0;
+  /* 1.5rem = 24 px: pod 16 px by iPhone při psaní stránku přiblížil */
+  font: 400 1.5rem/1.2 var(--serif), Georgia, serif; color: var(--inkoust);
+}
+.pole::placeholder { color: color-mix(in srgb, var(--tlumena) 55%, transparent); font-style: italic; }
+.pole:focus { outline: none; border-bottom-color: var(--zlato); }
+.pole:focus-visible { outline: 2px solid var(--zlato); outline-offset: 4px; }
+/* .btn je stavěné na odkazy — <button> by si nechal šedé pozadí a písmo prohlížeče */
+.tlacitko { background: transparent; font-family: inherit; cursor: pointer; }
+.tlacitko:disabled { opacity: .55; cursor: default; }
+
+/* zatřesení polem po špatné odpovědi */
+.treseni { animation: treseni .45s cubic-bezier(.36, .07, .19, .97); }
+@keyframes treseni {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bublina, .nakloni, .vrti, .treseni { animation: none; }
+}

@@ -21,6 +21,8 @@ const rukopis = Caveat({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "600"],
   variable: "--rukopis",
+  // jen popisky u příběhu hluboko pod úvodem — preload by soupeřil s hero
+  preload: false,
 });
 
 /* Absolutní adresa pro OG obrázek a odkazy ve sdílení. Na Vercelu se bere
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
     description: "Bereme se — a chceme vás u toho. 18. 9. 2027 u zvoničky v Rekovicích.",
   },
   twitter: { card: "summary_large_image" },
-  appleWebApp: { capable: true, title: "Svatba K & J", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Kateřina & Jakub", statusBarStyle: "default" },
   icons: { apple: "/ikony/apple-180.png" },
 };
 

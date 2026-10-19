@@ -43,8 +43,15 @@ function makeDustSprite() {
   return new THREE.CanvasTexture(c);
 }
 
-export default function Ring3D() {
+/* `zastaveno`: po klepnutí se úvodní obrazovka prolíná pryč a prsten už
+   nevykresluje — zůstane stát na posledním snímku. Jinak by three.js běžel
+   na hlavním vlákně celé prolínání a to by cukalo. */
+export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const stop = useRef(zastaveno);
+  useEffect(() => {
+    stop.current = zastaveno;
+  }, [zastaveno]);
 
   useEffect(() => {
     const el = ref.current;
@@ -115,6 +122,7 @@ export default function Ring3D() {
     let raf = 0;
     let last = 0;
     const loop = (t: number) => {
+      if (stop.current) return; // poslední snímek zůstává na plátně
       const dt = Math.min((t - last) / 1000, 0.05);
       last = t;
       ring.rotation.y = t * 0.00055;

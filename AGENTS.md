@@ -14,3 +14,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Před každým `git push` spusť `npm run check` (tsc + testy + build). Když neprojde, nepushuj.
 - Všechno, co přichází z klienta (route handlery, server actions, query parametry), validuj přes zod schémata v `lib/schemata.ts`. Žádné ruční `typeof` kontroly.
 - Jednotkové testy: `lib/*.test.ts`, `node --test` (Node stripuje typy nativně, relativní importy v `lib/` proto mají příponu `.ts`).
+- Jména snoubenců: nahoře a formálně (titulek stránky, hero, metadata, OG obrázek, oznámení, kalendář) „Kateřina & Jakub“; dál na stránce, v podpisech a osobních vzkazech „Káťa & Kuba“. Iniciály „K & J“ se nepoužívají — i úvodní obrazovka a desky menu mají celá jména. Dvojice jmen s ampersandem „&“ (ve větě, jako na oznámení „Kateřina a Jakub si řeknou…“, zůstává „a“).
+- Galerie fotek (`/fotky`, poděkování) je za otázkou „Jak se jmenuje náš pes?“. Odpověď je jen v proměnné prostředí `FOTKY_HESLO` (Vercel + `.env.local`) — repozitář je veřejný, takže jméno psa nikdy nepiš do kódu, komentářů, názvů souborů ani hlášek. API fotek a lajků kontroluje cookie přes `lib/fotkyPristup.ts`.

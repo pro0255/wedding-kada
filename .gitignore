@@ -51,3 +51,8 @@ public/program/tanec.jpg
 # Arch prodejní sady wedding icons, ze kterého se vyřezávají ikonky programu.
 # Do repozitáře nepatří, vyřezané ikonky ano.
 public/program/prstynkyy.png
+
+# pracovní screenshoty z kontroly návrhů v Chromu
+/.navrh-snimky/
+# prototypy vstupu do galerie obsahují jméno psa = odpověď (FOTKY_HESLO) — jen lokálně
+/app/navrh/fotky/

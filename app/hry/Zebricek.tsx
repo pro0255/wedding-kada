@@ -6,7 +6,7 @@ import type { HraSlug, Zebricek as Data } from "@/lib/hra";
 import s from "./hra.module.css";
 
 /** Top 10 pro hru. Obnovuje se po každém dohrání (prop `obnovit`) a každých
-    30 s, jen když je stránka vidět — Airtable free má limit požadavků. */
+    30 s, jen když je stránka vidět — šetří příkazy Redisu (free tier). */
 export default function Zebricek({ hra, obnovit }: { hra: HraSlug; obnovit: number }) {
   const [data, setData] = useState<Data | null>(null);
   const [chyba, setChyba] = useState(false);

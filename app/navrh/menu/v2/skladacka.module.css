@@ -1,0 +1,160 @@
+/* Návrh 2 — trojdílná skládačka. --W/--H je rozměr jednoho panelu. */
+.obal {
+  --W: min(320px, calc((100vw - 48px) / 3), calc((100vh - 200px) / 1.45));
+  --H: calc(var(--W) * 1.45);
+  --rub-otoc: rotateY(180deg);
+  --otevri: cubic-bezier(.28, 1.16, .45, 1);   /* s překmitem — papír se narovná */
+  --zavri: cubic-bezier(.55, 0, .3, 1);
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+}
+
+.misto {
+  position: relative;
+  width: calc(var(--W) * 3);
+  height: var(--H);
+  perspective: 1800px;
+  margin: 1rem 0 2rem;
+}
+
+.sestava {
+  position: absolute; top: 0; left: var(--W);
+  width: var(--W); height: var(--H);
+  transform-style: preserve-3d;
+}
+
+/* ---------- prostřední panel ---------- */
+.stred {
+  position: absolute; inset: 0;
+  box-shadow: 0 22px 44px -14px rgba(90, 70, 50, .32), 0 4px 10px rgba(90, 70, 50, .08);
+}
+/* lehké přehyby na obou okrajích, ať je vidět, že je to jeden arch */
+.stred::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to right, rgba(80, 62, 44, .07), transparent 4%, transparent 96%, rgba(80, 62, 44, .07));
+}
+.stinStred {
+  position: absolute; inset: 0; pointer-events: none;
+  background: rgba(60, 45, 30, .2);
+  opacity: 1;
+  transition: opacity .7s ease .3s;
+}
+.otevrene .stinStred { opacity: 0; transition: opacity .9s ease .1s; }
+
+/* ---------- křídla ---------- */
+.kridlo {
+  position: absolute; top: 0;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.licKridla, .rubKridla {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.licKridla { box-shadow: 0 22px 44px -14px rgba(90, 70, 50, .28); }
+.rubKridla {
+  transform: var(--rub-otoc);
+  background: #fbf8f2;
+  border: 0; padding: 0; margin: 0; font: inherit;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 22px 44px -14px rgba(90, 70, 50, .3), 0 4px 10px rgba(90, 70, 50, .08);
+}
+.rubOzdoba { width: 60%; opacity: .8; }
+.rubOzdoba svg { width: 100%; }
+.obalka { cursor: pointer; }
+.obalka:focus-visible { outline: 2px solid #a8874a; outline-offset: 4px; }
+
+.levy {
+  right: 100%;
+  transform-origin: right center;
+  transform: translateZ(2px) rotateY(180deg);
+  transition: transform .95s var(--zavri) 0s;
+}
+.otevrene .levy {
+  transform: translateZ(0px) rotateY(0deg);
+  transition: transform 1.1s var(--otevri) .42s;
+}
+.pravy {
+  left: 100%;
+  transform-origin: left center;
+  transform: translateZ(4px) rotateY(-180deg);
+  transition: transform .95s var(--zavri) .42s;
+}
+.otevrene .pravy {
+  transform: translateZ(0px) rotateY(0deg);
+  transition: transform 1.1s var(--otevri) 0s;
+}
+
+/* Vnitřek křídla je, dokud se odklápí, odvrácený od světla — tmavší, a
+   rozsvítí se, až dosedne do roviny. */
+.stinKridla {
+  position: absolute; inset: 0; pointer-events: none;
+  opacity: 1;
+}
+.levy .stinKridla {
+  background: linear-gradient(to left, rgba(60, 45, 30, .38), rgba(60, 45, 30, .12));
+  transition: opacity .6s ease 0s;
+}
+.pravy .stinKridla {
+  background: linear-gradient(to right, rgba(60, 45, 30, .38), rgba(60, 45, 30, .12));
+  transition: opacity .6s ease .42s;
+}
+.otevrene .levy .stinKridla { opacity: 0; transition: opacity .8s ease .75s; }
+.otevrene .pravy .stinKridla { opacity: 0; transition: opacity .8s ease .3s; }
+
+/* ---------- ovládání ---------- */
+.tlacitko {
+  font: inherit; font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #6b5340; background: transparent;
+  border: 1px solid color-mix(in srgb, #a8874a 60%, transparent);
+  border-radius: 999px;
+  padding: .7em 1.7em;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.tlacitko:hover { background: #ece5d8; }
+.tlacitko:focus-visible { outline: 2px solid #a8874a; outline-offset: 3px; }
+
+/* ---------- telefon: skládá se svisle ---------- */
+@media (max-width: 720px) {
+  .obal { --W: min(calc(100vw - 40px), 380px); --rub-otoc: rotateX(180deg); }
+  .misto {
+    width: var(--W);
+    /* Výška se nemění plynule (to by byl layout v každém snímku), jen se
+       přepne: při otevření hned, při zavření až po složení. */
+    transition: height 0s 1.45s;
+  }
+  .misto.otevrene { height: calc(var(--H) * 3); transition: height 0s 0s; }
+  .sestava {
+    left: 0;
+    transform: translateY(0px);
+    transition: transform 1s var(--zavri) .3s;
+  }
+  .otevrene .sestava {
+    transform: translateY(var(--H));
+    transition: transform 1.15s cubic-bezier(.45, 0, .2, 1) 0s;
+  }
+  .stred::after {
+    background: linear-gradient(to bottom, rgba(80, 62, 44, .07), transparent 4%, transparent 96%, rgba(80, 62, 44, .07));
+  }
+  .levy {
+    right: auto; left: 0; top: auto; bottom: 100%;
+    transform-origin: center bottom;
+    transform: translateZ(2px) rotateX(-180deg);
+  }
+  .otevrene .levy { transform: translateZ(0px) rotateX(0deg); }
+  .pravy {
+    left: 0; top: 100%;
+    transform-origin: center top;
+    transform: translateZ(4px) rotateX(180deg);
+  }
+  .otevrene .pravy { transform: translateZ(0px) rotateX(0deg); }
+  .levy .stinKridla { background: linear-gradient(to top, rgba(60, 45, 30, .38), rgba(60, 45, 30, .12)); }
+  .pravy .stinKridla { background: linear-gradient(to bottom, rgba(60, 45, 30, .38), rgba(60, 45, 30, .12)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .misto *, .misto { transition-duration: 0s !important; transition-delay: 0s !important; }
+}

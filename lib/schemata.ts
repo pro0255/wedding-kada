@@ -36,3 +36,29 @@ export const ZebricekDotazSchema = z.object({
   hra: HraSchema,
   device: DeviceIdSchema.optional(),
 });
+
+/** Id fotky — tvar z dob Airtable (rec + 14 znaků), nové se generují stejně. */
+export const FotkaIdSchema = z.string().regex(/^rec[A-Za-z0-9]{14}$/);
+
+/** Bereme jen URL z našeho Cloudinary účtu — ať nám do galerie nikdo nepodstrčí cizí obsah. */
+const CloudinaryUrlSchema = z.string().refine((url) => {
+  const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  return (
+    !!cloud &&
+    (url.startsWith(`https://res.cloudinary.com/${cloud}/image/upload/`) ||
+      url.startsWith(`https://res.cloudinary.com/${cloud}/video/upload/`))
+  );
+});
+
+export const FotkaPostSchema = z.object({
+  url: CloudinaryUrlSchema,
+  publicId: z.string().max(300),
+  deviceId: DeviceIdSchema,
+});
+
+export const FotkaDeleteSchema = z.object({ id: FotkaIdSchema, deviceId: DeviceIdSchema });
+
+export const LajkPostSchema = z.object({ fotkaId: FotkaIdSchema, deviceId: DeviceIdSchema });
+
+/** Odpověď na otázku u vstupu do galerie fotek. */
+export const VstupPostSchema = z.object({ odpoved: z.string().trim().min(1).max(60) });

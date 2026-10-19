@@ -1,11 +1,13 @@
 /* Service worker — offline záloha pro den svatby (slabý signál v Rekovicích).
    Strategie:
    - navigace (HTML): síť, při výpadku poslední uložená stránka
-   - statika Next (/_next/static), fonty, obrázky, ikony: uložená kopie se
-     vrátí hned a na pozadí se stáhne čerstvá pro příště (stale-while-revalidate)
+   - statika Next (/_next/static): hash v názvu, uložená kopie platí navždy
+     (cache-first, bez dotazu na síť)
+   - fonty, obrázky, ikony: uložená kopie se vrátí hned a na pozadí se stáhne
+     čerstvá pro příště (stale-while-revalidate)
    - /api/*: nikdy necachovat (kapacita ubytování, upload fotek)
    VERZE měňte při změně strategie, ne při každém deploy — obsah se obnovuje sám. */
-const VERZE = "svatba-v2";
+const VERZE = "svatba-v3";
 const PREDEM = ["/", "/manifest.webmanifest", "/ikony/ikona-192.png", "/ikony/ikona-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -61,6 +63,22 @@ self.addEventListener("fetch", (e) => {
      se jmenují jinak — jenže obrázky v /fotky/ se jmenují pořád stejně, takže
      komu se jednou uložily, tomu tam zůstaly navždycky. Po výměně podkladu
      pruhu tak host viděl novou stránku se starým obrázkem. */
+  /* Hashované soubory Next se po buildu jmenují jinak, obsah pod stejným
+     jménem se nikdy nezmění — revalidace by jen při každé návštěvě znovu
+     stahovala celý JS. */
+  if (url.pathname.startsWith("/_next/static/")) {
+    e.respondWith(
+      caches.open(VERZE).then(async (c) => {
+        const ulozeno = await c.match(request);
+        if (ulozeno) return ulozeno;
+        const odpoved = await fetch(request);
+        if (odpoved.ok) c.put(request, odpoved.clone());
+        return odpoved;
+      }),
+    );
+    return;
+  }
+
   if (jeStatika(url)) {
     e.respondWith(
       caches.open(VERZE).then(async (c) => {

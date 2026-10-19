@@ -1,3 +1,5 @@
+import { KLIC, redis } from "./redis.ts";
+
 /** Celkový počet lůžek k dispozici. */
 export const KAPACITA_CELKEM = 26;
 
@@ -5,8 +7,11 @@ export const KAPACITA_CELKEM = 26;
  * Rezervace žijí v Airtable tabulce „Rezervace“ — ta je jediným zdrojem
  * pravdy. Každý řádek má Status: „Zamluveno“ (mimo web), „Rezervováno“
  * (z formuláře) nebo „Zrušeno“ (nepočítá se do obsazenosti).
- * Ruční úpravy v tabulce se na webu projeví okamžitě.
+ * Stav se drží v Redisu CACHE_S sekund — Airtable free má jen 1 000 volání
+ * měsíčně a sekce ubytování se ptá při každém otevření webu. Ruční úpravy
+ * v tabulce se proto na webu projeví nejpozději do 10 minut.
  */
+const CACHE_S = 600;
 const BASE_ID = "appw1s9BtzlKCPous";
 const TABULKA = "Rezervace";
 const API = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABULKA)}`;
@@ -86,9 +91,13 @@ function spocitej(zaznamy: AirtableZaznam[]): Stav {
   };
 }
 
-/** Aktuální stav kapacity. */
+/** Aktuální stav kapacity (z cache, jinak z Airtable). */
 export async function stavKapacity(): Promise<Stav> {
-  return spocitej(await nactiZaznamy());
+  const ulozeny = await redis().get<Stav>(KLIC.ubytovani);
+  if (ulozeny) return ulozeny;
+  const stav = spocitej(await nactiZaznamy());
+  await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+  return stav;
 }
 
 export type VysledekRezervace =
@@ -139,12 +148,11 @@ export async function pridejRezervaci(
     throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
   }
 
-  return {
-    ok: true,
-    stav: {
-      ...pred,
-      obsazeno: pred.obsazeno + pocet,
-      volno: Math.max(0, pred.volno - pocet),
-    },
+  const stav = {
+    ...pred,
+    obsazeno: pred.obsazeno + pocet,
+    volno: Math.max(0, pred.volno - pocet),
   };
+  await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+  return { ok: true, stav };
 }
