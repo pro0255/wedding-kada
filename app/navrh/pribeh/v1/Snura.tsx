@@ -169,7 +169,7 @@ export default function Snura() {
       <div className={s.dopis}>
         <p className={s.osloveni}>Milí hosté,</p>
         <p className={s.text}>{DOPIS}</p>
-        <p className={s.podpis}>Káťa &amp; Kuba</p>
+        <p className={s.podpis}>Kačka &amp; Kuba</p>
       </div>
     </div>
   );

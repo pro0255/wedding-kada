@@ -672,7 +672,7 @@ export default function Home() {
             <ObalkaPribeh>
               <p className="eyebrow">Náš příběh</p>
               <h2>Jak to celé začalo</h2>
-              {/* Oslovení a podpis rukopisem. Káťa chce jejich vlastní vysázené
+              {/* Oslovení a podpis rukopisem. Kačka chce jejich vlastní vysázené
                   písmo jako u popisků polaroidů; než ho dodá, nesou je tyhle
                   dva odstavce v rukopisu, který web už má. */}
               <p className="obalka-osloveni">Milí hosté,</p>
@@ -811,7 +811,7 @@ export default function Home() {
            (pravidlo jmen viz AGENTS.md). */}
         <div className="paticka-pas">
           <div className="paticka-kolecko">
-            <p className="paticka-jmena">Káťa &amp; Kuba</p>
+            <p className="paticka-jmena">Kačka &amp; Kuba</p>
             <p className="paticka-datum">18 · 09 · 2027</p>
             <p className="paticka-vzkaz">Těšíme se na vás</p>
           </div>

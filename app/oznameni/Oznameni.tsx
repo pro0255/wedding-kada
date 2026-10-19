@@ -21,7 +21,7 @@ import { WEB_ADRESA } from "./adresa";
    které si zvolí sám, a to u tiskoviny nechci hádat.
 
    Kytky kolem textu vyřezává scripts/kyticky-oznameni.mjs z archu, který dodala
-   Káťa. Každá snítka je vlastní soubor, aby se daly rozházet po kartě jednotlivě
+   Kačka. Každá snítka je vlastní soubor, aby se daly rozházet po kartě jednotlivě
    a v různých velikostech a natočeních. Rozmístění je psané ručně v KYTKY —
    náhoda dělá shluky a prázdná místa, tohle má být rovnoměrný věnec. */
 
@@ -230,7 +230,7 @@ const T = {
     navod: "Naskenujte QR kód mobilem, nebo zadejte adresu do prohlížeče:",
   },
   rub: {
-    /* Ampersand, ne plus — web má „Kateřina & Jakub“ a „Káťa & Kuba“. Plus
+    /* Ampersand, ne plus — web má „Kateřina & Jakub“ a „Kačka & Kuba“. Plus
        zůstává jen v kresleném srdci u „Náš příběh“, tam je jako vyrytina do
        stromu na místě. */
     iniciály: "Kateřina & Jakub",

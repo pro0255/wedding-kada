@@ -42,7 +42,7 @@ function ObsahDopisu({ children }: { children: React.ReactNode }) {
     <>
       <p className={s.osloveni}>Milí hosté,</p>
       <div className={s.text}>{children}</div>
-      <p className={s.podpis}>Káťa &amp; Kuba</p>
+      <p className={s.podpis}>Kačka &amp; Kuba</p>
     </>
   );
 }

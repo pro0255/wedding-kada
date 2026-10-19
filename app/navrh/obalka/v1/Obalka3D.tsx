@@ -54,7 +54,7 @@ async function texturaDopisu(px: number, velke: boolean) {
     document.fonts.load(`500 40px ${serif}`, "Jak to"),
     document.fonts.load(`400 40px ${serif}`, "Pět"),
     document.fonts.load(`400 40px ${sans}`, "NÁŠ"),
-    document.fonts.load(`400 40px ${ruka}`, "Káťa"),
+    document.fonts.load(`400 40px ${ruka}`, "Kačka"),
   ]).catch(() => undefined);
 
   const c = document.createElement("canvas");

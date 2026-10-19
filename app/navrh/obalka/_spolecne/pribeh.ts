@@ -8,5 +8,5 @@ export const PRIBEH = {
     "prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov " +
     "plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme " +
     "jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.",
-  podpis: "Káťa & Kuba",
+  podpis: "Kačka & Kuba",
 };

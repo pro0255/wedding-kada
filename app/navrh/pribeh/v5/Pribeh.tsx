@@ -95,7 +95,7 @@ export default function Pribeh() {
             ))}
           </p>
           <p className={s.podpis} data-podpis data-stav="budouci">
-            <span className={s.podpisJmena}>Káťa &amp; Kuba</span>
+            <span className={s.podpisJmena}>Kačka &amp; Kuba</span>
             <span className={s.podpisDatum}>18. září 2027 · u zvoničky v Rekovicích</span>
           </p>
         </div>

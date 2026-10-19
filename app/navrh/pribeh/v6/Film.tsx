@@ -63,7 +63,7 @@ export default function Film() {
           </p>
           <p className={s.osloveni}>Milí hosté,</p>
           <p className={s.text}>{DOPIS}</p>
-          <p className={s.podpis}>Káťa &amp; Kuba</p>
+          <p className={s.podpis}>Kačka &amp; Kuba</p>
         </article>
 
         <div className={s.pasObal}>

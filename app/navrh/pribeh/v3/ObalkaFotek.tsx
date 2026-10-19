@@ -296,7 +296,7 @@ export default function ObalkaFotek() {
             >
               <span className={s.osloveni}>Milí hosté,</span>
               <span className={s.text}>{DOPIS}</span>
-              <span className={s.podpis}>Káťa &amp; Kuba</span>
+              <span className={s.podpis}>Kačka &amp; Kuba</span>
             </button>
             {FOTKY.map((f, j) => (
               <button

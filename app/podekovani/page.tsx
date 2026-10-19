@@ -55,7 +55,7 @@ export default function Podekovani() {
       </section>
 
       <footer className={s.paticka}>
-        <p className="serif">Káťa &amp; Kuba</p>
+        <p className="serif">Kačka &amp; Kuba</p>
         <Link href="/?svatba=1">Původní svatební web</Link>
       </footer>
     </main>
