@@ -672,6 +672,10 @@ export default function Home() {
             <ObalkaPribeh>
               <p className="eyebrow">Náš příběh</p>
               <h2>Jak to celé začalo</h2>
+              {/* Oslovení a podpis rukopisem. Káťa chce jejich vlastní vysázené
+                  písmo jako u popisků polaroidů; než ho dodá, nesou je tyhle
+                  dva odstavce v rukopisu, který web už má. */}
+              <p className="obalka-osloveni">Milí hosté,</p>
               <p className="lead">
                 Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
                 největší společné dobrodružství. Poznali jsme se, zamilovali se,
@@ -679,6 +683,7 @@ export default function Home() {
                 plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
                 jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
               </p>
+              <p className="obalka-podpis">Káťa &amp; Kuba</p>
             </ObalkaPribeh>
             {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
                 Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka

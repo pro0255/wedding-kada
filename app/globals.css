@@ -2242,6 +2242,17 @@ body,
    dlouhý text z listu vysypal ven a ořez obálky by ho usekl v půlce věty —
    obálka totiž zabírá jen třetinu scény, takže list bývá sotva dvě stě pixelů
    široký. */
+/* Oslovení a podpis v dopise — rukopisem, ať to je dopis, ne úřední sdělení.
+   Velikost drží poměr k papíru stejně jako text pod nimi. */
+.obalka-osloveni, .obalka-podpis {
+  margin: 0; text-align: center;
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  font-size: clamp(.95rem, 2.1vw, 1.55rem); line-height: 1.2;
+  color: color-mix(in srgb, var(--ink) 88%, transparent);
+}
+.obalka-osloveni { margin-bottom: .5rem; }
+.obalka-podpis { margin-top: .7rem; }
+
 .obalka-papir .lead {
   max-width: none;
   font-size: clamp(.55rem, 1.22vw, 1.05rem);
@@ -2468,9 +2479,26 @@ body,
 .den-popis { display: block; margin-top: .2rem; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
 
 @media (max-width: 860px) {
-  .den { grid-template-columns: minmax(0, 470px); gap: 2rem; }
-  .den-karta { padding: 2rem 1.5rem 1.2rem; outline-offset: -9px; rotate: -.8deg; }
-  .den-karta + .den-karta { rotate: .8deg; margin-top: 0; }
+  /* Na telefonu jeden papír místo dvou. Podklad, rámeček, stín i natočení nese
+     celá mřížka; karty uvnitř jsou jen oddíly oddělené linkou. Dva samostatné
+     papíry pod sebou vypadaly, že program končí a začíná znovu. */
+  .den {
+    grid-template-columns: minmax(0, 470px); gap: 0;
+    padding: 2rem 1.5rem 1.4rem;
+    background: #fdfcf9;
+    outline: 1px solid color-mix(in srgb, var(--zlato) 55%, transparent);
+    outline-offset: -9px;
+    box-shadow: 0 1px 2px rgb(63 52 43 / .08), 0 26px 50px -24px rgb(63 52 43 / .35);
+    rotate: -.8deg;
+  }
+  .den-karta {
+    padding: 0; background: none; outline: none; box-shadow: none; rotate: none;
+  }
+  .den-karta + .den-karta {
+    margin-top: 1.7rem; padding-top: 1.5rem;
+    rotate: none;
+    border-top: 1px solid color-mix(in srgb, var(--zlato) 30%, transparent);
+  }
   .den-bod { grid-template-columns: 58px 1fr; column-gap: .9rem; align-items: start; }
   .den-ikona { width: 58px; height: 52px; }
 }
