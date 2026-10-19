@@ -476,45 +476,64 @@ const PROGRAM = [
 ];
 
 /* Den ve dvou půlkách: Obřad (do oběda) a Oslava. */
-const PULKY_DNE = [
-  { stitek: "Dopoledne", nazev: "Obřad", body: PROGRAM.slice(0, 3) },
-  { stitek: "Odpoledne a\u00a0večer", nazev: "Oslava", body: PROGRAM.slice(3) },
-];
+/* Program dne má dvě podoby a obě se vykreslí; která je vidět, řeší CSS podle
+   šířky okna. Na širokém okně osa se sedmi sloupci a kyticemi po stranách,
+   na telefonu jedna tištěná karta — sedm úzkých sloupců se tam nevejde
+   a popisy se v nich lámaly do pěti řádků. */
+function CasovaOsa() {
+  return (
+    <ol className="osa">
+      {PROGRAM.map((b) => (
+        <li key={b.nazev} className="osa-bod">
+          <span className="osa-ikona">
+            <img
+              src={`/program/${b.ikona}.webp`}
+              alt=""
+              aria-hidden="true"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          </span>
+          <span className="osa-cas"><b>{b.cas}</b></span>
+          <span className="osa-nazev">{b.nazev}</span>
+          {b.misto && <span className="osa-misto">{b.misto}</span>}
+          <span className="osa-popis">{b.popis}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+/* Program jako jedna tištěná karta, lehce natočená jako polaroidy v příběhu —
+   papír a zlatý rámeček stejné jako u svatebního menu.
 
-/* Program jako dvě tištěné karty vedle sebe, lehce natočené jako polaroidy
-   v příběhu — papír a zlatý rámeček stejné jako u svatebního menu. Dřív to
-   byla osa se sedmi úzkými sloupci a pilulkami s časem: jediná sekce webu,
-   která nebyla papírový předmět, a popisy se lámaly do pěti řádků. */
+   Bez dělení na Obřad a Oslavu: den jde popořadě od snídaně po párty a dvě
+   karty z něj dělaly dvě samostatné události. Dřív to byla osa se sedmi úzkými
+   sloupci a pilulkami s časem — popisy se v nich lámaly do pěti řádků. */
 function ProgramDne() {
   return (
     <div className="den">
-      {PULKY_DNE.map((p) => (
-        <article key={p.nazev} className="den-karta">
-          <p className="den-stitek">{p.stitek}</p>
-          <h3 className="den-nadpis">{p.nazev}</h3>
-          <ol className="den-seznam">
-            {p.body.map((b) => (
-              <li key={b.nazev} className="den-bod">
-                <img
-                  loading="lazy"
-                  decoding="async"
-                  className="den-ikona"
-                  src={`/program/${b.ikona}.webp`}
-                  alt=""
-                  aria-hidden="true"
-                  onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
-                />
-                <span className="den-text">
-                  <span className="den-cas">{b.cas}</span>
-                  <span className="den-nazev">{b.nazev}</span>
-                  {b.misto && <span className="den-misto">{b.misto}</span>}
-                  <span className="den-popis">{b.popis}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </article>
-      ))}
+      <article className="den-karta">
+        <ol className="den-seznam">
+          {PROGRAM.map((b) => (
+            <li key={b.nazev} className="den-bod">
+              <img
+                loading="lazy"
+                decoding="async"
+                className="den-ikona"
+                src={`/program/${b.ikona}.webp`}
+                alt=""
+                aria-hidden="true"
+                onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+              />
+              <span className="den-text">
+                <span className="den-cas">{b.cas}</span>
+                <span className="den-nazev">{b.nazev}</span>
+                {b.misto && <span className="den-misto">{b.misto}</span>}
+                <span className="den-popis">{b.popis}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </article>
     </div>
   );
 }
@@ -728,14 +747,16 @@ export default function Home() {
 
       {/* program */}
       <section className="schedule" id="schedule">
-        {/* Jediná kytice sekce, vlevo nahoře a uvnitř pruhu — menu pod ním má
-            svou vpravo dole. */}
+        {/* Kytice po stranách osy. Na telefonu je CSS schová — tam je místo osy
+            jedna karta a kytice by jí lezly do textu. */}
         <img loading="lazy" decoding="async" className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
+        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
         <Reveal className="wrap">
           <p className="eyebrow">Nahlédněte</p>
           <h2>Program dne</h2>
         </Reveal>
         <Reveal>
+          <CasovaOsa />
           <ProgramDne />
         </Reveal>
       </section>
