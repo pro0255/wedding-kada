@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Allura, Caveat, Cormorant_Garamond, Jost } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Italianno, Jost } from "next/font/google";
 import "./globals.css";
 import ServiceWorker from "./ServiceWorker";
 
@@ -27,9 +27,13 @@ const rukopis = Caveat({
 
 /* Tenký psaný rukopis pro oslovení a podpis v dopise — nejbližší webová obdoba
    písma, kterým jsou vysázené popisky na polaroidech. Ty jsou obrázky, protože
-   to písmo jako web font nemáme; tohle je text, takže se dá kdykoli přepsat.
-   Sekce je hluboko pod úvodem, preload by soupeřil s hero. */
-const dopisRuka = Allura({
+   to písmo jako web font nemáme.
+
+   Italianno, ne Allura: ta je proti předloze hutnější a stlačenější. Několik
+   ještě bližších rukopisů (Herr Von Muellerhoff, Mrs Saint Delafield,
+   Tangerine) padlo na tom, že nemají české háčky — „č“ jim vypadne do
+   náhradního písma. Sekce je hluboko pod úvodem, preload by soupeřil s hero. */
+const dopisRuka = Italianno({
   weight: "400",
   subsets: ["latin", "latin-ext"],
   variable: "--dopis-ruka",

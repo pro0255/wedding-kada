@@ -2247,8 +2247,9 @@ body,
 .obalka-osloveni, .obalka-podpis {
   margin: 0; text-align: center;
   font-family: var(--dopis-ruka), var(--rukopis), cursive;
-  /* Allura je drobná a tenká, proto větší stupeň než u běžného rukopisu. */
-  font-size: clamp(1.35rem, 3vw, 2.1rem); line-height: 1.15;
+  /* Italianno má malou střední výšku, takže při stejném stupni působí o dost
+     drobněji než běžný rukopis — proto výrazně víc. */
+  font-size: clamp(1.75rem, 3.8vw, 2.7rem); line-height: 1.1;
   color: color-mix(in srgb, var(--ink) 88%, transparent);
 }
 .obalka-osloveni { margin-bottom: .5rem; }
