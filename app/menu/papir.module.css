@@ -120,8 +120,8 @@
 }
 
 /* ---------- telefon: líc jako staré desky ----------
-   Žebrovaný papír z předlohy a přes něj vinetu — bez ní je plocha placatá,
-   protože textura má všude stejný jas. Gradient je průhledný, aby žebrování
+   Zrnitý papír z předlohy a přes něj vinetu — bez ní je plocha placatá,
+   protože textura má všude stejný jas. Gradient je průhledný, aby zrno
    prosvítalo i v rozích.
 
    Musí sedět právě tady: líc z papir.module.css leží přes tlačítko z
@@ -135,6 +135,6 @@
         rgba(255, 253, 248, .5) 0%,
         rgba(231, 223, 208, .1) 58%,
         rgba(186, 170, 144, .46) 100%),
-      #ece6da url("/menu/textura.webp") center / cover;
+      #ece6da url("/menu/textura2.webp") center / cover;
   }
 }

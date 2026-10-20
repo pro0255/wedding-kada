@@ -3387,7 +3387,7 @@ body,
    nadpis nalepený u horní hrany nechával spodní dvě třetiny desky prázdné. */
 .menu-obalka-lic { padding-top: 6%; justify-content: center; }
 
-/* Desky mají žebrovaný papír z předlohy (public/menu/textura.jpg) a přes něj
+/* Desky mají zrnitý papír z předlohy (public/menu/textura 2.jpg) a přes něj
    vinetu — bez ní je plocha placatá, protože textura má všude stejný jas.
    Gradient je průhledný, aby žebrování prosvítalo i v rozích. */
 .menu-deska {
@@ -3396,7 +3396,7 @@ body,
       rgba(255, 253, 248, .5) 0%,
       rgba(231, 223, 208, .1) 58%,
       rgba(186, 170, 144, .46) 100%),
-    #ece6da url("/menu/textura.webp") center / cover;
+    #ece6da url("/menu/textura2.webp") center / cover;
   box-shadow:
     0 26px 60px rgba(107, 83, 64, .18),
     0 6px 18px rgba(107, 83, 64, .1),
