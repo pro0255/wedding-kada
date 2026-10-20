@@ -3641,3 +3641,30 @@ body,
      pravého okraje okna. Fotky uhýbají doleva dál, odstup tím zůstane. */
   .scena:has(.obalka.je-otevrena) .scena-obalka { transform: translateX(2%); }
 }
+
+/* ——— menu na tabletu ———
+   Rozevřená kniha stála na spodní hranici clamp(348px) a po stranách sekce
+   zbývalo přes padesát pixelů prázdna; deska si místo toho vezme půlku toho,
+   co v okně zbude. Písmo na stranách se počítá z desky, ne z vw — jinak
+   všechno leží na minimu clampu a proti větší desce to vypadá drobně. */
+@media (min-width: 761px) and (max-width: 1024px) {
+  /* Horní hranice je 1024, ne 1000 jako u příběhu: iPad na šířku měří přesně
+     1024 px a menu v téhle podobě patří i jemu. */
+  /* 48 px je svislý posuvník plus okraj po stranách knihy. */
+  /* Strana je na tabletu vyšší než A-formát: na šířku už kniha nemá kam
+     růst, ale dolů ano, a do vyšší strany se větší písmo vejde. */
+  .menu-kniha { --deska: calc((100vw - 48px) / 2); --pomer: 1.62; }
+  .obsah-ramec > .menu { padding-inline: 12px; }
+
+  .menu-nazev { font-size: calc(var(--deska) * .105); }
+  .menu-monogram { font-size: calc(var(--deska) * .052); }
+  .menu-datum { font-size: calc(var(--deska) * .037); }
+
+  .menu-uvod { font-size: calc(var(--deska) * .0367); }
+  .menu-nadstrana, .menu-preji { font-size: calc(var(--deska) * .042); }
+  .menu-kurz { font-size: calc(var(--deska) * .0311); }
+  .menu-jidlo { font-size: calc(var(--deska) * .0472); }
+  .menu-detail { font-size: calc(var(--deska) * .0356); }
+  .menu-alergeny { font-size: calc(var(--deska) * .0322); }
+
+}
