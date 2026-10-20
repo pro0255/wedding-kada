@@ -175,7 +175,7 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
                       <span className={s.dolniStin} />
                     </div>
                     <div className={s.dolniRub}>
-                      <span className={s.monogram}>K &amp; J</span>
+                      <span className={s.monogram}>Kateřina &amp; Jakub</span>
                     </div>
                   </div>
                 </div>

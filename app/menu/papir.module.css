@@ -118,3 +118,23 @@
   font-family: var(--sans), sans-serif; font-weight: 400;
   font-size: 3.2cqi; letter-spacing: .4em; margin-right: -.4em;
 }
+
+/* ---------- telefon: líc jako staré desky ----------
+   Žebrovaný papír z předlohy a přes něj vinetu — bez ní je plocha placatá,
+   protože textura má všude stejný jas. Gradient je průhledný, aby žebrování
+   prosvítalo i v rozích.
+
+   Musí sedět právě tady: líc z papir.module.css leží přes tlačítko z
+   kniha.module.css a svou plnou barvou by texturu pod sebou přetřel.
+
+   Na širokém okně zůstává hladký papír, jak byl. */
+@media (max-width: 760px) {
+  .lic {
+    background:
+      radial-gradient(130% 95% at 50% 36%,
+        rgba(255, 253, 248, .5) 0%,
+        rgba(231, 223, 208, .1) 58%,
+        rgba(186, 170, 144, .46) 100%),
+      #ece6da url("/menu/textura.webp") center / cover;
+  }
+}
