@@ -90,6 +90,17 @@ export const Lic = memo(function Lic() {
       <Ornament />
       <span className={s.licMonogram}>Kateřina &amp; Jakub</span>
       <span className={s.licDatum}>18 · 09 · 2027</span>
+      {/* Prostřený stůl pod datem. Na telefonu se kresby příborů po stranách
+          desky nekreslí, takže je líc jediná věc na obrazovce a pod datem mu
+          zbývala prázdná půlka. */}
+      <img
+        className={s.licKresba}
+        src="/menu/prostreno.webp"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+      />
     </span>
   );
 });

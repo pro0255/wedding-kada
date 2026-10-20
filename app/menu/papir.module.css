@@ -119,6 +119,14 @@
   font-size: 3.2cqi; letter-spacing: .4em; margin-right: -.4em;
 }
 
+/* Kresba prostřeného stolu pod datem. Rozměr v cqi jako zbytek líce, ať drží
+   poměr k desce. Lehce potlačená — je to doprovod, ne druhý nadpis. */
+.licKresba {
+  width: 58cqi; height: auto;
+  margin-top: 9cqi;
+  opacity: .8;
+}
+
 /* ---------- telefon: líc jako staré desky ----------
    Zrnitý papír z předlohy a přes něj vinetu — bez ní je plocha placatá,
    protože textura má všude stejný jas. Gradient je průhledný, aby zrno
