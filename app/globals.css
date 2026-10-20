@@ -3600,3 +3600,44 @@ body,
 }
 /* Sazba si odsazení řídí sama, mezera z mřížky by je sečetla. */
 .menu-obalka-lic .menu-obalka-obsah { gap: 0; }
+
+/* ---------- scéna příběhu na tabletu ----------
+   Mezi telefonem a širokým oknem scéna vyplnila sekci, ale ta si bere 35 px
+   odsazení na každé straně a sama je užší než okno — z 768 px zbylo na scénu
+   683. Věnec, fotky i obálka se sázejí v procentech scény, takže se zmenšilo
+   všechno naráz. Sekce se proto roztáhne na celou šířku okna. */
+@media (min-width: 721px) and (max-width: 1000px) {
+  .obsah-ramec > .story {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding-inline: 0;
+  }
+  /* Scéna je širší než okno a po stranách se ořízne. Věnec je kreslený tak,
+     že krajní květy smí ven — tím fotky s obálkou uprostřed narostou o třetinu,
+     místo aby se celá kompozice zmenšila do šířky sekce. */
+  .scena { width: 112vw; margin-left: calc(50% - 56vw); }
+  /* Víc než 112vw už vytlačí šipku „klikni“ z obrazu — sedí na 96 % šířky
+     obálky a ta je vpravo. Proto taky o kus blíž k obálce než jindy. */
+  .klikni-wrap { left: 88%; }
+  /* Spodní pruh polaroidu dědil z širokého okna 92 px a zabíral skoro třetinu
+     výšky — fotka se do zbytku mačkala. Pruh drží jen popisek, víc nepotřebuje. */
+  .foto-list { border-width: 14px; border-bottom-width: 44px; }
+  .foto-popis { font-size: 1.1rem; padding: 0 10px 12px; }
+
+  /* Oba listy vyjdou z šířky výsuvu, ne obálky. Výsuv se proto roztáhne do
+     stran přes její okraje — ořez, který papíry drží zavřené v kapse, je
+     potřeba jen na výšku — a dopis s oznámením tím vyrostou, zatímco obálka
+     zůstane, kde byla. Text dopisu vycházel z clamp() na 9,6 px a nedal se
+     číst, takže je tu pevně. */
+  .obalka-vysuv-ram { width: 124%; margin-left: -12%; }
+  /* Výšku výsuvu drží oznámení v toku. Větší dopis se do něj odsazený
+     o 14 % nevešel a podpis zůstal pod ořezem — proto sedí výš. */
+  .obalka-papir { top: 4%; padding: clamp(1.2rem, 2.4vw, 2rem) clamp(1rem, 2.2vw, 1.9rem); }
+  /* Písmo roste s oknem jako samotný list: pevná velikost, která sedla na
+     1000 px, by se na 721 px z listu vylila ven. */
+  .obalka-papir .lead { font-size: clamp(.78rem, 1.5vw, .95rem); line-height: 1.7; }
+  .obalka-osloveni, .obalka-podpis { font-size: clamp(.95rem, 1.9vw, 1.15rem); }
+  /* Otevřená obálka odstupovala doprava o 9 % a s většími listy by se dotkla
+     pravého okraje okna. Fotky uhýbají doleva dál, odstup tím zůstane. */
+  .scena:has(.obalka.je-otevrena) .scena-obalka { transform: translateX(2%); }
+}

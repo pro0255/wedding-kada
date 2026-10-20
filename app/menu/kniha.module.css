@@ -26,16 +26,26 @@
   height: var(--H);
   transform-style: preserve-3d;
   transform: rotateX(16deg) translateX(-25%);
+  /* Blok listů leží v prostoru o pixel hlouběji než desky kolem něj
+     (translateZ(-1px)), takže ho průhledné rodičovské vrstvy v 3D scéně
+     překrývaly a braly mu všechna klepnutí i tahy prstem. Rám knihy proto
+     klepání nechytá — berou ho jen blok a přední deska. */
+  pointer-events: none;
   /* Všechno, co se animuje, má vlastní vrstvu už od načtení. Jinak by ji
      prohlížeč zakládal (a rastroval) až v prvním snímku po klepnutí. */
   will-change: transform;
 }
 .kniha.otevrene { transform: rotateX(5deg) translateX(0%); }
+.blok, .obalka { pointer-events: auto; }
 
 /* ---------- zadní deska a blok listů ---------- */
 .zadni {
   position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
   transform-style: preserve-3d;
+  /* Blok listů je o pixel hlouběji (translateZ(-1px)), takže v prostoru leží
+     ZA touhle deskou — a ta, i když je průhledná, brala všechna klepnutí
+     i tahy prstem určená stranám. Deska je jen rám, interakce patří bloku. */
+  pointer-events: none;
 }
 .zadniDeska {
   position: absolute; inset: 0;
@@ -48,6 +58,7 @@
   position: absolute; top: var(--pres); bottom: var(--pres); left: 0; right: var(--pres);
   transform: translateZ(-1px);
   overflow: hidden;
+  pointer-events: auto;
 }
 /* Ořízka listů: proužky papíru natočené do hloubky. */
 .hranaBlokuPrava {

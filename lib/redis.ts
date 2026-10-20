@@ -8,6 +8,12 @@ import { Redis } from "@upstash/redis";
  */
 let klient: Redis | null = null;
 
+/** Je Redis vůbec nastavený? Tam, kde slouží jen jako cache, se bez něj dá
+ *  obejít — volající si pak data načte z pomalejšího zdroje. */
+export function maRedis(): boolean {
+  return Boolean(process.env.SVATBA_KV_REST_API_URL && process.env.SVATBA_KV_REST_API_TOKEN);
+}
+
 export function redis(): Redis {
   if (!klient) {
     const url = process.env.SVATBA_KV_REST_API_URL;

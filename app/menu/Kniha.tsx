@@ -157,6 +157,22 @@ export default function Kniha() {
     el.scrollTo({ left: i * el.clientWidth, behavior: matchMedia(KLID).matches ? "auto" : "smooth" });
   }
 
+  /* Listování klepnutím — vedle swipu. Strany jsou dvě, takže klepnutí prostě
+     přehodí na tu druhou a za poslední se vrací na první: dá se listovat
+     dokola jedním prstem.
+
+     Tažení myší po stranách končí taky kliknutím, a to by stranu přehodilo
+     hned po tom, co ji někdo přitáhl. Proto se měří, o kolik se ukazatel mezi
+     stiskem a puštěním posunul — nad 10 px už to není klepnutí. */
+  const stisk = useRef(0);
+
+  function klepnutiNaStranu() {
+    const el = slajdy.current;
+    if (!el || !el.clientWidth) return;
+    const ted = Math.round(el.scrollLeft / el.clientWidth);
+    naStranu((ted + 1) % el.children.length);
+  }
+
   return (
     <div className={s.obal}>
       <div className={s.perspektiva}>
@@ -176,6 +192,10 @@ export default function Kniha() {
                 <div
                   ref={slajdy}
                   className={s.slajdy}
+                  onPointerDown={(e) => { stisk.current = e.clientX; }}
+                  onClick={(e) => {
+                    if (Math.abs(e.clientX - stisk.current) < 10) klepnutiNaStranu();
+                  }}
                   onScroll={(e) => {
                     const el = e.currentTarget;
                     setStrana(Math.round(el.scrollLeft / el.clientWidth));

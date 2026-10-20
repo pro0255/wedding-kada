@@ -1,4 +1,4 @@
-import { KLIC, redis } from "./redis.ts";
+import { KLIC, maRedis, redis } from "./redis.ts";
 
 /** Celkový počet lůžek k dispozici. */
 export const KAPACITA_CELKEM = 26;
@@ -92,11 +92,32 @@ function spocitej(zaznamy: AirtableZaznam[]): Stav {
 }
 
 /** Aktuální stav kapacity (z cache, jinak z Airtable). */
+/** Uloží stav do cache, pokud je k dispozici. Selhání cache nesmí shodit
+ *  odpověď — data jsou v Airtable, tohle je jen zrychlení. */
+async function ulozDoCache(stav: Stav): Promise<void> {
+  if (!maRedis()) return;
+  try {
+    await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+  } catch (chyba) {
+    console.warn("[ubytovani] stav se nepodařilo uložit do cache", chyba);
+  }
+}
+
 export async function stavKapacity(): Promise<Stav> {
-  const ulozeny = await redis().get<Stav>(KLIC.ubytovani);
-  if (ulozeny) return ulozeny;
+  /* Redis je tu jen cache nad Airtable, ne zdroj pravdy. Když chybí
+     v prostředí nebo selže, kapacita se spočítá rovnou z Airtable — dřív se
+     o něj API opřelo hned prvním příkazem, vrátilo 502 a v rozhraní stálo
+     „volných míst: undefined“. */
+  if (maRedis()) {
+    try {
+      const ulozeny = await redis().get<Stav>(KLIC.ubytovani);
+      if (ulozeny) return ulozeny;
+    } catch (chyba) {
+      console.warn("[ubytovani] cache nedostupná, čtu rovnou z Airtable", chyba);
+    }
+  }
   const stav = spocitej(await nactiZaznamy());
-  await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+  await ulozDoCache(stav);
   return stav;
 }
 
@@ -153,6 +174,6 @@ export async function pridejRezervaci(
     obsazeno: pred.obsazeno + pocet,
     volno: Math.max(0, pred.volno - pocet),
   };
-  await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+  await ulozDoCache(stav);
   return { ok: true, stav };
 }
