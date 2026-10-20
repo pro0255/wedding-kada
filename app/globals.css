@@ -3557,6 +3557,9 @@ body,
   outline: 1px solid color-mix(in srgb, #a8874a 35%, transparent);
   outline-offset: -5px;
   pointer-events: none;
+  filter:
+    drop-shadow(0 -1px 1px rgba(92, 70, 38, .3))
+    drop-shadow(0 1px 0 rgba(255, 253, 248, .75));
 }
 
 /* Zlato plnou barvou a jen s jemnou ražbou. Přechod ořezaný na text a šest
@@ -3565,17 +3568,31 @@ body,
 .menu-obalka-lic .menu-nazev {
   background: none; color: #a8874a; filter: none;
   font-size: 16.6cqi; letter-spacing: .26em; margin-right: -.26em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+  /* Vyryto do desky: tmavý stín shora padá do prohlubně, světlý odlesk zdola
+     je její spodní hrana nastavená světlu. */
+  text-shadow:
+    0 -1px 1px rgba(92, 70, 38, .45),
+    0 1px 0 rgba(255, 253, 248, .85);
 }
 .menu-obalka-lic .menu-ornament { width: 33cqi; margin: 3.3cqi 0 2.2cqi; }
+.menu-obalka-lic .menu-ornament {
+  filter:
+    drop-shadow(0 -1px 1px rgba(92, 70, 38, .4))
+    drop-shadow(0 1px 0 rgba(255, 253, 248, .8));
+}
 .menu-obalka-lic .menu-monogram {
   font-size: 7.75cqi; font-style: italic; letter-spacing: .04em; color: #a8874a;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+  text-shadow:
+    0 -1px 1px rgba(92, 70, 38, .4),
+    0 1px 0 rgba(255, 253, 248, .8);
 }
 .menu-obalka-lic .menu-datum {
   font-family: var(--sans), "Helvetica Neue", sans-serif;
   font-size: 3.55cqi; letter-spacing: .4em; margin-right: -.4em;
   color: #a8874a; margin-top: 2.2cqi;
+  text-shadow:
+    0 -1px 1px rgba(92, 70, 38, .35),
+    0 1px 0 rgba(255, 253, 248, .8);
 }
 /* Sazba si odsazení řídí sama, mezera z mřížky by je sečetla. */
 .menu-obalka-lic .menu-obalka-obsah { gap: 0; }
