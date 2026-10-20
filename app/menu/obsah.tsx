@@ -93,14 +93,7 @@ export const Lic = memo(function Lic() {
       {/* Prostřený stůl pod datem. Na telefonu se kresby příborů po stranách
           desky nekreslí, takže je líc jediná věc na obrazovce a pod datem mu
           zbývala prázdná půlka. */}
-      <img
-        className={s.licKresba}
-        src="/menu/prostreno.webp"
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-      />
+      <span className={s.licKresba} aria-hidden="true" />
     </span>
   );
 });

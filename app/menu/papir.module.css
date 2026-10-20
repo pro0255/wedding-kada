@@ -122,9 +122,14 @@
 /* Kresba prostřeného stolu pod datem. Rozměr v cqi jako zbytek líce, ať drží
    poměr k desce. Lehce potlačená — je to doprovod, ne druhý nadpis. */
 .licKresba {
-  width: 58cqi; height: auto;
+  width: 58cqi; aspect-ratio: 360 / 223;
   margin-top: 9cqi;
-  opacity: .8;
+  /* Obarvená na barvu písma: kresba má alfa kanál, takže slouží jako maska
+     a plochu pod ní tvoří currentColor. Filtrem by se odstín jen přibližoval,
+     takhle je to přesně táž zlatá a drží se jí i kdyby se změnila. */
+  background: currentColor;
+  -webkit-mask: url("/menu/prostreno.webp") center / contain no-repeat;
+          mask: url("/menu/prostreno.webp") center / contain no-repeat;
 }
 
 /* ---------- telefon: líc jako staré desky ----------
