@@ -2965,7 +2965,9 @@ body,
   box-shadow: 0 22px 54px rgba(90, 70, 50, .3);
 }
 /* Vnější roh zaoblený, vnitřní u hřbetu ostrý — tak je vázaná kniha. */
-.menu-deska-prava { border-radius: 3px 9px 9px 3px; }
+/* Obě strany otevřené knihy se klepnutím zavírají, takže obě musí mít
+   ukazatel. Pravá ho neměla a vypadala, že na ni klepnout nejde. */
+.menu-deska-prava { border-radius: 3px 9px 9px 3px; cursor: pointer; }
 .menu-obalka-lic { border-radius: 3px 9px 9px 3px; cursor: pointer; }
 .menu-obalka-rub { border-radius: 9px 3px 3px 9px; cursor: pointer; }
 /* Stín od hřbetu do plochy desky. */
