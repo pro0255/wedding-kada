@@ -476,6 +476,127 @@ const PROGRAM = [
 ];
 
 /* Den ve dvou půlkách: Obřad (do oběda) a Oslava. */
+/* Svatební menu jako opravdové desky: zavřené nesou jen zlatý název, po
+   klepnutí se obálka otočí přes hřbet doleva a odhalí rozevřené menu.
+
+   Otáčí se doopravdy, ne prolnutím. Levá strana menu není samostatná deska,
+   ale RUB obálky — přesně jako v knize, kde je první strana přilepená zevnitř
+   na desku. Díky tomu stačí jediné otočení o 180° a obsah se objeví sám,
+   jakmile obálka přejde přes svislou rovinu.
+
+   Kniha je pořád široká dvě desky, jen se zavřená posune o půl desky doprava,
+   aby ta jedna viditelná stála na střed. Šířka se tím neanimuje, nic v sekci
+   nepodskakuje a 3D se nikde neplácne do roviny — což by se stalo, kdyby měl
+   kterýkoli rodič overflow jiný než visible.
+
+   Desky nejsou fotka. Fotky, které k nim byly po ruce, mají na deskách cizí
+   potisk a vlastní nasvícení — ostrý stín přesně tam, kam patří nápis — takže
+   by z podkladu byla hádanka. Takhle si určujeme barvu i velikost sami. */
+function SvatebniMenu() {
+  const [otevrene, setOtevrene] = useState(false);
+  return (
+    <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
+      {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
+          se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
+      <img className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
+      <img className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
+      <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
+      <div className="menu-vnitrek" id="svatebni-menu-obsah">
+        {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
+        <div className="menu-deska menu-deska-prava" onClick={() => setOtevrene(false)}>
+          <div className="menu-list">
+            <p className="menu-nadstrana">Pro naše nejmenší</p>
+            <ul className="menu-chody">
+              <li>
+                <span className="menu-kurz">Polévka</span>
+                <span className="menu-jidlo">Svatební vývar</span>
+                <span className="menu-detail">Zelenina, nudle</span>
+              </li>
+              <li>
+                <span className="menu-kurz">Hlavní chod</span>
+                <span className="menu-jidlo">Smažený kuřecí řízek</span>
+                <span className="menu-detail">Bramborové pyré</span>
+              </li>
+              <li>
+                <span className="menu-kurz">Dezert</span>
+                <span className="menu-jidlo">Svatební dort</span>
+                <span className="menu-detail">Čokoládový korpus, pařížský krém</span>
+              </li>
+            </ul>
+            {/* Oddělené linkou a mezerou: nalepené pod dětskými chody to
+                vypadalo jako jejich podnadpis, ne jako závěr celého menu. */}
+            <p className="menu-preji">Dobrou chuť</p>
+            {/* Kresba prostřeného stolu; vyřezává ji scripts/menu-kresba.mjs. */}
+            <img className="menu-kresba" src="/menu/prostreno.webp" alt="" aria-hidden="true" />
+          </div>
+        </div>
+
+        {/* Obálka: líc se zlatým názvem, rub s první stranou menu. */}
+        <div className="menu-obalka">
+          <button
+            type="button"
+            className="menu-deska menu-obalka-lic"
+            onClick={() => setOtevrene(true)}
+            aria-expanded={otevrene}
+          >
+            <span className="menu-obalka-obsah">
+              <span className="menu-ornament" aria-hidden="true" />
+              <span className="menu-nazev">Menu</span>
+              <span className="menu-monogram">Kateřina &amp; Jakub</span>
+              <span className="menu-datum">18 · 09 · 2027</span>
+            </span>
+          </button>
+          <div className="menu-deska menu-obalka-rub" onClick={() => setOtevrene(false)}>
+            <div className="menu-list">
+              {/* Nadpis první, vtip až pod ním: stránka má začít hlavičkou a
+                  vtip pak funguje jako pointa, ne jako úvodní odstavec. */}
+              <p className="menu-nadstrana">Menu</p>
+              <p className="menu-uvod">
+                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
+                na obřad — my víme svoje.
+              </p>
+              <ul className="menu-chody">
+                <li>
+                  <span className="menu-kurz">Polévka</span>
+                  <span className="menu-jidlo">Svatební vývar</span>
+                  <span className="menu-detail">Játrové knedlíčky, zelenina, nudle</span>
+                </li>
+                <li>
+                  <span className="menu-kurz">Hlavní chod</span>
+                  <span className="menu-jidlo">Vepřová panenka sous-vide</span>
+                  <span className="menu-detail">Pečené brambory grenaille, pepřová omáčka</span>
+                </li>
+                <li>
+                  <span className="menu-kurz">Dezert</span>
+                  <span className="menu-jidlo">Svatební dort</span>
+                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
+                </li>
+              </ul>
+              {/* Poznámka o stravovacích požadavcích patří sem, ne na dětskou
+                  stranu: tam se tlačila pod ilustraci, kdežto levá strana má
+                  o chod míň a pod dezertem zůstávala prázdná plocha. */}
+              <p className="menu-alergeny">
+                Speciální stravovací požadavky (vegetariánské, veganské či
+                zdravotní) nám prosím napište nejpozději do 1.&nbsp;8.&nbsp;2027.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Ovládání pod knihou. Klepnout jde i na samotné desky — tohle je druhá
+          cesta pro toho, kdo na knihu nemíří, a pro klávesnici. */}
+      <button
+        type="button"
+        className="menu-tlacitko"
+        onClick={() => setOtevrene(!otevrene)}
+        aria-expanded={otevrene}
+        aria-controls="svatebni-menu-obsah"
+      >
+        {otevrene ? "Zavřít menu" : "Otevřít menu"}
+      </button>
+    </div>
+  );
+}
 /* Program dne má dvě podoby a obě se vykreslí; která je vidět, řeší CSS podle
    šířky okna. Na širokém okně osa se sedmi sloupci a kyticemi po stranách,
    na telefonu jedna tištěná karta — sedm úzkých sloupců se tam nevejde
@@ -768,7 +889,10 @@ export default function Home() {
           <h2>Svatební menu</h2>
         </Reveal>
         <Reveal>
-          <Kniha />
+          {/* Dvě podoby menu: na širokém okně staré desky s příbory, na telefonu
+              novější kniha. Vykreslí se obě, přepíná se jen to, co je vidět. */}
+          <div className="menu-pc"><SvatebniMenu /></div>
+          <div className="menu-mobil"><Kniha /></div>
         </Reveal>
       </section>
 

@@ -2902,3 +2902,640 @@ body,
   /* U karty je kytice jen v rohu vlevo, druhá by jí lezla do textu. */
   .program-kytice-vpravo { display: none; }
 }
+
+/* ---------- svatební menu jako desky ----------
+   Zavřené desky se zlatým názvem, po klepnutí se obálka otočí přes hřbet
+   doleva a odhalí rozevřené menu.
+
+   Levá strana menu není samostatná deska, ale RUB obálky — jako v knize, kde je
+   první strana přilepená zevnitř na desku. Stačí tím jediné otočení o 180°
+   a obsah se objeví sám, jakmile obálka přejde přes svislou rovinu.
+
+   Kniha je pořád široká dvě desky a zavřená se jen posune o půl desky doprava,
+   aby ta jedna viditelná stála na střed. Šířka se tedy neanimuje, nic v sekci
+   nepodskakuje — a hlavně nikde nesmí být overflow jiný než visible, ten by
+   celé 3D zplacatil do roviny. */
+.menu-kniha {
+  /* O pětinu větší než dřív: v sekci kolem zbývalo moc prázdné plochy.
+     Příbory se měří výškou knihy, takže rostou s ní. */
+  --deska: clamp(348px, 40vw, 624px);
+  --pomer: 1.41;
+  --deska-bezova: #e7dfd0;
+  --deska-tmava: #d3c7b2;
+  --zlata: #b88b2c;
+  --list-pismo: #5f4a37;
+
+  width: calc(var(--deska) * 2);
+  height: calc(var(--deska) * var(--pomer));
+  margin: 3.4rem auto 0;
+  /* Perspektiva je potřeba jen na tu chvíli, kdy se obálka otáčí. Otevřená
+     kniha ji mít nesmí: odklopená obálka leží v jiné hloubce než pravá deska
+     a perspektiva jí papír vykreslí o kus větší, i když mají obě strany
+     v rozvržení stejné rozměry. Vypíná se proto s odkladem, až otáčení
+     doběhne. */
+  perspective: 2600px;
+  transition: perspective 0s;
+}
+.menu-kniha.je-otevrene {
+  perspective: none;
+  transition: perspective 0s 1.2s;
+}
+.menu-vnitrek {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  /* Zavřená kniha stojí na střed sekce: viditelná je jen pravá polovina
+     sestavy, takže se celá sestava posune o čtvrtinu své šířky doleva.
+     Otevřená se vrátí na nulu a rozevře se do obou stran. */
+  transform: translateX(-25%);
+  transition: transform 1.05s cubic-bezier(.4, 0, .2, 1);
+}
+.menu-kniha.je-otevrene .menu-vnitrek { transform: translateX(0); }
+
+/* Deska: plátno s nadzvednutým středem a tmavšími kraji. */
+.menu-deska {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
+  display: flex;
+  /* Odsazení NESMÍ být v procentech: procenta se počítají z šířky rodiče
+     a desky mají každá jiného — pravá leží ve vnitřku knihy (dvě desky
+     široký), rub obálky uvnitř obálky (jedna deska). Pravá by tím dostala
+     dvojnásobek a papír by na ní byl znatelně menší. */
+  padding: calc(var(--deska) * .06);
+  border: 0; font: inherit; text-align: inherit;
+  background: radial-gradient(130% 95% at 50% 36%, #f2ece0 0%, var(--deska-bezova) 58%, var(--deska-tmava) 100%);
+  box-shadow: 0 22px 54px rgba(90, 70, 50, .3);
+}
+/* Vnější roh zaoblený, vnitřní u hřbetu ostrý — tak je vázaná kniha. */
+.menu-deska-prava { border-radius: 3px 9px 9px 3px; }
+.menu-obalka-lic { border-radius: 3px 9px 9px 3px; cursor: pointer; }
+.menu-obalka-rub { border-radius: 9px 3px 3px 9px; cursor: pointer; }
+/* Stín od hřbetu do plochy desky. */
+/* Stín od hřbetu. Užší a světlejší, než by se zdálo: tmavý pruh uprostřed
+   rozevřené knihy ji opticky rozděluje na dvě půlky místo jednoho celku. */
+.menu-deska-prava::before,
+.menu-obalka-rub::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 6%;
+  pointer-events: none;
+}
+.menu-deska-prava::before { left: 0; background: linear-gradient(to right, rgba(80, 62, 44, .15), transparent); }
+.menu-obalka-rub::before { right: 0; background: linear-gradient(to left, rgba(80, 62, 44, .15), transparent); }
+
+/* --- obálka --- */
+.menu-obalka {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 50%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  /* Pomalejší a s rozběhem: kniha má váhu, nesmí lupnout. */
+  transition: transform 1.15s cubic-bezier(.5, .02, .2, 1);
+}
+.menu-kniha.je-otevrene .menu-obalka { transform: rotateY(-180deg); }
+.menu-obalka-lic, .menu-obalka-rub {
+  left: 0; right: 0; width: 100%;
+  backface-visibility: hidden;
+}
+.menu-obalka-lic {
+  flex-direction: column; align-items: center; justify-content: flex-start;
+  padding-top: 16%;
+}
+.menu-obalka-rub { transform: rotateY(180deg); }
+
+.menu-nazev {
+  display: flex; flex-direction: column; align-items: center; line-height: 1;
+  font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: clamp(1.7rem, 4.4vw, 2.9rem);
+  letter-spacing: .2em; text-transform: uppercase;
+  /* Zlato vyražené do desky: světlá hrana zdola, tmavý stín shora. Samotná
+     zlatá barva vypadá jako nálepka, tohle jako ražba. */
+  color: var(--zlata);
+  /* Ražba do desky: světlá hrana zespoda, tmavý stín shora — a k tomu tenký
+     tmavý lem dokola. Bez něj se zlato na žebrovaném papíře rozpadlo, protože
+     textura má místy skoro stejný jas jako písmo. */
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .75),
+    0 2px 2px rgba(255, 255, 255, .4),
+    0 -1px 1px rgba(74, 52, 6, .8),
+    0 -2px 4px rgba(74, 52, 6, .45),
+    0 0 2px rgba(74, 52, 6, .55),
+    0 0 6px rgba(74, 52, 6, .25);
+}
+.menu-nazev i {
+  font-style: normal; margin-top: .42em;
+  font-size: 1.24em; letter-spacing: .24em;
+}
+
+/* --- papír na desce --- */
+.menu-list {
+  /* Obě strany mají stejný papír i odsazení a obsah je svisle na střed —
+     jinak jedna začíná výš než druhá a celé se to zdá nakřivo. */
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  background: #fdfcfa;
+  padding: 9% 8.5%;
+  box-shadow: 0 3px 14px rgba(80, 62, 44, .22);
+  /* Vlasová linka kousek od kraje, jako na tištěném menu. */
+  outline: 1px solid rgba(107, 83, 64, .22);
+  outline-offset: -8px;
+  color: var(--list-pismo);
+}
+
+.menu-uvod {
+  font-size: clamp(.68rem, 1.05vw, .92rem); line-height: 1.75;
+  font-style: italic; text-align: center;
+  margin: -4% 0 9%;
+  color: color-mix(in srgb, var(--list-pismo) 88%, transparent);
+}
+.menu-nadstrana, .menu-preji {
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.78rem, 1.25vw, 1.08rem);
+  letter-spacing: .26em; text-transform: uppercase; text-align: center;
+}
+.menu-nadstrana { margin-bottom: 7%; }
+.menu-uvod + .menu-chody { margin-top: 0; }
+/* Oddělené od dětských chodů: nalepené pod nimi to vypadalo jako jejich
+   podnadpis, ne jako závěr celého menu. */
+.menu-preji {
+  margin-top: 7%; padding-top: 4%;
+  border-top: 1px solid color-mix(in srgb, var(--list-pismo) 22%, transparent);
+}
+
+.menu-chody { list-style: none; margin: 0; padding: 0; }
+.menu-chody li { text-align: center; }
+.menu-chody li + li { margin-top: 7%; }
+/* Kategorie i popisky jsou drobné a proložené — průhlednost, která na velkém
+   nadpisu působí jemně, z nich při čtení u stolu dělá šeď. Proto jen lehké
+   projasnění proti plné barvě textu, ne polovina. */
+.menu-kurz {
+  display: block; font-size: clamp(.58rem, .9vw, .76rem);
+  letter-spacing: .3em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--list-pismo) 94%, transparent);
+  margin-bottom: .55em;
+}
+.menu-jidlo {
+  display: block; font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.88rem, 1.45vw, 1.22rem); line-height: 1.3;
+}
+.menu-detail {
+  display: block; margin-top: .45em;
+  font-size: clamp(.66rem, 1.02vw, .86rem); line-height: 1.5; font-style: italic;
+  color: color-mix(in srgb, var(--list-pismo) 96%, transparent);
+}
+.menu-alergeny {
+  margin-top: auto; padding-top: 9%;
+  font-size: clamp(.6rem, .92vw, .78rem); line-height: 1.6; text-align: center;
+  color: color-mix(in srgb, var(--list-pismo) 90%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-vnitrek, .menu-obalka { transition: none; }
+}
+
+/* Na telefonu se dvě strany vedle sebe nepřečtou: kniha je široká jednu desku,
+   obálka se neotáčí a obě strany se poskládají pod sebe. */
+@media (max-width: 760px) {
+  /* Celá šířka obsahu sekce. Pevných 340 px bylo víc, než kolik sekce uvnitř
+     odsazení nabízí — kniha z ní vylézala vpravo a auto okraje ji přestaly
+     centrovat, takže vlevo zbývalo 32 px a vpravo 4. */
+  /* --deska musí zůstat v pixelech: počítá se z ní šířka vnitřku i minimální
+     výška stran, a procento by se v těch výpočtech vztáhlo pokaždé k něčemu
+     jinému. 36 px je odsazení sekce po obou stranách. */
+  .menu-kniha {
+    --deska: min(400px, calc(100vw - 36px));
+    width: var(--deska); height: auto;
+    perspective: none;
+  }
+  /* Užší odsazení sekce, ať na knihu zbude co nejvíc místa. */
+  .obsah-ramec > .menu { padding-inline: .4rem; }
+  /* minmax(0, 1fr) a min-width: 0: prvky mřížky se jinak nesmrští pod svou
+     nejmenší obsahovou šířku a sloupec vyrostl na 431 px uvnitř 339px knihy. */
+  .menu-vnitrek {
+    transform: none; display: grid; gap: 1.2rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .menu-deska, .menu-obalka { min-width: 0; }
+  .menu-kniha.je-otevrene .menu-vnitrek { transform: none; }
+  .menu-deska, .menu-obalka {
+    position: static; width: 100%;
+    aspect-ratio: 1 / var(--pomer);
+  }
+  /* Strany s chody rostou podle obsahu. V pevném poměru A-formátu text po
+     zvětšení písma z karty přetékal — o 40 a 82 px. Desky zavřené knihy si
+     poměr drží, těm se nic nestane. */
+  .menu-deska-prava, .menu-obalka-rub {
+    aspect-ratio: auto;
+    min-height: calc(var(--deska) * var(--pomer) * .9);
+  }
+  .menu-obalka { transform: none !important; }
+  .menu-obalka-rub { transform: none; }
+  /* Zavřená kniha ukáže jen obálku, otevřená obě strany. */
+  .menu-deska-prava, .menu-obalka-rub { display: none; }
+  .menu-kniha.je-otevrene .menu-obalka-lic { display: none; }
+  /* Lehké otevření: strany se místo tvrdého přepnutí vysunou a prolnou. Běží
+     to přes animation, ne transition — display se přepíná z none, a to by
+     transition nerozjelo. */
+  .menu-kniha.je-otevrene .menu-deska-prava,
+  .menu-kniha.je-otevrene .menu-obalka-rub {
+    display: flex;
+    animation: menuOtevreni .5s cubic-bezier(.33, 1, .68, 1) both;
+  }
+  .menu-kniha.je-otevrene .menu-obalka-rub { animation-delay: .07s; }
+  @keyframes menuOtevreni {
+    from { opacity: 0; transform: translateY(16px) scale(.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Text na stranách menu byl na telefonu drobný — kurz 10 px, detail 11,5. */
+  .menu-kurz { font-size: .78rem; }
+  .menu-jidlo { font-size: 1rem; }
+  .menu-detail { font-size: .82rem; }
+  .menu-obalka { order: -1; }
+}
+
+/* Čudlík pod knihou: druhá cesta, jak menu otevřít a zavřít. Na desky jde
+   klepnout pořád, tohle je pro toho, kdo na ně nemíří, a pro klávesnici. */
+.menu-tlacitko {
+  display: block; margin: 1.9rem auto 0;
+  padding: .8rem 2.1rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, #a8874a 60%, transparent);
+  border-radius: 999px; cursor: pointer;
+  font-family: var(--sans), "Helvetica Neue", sans-serif;
+  font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #6b5340;
+  transition: background .3s ease, color .3s ease, border-color .3s ease;
+}
+.menu-tlacitko:hover { background: #ece5d8; }
+.menu-tlacitko:focus-visible { outline: 2px solid #a8874a; outline-offset: 3px; }
+
+/* ---------- svatební menu zpátky na bílé ----------
+   Desky s příbory stojí na bílé ploše, jak to měly dřív. Redesign je přibral
+   do jednoho béžového pruhu s programem; na béžové ale béžové desky splývají
+   a sekce ztratí předěl proti programu nad ní. */
+.obsah-ramec > .menu {
+  background: #fff;
+  color: var(--ink);
+  --osa-pismo: initial;
+  --ink: #2b2925;
+  --ink-soft: #635d55;
+  --accent: #b08d57;
+  --palette-rose-text: var(--ink);
+  --palette-blue-text: var(--ink);
+  --palette-blush-text: var(--ink);
+  --palette-wine: var(--ink);
+  --menu-ramecek: rgba(107, 83, 64, .35);
+}
+/* Šev po béžové sekci nad menu už nemá co přetírat. */
+.obsah-ramec > .schedule + .menu { box-shadow: none; }
+
+/* ---------- dotažení starého menu ----------
+   Zbytek pravidel původních desek: příbory po stranách, obsah stran, dětské
+   chody a drobnosti. Při vracení starého vzhledu jsem blok uřízl dřív, než
+   skutečně končil — příborům tím chyběla absolutní poloha, vykreslily se
+   v plné velikosti pod sebe a roztáhly knihu na 3 361 px. */
+/* menu */
+.menu { background: linear-gradient(to bottom, var(--modra-jemna), var(--ruzova-jemna) var(--prechod-sekci)); }
+
+/* Shora poloviční odsazení proti ostatním sekcím: nad prostíráním zbývalo moc
+   vzduchu. Zdola zůstává plné — kniha má pevnou výšku a pokyn ke klepnutí pod
+   ní z ní vyčuhuje ven, takže mu musí zbýt místo. Jinak ho překryje sekce pod
+   ní, která má vlastní z-index kvůli kyticím.
+
+   Selektor musí být stejně specifický jako `.obsah-ramec > section`, jinak ho
+   ten přebije. */
+.obsah-ramec > .menu { padding-block: 2.75rem 5.5rem; }
+
+.menu-kids-title { margin-top: 3.5rem; padding-top: 3rem; border-top: 1px solid rgba(0,0,0,.1); }
+
+.menu-kids-title h3 { font-size: 1.4rem; letter-spacing: .1em; text-transform: uppercase; }
+
+/* celé menu v jednom ručně kresleném rámečku s mašlí (jako svatební oznámení).
+   border-image drží rohy nedotčené a hrany opakuje, takže rámeček sedne na jakoukoli výšku obsahu. */
+.menu-karta {
+  position: relative;
+  max-width: 680px; margin: 0 auto;
+  border: 36px solid transparent;
+  border-image: url("/ramecek.svg") 40 round;
+  /* horní odsazení musí být větší než přesah mašle, jinak srdíčka lezou do nadpisu */
+  padding: 4.6rem 1.6rem 16rem;
+}
+
+.menu-masle {
+  position: absolute; left: 50%; top: -50px; transform: translateX(-50%);
+  width: 150px; height: 104px; pointer-events: none;
+  background: url("/masle.svg") no-repeat center / contain;
+}
+
+/* Prostřený stůl na spodní lince rámečku — protějšek mašle nahoře. Kresba je
+   z předlohy svatebního menu, přebarvená do baby blue rámečku
+   (scripts/menu-stul.mjs). Spodní odsazení karty je kvůli ní větší, jinak by
+   stůl ležel na posledním chodu. */
+.menu-stul {
+  position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%);
+  width: min(300px, 66%); aspect-ratio: 684 / 624; pointer-events: none;
+  background: url("/menu/stul.webp") no-repeat center bottom / contain;
+}
+
+.menu-karta .wrap { max-width: none; }
+
+.menu-karta > .events:first-of-type { margin-top: 2.4rem; }
+
+/* chody uvnitř rámečku — čistý typografický seznam, žádné vlastní rámečky */
+/* poznámka pod rámečkem menu — drobná a tlumená, ať nekonkuruje chodům */
+.menu-poznamka {
+  /* záporný margin ukusuje z 36px rámečku .menu-karta (je to border, takže
+     pod poslední linkou zůstává pruh prázdna) — bez něj visí poznámka nízko */
+  max-width: 520px; margin: -.5rem auto 0; text-align: center;
+  font-size: .88rem; font-style: italic; line-height: 1.65; color: var(--ink-soft);
+}
+
+.menu .events { display: grid; gap: 2.1rem; max-width: none; text-align: center; }
+
+.menu .event {
+  background: none; box-shadow: none; border: none; border-radius: 0; padding: 0;
+}
+
+/* v menu je popisek chodu nad názvem, proto jiné odsazení než u programu.
+   Barevná hierarchie: kategorie broskvová (jako „Dobrou chuť“) → název vínový → ingredience šedé */
+.menu .event .meta {
+  display: flex; align-items: center; justify-content: center; gap: .45rem;
+  margin: 0 0 .6rem; color: var(--palette-blush-text);
+  font-size: .86rem; letter-spacing: .24em;
+}
+
+.menu .event h3 { color: var(--palette-wine); line-height: 1.35; }
+
+.menu .event p { margin-top: .5rem; color: var(--ink-soft); font-style: italic; }
+
+/* ——— ozdobné příbory po stranách svatebního menu ———
+   Vidlička vlevo, vpravo blíž k menu nůž a za ním lžíce. Sedí absolutně
+   vedle .menu-karta; odsazení musí přeskočit i 36px rámeček (ten je border,
+   tedy mimo padding box, ke kterému se right/left: 100 % vztahuje).
+   Ukážou se až tam, kde vedle menu opravdu je místo — jinak by se
+   překrývaly s textem. */
+/* Momentálně se nevykresluje — <Vidlicka/Nuz/Lzice> jsou z .menu-karta
+   vyndané. Styly i app/Pribory.tsx zůstávají, kdyby se měly vrátit. */
+.menu-pribor { display: none; }
+
+@media (min-width: 1280px) {
+  .menu-pribor {
+      display: block;
+      position: absolute; top: 50%; transform: translateY(-50%);
+      height: 44rem; color: var(--palette-rose); pointer-events: none;
+    }
+  .menu-pribor svg { display: block; height: 100%; width: auto; overflow: visible; }
+  /* šířka příboru = výška × 120/780 ≈ 6,77 rem — z toho vycházejí odstupy;
+       vpravo se tak vejde nůž i lžíce ještě na 1280px široké obrazovce */
+    .menu-pribor-vidlicka { right: calc(100% + 3.4rem); }
+  .menu-pribor-nuz { left: calc(100% + 3.4rem); }
+  .menu-pribor-lzice { left: calc(100% + 11.5rem); }
+}
+
+/* ---------- ztmavené pozadí se světlým pruhem středem ----------
+   Sekce nemají každá svou barvu, ale společnou tmavší béžovou (--bg-alt);
+   světlý pruh středem tím dostane od čeho se odrazit. Boční květiny
+   zůstávají.
+
+   Smazáním tohohle bloku se střídání růžové a modré vrátí — je pořád
+   definované výš v souboru, tohle ho jen přebíjí. Musí stát na konci:
+   definice pozadí sekcí mají stejnou specificitu, takže rozhoduje pořadí.
+
+   Mění se výhradně pozadí. Barvy nadpisů, eyebrow ani tlačítek zůstávají
+   podle sekcí, jak byly. */
+body,
+.loader,
+.hero-full,
+.countdown,
+.story,
+.location,
+.schedule,
+.menu,
+.fotky-odkaz,
+.faq { background: var(--bg-alt); }
+
+/* ---------- svatební menu jako desky ----------
+   Zavřené desky se zlatým názvem, po klepnutí se obálka otočí přes hřbet
+   doleva a odhalí rozevřené menu.
+
+   Levá strana menu není samostatná deska, ale RUB obálky — jako v knize, kde je
+   první strana přilepená zevnitř na desku. Stačí tím jediné otočení o 180°
+   a obsah se objeví sám, jakmile obálka přejde přes svislou rovinu.
+
+   Kniha je pořád široká dvě desky a zavřená se jen posune o půl desky doprava,
+   aby ta jedna viditelná stála na střed. Šířka se tedy neanimuje, nic v sekci
+   nepodskakuje — a hlavně nikde nesmí být overflow jiný než visible, ten by
+   celé 3D zplacatil do roviny. */
+.menu-kniha {
+  /* O pětinu větší než dřív: v sekci kolem zbývalo moc prázdné plochy.
+     Příbory se měří výškou knihy, takže rostou s ní. */
+  --deska: clamp(348px, 40vw, 624px);
+  --pomer: 1.41;
+  --deska-bezova: #e7dfd0;
+  --deska-tmava: #d3c7b2;
+  --zlata: #b88b2c;
+  --list-pismo: #5f4a37;
+
+  width: calc(var(--deska) * 2);
+  height: calc(var(--deska) * var(--pomer));
+  margin: 3.4rem auto 0;
+  /* Perspektiva je potřeba jen na tu chvíli, kdy se obálka otáčí. Otevřená
+     kniha ji mít nesmí: odklopená obálka leží v jiné hloubce než pravá deska
+     a perspektiva jí papír vykreslí o kus větší, i když mají obě strany
+     v rozvržení stejné rozměry. Vypíná se proto s odkladem, až otáčení
+     doběhne. */
+  perspective: 2600px;
+  transition: perspective 0s;
+}
+
+/* Vnější roh zaoblený, vnitřní u hřbetu ostrý — tak je vázaná kniha. */
+.menu-deska-prava { border-radius: 3px 9px 9px 3px; }
+
+/* Stín od hřbetu do plochy desky. */
+/* Stín od hřbetu. Užší a světlejší, než by se zdálo: tmavý pruh uprostřed
+   rozevřené knihy ji opticky rozděluje na dvě půlky místo jednoho celku. */
+.menu-deska-prava::before,
+.menu-obalka-rub::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 6%;
+  pointer-events: none;
+}
+
+/* Oddělené od dětských chodů: nalepené pod nimi to vypadalo jako jejich
+   podnadpis, ne jako závěr celého menu. */
+.menu-preji {
+  margin-top: 7%; padding-top: 4%;
+  border-top: 1px solid color-mix(in srgb, var(--list-pismo) 22%, transparent);
+}
+
+/* Kategorie i popisky jsou drobné a proložené — průhlednost, která na velkém
+   nadpisu působí jemně, z nich při čtení u stolu dělá šeď. Proto jen lehké
+   projasnění proti plné barvě textu, ne polovina. */
+.menu-kurz {
+  display: block; font-size: clamp(.58rem, .9vw, .76rem);
+  letter-spacing: .3em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--list-pismo) 94%, transparent);
+  margin-bottom: .55em;
+}
+
+/* ---------- zavřené desky menu ----------
+   Obálka má kompozici shora dolů: drobný ornament, název, monogram a datum.
+   Pod samotným názvem zůstávala půlka desky prázdná a deska vypadala jako
+   nedotisknutá. */
+.menu-obalka-obsah {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8%; width: 100%;
+}
+
+/* Obsah obálky svisle na střed. Odsazení shora z .menu-obalka-lic tu končí —
+   nadpis nalepený u horní hrany nechával spodní dvě třetiny desky prázdné. */
+.menu-obalka-lic { padding-top: 6%; justify-content: center; }
+
+/* Desky mají žebrovaný papír z předlohy (public/menu/textura.jpg) a přes něj
+   vinetu — bez ní je plocha placatá, protože textura má všude stejný jas.
+   Gradient je průhledný, aby žebrování prosvítalo i v rozích. */
+.menu-deska {
+  background:
+    radial-gradient(130% 95% at 50% 36%,
+      rgba(255, 253, 248, .5) 0%,
+      rgba(231, 223, 208, .1) 58%,
+      rgba(186, 170, 144, .46) 100%),
+    #ece6da url("/menu/textura.webp") center / cover;
+  box-shadow:
+    0 26px 60px rgba(107, 83, 64, .18),
+    0 6px 18px rgba(107, 83, 64, .1),
+    inset 0 0 0 1px rgba(107, 83, 64, .08);
+}
+
+/* Ornament: krátká linka s kosočtvercem uprostřed, stejný jako mezi chody. */
+.menu-ornament {
+  position: relative; display: block;
+  width: 34%; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(150, 112, 40, .55), transparent);
+}
+
+.menu-ornament::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  background: rgba(150, 112, 40, .6); rotate: 45deg;
+}
+
+/* Zlato sytější a s přechodem: plochá světlá zlatá na modré skoro zmizí,
+   tohle vypadá jako ražba fólií. Podklad se ořízne na text, takže pod ním
+   musí být barva průhledná. */
+.menu-nazev {
+  background: linear-gradient(160deg, #d9ad4b 0%, #b8892e 38%, #8a6318 62%, #d8ab4e 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  /* Text je průhledný, takže text-shadow z dřívějška by ho obkreslil jako
+     siluetu — ražbu dělá filter níž. */
+  text-shadow: none;
+  /* Ražba: světlá hrana zdola, tmavý stín shora. Stín musí být na prvku, ne
+     na textu — text sám je průhledný a text-shadow by ho obkreslil. */
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, .5))
+    drop-shadow(0 -1px 1px rgba(78, 55, 6, .45));
+}
+
+.menu-monogram {
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(.95rem, 2.1vw, 1.35rem); letter-spacing: .34em;
+  color: #9b7326;
+}
+
+/* O třetinu větší než dřív a plná zlatá jako monogram nad ním — průsvitná
+   se na světlé desce ztrácela. */
+.menu-datum {
+  font-size: clamp(.72rem, 1.5vw, .94rem); letter-spacing: .38em;
+  color: #9b7326;
+}
+
+/* Hřbet: tmavší proužek u levé hrany a zaoblení i vlevo, aby to byla kniha,
+   ne karta. */
+.menu-obalka-lic::after {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7%;
+  border-radius: 9px 0 0 9px;
+  background: linear-gradient(to right, rgba(80, 62, 44, .22), rgba(80, 62, 44, .05) 60%, transparent);
+  border-right: 1px solid rgba(255, 255, 255, .35);
+  pointer-events: none;
+}
+
+/* Jediný jemný stín pod deskou. Ten dřívější měl rozptyl 60 px a kolem celé
+   knihy dělal hnědý opar. */
+.menu-deska { box-shadow: 0 20px 40px rgba(0, 0, 0, .12); }
+
+/* Kniha se při najetí pootevře — bez textu na desce je to jediný náznak,
+   že se s ní dá něco dělat. */
+.menu-kniha:not(.je-otevrene) .menu-obalka:hover { transform: rotateY(-9deg); }
+
+/* Pokyn ke klepnutí pod knihou. Je výrazně větší a tmavší než dřív — v drobné
+   prostrkané kapitálce ve vybledlé barvě ho nikdo nenašel. */
+.menu-napoveda {
+  margin: 2rem auto 0; text-align: center;
+  font-size: .9rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--hneda-nadpis, #6b5340);
+}
+
+/* --- příbory po stranách zavřené knihy ---
+   Kniha je pořád široká dvě desky a zavřená ukazuje tu pravou, posunutou na
+   střed — viditelná deska tedy leží mezi 25 % a 75 % šířky knihy. Příbory
+   sedí hned za těmi hranicemi. Otevřená kniha zabere celou šířku, takže
+   uhnou do stran a zmizí. */
+/* Velikost se řídí VÝŠKOU, ne šířkou: vidlička, nůž a lžíce mají každá jiný
+   poměr stran, takže při stejné šířce vyjde pokaždé jiná délka a na stole to
+   vypadá jako nesourodý příbor. Vodorovně se umisťují středem, protože jejich
+   šířky se teď liší. */
+.menu-pribor {
+  /* display musí být výslovně: výš v souboru zůstal starý předpis, který
+     příbory schovával z doby, kdy se u menu nekreslily. */
+  display: block;
+  position: absolute; top: 50%;
+  height: 74%; width: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(107, 83, 64, .18));
+  transition: opacity .5s ease, translate .9s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Vidlička stála od desky dál než nůž — 63 px proti 25. Posouvá se středem,
+   protože každý příbor má jinou šířku. */
+.menu-pribor-vidlicka { left: 17.7%; }
+
+.menu-pribor-nuz { left: 81%; }
+
+.menu-pribor-lzice { left: 90%; }
+
+.menu-kniha.je-otevrene .menu-pribor { opacity: 0; }
+
+.menu-kniha.je-otevrene .menu-pribor-vidlicka { translate: -60% 0; }
+
+.menu-kniha.je-otevrene .menu-pribor-nuz,
+.menu-kniha.je-otevrene .menu-pribor-lzice { translate: 60% 0; }
+
+/* --- obsah stran menu ---
+   Text začíná nahoře, ne na středu: úvodní věta patří pod nadpis a chody za
+   ni, ne aby se celý sloupec vznášel uprostřed papíru. */
+.menu-list { justify-content: flex-start; }
+
+/* Levá strana začíná níž: nahoře je na ní víc vzduchu než na pravé, protože
+   nemá nadpis nad úvodní větou. */
+.menu-obalka-rub .menu-list { padding-top: 17%; }
+
+/* Kresba prostřeného stolu mezi přáním a poznámkou o stravování. */
+/* Kresba je poslední prvek na dětské straně a musí se vejít i s ní — proto je
+   menší, než by se hodilo: při 72 % přetékal obsah pod spodní hranu papíru
+   a kresba ležela na desce. */
+.menu-kresba {
+  display: block; width: 56%; height: auto;
+  margin: 3% auto 0;
+  opacity: .9;
+}
+
+@media (max-width: 760px) {
+  .menu-pribor { display: none; }
+}
+
+/* ---------- dvě podoby menu ----------
+   Na širokém okně staré desky s příbory, na telefonu novější kniha. Obě se
+   vykreslí a přepíná se jen to, co je vidět — desky se sedmi příbory a dvěma
+   stranami vedle sebe se na telefon nevejdou. */
+.menu-mobil { display: none; }
+
+@media (max-width: 760px) {
+  .menu-pc { display: none; }
+  .menu-mobil { display: block; }
+}
