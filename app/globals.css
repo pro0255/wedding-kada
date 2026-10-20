@@ -3537,7 +3537,11 @@ body,
    stranami vedle sebe se na telefon nevejdou. */
 .menu-mobil { display: none; }
 
-@media (max-width: 760px) {
+/* 720 px, ne 760: na 721–760 by se kniha ukázala s desktopovými rozměry —
+   její mobilní rozvržení začíná až na 720 — a deska by v okně širokém 760 px
+   měla jen 267 px a plavala v prázdnu. Staré desky mají na tu šířku vlastní
+   jednodeskové rozvržení, které ji vyplní líp. */
+@media (max-width: 720px) {
   .menu-pc { display: none; }
   .menu-mobil { display: block; }
 }

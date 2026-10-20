@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { VENUE_WEB_URL } from "./venue";
+import { UbytovaniStavSchema } from "../lib/schemata";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 
 /* Fotky pokojů a snídaní. Bez popisků — na fotce pokoje je vidět, co na ní je,
@@ -112,9 +113,12 @@ export default function Ubytovani() {
   useEffect(() => {
     let zruseno = false;
     fetch("/api/ubytovani")
-      .then((r) => r.json())
-      .then((data: Stav) => {
-        if (!zruseno) setStav(data);
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        /* Odpověď se ověřuje schématem: při chybě API vrací { chyba } a bez
+           kontroly se z toho v rozhraní stalo „volných míst: undefined“. */
+        const overeno = UbytovaniStavSchema.safeParse(data);
+        if (!zruseno && overeno.success) setStav(overeno.data);
       })
       .catch(() => {
         /* kapacita se prostě nezobrazí */

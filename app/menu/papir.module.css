@@ -143,6 +143,9 @@
      a plochu pod ní tvoří currentColor. Filtrem by se odstín jen přibližoval,
      takhle je to přesně táž zlatá a drží se jí i kdyby se změnila. */
   background: currentColor;
+  /* O kus zpět: v plné zlaté byla stejně silná jako nápis a oko nevědělo,
+     čeho se chytit dřív. */
+  opacity: .72;
   -webkit-mask: url("/menu/prostreno.webp") center / contain no-repeat;
           mask: url("/menu/prostreno.webp") center / contain no-repeat;
   filter:
@@ -159,7 +162,7 @@
    kniha.module.css a svou plnou barvou by texturu pod sebou přetřel.
 
    Na širokém okně zůstává hladký papír, jak byl. */
-@media (max-width: 760px) {
+@media (max-width: 720px) {
   .lic {
     background:
       radial-gradient(130% 95% at 50% 36%,

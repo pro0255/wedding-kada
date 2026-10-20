@@ -62,3 +62,12 @@ export const LajkPostSchema = z.object({ fotkaId: FotkaIdSchema, deviceId: Devic
 
 /** Odpověď na otázku u vstupu do galerie fotek. */
 export const VstupPostSchema = z.object({ odpoved: z.string().trim().min(1).max(60) });
+
+/* Stav kapacity ubytování, jak ho vrací /api/ubytovani. Klient si odpověď
+   ověřuje: když API selže, vrací chybový objekt se stejným stavovým kódem,
+   a bez kontroly se z něj v rozhraní stalo „volných míst: undefined“. */
+export const UbytovaniStavSchema = z.object({
+  obsazeno: z.number().int().min(0),
+  celkem: z.number().int().min(0),
+  volno: z.number().int().min(0),
+});
