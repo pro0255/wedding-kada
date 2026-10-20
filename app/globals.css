@@ -3300,9 +3300,9 @@ body,
 
    Mění se výhradně pozadí. Barvy nadpisů, eyebrow ani tlačítek zůstávají
    podle sekcí, jak byly. */
+/* Úvodní obrazovka a hero tu schválně nejsou: obě mají béžovou z pravidla
+   výš a tenhle předpis by jim ji přebil na bílou. */
 body,
-.loader,
-.hero-full,
 .countdown,
 .story,
 .location,
