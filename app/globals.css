@@ -3541,3 +3541,41 @@ body,
   .menu-pc { display: none; }
   .menu-mobil { display: block; }
 }
+
+/* ---------- deska menu jako na telefonu ----------
+   Káťa chce na širokém okně tutéž desku, jakou má menu na telefonu: dvojitý
+   zlatý rámeček a tatáž sazba. Rozměry proto jedou v cqi, tedy v procentech
+   šířky desky — na telefonu je deska ~335 px, tady 600, a poměry zůstanou
+   stejné. Mění se jen líc zavřené knihy, vnitřek ani příbory ne. */
+.menu-obalka-lic { container-type: inline-size; }
+
+/* Dvojitá linka: vnější je border, vnitřní outline posunutý dovnitř. Druhé
+   pseudoprvky už deska nemá — ::after drží hřbet. */
+.menu-obalka-lic::before {
+  content: ""; position: absolute; inset: 5.5cqi; z-index: 1;
+  border: 1px solid color-mix(in srgb, #a8874a 70%, transparent);
+  outline: 1px solid color-mix(in srgb, #a8874a 35%, transparent);
+  outline-offset: -5px;
+  pointer-events: none;
+}
+
+/* Zlato plnou barvou a jen s jemnou ražbou. Přechod ořezaný na text a šest
+   stínů dokola byly dělané pro žebrovaný papír, kde se písmo rozpadalo; na
+   zrnité desce působí těžce. */
+.menu-obalka-lic .menu-nazev {
+  background: none; color: #a8874a; filter: none;
+  font-size: 16.6cqi; letter-spacing: .26em; margin-right: -.26em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.menu-obalka-lic .menu-ornament { width: 33cqi; margin: 3.3cqi 0 2.2cqi; }
+.menu-obalka-lic .menu-monogram {
+  font-size: 7.75cqi; font-style: italic; letter-spacing: .04em; color: #a8874a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+.menu-obalka-lic .menu-datum {
+  font-family: var(--sans), "Helvetica Neue", sans-serif;
+  font-size: 3.55cqi; letter-spacing: .4em; margin-right: -.4em;
+  color: #a8874a; margin-top: 2.2cqi;
+}
+/* Sazba si odsazení řídí sama, mezera z mřížky by je sečetla. */
+.menu-obalka-lic .menu-obalka-obsah { gap: 0; }
