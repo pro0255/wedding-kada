@@ -21,8 +21,8 @@ export const NAVIGACE: { nazev: string; href: string }[] = [
   { nazev: "Waze", href: `https://waze.com/ul?ll=${LAT},${LON}&navigate=yes` },
 ];
 
-/* Událost do kalendáře. Začátek = obřad (12:00), konec = začátek večerní
+/* Událost do kalendáře. Začátek = obřad (11:00), konec = začátek večerní
    párty + pár hodin; celý den by v kalendáři zakryl i snídani. */
-export const SVATBA_START = new Date("2027-09-18T12:00:00+02:00");
+export const SVATBA_START = new Date("2027-09-18T11:00:00+02:00");
 export const SVATBA_END = new Date("2027-09-18T23:00:00+02:00");
 export const SVATBA_NAZEV = "Svatba Kateřina & Jakub";

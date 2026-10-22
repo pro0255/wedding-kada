@@ -50,7 +50,7 @@ const MAJAKY: [number, number, number][] = [
 ];
 
 // TODO: skutečné datum svatby
-const WEDDING_DATE = new Date("2027-09-18T12:00:00+02:00");
+const WEDDING_DATE = new Date("2027-09-18T11:00:00+02:00");
 /* Půlnoc na začátku svatebního dne. Rozcestník na fotky se přepíná tímhle,
    ne časem obřadu — hosté fotí od snídaně, v poledne by bylo pozdě. Zapsáno
    jako výslovný okamžik s posunem +02:00, ne dopočtem z WEDDING_DATE přes
@@ -461,7 +461,7 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
 const PROGRAM = [
   { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U\u00a0ženicha a\u00a0nevěsty",
     popis: "Poslední klidné sousto předtím, než to celé začne." },
-  { cas: "12:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
+  { cas: "11:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
     popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
   { cas: "13:30", nazev: "Přípitek a\u00a0svatební oběd", ikona: "obed",
     popis: "Na zdraví, na lásku a\u00a0na pořádný hlad." },
@@ -810,8 +810,7 @@ export default function Home() {
           </div>
           <div className="scena-obalka">
             <ObalkaPribeh>
-              <p className="eyebrow">Náš příběh</p>
-              <h2>Jak to celé začalo</h2>
+              <p className="eyebrow">Naše svatba</p>
               {/* Oslovení a podpis rukopisem. Kačka chce jejich vlastní vysázené
                   písmo jako u popisků polaroidů; než ho dodá, nesou je tyhle
                   dva odstavce v rukopisu, který web už má. */}
