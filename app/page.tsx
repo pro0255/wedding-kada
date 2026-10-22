@@ -811,6 +811,7 @@ export default function Home() {
           <div className="scena-obalka">
             <ObalkaPribeh>
               <p className="eyebrow">Naše svatba</p>
+              <h2>Pojďte dál</h2>
               {/* Oslovení a podpis rukopisem. Kačka chce jejich vlastní vysázené
                   písmo jako u popisků polaroidů; než ho dodá, nesou je tyhle
                   dva odstavce v rukopisu, který web už má. */}

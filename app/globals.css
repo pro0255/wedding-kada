@@ -2119,7 +2119,7 @@ body,
   --zasun: 82%;
   /* Šířky listů v dílech obsahu .obalka-listy. Oznámení je širší i vyšší,
      dopis na něm leží. */
-  --list-oznameni: 100%;
+  --list-oznameni: 86%;
   --list-dopis: 95%;
   --vosk: #c69b3f;
 
@@ -2136,7 +2136,15 @@ body,
   transform: rotate(7deg);
 }
 /* Otevřená obálka odstoupí doprava; fotky jdou zrcadlově doleva (viz scéna). */
-.obalka.je-otevrena { transform: rotate(2.4deg) translate(var(--rozestup), -1rem); }
+/* Zvednutí je v procentech vlastní výšky, ne v rem: čím je dopis delší, tím
+   výš obálka vystoupá a spodek jí nezaleze do sekce pod příběhem.
+
+   Dřív tu stálo rotate(2.4deg) translate(var(--rozestup), -1rem), jenže
+   --rozestup nikde definovaná není — celá deklarace proto padala jako
+   neplatná a obálka se po otevření jen narovnala, nikam se neposunula.
+   Narovnání vypadá dobře, takže zůstává; doplněné je jen to zvednutí.
+   Doprava obálku odsouvá scéna (.scena:has(.obalka.je-otevrena)). */
+.obalka.je-otevrena { transform: translateY(-8%); }
 
 /* --- papír --- */
 .obalka-vysuv {
@@ -2189,7 +2197,7 @@ body,
   width: var(--list-dopis);
   /* Delší než A-formát: dopis má čtyři odstavce a do původního poměru 1,28
      se vešel jen tak, že by písmo muselo zdrobnět pod čitelnost. */
-  aspect-ratio: 1 / 1.45;
+  aspect-ratio: 1 / 1.52;
   min-height: fit-content;
   display: flex; flex-direction: column; justify-content: center;
   background: #fff;
@@ -2237,7 +2245,9 @@ body,
 /* Vepředu: narovná se a překryje dopis. */
 .obalka.je-oznameni .obalka-oznameni {
   z-index: 2;
-  transform: rotate(1.5deg) translate(12%, 4%);
+  /* Posun jen tolik, aby bylo poznat, že se karta vysunula zpoza dopisu —
+     na 12 % vylezla z ořezu výsuvu ven. */
+  transform: rotate(1.5deg) translate(6%, 3%);
 }
 /* Otevřený papír je zavírací plocha, zavřený nesmí brát kliknutí tělu obálky. */
 .obalka-vysuv { pointer-events: none; }
@@ -2245,8 +2255,10 @@ body,
 /* Hlavička dopisu na střed, text pod ní na praporek — jako v dopise. */
 .obalka-papir .eyebrow, .obalka-papir h2 { text-align: center; }
 .obalka-papir h2 {
-  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
-  margin-bottom: 1.4rem;
+  /* Menší, než je nadpis sekce jinde na webu: nad čtyřmi odstavci dopisu
+     by velký titulek ukrojil papír, který text potřebuje. */
+  font-size: clamp(1.05rem, 2.1vw, 1.45rem);
+  margin-bottom: .9rem;
 }
 /* Písmo se smrskává s oknem. Na širokém zůstává, jak bylo; na užším by se
    dlouhý text z listu vysypal ven a ořez obálky by ho usekl v půlce věty —
@@ -2604,7 +2616,7 @@ body,
 /* Rozevřená obálka je i s dopisem skoro dvakrát vyšší než zavřená a spodkem
    i s popiskem „Zavřít“ lezla do sekce pod příběhem. Sekce si proto na tu
    chvíli přidá dole místo — plynule, aby obsah pod ní neposkočil. */
-.obsah-ramec > .story:has(.obalka.je-otevrena) { padding-bottom: calc(8rem + 120px); }
+.obsah-ramec > .story:has(.obalka.je-otevrena) { padding-bottom: calc(8rem + 220px); }
 @media (max-width: 760px) {
   /* Na telefonu nad nadpisem zbývalo 138 px bílé. */
   .obsah-ramec > .story { padding-block: 2.2rem; }
@@ -3659,6 +3671,10 @@ body,
   /* Otevřená obálka odstupovala doprava o 9 % a s většími listy by se dotkla
      pravého okraje okna. Fotky uhýbají doleva dál, odstup tím zůstane. */
   .scena:has(.obalka.je-otevrena) .scena-obalka { transform: translateX(2%); }
+  /* Scéna je tu široká 112 vw, takže obálka vyjde větší než jinde a pod
+     rozevřeným dopisem potřebuje víc místa, než si sekce bere ve výchozím
+     stavu. */
+  .obsah-ramec > .story:has(.obalka.je-otevrena) { padding-bottom: calc(8rem + 300px); }
 }
 
 /* ——— menu na tabletu ———

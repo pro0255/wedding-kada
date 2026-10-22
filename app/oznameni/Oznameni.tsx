@@ -223,7 +223,7 @@ const T = {
     spojka: "a",
     slib: "si řeknou své „ano“",
     datum: "18. 9. 2027",
-    detail: ["ve 12 hodin", "u zvoničky", "v Rekovicích"],
+    detail: ["v 11 hodin", "u zvoničky", "v Rekovicích"],
   },
   qr: {
     nadpis: "Pro více informací navštivte prosím náš svatební web",
