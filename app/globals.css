@@ -2119,8 +2119,8 @@ body,
   --zasun: 82%;
   /* Šířky listů v dílech obsahu .obalka-listy. Oznámení je širší i vyšší,
      dopis na něm leží. */
-  --list-oznameni: 92%;
-  --list-dopis: 85%;
+  --list-oznameni: 100%;
+  --list-dopis: 95%;
   --vosk: #c69b3f;
 
   position: relative;
@@ -2173,17 +2173,23 @@ body,
 /* Obal obou listů. Odsazení je místo na jejich natočení — ořez
    .obalka-vysuv-ram by jinak rohy usekl. Výšku obalu drží oznámení, které je
    v toku; dopis na něm leží absolutně. */
-.obalka-listy { position: relative; padding: 4% 6%; }
+.obalka-listy { position: relative; padding: 4% 3%; }
 
 .obalka-papir {
   /* Dopis leží na oznámení, posunutý doprava dolů, aby zpoza něj oznámení
      koukalo. Poměr drží aspect-ratio, ne obsah: text je krátký a sám by list
      nevytáhl do výšky. min-height: fit-content pojistí delší text, ten by
-     jinak z listu přetekl. */
-  position: absolute; z-index: 1;
-  right: 0; top: 14%;
+     jinak z listu přetekl.
+
+     V toku je dopis, ne oznámení: výšku výsuvu tím drží ten z obou listů,
+     který je vyšší. Dokud ji určovalo oznámení, delší dopis přerostl ořez
+     a podpis s dovětkem zůstaly pod ním. */
+  position: relative; z-index: 1;
+  margin-left: auto; margin-top: 10%;
   width: var(--list-dopis);
-  aspect-ratio: 1 / 1.28;
+  /* Delší než A-formát: dopis má čtyři odstavce a do původního poměru 1,28
+     se vešel jen tak, že by písmo muselo zdrobnět pod čitelnost. */
+  aspect-ratio: 1 / 1.45;
   min-height: fit-content;
   display: flex; flex-direction: column; justify-content: center;
   background: #fff;
@@ -2212,7 +2218,11 @@ body,
      dostala do výpočtu vlastní velikosti prvku, roztáhla by ho na sebe.
      Proto min-width: 0, overflow: hidden a karta absolutně umístěná — do
      intrinsické šířky pak nemluví. */
-  display: block; position: relative; z-index: 0;
+  display: block; position: absolute; z-index: 0;
+  /* Odsazení odpovídá tomu, co dřív dával padding .obalka-listy — absolutní
+     prvek se měří od vnitřní hrany rámu, ne od obsahu, a bez toho oznámení
+     vylezlo doleva do ořezu. */
+  left: 6%; top: 4%;
   width: var(--list-oznameni);
   aspect-ratio: 154 / 216;
   min-width: 0;
@@ -2257,8 +2267,17 @@ body,
 
 .obalka-papir .lead {
   max-width: none;
-  font-size: clamp(.55rem, 1.22vw, 1.05rem);
+  font-size: clamp(.5rem, 1.1vw, .95rem);
   line-height: 1.6;
+}
+.obalka-papir .lead + .lead { margin-top: .75em; }
+
+/* Dovětek pod podpisem: drobnější a kurzivou, ať je vidět, že je připsaný
+   až po něm. */
+.obalka-ps {
+  margin: .9rem 0 0; text-align: center; font-style: italic;
+  font-size: clamp(.45rem, 1vw, .86rem); line-height: 1.5;
+  color: color-mix(in srgb, var(--ink-soft) 88%, transparent);
 }
 
 /* --- tělo obálky --- */
@@ -2367,6 +2386,7 @@ body,
     opacity: 1; transform: none; transition: none;
   }
   .obalka-papir .lead { font-size: .95rem; line-height: 1.6; }
+  .obalka-ps { font-size: .85rem; }
   .obalka-papir .eyebrow { font-size: .72rem; }
 }
 
@@ -3606,7 +3626,7 @@ body,
    odsazení na každé straně a sama je užší než okno — z 768 px zbylo na scénu
    683. Věnec, fotky i obálka se sázejí v procentech scény, takže se zmenšilo
    všechno naráz. Sekce se proto roztáhne na celou šířku okna. */
-@media (min-width: 721px) and (max-width: 1000px) {
+@media (min-width: 701px) and (max-width: 1024px) {
   .obsah-ramec > .story {
     width: 100vw;
     margin-left: calc(50% - 50vw);
@@ -3630,12 +3650,11 @@ body,
      zůstane, kde byla. Text dopisu vycházel z clamp() na 9,6 px a nedal se
      číst, takže je tu pevně. */
   .obalka-vysuv-ram { width: 124%; margin-left: -12%; }
-  /* Výšku výsuvu drží oznámení v toku. Větší dopis se do něj odsazený
-     o 14 % nevešel a podpis zůstal pod ořezem — proto sedí výš. */
-  .obalka-papir { top: 4%; padding: clamp(1.2rem, 2.4vw, 2rem) clamp(1rem, 2.2vw, 1.9rem); }
+  .obalka-papir { padding: clamp(1.2rem, 2.4vw, 2rem) clamp(1rem, 2.2vw, 1.9rem); }
   /* Písmo roste s oknem jako samotný list: pevná velikost, která sedla na
      1000 px, by se na 721 px z listu vylila ven. */
-  .obalka-papir .lead { font-size: clamp(.78rem, 1.5vw, .95rem); line-height: 1.7; }
+  .obalka-papir .lead { font-size: clamp(.7rem, 1.35vw, .86rem); line-height: 1.6; }
+  .obalka-ps { font-size: clamp(.62rem, 1.2vw, .78rem); }
   .obalka-osloveni, .obalka-podpis { font-size: clamp(.95rem, 1.9vw, 1.15rem); }
   /* Otevřená obálka odstupovala doprava o 9 % a s většími listy by se dotkla
      pravého okraje okna. Fotky uhýbají doleva dál, odstup tím zůstane. */

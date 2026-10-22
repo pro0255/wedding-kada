@@ -462,13 +462,13 @@ const PROGRAM = [
   { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U\u00a0ženicha a\u00a0nevěsty",
     popis: "Poslední klidné sousto předtím, než to celé začne." },
   { cas: "11:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
-    popis: "Tady si řekneme své „ano“. Kapesníčky doporučujeme mít po ruce." },
+    popis: "Tady si řekneme své „ano“." },
   { cas: "13:30", nazev: "Přípitek a\u00a0svatební oběd", ikona: "obed",
     popis: "Na zdraví, na lásku a\u00a0na pořádný hlad." },
   { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
-    popis: "První společný řez. Nůž držíme oba, vinu neseme napůl." },
+    popis: "Jeden nůž a dva lidé — snad to všichni přežijeme." },
   { cas: "16:30", nazev: "První tanec", ikona: "tanec",
-    popis: "Jeden tanec a\u00a0žádné záruky elegance." },
+    popis: "Zkoušeli jsme to doma. Moc to nepomohlo." },
   { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
     popis: "Dobré jídlo, sklenka v\u00a0ruce a\u00a0čas užít si den naplno." },
   { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
@@ -816,13 +816,26 @@ export default function Home() {
                   dva odstavce v rukopisu, který web už má. */}
               <p className="obalka-osloveni">Milí hosté,</p>
               <p className="lead">
-                Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše
-                největší společné dobrodružství. Poznali jsme se, zamilovali se,
-                prošli spolu krásnými i náročnějšími chvílemi a vybudovali domov
-                plný smíchu, lásky a společných vzpomínek. Dnes už víme, že chceme
-                jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.
+                Je to k nevíře, ale rozhodli jsme se po 6 letech vztahu, 2 kočkách,
+                želvě, psovi a jednom miminu, že se máme rádi a chceme se vzít.
+              </p>
+              <p className="lead">
+                Prošli jsme si nebem i peklem a shodli se, že jsme celkem
+                kompatibilní. Poté již stačilo jedno zásnubní „ano“ na Troskách
+                a započalo plánování mejdanu na oslavu naší lásky a souznění…
+                A teď jsme tady! 18. září 2027 si řekneme své „ano“.
+              </p>
+              <p className="lead">
+                Vítejte na našem svatebním webu, který vám poskytne veškeré
+                důležité informace a zodpoví otázky, které se vám teď honí hlavou.
               </p>
               <p className="obalka-podpis">Kačka &amp; Kuba</p>
+              {/* Dovětek až pod podpisem — v dopise se P.S. připisuje po něm,
+                  ne před něj. */}
+              <p className="obalka-ps">
+                P.S. A nebojte, oficiální pozvání spolu s oznámením
+                (a svatebními koláči) samozřejmě bude taky!
+              </p>
             </ObalkaPribeh>
             {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
                 Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
