@@ -190,7 +190,7 @@ export default function Ubytovani() {
         Máme pro vás zamluvená lůžka přímo v místě konání —{" "}
         <strong>1&nbsp;150&nbsp;Kč za osobu se snídaní</strong>. Kapacita je
         omezená, místa přidělujeme postupně podle toho, jak se hlásíte. Dejte nám
-        vědět, kolik vás přijede.
+        vědět, kdo má zájem.
       </p>
       <p className="ubytovani-hotel">
         <a href={VENUE_WEB_URL} target="_blank" rel="noopener">Web hotelu Rekovice</a>
