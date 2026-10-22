@@ -113,10 +113,15 @@ async function smazZCloudinary(publicId: string, typ: "image" | "video"): Promis
 export type VysledekSmazani = { ok: true } | { ok: false; duvod: "cizi" | "neexistuje" };
 
 /** Smaže fotku — jen pokud patří danému zařízení. Uklidí i její lajky. */
-export async function smazFotku(id: string, deviceId: string): Promise<VysledekSmazani> {
+export async function smazFotku(
+  id: string,
+  deviceId: string,
+  jakoSpravce = false
+): Promise<VysledekSmazani> {
   const fotka = await redis().hget<Fotka>(KLIC.fotky, id);
   if (!fotka) return { ok: false, duvod: "neexistuje" };
-  if (fotka.deviceId !== deviceId) return { ok: false, duvod: "cizi" };
+  // host smí jen svou fotku, správce galerie kteroukoli
+  if (!jakoSpravce && fotka.deviceId !== deviceId) return { ok: false, duvod: "cizi" };
 
   await redis().hdel(KLIC.fotky, id);
   galerie.zahod();

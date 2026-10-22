@@ -21,6 +21,8 @@ const SPATNE = [
   "Psst… zeptejte se nevěsty nebo ženicha.",
 ];
 const DOBRE = "Haf haf! Pojďte dál.";
+/* Správcovské heslo zadané u stejných dveří — pes pozná paničku. */
+const PANICKA = "Haf haf! Ahoj paničko.";
 // jak dlouho pes vrtí, než se otevře galerie
 const VRTENI_MS = 1300;
 
@@ -32,6 +34,7 @@ export default function FotkyBrana() {
   const [pokusy, setPokusy] = useState(0);
   const [odesila, setOdesila] = useState(false);
   const [hlaska, setHlaska] = useState<string | null>(null);
+  const [spravce, setSpravce] = useState(false);
   // stabilní identita — galerie ji má v závislostech načítání
   const zamknout = useCallback(() => setStav("zavreno"), []);
 
@@ -40,7 +43,11 @@ export default function FotkyBrana() {
     let zruseno = false;
     fetch("/api/fotky/vstup")
       .then((r) => (r.ok ? r.json() : { pristup: false }))
-      .then((d: { pristup?: boolean }) => !zruseno && setStav(d.pristup ? "otevreno" : "zavreno"))
+      .then((d: { pristup?: boolean; spravce?: boolean }) => {
+        if (zruseno) return;
+        setSpravce(!!d.spravce);
+        setStav(d.pristup ? "otevreno" : "zavreno");
+      })
       .catch(() => !zruseno && setStav("zavreno"));
     return () => {
       zruseno = true;
@@ -65,6 +72,8 @@ export default function FotkyBrana() {
         body: JSON.stringify({ odpoved }),
       });
       if (r.ok) {
+        const d: { spravce?: boolean } = await r.json().catch(() => ({}));
+        setSpravce(!!d.spravce);
         setHlaska(null);
         setStav("vrti");
         return;
@@ -81,13 +90,21 @@ export default function FotkyBrana() {
 
   if (stav === "otevreno") {
     // vypršela cookie / změnilo se heslo → zpátky ke psovi
-    return <FotoGalerie zamceno={zamknout} />;
+    return <FotoGalerie zamceno={zamknout} spravce={spravce} naKonecSpravy={() => setSpravce(false)} />;
   }
   // než server odpoví, nic neblikne — jen místo, ať stránka neposkočí
   if (stav === "zjistuji") return <div className={s.cekani} aria-hidden="true" />;
 
   const vrti = stav === "vrti";
-  const bublina = hlaska ?? (vrti ? DOBRE : pokusy === 0 ? VITANI : SPATNE[(pokusy - 1) % SPATNE.length]);
+  const bublina =
+    hlaska ??
+    (vrti
+      ? spravce
+        ? PANICKA
+        : DOBRE
+      : pokusy === 0
+        ? VITANI
+        : SPATNE[(pokusy - 1) % SPATNE.length]);
 
   return (
     <div className={s.brana}>

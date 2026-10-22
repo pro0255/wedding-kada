@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { COOKIE_FOTKY, platnyToken } from "./pristup";
+import { COOKIE_FOTKY, COOKIE_SPRAVCE, platnyToken } from "./pristup";
 
 /** Heslo ke galerii z prostředí. Chybí-li, galerie zůstane zamčená pro všechny. */
 export function hesloFotek(): string {
@@ -12,6 +12,17 @@ export function hesloFotek(): string {
 export async function maPristupKFotkam(): Promise<boolean> {
   const token = (await cookies()).get(COOKIE_FOTKY)?.value;
   return platnyToken(token, hesloFotek());
+}
+
+/** Správcovské heslo z prostředí. Chybí-li, správcovský režim prostě není. */
+export function hesloSpravce(): string {
+  return process.env.FOTKY_SPRAVCE?.trim() ?? "";
+}
+
+/** Je tenhle prohlížeč přihlášený jako správce galerie? */
+export async function jeSpravce(): Promise<boolean> {
+  const token = (await cookies()).get(COOKIE_SPRAVCE)?.value;
+  return platnyToken(token, hesloSpravce(), "spravce");
 }
 
 export const BEZ_PRISTUPU = () =>

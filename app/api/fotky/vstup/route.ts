@@ -1,6 +1,12 @@
 import { cookies } from "next/headers";
-import { hesloFotek, maPristupKFotkam } from "@/lib/fotkyPristup";
-import { COOKIE_FOTKY, COOKIE_FOTKY_MAX_AGE, jeSpravnaOdpoved, tokenPristupu } from "@/lib/pristup";
+import { hesloFotek, hesloSpravce, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
+import {
+  COOKIE_FOTKY,
+  COOKIE_FOTKY_MAX_AGE,
+  COOKIE_SPRAVCE,
+  jeSpravnaOdpoved,
+  tokenPristupu,
+} from "@/lib/pristup";
 import { KLIC, maRedis, redis } from "@/lib/redis";
 import { VstupPostSchema } from "@/lib/schemata";
 
@@ -13,7 +19,13 @@ const OKNO_S = 60;
 
 /** Pustí pes hosta rovnou? Cookie je httpOnly, prohlížeč se musí zeptat. */
 export async function GET() {
-  return Response.json({ pristup: await maPristupKFotkam() });
+  return Response.json({ pristup: await maPristupKFotkam(), spravce: await jeSpravce() });
+}
+
+/** Konec správcovství — host zůstane hostem. */
+export async function DELETE() {
+  (await cookies()).delete(COOKIE_SPRAVCE);
+  return Response.json({ ok: true });
 }
 
 /* Brzda na hádání. Redis je pro ni jen počítadlo — když v prostředí chybí
@@ -51,18 +63,27 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, chyba: "moc-pokusu" }, { status: 429 });
   }
 
+  /* U dveří stojí jedno pole, ale hesla jsou dvě. Jméno psa pustí hosta,
+     správcovské heslo pustí dál i jako správce — ten pak smí smazat
+     cizí fotku. Nikde to není napsané, dveře jsou pořád jedny. */
   const heslo = hesloFotek();
-  if (!jeSpravnaOdpoved(telo.data.odpoved, heslo)) {
+  const spravcovske = hesloSpravce();
+  const jakoSpravce = jeSpravnaOdpoved(telo.data.odpoved, spravcovske);
+
+  if (!jakoSpravce && !jeSpravnaOdpoved(telo.data.odpoved, heslo)) {
     await zapocitejPokus(klic);
     return Response.json({ ok: false }, { status: 401 });
   }
 
-  (await cookies()).set(COOKIE_FOTKY, tokenPristupu(heslo), {
+  const nastaveni = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: COOKIE_FOTKY_MAX_AGE,
-  });
-  return Response.json({ ok: true });
+  };
+  const uloz = await cookies();
+  uloz.set(COOKIE_FOTKY, tokenPristupu(heslo), nastaveni);
+  if (jakoSpravce) uloz.set(COOKIE_SPRAVCE, tokenPristupu(spravcovske, "spravce"), nastaveni);
+  return Response.json({ ok: true, spravce: jakoSpravce });
 }

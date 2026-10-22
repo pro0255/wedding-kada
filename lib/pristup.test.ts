@@ -19,6 +19,16 @@ test("bez nastaveného hesla neprojde nic", () => {
   assert.ok(!platnyToken(tokenPristupu(""), ""));
 });
 
+test("token hosta neotevře správcovský režim a naopak", () => {
+  // host a správce mají jiné heslo i jinou zprávu v podpisu
+  const hostuv = tokenPristupu(HESLO);
+  const spravcuv = tokenPristupu(HESLO, "spravce");
+  assert.notEqual(hostuv, spravcuv);
+  assert.ok(!platnyToken(hostuv, HESLO, "spravce"));
+  assert.ok(!platnyToken(spravcuv, HESLO));
+  assert.ok(platnyToken(spravcuv, HESLO, "spravce"));
+});
+
 test("token platí jen pro své heslo", () => {
   const t = tokenPristupu(HESLO);
   assert.ok(platnyToken(t, HESLO));

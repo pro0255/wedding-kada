@@ -3,8 +3,8 @@
 export type Kontakt = { jmeno: string; role: string; tel: string };
 
 export const KONTAKTY: Kontakt[] = [
-  { jmeno: "Jméno svědkyně", role: "svědkyně nevěsty", tel: "+420000000000" },
-  { jmeno: "Jméno svědka", role: "svědek ženicha", tel: "+420000000000" },
+  { jmeno: "Terezka", role: "svědkyně nevěsty", tel: "+420000000000" },
+  { jmeno: "Vojta", role: "svědek ženicha", tel: "+420000000000" },
 ];
 
 export const formatTel = (tel: string) =>

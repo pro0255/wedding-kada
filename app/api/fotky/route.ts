@@ -1,5 +1,5 @@
 import { pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
-import { BEZ_PRISTUPU, maPristupKFotkam } from "@/lib/fotkyPristup";
+import { BEZ_PRISTUPU, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import { DeviceIdSchema, FotkaDeleteSchema, FotkaPostSchema } from "@/lib/schemata";
 
 /** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup). */
@@ -36,7 +36,7 @@ export async function DELETE(request: Request) {
   if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
 
   try {
-    const vysledek = await smazFotku(telo.data.id, telo.data.deviceId);
+    const vysledek = await smazFotku(telo.data.id, telo.data.deviceId, await jeSpravce());
     if (!vysledek.ok) {
       return Response.json(
         { chyba: "Tuhle fotku smazat nemůžete." },

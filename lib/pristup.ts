@@ -11,6 +11,13 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  */
 
 export const COOKIE_FOTKY = "fotky_pristup";
+/* Správcovská cookie je zvlášť: nevěsta se ženichem smí smazat i cizí fotku,
+   host jen svou. Dvě role, dvě hesla, dvě cookie — a token jedné neplatí
+   pro druhou, protože se podepisuje jiná zpráva. */
+export const COOKIE_SPRAVCE = "fotky_spravce";
+
+const ZPRAVA = { host: "fotky-v1", spravce: "fotky-spravce-v1" } as const;
+export type Role = keyof typeof ZPRAVA;
 // rok — host se po svatbě vrací pro fotky a nemá hádat znovu
 export const COOKIE_FOTKY_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -30,12 +37,16 @@ export function jeSpravnaOdpoved(odpoved: string, heslo: string): boolean {
   return h.length > 0 && stejne(normalizuj(odpoved), h);
 }
 
-/** Token do cookie — HMAC pevného textu klíčem z hesla. */
-export function tokenPristupu(heslo: string): string {
-  return createHmac("sha256", normalizuj(heslo)).update("fotky-v1").digest("base64url");
+/** Token do cookie — HMAC zprávy role klíčem z hesla. */
+export function tokenPristupu(heslo: string, role: Role = "host"): string {
+  return createHmac("sha256", normalizuj(heslo)).update(ZPRAVA[role]).digest("base64url");
 }
 
-export function platnyToken(token: string | undefined, heslo: string): boolean {
+export function platnyToken(
+  token: string | undefined,
+  heslo: string,
+  role: Role = "host"
+): boolean {
   if (!token || !normalizuj(heslo)) return false;
-  return stejne(token, tokenPristupu(heslo));
+  return stejne(token, tokenPristupu(heslo, role));
 }

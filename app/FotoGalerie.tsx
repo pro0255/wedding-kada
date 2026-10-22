@@ -102,8 +102,20 @@ async function zmensi(soubor: File): Promise<Blob> {
 }
 
 /** `zamceno` zavolá, když server odmítne přístup (cookie ze vstupu vypršela
- *  nebo se změnilo heslo) — FotkyBrana pak vrátí hosta ke psovi u dveří. */
-export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) {
+ *  nebo se změnilo heslo) — FotkyBrana pak vrátí hosta ke psovi u dveří.
+ *
+ *  `spravce` je režim pro nevěstu se ženichem: smí smazat i cizí fotku.
+ *  Zapíná se u stejných dveří, jen jiným heslem — tlačítko „Správa galerie“
+ *  nic neprozrazuje, host se k němu dostane taky, ale bez hesla neprojde. */
+export default function FotoGalerie({
+  zamceno,
+  spravce = false,
+  naKonecSpravy,
+}: {
+  zamceno?: () => void;
+  spravce?: boolean;
+  naKonecSpravy?: () => void;
+} = {}) {
   const [fotky, setFotky] = useState<Fotka[] | null>(null);
   const [ukazVse, setUkazVse] = useState(false);
   const [jenMoje, setJenMoje] = useState(false);
@@ -288,6 +300,17 @@ export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) 
     }
   }
 
+  /* Konec správcovství: cookie zruší server, tady se jen přepne režim.
+     Host tím o přístup do galerie nepřijde, ta cookie je druhá. */
+  async function konecSpravy() {
+    try {
+      await fetch("/api/fotky/vstup", { method: "DELETE" });
+    } catch {
+      /* i tak režim vypneme — po obnově stránky se stav srovná podle serveru */
+    }
+    naKonecSpravy?.();
+  }
+
   const viditelne = fotky?.filter((f) => !jenMoje || f.moje) ?? [];
   const LIMIT = 24;
   const zobrazene = ukazVse ? viditelne : viditelne.slice(0, LIMIT);
@@ -356,6 +379,15 @@ export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) 
       )}
 
       {chyba && <p className="galerie-chyba">{chyba}</p>}
+
+      {spravce && (
+        <p className="galerie-spravce" role="status">
+          Jsi tu jako správce — smazat můžeš i cizí fotku.{" "}
+          <button type="button" onClick={konecSpravy}>
+            Ukončit správu
+          </button>
+        </p>
+      )}
 
       {mamNejake && (
         <div className="galerie-filtr">
@@ -445,6 +477,12 @@ export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) 
         </>
       )}
 
+      {!spravce && zamceno && (
+        <button type="button" className="galerie-sprava-odkaz" onClick={zamceno}>
+          Správa galerie
+        </button>
+      )}
+
       {detail && (
         <div
           className="galerie-detail"
@@ -530,7 +568,7 @@ export default function FotoGalerie({ zamceno }: { zamceno?: () => void } = {}) 
               </svg>
               <b>{detail.lajky}</b>
             </button>
-            {detail.moje && (
+            {(detail.moje || spravce) && (
               <button type="button" className="galerie-smazat" onClick={() => smaz(detail)}>
                 Smazat
               </button>
