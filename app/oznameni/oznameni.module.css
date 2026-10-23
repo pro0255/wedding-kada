@@ -199,17 +199,28 @@
 /* Věta pod jmény je patková kurziva — Cormorant má skutečný kurzivní řez,
    nemusí se naklánět uměle. Kurziva ji odliší od verzálek nad ní i od
    prostrkaných kapitálek pod ní, aniž by přibylo další písmo. */
+/* Psacím písmem jako „navždy“ nad jmény a jako spojka mezi nimi. Dřív to
+   byla kurzíva patkového písma, takže karta měla dvě různá ozdobná písma
+   naráz a působila neklidně.
+
+   Stupeň je větší než u kurzívy (6,4 proti 4,4 mm): Parisienne má malou
+   střední výšku, při stejné velikosti by řádek vypadal o půlku drobnější.
+   Prostrkání se ruší — psací písmo se prokládat nemá, rozpadly by se tahy
+   mezi písmeny. */
 .karta .slib {
-  margin-top: 9mm;
-  font-family: var(--serif), Georgia, serif;
-  font-style: italic;
-  font-size: 4.4mm;
-  letter-spacing: .05em;
+  margin-top: 8mm;
+  font-family: var(--kaligrafie), cursive;
+  font-size: 6.4mm;
+  line-height: 1.1;
+  letter-spacing: 0;
   color: var(--modre-pismo);
 }
 
+/* Mezera mezi „ano“ a datem byla devatenáct milimetrů a na kartě z ní byl
+   prázdný pás. Dvanáct drží datum pořád jako samostatný blok, ale nerozpadá
+   se jí sazba na dvě půlky. */
 .udaje {
-  margin-top: 19mm;
+  margin-top: 12mm;
   align-self: center;
   display: flex;
   flex-direction: column;
