@@ -201,10 +201,28 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    pro odlehčení. Krok pět je nesoudělný se šesti, takže se vystřídají všechny. */
 const KVETY_BEZ_STONKU = [5, 9, 12, 7, 13, 3];
 
+/* Prohodí dvě snítky místem i velikostí. Rozsyp rozmisťuje podle mřížky, ne
+   podle barev, a bez tohohle skončily obě růžové hortenzie na jedné půlce
+   pruhu a modrá sama v rohu. Prohazuje se celá poloha, aby si kytky jen
+   vyměnily místo a nic se nehnulo jinam. */
+function prohodKvety(kytky: Kytka[], a: string, b: string): Kytka[] {
+  const i = kytky.findIndex((k) => k.snitka === a);
+  const j = kytky.findIndex((k) => k.snitka === b);
+  if (i < 0 || j < 0) return kytky;
+  const prohozene = [...kytky];
+  prohozene[i] = { ...kytky[j], snitka: a };
+  prohozene[j] = { ...kytky[i], snitka: b };
+  return prohozene;
+}
+
 const KYTKY_MALE: Kytka[] = [
-  ...rozsyp(154, 56, 7, 2, [
-    { x1: 32, y1: 17, x2: 122, y2: 39 },
-  ], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU),
+  ...prohodKvety(
+    rozsyp(154, 56, 7, 2, [
+      { x1: 32, y1: 17, x2: 122, y2: 39 },
+    ], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU),
+    "05",
+    "09",
+  ),
   /* Fialka nad „srdečně“, kousek vlevo od něj. Posazená ručně: buňka nad
      textem spadá do zakázané plochy, takže ji rozsyp sám nikdy nedá.
      Je mimo výběr pro pozvánky — ten drží samotné květy bez stonku a tady
