@@ -256,10 +256,10 @@ const T = {
     navod: "Naskenujte QR kód mobilem, nebo zadejte adresu do prohlížeče:",
   },
   rub: {
-    /* Ampersand, ne plus — web má „Kateřina & Jakub“ a „Kačka & Kuba“. Plus
-       zůstává jen v kresleném srdci u „Náš příběh“, tam je jako vyrytina do
-       stromu na místě. */
-    iniciály: "Kateřina & Jakub",
+    /* Spojka „a“, ne ampersand — na líci oznámení stojí „Kateřina a Jakub“
+       a rub je jeho druhá strana, ne samostatná tiskovina. Ampersand nese
+       web v titulku a v podpisech. */
+    iniciály: "Kateřina a Jakub",
     nadpis: "Detaily",
   },
   info: {
