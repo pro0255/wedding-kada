@@ -179,17 +179,19 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    zůstanou díry. Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy
    a snítka, která končila tři milimetry před „ke“, se ho opticky dotýkala.
 
-   Velikost snítek je schválně stejná jako na hlavní kartě. Dřív byly na
-   pozvánce menší (8 až 12 mm proti 13 až 22 mm) a samo o sobě to vypadalo
-   dobře — jenže když se karty položí na sebe, jde ten rozdíl vidět na první
-   pohled.
+   Snítky jsou tu menší než na hlavní kartě (10 až 15 mm proti 16 až 26).
+   Kdysi tu stálo, že se velikost nechává stejná, ať na hromádce karet
+   nevznikne rozdíl — jenže to platilo pro drobné snítky z prvního archu.
+   Lisované květiny z druhého archu jsou samy o sobě statnější a v plné
+   velikosti ze třiceticentimetrového pruhu udělaly dva chomáče hortenzií
+   s textem vmáčknutým mezi ně.
 
-   Od druhého archu kytek jsou řady dvě místo tří a sloupců osm: snítky jsou
-   větší, takže se jich do tří řad na padesátimilimetrový pruh nevejde ani
-   polovina, a při pěti sloupcích zbyly na pruhu čtyři kusy a prázdný střed. */
-const KYTKY_MALE = rozsyp(154, 56, 8, 2, [
-  { x1: 38, y1: 19, x2: 116, y2: 37 },
-], 16, 26, SNITEK3, 5);
+   Zakázaná plocha je proto i širší než dřív (32 až 122 mm proti 38 až 116):
+   psací písmo má dlouhé tahy a kytka, která skončila těsně u „obřad“, se ho
+   opticky dotýkala. */
+const KYTKY_MALE = rozsyp(154, 56, 7, 3, [
+  { x1: 32, y1: 17, x2: 122, y2: 39 },
+], 10, 15, SNITEK3, 5);
 
 /* Proužek na archu má tytéž kytky, jen posunuté o spad: na kartě jsou
    souřadnice od kraje se spadem, na archu od ořezu, protože mezi proužky žádný
