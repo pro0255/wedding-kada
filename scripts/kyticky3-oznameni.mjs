@@ -53,6 +53,39 @@ const OKRAJ = 4;
 const PASTEL_SVETLOST = 0.42;  // o kolik se barva přiblíží bílé
 const PASTEL_SYTOST = 1.18;    // násobek sytosti, ať při tom nezešedne
 
+/* Barevné varianty vybraných snítek. Originál zůstává, varianta vzniká vedle
+ * — na kartě se pak vybere, která se použije.
+ *
+ * Odstín je ve stupních z naší palety: 46 je krémová žlutá (#f8e4a3).
+ * Přetáčí se jen odstín a sytost se přitáhne; světlost zůstává, protože
+ * v ní je nesené stínování okvětních lístků. Bez toho by z květiny byla
+ * plochá samolepka. */
+const VARIANTY = [
+  /* Žlutá potřebuje strop světlosti. Ze všech odstínů je nejsvětlejší, takže
+     po pastelovém zesvětlení nemá kam růst a vyjde skoro bílá — tohle ji
+     stáhne zpátky tam, kde je ještě vidět, že je žlutá. */
+  { snitka: 7, pripona: "zluta", odstin: 46, sytost: 0.75, strop: 0.78 },
+];
+
+/* Pod touhle sytostí je pixel prakticky šedý — stín nebo žilka v protisvětle.
+ * Přetáčet mu odstín nemá smysl, jen by z něj byla barevná skvrna. */
+const SEDA = 0.08;
+
+function prebarvi(surovy, sirka, vyska, odstin, tahSytost, strop = 1) {
+  const kopie = Buffer.from(surovy);
+  const h = odstin / 360;
+  for (let i = 0; i < sirka * vyska; i++) {
+    if (kopie[i * 4 + 3] === 0) continue;
+    const [, sat, l] = naHsl(kopie[i * 4], kopie[i * 4 + 1], kopie[i * 4 + 2]);
+    if (sat < SEDA) continue;
+    const [r, g, b] = naRgb(h, sat + (0.6 - sat) * tahSytost, Math.min(l, strop));
+    kopie[i * 4] = r;
+    kopie[i * 4 + 1] = g;
+    kopie[i * 4 + 2] = b;
+  }
+  return kopie;
+}
+
 function naHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -223,6 +256,16 @@ for (let i = 0; i < vybrane.length; i++) {
 
   nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet });
   console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
+
+  for (const v of VARIANTY.filter((v) => v.snitka === i + 1)) {
+    const jinaBarva = prebarvi(surovy, width, height, v.odstin, v.sytost, v.strop);
+    const jmenoV = `${String(i + 1).padStart(2, "0")}-${v.pripona}.png`;
+    const vyrezV = await sharp(jinaBarva, { raw: { width, height, channels: 4 } })
+      .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
+    await sharp(vyrezV).toFile(`${KAM}/${jmenoV}`);
+    nahledy.push({ jmeno: jmenoV, vyrez: vyrezV, width, height, pocet: p.pocet });
+    console.log(`${jmenoV}  varianta, odstín ${v.odstin}°`);
+  }
 }
 
 /* Přehledový arch, ať se dá vybírat okem a ne podle čísel. */

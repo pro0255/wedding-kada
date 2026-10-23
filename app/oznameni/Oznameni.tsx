@@ -160,6 +160,11 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
 
+/* Snítky, které se na kartě berou v jiné barevné variantě (vyrábí je
+   scripts/kyticky3-oznameni.mjs). Zelená hortenzie u jmen splývala se
+   šalvějovými lístky kolem, ve žluté drží své místo. */
+const JINA_BARVA: Record<string, string> = { "07": "07-zluta" };
+
 /* Varianta hlavní karty s druhým archem: míň kytek a větší. Mřížka je
    4 x 6 místo 6 x 9, takže po odečtení textových zón zbyde kolem desítky
    snítek — řidší rozsyp, ve kterém je každá květina vidět jako květina,
@@ -362,7 +367,11 @@ export default function Oznameni() {
             <img
               key={i}
               className={s.kytka}
-              src={`/oznameni/${klic === "hlavni2" ? "kyticky3" : "kyticky"}/${k.snitka}.png`}
+              src={
+                klic === "hlavni2"
+                  ? `/oznameni/kyticky3/${JINA_BARVA[k.snitka] ?? k.snitka}.png`
+                  : `/oznameni/kyticky/${k.snitka}.png`
+              }
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
