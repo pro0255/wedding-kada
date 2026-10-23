@@ -246,13 +246,17 @@
 /* Text nese černá, růžová jen rámeček, nadpisy, adresa a poděkování. Když
    růžová nesla i běžný text, byla karta růžová skrz naskrz a odstavce navíc
    bledší, než se na papíře čte pohodlně. Takhle růžová akcentuje a nepřekáží. */
-.k-qr {
-  background: var(--ramecek-ruzova);
-  color: var(--inkoust);
-}
-/* Informační karta i její rub mají rámeček baby blue, ne růžový. */
+/* Vkládané karty jsou celé do modra: rámeček baby blue a akcenty (nadpisy
+   bloků, adresa, „Děkujeme“) v jeho tmavší obdobě. Růžová zůstala archům
+   pozvánek, ty se do obálky nevkládají.
+
+   Baby blue z plochy se na písmo nehodí — na bílém papíře by zmizela. Tenhle
+   odstín má stejný tón, ale je ztmavený zhruba na sytost růžové, kterou
+   nahrazuje, takže drží i na prostrkaných kapitálkách. */
 .k-info,
-.k-rub {
+.k-rub,
+.k-qr {
+  --ruzove-pismo: #41678a;
   background: var(--ramecek-modra);
   color: var(--inkoust);
 }
@@ -454,10 +458,14 @@
 .k-archStolu .text,
 .k-archQr .text { display: block; padding: 0; }
 
-/* Růžovou nese celá karta včetně spadu, ne jednotlivé proužky — na vnějším
+/* Barvu nese celá karta včetně spadu, ne jednotlivé proužky — na vnějším
    okraji archu by jinak po ořezu mohl svítit bílý papír. Proužek kreslí jen
-   bílý vnitřek. */
-.k-archQr { background: var(--ramecek-ruzova); }
+   bílý vnitřek. Modrá jako u samostatné kartičky: arch je jen způsob, jak jich
+   vytisknout čtyři naráz, vypadat mají stejně. */
+.k-archQr {
+  --ruzove-pismo: #41678a;
+  background: var(--ramecek-modra);
+}
 .qrProuzek {
   position: relative;
   height: 50mm;
