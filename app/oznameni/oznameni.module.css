@@ -281,22 +281,32 @@
 }
 
 /* Jména hned pod rámečkem, patkové písmo jako jména na hlavní kartě. */
+/* Jména jsou pod sebou se spojkou mezi nimi — stejná sazba jako na líci,
+   jen menší: rub je druhá strana téže karty, ne jiná tiskovina. */
 .rubJmena {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.karta .rubJmeno {
+  margin: 0;
+  color: var(--inkoust);
   font-family: var(--serif), Georgia, serif;
   font-size: 8mm;
   line-height: 1.2;
   letter-spacing: .2em;
+  text-transform: uppercase;
   /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
   text-indent: .2em;
 }
-/* Spojka mezi jmény je kaligrafie a modrá, jako na líci. Prostrkání verzálek
-   se jí ruší — psací písmo se prokládat nemá — a mezery kolem ní jsou vlastní,
-   protože bez prostrkání by se k ní jména nalepila. */
-.rubSpojka {
+/* Spojka na vlastním řádku mezi jmény, kaligrafií a modře — jako na líci.
+   Prostrkání se jí ruší, psací písmo se prokládat nemá. */
+.karta .rubSpojka {
+  margin: 1.5mm 0;
   font-family: var(--kaligrafie), cursive;
-  font-size: 1.1em;
+  font-size: 5.5mm;
+  line-height: 1;
   letter-spacing: 0;
-  margin: 0 .55em;
   color: var(--modre-pismo);
 }
 

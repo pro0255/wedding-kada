@@ -386,11 +386,11 @@ export default function Oznameni() {
               <>
                 {/* Iniciály a datum nahoře, ať strana není jen jedno slovo na
                     prázdné ploše — kartička leží na oznámení touhle stranou. */}
-                <p className={s.rubJmena}>
-                  {T.rub.iniciály.nevesta}
-                  <span className={s.rubSpojka}>{T.rub.iniciály.spojka}</span>
-                  {T.rub.iniciály.zenich}
-                </p>
+                <div className={s.rubJmena}>
+                  <p className={s.rubJmeno}>{T.rub.iniciály.nevesta}</p>
+                  <p className={s.rubSpojka}>{T.rub.iniciály.spojka}</p>
+                  <p className={s.rubJmeno}>{T.rub.iniciály.zenich}</p>
+                </div>
                 <p className={s.rubDatum}>{T.hlavni.datum}</p>
                 <p className={s.rubNadpis}>{T.rub.nadpis}</p>
               </>
