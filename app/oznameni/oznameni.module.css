@@ -143,8 +143,7 @@
 /* ---------- hlavní karta (A5) ---------- */
 /* Všechno na střed, jako na předloze. Odsazení shora drží text pod horním
    pásem kytek. */
-.k-hlavni .text,
-.k-hlavni2 .text {
+.k-hlavni .text {
   align-items: center;
   justify-content: flex-start;
   text-align: center;

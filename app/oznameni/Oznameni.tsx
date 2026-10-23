@@ -39,14 +39,10 @@ const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
    kartičky. */
 const SPAD_ARCHU = 0;
 
-type KartaKlic = "hlavni" | "hlavni2" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
+type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number; spad?: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
-  /* Varianta téže karty s druhým archem kytek — na porovnání, než se vybere.
-     Geometrie je schválně stejná do posledního milimetru, ať se dají položit
-     vedle sebe a lišily se jen kytky. */
-  { klic: "hlavni2", nazev: "Hlavní — nové kytky (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
      QR kód na ní není. Vešel by se, ale karta by tím byla zaplněná na 99 %
      a kód by v jinak vystředěné sazbě působil dolepeně. Má proto vlastní
@@ -151,37 +147,22 @@ function rozsyp(
   return kytky;
 }
 
-/* Místa, kam kytky nesmí. Odměřené z hotové karty a o 3 mm rozšířené, ať se
-   nedotýkají písmen. */
-const KYTKY = rozsyp(154, 216, 6, 9, [
-  { x1: 61, y1: 26, x2: 93, y2: 42 },      // ty a já, teď a navždy
-  { x1: 40, y1: 60, x2: 114, y2: 103 },    // jména
-  { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
-  { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
-]);
-
 /* Snítky, které se na kartě berou v jiné barevné variantě (vyrábí je
    scripts/kyticky3-oznameni.mjs). Hortenzie u jmen splývala se šalvějovými
    lístky kolem sebe, tak je pootočená do teplejší zeleně. */
 const JINA_BARVA: Record<string, string> = { "07": "07-tepla" };
 
-/* Karty s druhým archem berou snítky odtud, zbytek ze staré sady. */
-const NOVA_SADA: KartaKlic[] = ["hlavni2", "obrad", "vizitka", "archObrad", "archStolu"];
-
-function cestaKeSnitce(snitka: string, nova: boolean): string {
-  return nova
-    ? `/oznameni/kyticky3/${JINA_BARVA[snitka] ?? snitka}.png`
-    : `/oznameni/kyticky/${snitka}.png`;
+function cestaKeSnitce(snitka: string): string {
+  return `/oznameni/kyticky3/${JINA_BARVA[snitka] ?? snitka}.png`;
 }
 
-/* Varianta hlavní karty s druhým archem: míň kytek a větší. Mřížka je
-   4 x 6 místo 6 x 9, takže po odečtení textových zón zbyde kolem desítky
-   snítek — řidší rozsyp, ve kterém je každá květina vidět jako květina,
-   ne jako tečka. Snítky jsou tím pádem vyšší (16 až 26 mm).
+/* Místa, kam kytky nesmí. Odměřená z hotové karty a o 3 mm rozšířená, ať se
+   nedotýkají písmen.
 
-   Zakázané plochy jsou stejné jako u původní karty: text se nehýbe, mění se
-   jen kytky kolem něj. */
-const KYTKY_NOVE = rozsyp(154, 216, 4, 6, [
+   Mřížka je 4 x 6, takže po odečtení textových zón zbyde kolem desítky snítek
+   — řidší rozsyp, ve kterém je každá květina vidět jako květina, ne jako
+   tečka. Snítky jsou tím pádem vyšší (16 až 26 mm). */
+const KYTKY = rozsyp(154, 216, 4, 6, [
   { x1: 61, y1: 26, x2: 93, y2: 42 },      // ty a já, teď a navždy
   { x1: 40, y1: 60, x2: 114, y2: 103 },    // jména
   { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
@@ -374,14 +355,13 @@ export default function Oznameni() {
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
           {(klic === "hlavni" ? KYTKY
-            : klic === "hlavni2" ? KYTKY_NOVE
             : klic === "obrad" || klic === "vizitka" ? KYTKY_MALE
             : []
           ).map((k, i) => (
             <img
               key={i}
               className={s.kytka}
-              src={cestaKeSnitce(k.snitka, NOVA_SADA.includes(klic))}
+              src={cestaKeSnitce(k.snitka)}
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
@@ -389,7 +369,7 @@ export default function Oznameni() {
           ))}
 
           <div className={s.text}>
-            {(klic === "hlavni" || klic === "hlavni2") && <Hlavni />}
+            {klic === "hlavni" && <Hlavni />}
             {klic === "info" && <Info />}
             {klic === "qr" && <KartaQr />}
             {klic === "rub" && (
@@ -500,7 +480,7 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
             <img
               key={i}
               className={s.kytka}
-              src={cestaKeSnitce(k.snitka, true)}
+              src={cestaKeSnitce(k.snitka)}
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
@@ -631,7 +611,7 @@ export function OznameniHlavni() {
           <img
             key={i}
             className={s.kytka}
-            src={`/oznameni/kyticky/${k.snitka}.png`}
+            src={cestaKeSnitce(k.snitka)}
             alt=""
             aria-hidden="true"
             style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
