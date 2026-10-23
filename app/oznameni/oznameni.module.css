@@ -361,18 +361,22 @@
 
 
 
-/* Celá karta je v kapitálkách a prostrkaná, jako na předloze. Kapitálky jsou
-   širší a s prostrkáním zaberou skoro o třetinu víc místa než malá písmena,
-   takže je písmo o něco menší — na krátkých větách v kapitálkách to nevadí,
-   ty se čtou po řádcích, ne po slovech. */
-.infoText,
-.infoAdresa,
-.infoPoznamka,
-.qrPopis,
-.karta .infoZaver {
+/* Kapitálky zůstaly jen tam, kde jsou krátké: nadpisy bloků a popisek u QR
+   kódu. Odstavce na informační kartě je mají zakázané — prostrkané verzálky
+   se čtou po písmenech, ne po slovech, a tahle karta nese nejvíc textu
+   z celé sady. Malá písmena jsou užší, takže snesou o chlup větší stupeň
+   a těsnější proklad. */
+.qrPopis {
   text-transform: uppercase;
   letter-spacing: .14em;
   line-height: 1.85;
+}
+.infoText,
+.infoAdresa,
+.infoPoznamka,
+.karta .infoZaver {
+  letter-spacing: .015em;
+  line-height: 1.6;
 }
 /* Odstup od bloku nad sebou. První blok žádný nemá — nad ním je jen kraj
    karty a sedm milimetrů navíc tam vypadalo jako chyba sazby. */
@@ -388,23 +392,24 @@
 }
 .infoText {
   margin: 0;
-  font-size: 2.9mm;
+  font-size: 3.2mm;
 }
 /* Adresa je běžný odstavec jako text kolem, jen podtržený — je to jediný údaj,
    který si někdo bude opisovat do navigace. Podtržení místo tučného řezu proto,
-   že na kartě psané celé kapitálkami vypadá každý ztučněný řádek jako další
-   nadpis. Podtržení je odsazené od účaří, jinak by se zaseklo do háčků a čárek. */
+   že vedle prostrkaných verzálkových nadpisů vypadá každý ztučněný řádek jako
+   další nadpis. Podtržení je odsazené od účaří, jinak by se zaseklo do háčků
+   a čárek. */
 .karta .infoAdresa {
   margin: 2.5mm 0 0;
   color: var(--ruzove-pismo);
-  font-size: 2.9mm;
+  font-size: 3.2mm;
   text-decoration: underline;
   text-decoration-thickness: .05em;
   text-underline-offset: .28em;
 }
 .karta .infoPoznamka {
   margin: 3mm 0 0;
-  font-size: 2.9mm;
+  font-size: 3.2mm;
 }
 /* Vzorník pastelů k dress code, stejné kuličky jako na webu. Obrys je border,
    ne box-shadow — v tiskovém PDF je border spolehlivější a nejsvětlejší
@@ -435,7 +440,7 @@
    a závěrečná věta se nalepí pod „Děkujeme“. */
 .karta .infoZaver {
   margin-top: 2.5mm;
-  font-size: 2.9mm;
+  font-size: 3.2mm;
 }
 
 
