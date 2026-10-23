@@ -165,6 +165,15 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
    lístky kolem sebe, tak je pootočená do teplejší zeleně. */
 const JINA_BARVA: Record<string, string> = { "07": "07-tepla" };
 
+/* Karty s druhým archem berou snítky odtud, zbytek ze staré sady. */
+const NOVA_SADA: KartaKlic[] = ["hlavni2", "obrad", "vizitka", "archObrad", "archStolu"];
+
+function cestaKeSnitce(snitka: string, nova: boolean): string {
+  return nova
+    ? `/oznameni/kyticky3/${JINA_BARVA[snitka] ?? snitka}.png`
+    : `/oznameni/kyticky/${snitka}.png`;
+}
+
 /* Varianta hlavní karty s druhým archem: míň kytek a větší. Mřížka je
    4 x 6 místo 6 x 9, takže po odečtení textových zón zbyde kolem desítky
    snítek — řidší rozsyp, ve kterém je každá květina vidět jako květina,
@@ -189,12 +198,17 @@ const KYTKY_NOVE = rozsyp(154, 216, 4, 6, [
    zůstanou díry. Vodorovně je rezerva naopak štědrá: psací písmo má dlouhé tahy
    a snítka, která končila tři milimetry před „ke“, se ho opticky dotýkala.
 
-   Velikost snítek je schválně stejná jako na A5. Dřív byly na pozvánce menší
-   (8 až 12 mm proti 13 až 22 mm) a samo o sobě to vypadalo dobře — jenže když
-   se karty položí na sebe, jde ten rozdíl vidět na první pohled. */
-const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
+   Velikost snítek je schválně stejná jako na hlavní kartě. Dřív byly na
+   pozvánce menší (8 až 12 mm proti 13 až 22 mm) a samo o sobě to vypadalo
+   dobře — jenže když se karty položí na sebe, jde ten rozdíl vidět na první
+   pohled.
+
+   Od druhého archu kytek jsou řady dvě místo tří a sloupců osm: snítky jsou
+   větší, takže se jich do tří řad na padesátimilimetrový pruh nevejde ani
+   polovina, a při pěti sloupcích zbyly na pruhu čtyři kusy a prázdný střed. */
+const KYTKY_MALE = rozsyp(154, 56, 8, 2, [
   { x1: 38, y1: 19, x2: 116, y2: 37 },
-]);
+], 16, 26, SNITEK3, 5);
 
 /* Proužek na archu má tytéž kytky, jen posunuté o spad: na kartě jsou
    souřadnice od kraje se spadem, na archu od ořezu, protože mezi proužky žádný
@@ -367,11 +381,7 @@ export default function Oznameni() {
             <img
               key={i}
               className={s.kytka}
-              src={
-                klic === "hlavni2"
-                  ? `/oznameni/kyticky3/${JINA_BARVA[k.snitka] ?? k.snitka}.png`
-                  : `/oznameni/kyticky/${k.snitka}.png`
-              }
+              src={cestaKeSnitce(k.snitka, NOVA_SADA.includes(klic))}
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
@@ -490,7 +500,7 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
             <img
               key={i}
               className={s.kytka}
-              src={`/oznameni/kyticky/${k.snitka}.png`}
+              src={cestaKeSnitce(k.snitka, true)}
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
