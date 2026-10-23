@@ -189,7 +189,7 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    Zakázaná plocha je proto i širší než dřív (32 až 122 mm proti 38 až 116):
    psací písmo má dlouhé tahy a kytka, která skončila těsně u „obřad“, se ho
    opticky dotýkala. */
-const KYTKY_MALE = rozsyp(154, 56, 7, 3, [
+const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
   { x1: 32, y1: 17, x2: 122, y2: 39 },
 ], 10, 15, SNITEK3, 5);
 
