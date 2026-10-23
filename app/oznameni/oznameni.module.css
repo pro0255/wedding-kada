@@ -43,10 +43,13 @@
   --ruzove-pismo: #9e4750;    /* --palette-rose-text */
 
   /* Modrá na doprovodný text. Baby blue z plochy (#dbe7f4) je barva na pozadí,
-     ne na písmo — na bílém papíře by se ztratila úplně. Tohle je stejný modrý
-     tón ztmavený tak, aby se udržel i na prostrkaných kapitálkách o velikosti
-     sedmi bodů, a pořád byl světle modrý. */
-  --modre-pismo: #7fa3bd;
+     ne na písmo — na bílém papíře by se ztratila úplně.
+
+     Ztmaveno proti dřívějšímu #7fa3bd: na monitoru vypadá kontrast vždycky
+     lepší než na papíře a nejdrobnější řádek z celé karty („v 11 hodin
+     u zvoničky v Rekovicích“) nese to nejdůležitější, co na ní je. Pořád je
+     to světle modrá, jen už ji přečte i babička. */
+  --modre-pismo: #5f8aab;
 }
 
 /* Tisková stránka: podklad, na kterém karta leží, a vystředění. */
@@ -231,13 +234,16 @@
   color: var(--inkoust);
 }
 
+/* Místo a čas obřadu. Prostrkané kapitálky v 2,9 mm vycházely po vytištění
+   na hraně čitelnosti — tři desetiny milimetru navíc je znát a na kompozici
+   se neprojeví. */
 .karta .detail {
   margin-top: 9mm;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: var(--sans), system-ui, sans-serif;
-  font-size: 2.9mm;
+  font-size: 3.2mm;
   line-height: 2;
   letter-spacing: .26em;
   text-transform: uppercase;
@@ -273,6 +279,12 @@
   inset: calc(var(--spad) + 4mm);
   background: var(--papir);
 }
+/* Informační karta a její rub mají pruh užší než kartička s QR: na formátu
+   148 x 168 dělaly čtyři milimetry kolem dokola dojem pasparty, kdežto na
+   padesátimilimetrovém proužku je stejný pruh v pořádku. Pod dva milimetry
+   jít nejde — tři milimetry jsou tolerance řezačky a zbylo by pod ní. */
+.k-info::before,
+.k-rub::before { inset: calc(var(--spad) + 2.5mm); }
 
 /* Rub informační karty: jen slovo v horní třetině. Písmo je stejné jako
    u jmen — patkové verzálky s prostrkáním — a barva růžová po zbytku karty.
