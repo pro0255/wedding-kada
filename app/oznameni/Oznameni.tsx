@@ -201,7 +201,7 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    pro odlehčení. Krok pět je nesoudělný se šesti, takže se vystřídají všechny. */
 const KVETY_BEZ_STONKU = [5, 9, 12, 7, 13, 3];
 
-const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
+const KYTKY_MALE = rozsyp(154, 56, 7, 2, [
   { x1: 32, y1: 17, x2: 122, y2: 39 },
 ], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU);
 
