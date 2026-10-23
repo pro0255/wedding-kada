@@ -168,8 +168,13 @@
 }
 
 /* „Ty a já, teď a navždy“ nad jmény. Kapitálky byly 2,6 mm a vedle
-   psacího „navždy“ v nich nebyl nápis, ale drobná linka pod ním. */
+   psacího „navždy“ v nich nebyl nápis, ale drobná linka pod ním.
+
+   Posun nahoru je relativní, ne přes margin: margin by s sebou vytáhl
+   i jména a všechno pod nimi, takhle se hne jen tenhle blok. */
 .uvod {
+  position: relative;
+  top: -2mm;
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 3.2mm;
   line-height: 1.9;
