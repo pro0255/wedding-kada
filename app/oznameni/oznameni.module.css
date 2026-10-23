@@ -239,20 +239,21 @@
   color: var(--modre-pismo);
 }
 
-/* ---------- informační karta (A6, růžový rámeček) ---------- */
+/* ---------- informační karta (A6, rámeček baby blue) ---------- */
 /* Karta je růžová jen po obvodu, uvnitř je bílý papír. Pruh sahá až na okraj
    spadu, takže po ořezu zůstanou 4 mm — kdyby končil na ořezu, po posunu
    řezačky by na kraji svítil bílý proužek. */
 /* Text nese černá, růžová jen rámeček, nadpisy, adresa a poděkování. Když
    růžová nesla i běžný text, byla karta růžová skrz naskrz a odstavce navíc
    bledší, než se na papíře čte pohodlně. Takhle růžová akcentuje a nepřekáží. */
-.k-info,
 .k-qr {
   background: var(--ramecek-ruzova);
   color: var(--inkoust);
 }
+/* Informační karta i její rub mají rámeček baby blue, ne růžový. */
+.k-info,
 .k-rub {
-  background: var(--ramecek-ruzova);
+  background: var(--ramecek-modra);
   color: var(--inkoust);
 }
 .k-info::before,
