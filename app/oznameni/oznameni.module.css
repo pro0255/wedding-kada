@@ -143,12 +143,6 @@
 /* ---------- hlavní karta (A5) ---------- */
 /* Všechno na střed, jako na předloze. Odsazení shora drží text pod horním
    pásem kytek. */
-/* Varianta s novými kytkami má všechen text černý. Modrá je na původní
-   kartě proto, aby doprovodné řádky ustoupily jménům — tady to obstarají
-   samy kytky, kterých je míň a jsou výraznější. Stačí přebít proměnnou,
-   odstíny si ji berou všechny. */
-.k-hlavni2 { --modre-pismo: var(--inkoust); }
-
 .k-hlavni .text,
 .k-hlavni2 .text {
   align-items: center;

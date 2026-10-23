@@ -161,9 +161,9 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
 ]);
 
 /* Snítky, které se na kartě berou v jiné barevné variantě (vyrábí je
-   scripts/kyticky3-oznameni.mjs). Zelená hortenzie u jmen splývala se
-   šalvějovými lístky kolem, ve žluté drží své místo. */
-const JINA_BARVA: Record<string, string> = { "07": "07-zluta" };
+   scripts/kyticky3-oznameni.mjs). Hortenzie u jmen splývala se šalvějovými
+   lístky kolem sebe, tak je pootočená do teplejší zeleně. */
+const JINA_BARVA: Record<string, string> = { "07": "07-tepla" };
 
 /* Varianta hlavní karty s druhým archem: míň kytek a větší. Mřížka je
    4 x 6 místo 6 x 9, takže po odečtení textových zón zbyde kolem desítky

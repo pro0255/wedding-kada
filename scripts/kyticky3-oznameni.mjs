@@ -61,24 +61,27 @@ const PASTEL_SYTOST = 1.18;    // násobek sytosti, ať při tom nezešedne
  * v ní je nesené stínování okvětních lístků. Bez toho by z květiny byla
  * plochá samolepka. */
 const VARIANTY = [
-  /* Žlutá potřebuje strop světlosti. Ze všech odstínů je nejsvětlejší, takže
-     po pastelovém zesvětlení nemá kam růst a vyjde skoro bílá — tohle ji
-     stáhne zpátky tam, kde je ještě vidět, že je žlutá. */
-  { snitka: 7, pripona: "zluta", odstin: 46, sytost: 0.75, strop: 0.78 },
+  /* Hortenzie u jmen se jen pootočí do teplejší zeleně — zůstane zelená,
+     ale odejde od šalvějových lístků kolem sebe. Přemalování na jinou barvu
+     tu nefunguje: po pastelovém zesvětlení z každého odstínu zbude bledá
+     skvrna, která vedle sytějších sousedů vypadá jako šmouha. */
+  { snitka: 7, pripona: "tepla", posun: -24 },
 ];
 
 /* Pod touhle sytostí je pixel prakticky šedý — stín nebo žilka v protisvětle.
  * Přetáčet mu odstín nemá smysl, jen by z něj byla barevná skvrna. */
 const SEDA = 0.08;
 
-function prebarvi(surovy, sirka, vyska, odstin, tahSytost, strop = 1) {
+/* Pootočení odstínu. Sytost ani světlost se nechávají — v nich je nesené
+ * stínování okvětních lístků a každý zásah do nich dělá ze snítky plochou
+ * samolepku. */
+function prebarvi(surovy, sirka, vyska, posun) {
   const kopie = Buffer.from(surovy);
-  const h = odstin / 360;
   for (let i = 0; i < sirka * vyska; i++) {
     if (kopie[i * 4 + 3] === 0) continue;
-    const [, sat, l] = naHsl(kopie[i * 4], kopie[i * 4 + 1], kopie[i * 4 + 2]);
+    const [hue, sat, l] = naHsl(kopie[i * 4], kopie[i * 4 + 1], kopie[i * 4 + 2]);
     if (sat < SEDA) continue;
-    const [r, g, b] = naRgb(h, sat + (0.6 - sat) * tahSytost, Math.min(l, strop));
+    const [r, g, b] = naRgb((hue + posun / 360 + 1) % 1, sat, l);
     kopie[i * 4] = r;
     kopie[i * 4 + 1] = g;
     kopie[i * 4 + 2] = b;
@@ -258,13 +261,13 @@ for (let i = 0; i < vybrane.length; i++) {
   console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
 
   for (const v of VARIANTY.filter((v) => v.snitka === i + 1)) {
-    const jinaBarva = prebarvi(surovy, width, height, v.odstin, v.sytost, v.strop);
+    const jinaBarva = prebarvi(surovy, width, height, v.posun);
     const jmenoV = `${String(i + 1).padStart(2, "0")}-${v.pripona}.png`;
     const vyrezV = await sharp(jinaBarva, { raw: { width, height, channels: 4 } })
       .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
     await sharp(vyrezV).toFile(`${KAM}/${jmenoV}`);
     nahledy.push({ jmeno: jmenoV, vyrez: vyrezV, width, height, pocet: p.pocet });
-    console.log(`${jmenoV}  varianta, odstín ${v.odstin}°`);
+    console.log(`${jmenoV}  varianta, odstín o ${v.posun}°`);
   }
 }
 
