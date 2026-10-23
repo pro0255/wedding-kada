@@ -39,6 +39,51 @@ const NEJMENE_STRANA = 24;
 /* Kolem výřezu se nechá pár pixelů vzduchu, ať okraj nekončí přesně na tahu. */
 const OKRAJ = 4;
 
+/* Ztlumení barev. Arch je sám o sobě vybledlý, ale na kartě vedle drobného
+ * textu jsou sytější kusy — korálová sasanka, fialka — pořád dost hlasité.
+ * Sytost se stáhne a světlost se přitáhne k papíru, takže květina vypadá,
+ * jako by v herbáři ležela o pár let déle.
+ *
+ * Dělá se to tady a ne přes CSS filtr schválně: filtrovaný obrázek si
+ * prohlížeč při tisku přepočítá v rozlišení, které si zvolí sám. V PNG je
+ * barva hotová a do tiskového PDF jde tak, jak je. */
+const TLUM_SYTOST = 0.42;    // o kolik se ubere ze sytosti
+const TLUM_SVETLOST = 0.22;  // o kolik se barva přiblíží bílé
+
+function naHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return [0, 0, l];
+  const sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return [h, sat, l];
+}
+
+function naRgb(h, sat, l) {
+  if (sat === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat;
+  const pp = 2 * l - q;
+  const slozka = (t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return pp + (q - pp) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return pp + (q - pp) * (2 / 3 - t) * 6;
+    return pp;
+  };
+  return [slozka(h + 1 / 3), slozka(h), slozka(h - 1 / 3)].map((v) => Math.round(v * 255));
+}
+
+function ztlum(r, g, b) {
+  const [h, sat, l] = naHsl(r, g, b);
+  return naRgb(h, sat * (1 - TLUM_SYTOST), l + (1 - l) * TLUM_SVETLOST);
+}
+
 const nabeh = (t) => {
   const u = Math.min(1, Math.max(0, t));
   return u * u * (3 - 2 * u);
@@ -79,11 +124,16 @@ const alfa = new Uint8Array(W * H);
 for (let p = 0; p < W * H; p++) {
   const i = p * C;
   let odchylka = 0;
+  const vyvazene = [0, 0, 0];
   for (let c = 0; c < 3; c++) {
     const v = Math.min(255, Math.round(data[i + c] * zisk[c]));
-    rgba[p * 4 + c] = v;
+    vyvazene[c] = v;
     odchylka = Math.max(odchylka, Math.abs(v - PAPIR_KARTY[c]));
   }
+  /* Ztlumí se až to, co je zřetelně barva. Na papíru s JPEG šumem by to
+     jinak vyrobilo bledé tečky tam, kde nic není. */
+  const barva = odchylka > DOLE ? ztlum(vyvazene[0], vyvazene[1], vyvazene[2]) : vyvazene;
+  for (let c = 0; c < 3; c++) rgba[p * 4 + c] = barva[c];
   const a = Math.round(255 * nabeh((odchylka - DOLE) / (NAHORE - DOLE)));
   rgba[p * 4 + 3] = a;
   alfa[p] = a;
