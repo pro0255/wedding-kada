@@ -161,15 +161,17 @@
   display: inline-block;
   vertical-align: baseline;
   font-family: var(--kaligrafie), cursive;
-  font-size: 5.5mm;
+  font-size: 6.8mm;
   line-height: 0;
   letter-spacing: 0;
   text-transform: none;
 }
 
+/* „Ty a já, teď a navždy“ nad jmény. Kapitálky byly 2,6 mm a vedle
+   psacího „navždy“ v nich nebyl nápis, ale drobná linka pod ním. */
 .uvod {
   font-family: var(--sans), system-ui, sans-serif;
-  font-size: 2.6mm;
+  font-size: 3.2mm;
   line-height: 1.9;
   letter-spacing: .3em;
   text-transform: uppercase;
@@ -206,15 +208,18 @@
    a jako „navždy“ se spojkou výš. Dřív to byla kurzíva patkového písma
    a karta měla dvě ozdobná písma naráz.
 
-   Menší než na pozvánce (6,8 proti 9 mm) a bez modré: na pozvánce je ta
-   řádka hlavní, tady doprovází jména a nesmí se s nimi prát. Prostrkání se
-   ruší, psací písmo se prokládat nemá. */
+   Menší než na pozvánce (6,8 proti 9 mm) a modrá: na pozvánce je ta řádka
+   hlavní sdělení, tady doprovází jména. Modrou mají na kartě všechny
+   doprovodné řádky — jména a datum nesou černou, všechno kolem nich modrou,
+   a tím drží hierarchie i bez rozdílu ve velikosti. Prostrkání se ruší,
+   psací písmo se prokládat nemá. */
 .karta .slib {
   margin-top: 7mm;
   font-family: var(--kaligrafie), cursive;
   font-size: 6.8mm;
   line-height: 1.2;
   letter-spacing: 0;
+  color: var(--modre-pismo);
 }
 
 /* Mezera mezi „ano“ a datem byla devatenáct milimetrů a na kartě z ní byl
