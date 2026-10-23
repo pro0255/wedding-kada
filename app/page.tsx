@@ -822,7 +822,7 @@ export default function Home() {
               </p>
               <p className="lead">
                 Prošli jsme si nebem i peklem a shodli se, že jsme celkem
-                kompatibilní. Poté již stačilo jedno zásnubní „ano“ na Troskách
+                kompatibilní. Stačilo jedno zásnubní „ano“ na Troskách
                 a započalo plánování mejdanu na oslavu naší lásky a souznění…
                 A teď jsme tady! 18. září 2027 si řekneme své „ano“.
               </p>
