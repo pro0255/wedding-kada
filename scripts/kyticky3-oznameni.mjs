@@ -39,16 +39,19 @@ const NEJMENE_STRANA = 24;
 /* Kolem výřezu se nechá pár pixelů vzduchu, ať okraj nekončí přesně na tahu. */
 const OKRAJ = 4;
 
-/* Ztlumení barev. Arch je sám o sobě vybledlý, ale na kartě vedle drobného
- * textu jsou sytější kusy — korálová sasanka, fialka — pořád dost hlasité.
- * Sytost se stáhne a světlost se přitáhne k papíru, takže květina vypadá,
- * jako by v herbáři ležela o pár let déle.
+/* Do pastelu. Arch je sám o sobě vybledlý, ale sytější kusy — korálová
+ * sasanka, fialka — jsou na kartě vedle drobného textu hlasité.
+ *
+ * Pastel NENÍ vybledlá barva: je to světlý odstín, který si barevnost drží.
+ * Proto se světlost zvedá hodně a sytost se naopak lehce PŘIDÁ — zvednutím
+ * světlosti totiž vjem barevnosti sám od sebe klesá a bez té přidané sytosti
+ * by z květin zbyly šedé skvrny.
  *
  * Dělá se to tady a ne přes CSS filtr schválně: filtrovaný obrázek si
  * prohlížeč při tisku přepočítá v rozlišení, které si zvolí sám. V PNG je
  * barva hotová a do tiskového PDF jde tak, jak je. */
-const TLUM_SYTOST = 0.42;    // o kolik se ubere ze sytosti
-const TLUM_SVETLOST = 0.22;  // o kolik se barva přiblíží bílé
+const PASTEL_SVETLOST = 0.42;  // o kolik se barva přiblíží bílé
+const PASTEL_SYTOST = 1.18;    // násobek sytosti, ať při tom nezešedne
 
 function naHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
@@ -81,7 +84,7 @@ function naRgb(h, sat, l) {
 
 function ztlum(r, g, b) {
   const [h, sat, l] = naHsl(r, g, b);
-  return naRgb(h, sat * (1 - TLUM_SYTOST), l + (1 - l) * TLUM_SVETLOST);
+  return naRgb(h, Math.min(1, sat * PASTEL_SYTOST), l + (1 - l) * PASTEL_SVETLOST);
 }
 
 const nabeh = (t) => {
@@ -130,8 +133,8 @@ for (let p = 0; p < W * H; p++) {
     vyvazene[c] = v;
     odchylka = Math.max(odchylka, Math.abs(v - PAPIR_KARTY[c]));
   }
-  /* Ztlumí se až to, co je zřetelně barva. Na papíru s JPEG šumem by to
-     jinak vyrobilo bledé tečky tam, kde nic není. */
+  /* Do pastelu se přetáčí až to, co je zřetelně barva. Na papíru s JPEG
+     šumem by to jinak vyrobilo bledé tečky tam, kde nic není. */
   const barva = odchylka > DOLE ? ztlum(vyvazene[0], vyvazene[1], vyvazene[2]) : vyvazene;
   for (let c = 0; c < 3; c++) rgba[p * 4 + c] = barva[c];
   const a = Math.round(255 * nabeh((odchylka - DOLE) / (NAHORE - DOLE)));
