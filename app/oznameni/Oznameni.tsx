@@ -256,10 +256,10 @@ const T = {
     navod: "Naskenujte QR kód mobilem, nebo zadejte adresu do prohlížeče:",
   },
   rub: {
-    /* Spojka „a“, ne ampersand — na líci oznámení stojí „Kateřina a Jakub“
-       a rub je jeho druhá strana, ne samostatná tiskovina. Ampersand nese
-       web v titulku a v podpisech. */
-    iniciály: "Kateřina a Jakub",
+    /* Spojka „a“ stojí zvlášť, protože ji rub sází kaligrafií a modře —
+       stejně jako líc. Ampersand nese web v titulku a v podpisech,
+       na oznámení se píše „a“. */
+    iniciály: { nevesta: "Kateřina", spojka: "a", zenich: "Jakub" },
     nadpis: "Detaily",
   },
   info: {
@@ -386,7 +386,11 @@ export default function Oznameni() {
               <>
                 {/* Iniciály a datum nahoře, ať strana není jen jedno slovo na
                     prázdné ploše — kartička leží na oznámení touhle stranou. */}
-                <p className={s.rubJmena}>{T.rub.iniciály}</p>
+                <p className={s.rubJmena}>
+                  {T.rub.iniciály.nevesta}
+                  <span className={s.rubSpojka}>{T.rub.iniciály.spojka}</span>
+                  {T.rub.iniciály.zenich}
+                </p>
                 <p className={s.rubDatum}>{T.hlavni.datum}</p>
                 <p className={s.rubNadpis}>{T.rub.nadpis}</p>
               </>

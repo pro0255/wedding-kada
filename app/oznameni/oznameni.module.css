@@ -289,7 +289,18 @@
   /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
   text-indent: .2em;
 }
-/* Datum je pod nimi drobné a růžové — nese ho hlavní karta, tady je to jen
+/* Spojka mezi jmény je kaligrafie a modrá, jako na líci. Prostrkání verzálek
+   se jí ruší — psací písmo se prokládat nemá — a mezery kolem ní jsou vlastní,
+   protože bez prostrkání by se k ní jména nalepila. */
+.rubSpojka {
+  font-family: var(--kaligrafie), cursive;
+  font-size: 1.1em;
+  letter-spacing: 0;
+  margin: 0 .55em;
+  color: var(--modre-pismo);
+}
+
+/* Datum je pod nimi drobné — nese ho hlavní karta, tady je to jen
    připomínka, ne hlavní údaj. */
 .karta .rubDatum {
   margin-top: 3mm;
