@@ -202,16 +202,19 @@
 /* Věta pod jmény je patková kurziva — Cormorant má skutečný kurzivní řez,
    nemusí se naklánět uměle. Kurziva ji odliší od verzálek nad ní i od
    prostrkaných kapitálek pod ní, aniž by přibylo další písmo. */
-/* Kurzíva patkového písma, ne psací. Zkoušelo se to psacím, aby měla karta
-   jedno ozdobné písmo — vypadalo to hůř: tři psací řádky pod sebou
-   („navždy“, spojka, tahle řádka) z karty udělaly cvičení v krasopisu. */
+/* Psacím písmem a tmavě — stejně jako „na svatební obřad“ na pozvánkách
+   a jako „navždy“ se spojkou výš. Dřív to byla kurzíva patkového písma
+   a karta měla dvě ozdobná písma naráz.
+
+   Menší než na pozvánce (6,8 proti 9 mm) a bez modré: na pozvánce je ta
+   řádka hlavní, tady doprovází jména a nesmí se s nimi prát. Prostrkání se
+   ruší, psací písmo se prokládat nemá. */
 .karta .slib {
-  margin-top: 9mm;
-  font-family: var(--serif), Georgia, serif;
-  font-style: italic;
-  font-size: 4.4mm;
-  letter-spacing: .05em;
-  color: var(--modre-pismo);
+  margin-top: 7mm;
+  font-family: var(--kaligrafie), cursive;
+  font-size: 6.8mm;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 /* Mezera mezi „ano“ a datem byla devatenáct milimetrů a na kartě z ní byl
