@@ -242,20 +242,23 @@
   color: var(--inkoust);
 }
 
-/* Místo a čas obřadu. Prostrkané kapitálky v 2,9 mm vycházely po vytištění
-   na hraně čitelnosti — tři desetiny milimetru navíc je znát a na kompozici
-   se neprojeví. */
+/* Místo a čas obřadu — ze všech údajů na kartě ten nejdůležitější a zároveň
+   nejhůř čitelný: drobné prostrkané kapitálky ve světlé modré.
+
+   Nese proto tmavší modrou než ostatní doprovodné řádky, větší stupeň
+   a mírnější prostrkání. Prostrkání přes čtvrt emu z kapitálek dělá řadu
+   samostatných písmen, která oko skládá po jednom. */
 .karta .detail {
   margin-top: 9mm;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: var(--sans), system-ui, sans-serif;
-  font-size: 3.2mm;
-  line-height: 2;
-  letter-spacing: .26em;
+  font-size: 3.6mm;
+  line-height: 1.9;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: var(--modre-pismo);
+  color: #41678a;
 }
 
 /* ---------- informační karta (A6, rámeček baby blue) ---------- */
@@ -335,13 +338,15 @@
   color: var(--modre-pismo);
 }
 
-/* Datum je pod nimi drobné — nese ho hlavní karta, tady je to jen
-   připomínka, ne hlavní údaj. */
+/* Datum je pod jmény drobnější — nese ho hlavní karta, tady je to
+   připomínka, ne hlavní údaj. Drobné ale neznamená nečitelné: 2,8 mm
+   s prostrkáním přes čtvrt emu se na papíře rozpadalo na jednotlivé číslice.
+   Teď má 3,6 mm a prostrkání mírnější. */
 .karta .rubDatum {
   margin-top: 3mm;
   font-family: var(--sans), system-ui, sans-serif;
-  font-size: 2.8mm;
-  letter-spacing: .26em;
+  font-size: 3.6mm;
+  letter-spacing: .16em;
   color: var(--ruzove-pismo);
 }
 .karta .rubNadpis {
