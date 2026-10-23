@@ -271,20 +271,20 @@
   background: var(--ramecek-modra);
   color: var(--inkoust);
 }
+/* Barevný pruh je na všech vkládaných kartách stejně široký — leží jedna na
+   druhé v obálce a různě široké rámečky by na hromádce bily do očí.
+
+   Dva a půl milimetru: čtyři dělaly na formátu 148 x 168 dojem pasparty,
+   a níž jít nejde, tři milimetry jsou tolerance řezačky a při užším pruhu
+   by ho ujetý řez mohl seříznout celý. */
 .k-info::before,
 .k-qr::before,
 .k-rub::before {
   content: "";
   position: absolute;
-  inset: calc(var(--spad) + 4mm);
+  inset: calc(var(--spad) + 2.5mm);
   background: var(--papir);
 }
-/* Informační karta a její rub mají pruh užší než kartička s QR: na formátu
-   148 x 168 dělaly čtyři milimetry kolem dokola dojem pasparty, kdežto na
-   padesátimilimetrovém proužku je stejný pruh v pořádku. Pod dva milimetry
-   jít nejde — tři milimetry jsou tolerance řezačky a zbylo by pod ní. */
-.k-info::before,
-.k-rub::before { inset: calc(var(--spad) + 2.5mm); }
 
 /* Rub informační karty: jen slovo v horní třetině. Písmo je stejné jako
    u jmen — patkové verzálky s prostrkáním — a barva růžová po zbytku karty.
@@ -509,10 +509,12 @@
   height: 50mm;
   overflow: hidden;
 }
+/* Stejný pruh jako na samostatné kartičce — arch je jen způsob, jak jich
+   vytisknout čtyři naráz. */
 .qrProuzek::before {
   content: "";
   position: absolute;
-  inset: 4mm;
+  inset: 2.5mm;
   background: var(--papir);
 }
 .qrProuzek > * {
