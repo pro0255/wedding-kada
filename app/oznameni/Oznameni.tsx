@@ -39,10 +39,14 @@ const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
    kartičky. */
 const SPAD_ARCHU = 0;
 
-type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
+type KartaKlic = "hlavni" | "hlavni2" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number; spad?: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
+  /* Varianta téže karty s druhým archem kytek — na porovnání, než se vybere.
+     Geometrie je schválně stejná do posledního milimetru, ať se dají položit
+     vedle sebe a lišily se jen kytky. */
+  { klic: "hlavni2", nazev: "Hlavní — nové kytky (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
      QR kód na ní není. Vešel by se, ale karta by tím byla zaplněná na 99 %
      a kód by v jinak vystředěné sazbě působil dolepeně. Má proto vlastní
@@ -71,6 +75,9 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
 
 /* Kolik snítek vyrobil scripts/kyticky-oznameni.mjs. Soubory jsou 01..NN. */
 const SNITEK = 34;
+/* Druhý arch lisovaných květin (scripts/kyticky3-oznameni.mjs). Je jich míň,
+   ale jsou větší a barvy si nechaly, jaké byly — proto vlastní počet. */
+const SNITEK3 = 14;
 
 /* Deterministická náhoda ze souřadnic buňky. Math.random tu být nesmí: server
    a klient by vykreslily jinou kartu a React by na tom spadl. Sinusový hash
@@ -103,6 +110,12 @@ function rozsyp(
      a kdyby měla každá jinak velké kytky, je ten rozdíl na hromádce hned vidět.
      Sedmnáct milimetrů je strop — na pozvánce vysoké padesát je víc už moc. */
   nejmensi = 11, nejvetsi = 17,
+  /* Kolik snítek má sada, ze které se bere. */
+  snitek = SNITEK,
+  /* O kolik se v sadě poskočí mezi sousedními buňkami. MUSÍ být nesoudělný
+     s počtem snítek, jinak se projde jen zlomek sady: sedmička na čtrnácti
+     kusech vystřídá dva kusy dokola. */
+  krok = 7,
 ): Kytka[] {
   const bunkaX = sirka / sloupcu;
   const bunkaY = vyska / radku;
@@ -120,16 +133,15 @@ function rozsyp(
         x < z.x2 && x + sirkaKytky > z.x1 && y < z.y2 && y + v > z.y1);
       if (zasahujeText) continue;
 
-      /* Krok sedmi místo pořadí: sousední buňky tak nedostanou sousední
-         snítky a stejná kytka se nesejde sama se sebou. Sedmička je nesoudělná
-         s 34, takže se vystřídají všechny. */
+      /* Krok místo pořadí: sousední buňky tak nedostanou sousední snítky
+         a stejná kytka se nesejde sama se sebou. */
       /* Zaokrouhleno na setiny milimetru. Nezaokrouhlené číslo jde do inline
          stylu s patnácti ciframi, server a klient ho vypíšou každý jinak
          a React na tom ohlásí neshodu hydratace — a tiskárna z desetitisícin
          milimetru stejně nic nemá. */
       const nadva = (n: number) => Math.round(n * 100) / 100;
       kytky.push({
-        snitka: String(((poradi * 7) % SNITEK) + 1).padStart(2, "0"),
+        snitka: String(((poradi * krok) % snitek) + 1).padStart(2, "0"),
         x: nadva(x), y: nadva(y), v: nadva(v),
         uhel: Math.round(-22 + sum(c + 20, r + 20) * 44),
       });
@@ -147,6 +159,20 @@ const KYTKY = rozsyp(154, 216, 6, 9, [
   { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
   { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
 ]);
+
+/* Varianta hlavní karty s druhým archem: míň kytek a větší. Mřížka je
+   4 x 6 místo 6 x 9, takže po odečtení textových zón zbyde kolem desítky
+   snítek — řidší rozsyp, ve kterém je každá květina vidět jako květina,
+   ne jako tečka. Snítky jsou tím pádem vyšší (16 až 26 mm).
+
+   Zakázané plochy jsou stejné jako u původní karty: text se nehýbe, mění se
+   jen kytky kolem něj. */
+const KYTKY_NOVE = rozsyp(154, 216, 4, 6, [
+  { x1: 61, y1: 26, x2: 93, y2: 42 },      // ty a já, teď a navždy
+  { x1: 40, y1: 60, x2: 114, y2: 103 },    // jména
+  { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
+  { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
+], 16, 26, SNITEK3, 5);
 
 /* Na pozvánkách stejný rozsyp i stejná velikost snítek jako na hlavní kartě — pravidelná mřížka, jedna
    snítka na buňku, takže mají všude podobné rozestupy a žádná nepřekrývá
@@ -329,13 +355,14 @@ export default function Oznameni() {
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
           {(klic === "hlavni" ? KYTKY
+            : klic === "hlavni2" ? KYTKY_NOVE
             : klic === "obrad" || klic === "vizitka" ? KYTKY_MALE
             : []
           ).map((k, i) => (
             <img
               key={i}
               className={s.kytka}
-              src={`/oznameni/kyticky/${k.snitka}.png`}
+              src={`/oznameni/${klic === "hlavni2" ? "kyticky3" : "kyticky"}/${k.snitka}.png`}
               alt=""
               aria-hidden="true"
               style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
@@ -343,7 +370,7 @@ export default function Oznameni() {
           ))}
 
           <div className={s.text}>
-            {klic === "hlavni" && <Hlavni />}
+            {(klic === "hlavni" || klic === "hlavni2") && <Hlavni />}
             {klic === "info" && <Info />}
             {klic === "qr" && <KartaQr />}
             {klic === "rub" && (
