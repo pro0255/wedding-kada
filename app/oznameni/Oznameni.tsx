@@ -112,6 +112,10 @@ function rozsyp(
      s počtem snítek, jinak se projde jen zlomek sady: sedmička na čtrnácti
      kusech vystřídá dva kusy dokola. */
   krok = 7,
+  /* Které snítky se smí použít. Prázdné = celá sada. Pozvánky si tím vybírají
+     samotné květy bez stonku: na úzkém pruhu je snítka s dlouhým stonkem
+     skoro jen čárka, kdežto hortenzie je vidět celá. */
+  vyber: number[] = [],
 ): Kytka[] {
   const bunkaX = sirka / sloupcu;
   const bunkaY = vyska / radku;
@@ -137,7 +141,11 @@ function rozsyp(
          milimetru stejně nic nemá. */
       const nadva = (n: number) => Math.round(n * 100) / 100;
       kytky.push({
-        snitka: String(((poradi * krok) % snitek) + 1).padStart(2, "0"),
+        snitka: String(
+          vyber.length > 0
+            ? vyber[(poradi * krok) % vyber.length]
+            : ((poradi * krok) % snitek) + 1,
+        ).padStart(2, "0"),
         x: nadva(x), y: nadva(y), v: nadva(v),
         uhel: Math.round(-22 + sum(c + 20, r + 20) * 44),
       });
@@ -189,9 +197,13 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    Zakázaná plocha je proto i širší než dřív (32 až 122 mm proti 38 až 116):
    psací písmo má dlouhé tahy a kytka, která skončila těsně u „obřad“, se ho
    opticky dotýkala. */
+/* Hortenzie a maceška — celé květy bez stonku — a k nim jedna drobná snítka
+   pro odlehčení. Krok pět je nesoudělný se šesti, takže se vystřídají všechny. */
+const KVETY_BEZ_STONKU = [5, 9, 12, 7, 13, 3];
+
 const KYTKY_MALE = rozsyp(154, 56, 6, 3, [
   { x1: 32, y1: 17, x2: 122, y2: 39 },
-], 10, 15, SNITEK3, 5);
+], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU);
 
 /* Proužek na archu má tytéž kytky, jen posunuté o spad: na kartě jsou
    souřadnice od kraje se spadem, na archu od ořezu, protože mezi proužky žádný
