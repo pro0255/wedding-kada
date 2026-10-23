@@ -201,9 +201,16 @@ const KYTKY = rozsyp(154, 216, 4, 6, [
    pro odlehčení. Krok pět je nesoudělný se šesti, takže se vystřídají všechny. */
 const KVETY_BEZ_STONKU = [5, 9, 12, 7, 13, 3];
 
-const KYTKY_MALE = rozsyp(154, 56, 7, 2, [
-  { x1: 32, y1: 17, x2: 122, y2: 39 },
-], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU);
+const KYTKY_MALE: Kytka[] = [
+  ...rozsyp(154, 56, 7, 2, [
+    { x1: 32, y1: 17, x2: 122, y2: 39 },
+  ], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU),
+  /* Fialka nad „srdečně“, kousek vlevo od něj. Posazená ručně: buňka nad
+     textem spadá do zakázané plochy, takže ji rozsyp sám nikdy nedá.
+     Je mimo výběr pro pozvánky — ten drží samotné květy bez stonku a tady
+     naopak chci něco, co na kartě ještě není. */
+  { snitka: "04", x: 51, y: 5.5, v: 12, uhel: -12 },
+];
 
 /* Proužek na archu má tytéž kytky, jen posunuté o spad: na kartě jsou
    souřadnice od kraje se spadem, na archu od ořezu, protože mezi proužky žádný
