@@ -5,7 +5,6 @@
  * Originály v public/fotky mají 1600 px a 200–400 kB, hromádka je přitom
  * na telefonu široká kolem 360 px. Skript je zmenší na 900 px (ostré i na
  * hustém displeji) a uloží jako WebP do public/fotky/web. Originály zůstávají,
- * bere z nich i scripts/pasek-fotek.mjs.
  */
 
 import sharp from "sharp";

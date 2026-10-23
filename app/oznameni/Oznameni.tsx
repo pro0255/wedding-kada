@@ -16,10 +16,6 @@ import { WEB_ADRESA } from "./adresa";
    takže se velikost stránky přepíná podle vybrané karty. Víc formátů najednou
    by prohlížeč zmenšil na jeden a spad by přestal sedět na milimetr.
 
-   Fotky na pásku jsou černobílé už v souboru (scripts/pasek-fotek.mjs), ne přes
-   CSS filtr — filtrovaný obrázek prohlížeč při tisku rasterizuje v rozlišení,
-   které si zvolí sám, a to u tiskoviny nechci hádat.
-
    Kytky kolem textu vyřezává scripts/kyticky-oznameni.mjs z archu, který dodala
    Kačka. Každá snítka je vlastní soubor, aby se daly rozházet po kartě jednotlivě
    a v různých velikostech a natočeních. Rozmístění je psané ručně v KYTKY —
@@ -43,7 +39,7 @@ const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
    kartičky. */
 const SPAD_ARCHU = 0;
 
-type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "pasek" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
+type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
 
 const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number; spad?: number }[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
@@ -61,7 +57,6 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
      ale tisknou se po třech na jednu A5 a řežou se z ní. Proto je karta A5
      a ne proužek: jeden tisk, dva řezy. Bezpečná zóna je nulová, protože
      obsah má sahat až k ořezu a dělí se přesně na třetiny. */
-  { klic: "pasek", nazev: "Pásky s fotkami (A5)", sirka: 148, vyska: 210, zona: 0, spad: SPAD_ARCHU },
   /* Obě pozvánky jsou široké jako A5, aby se v sadě srovnaly s ostatními.
      Z pruhu 148 x 50 mm vyjde z jedné A4 rovnou několik kusů. */
   { klic: "obrad", nazev: "Pozvánka na obřad", sirka: 148, vyska: 50, zona: 6 },
@@ -360,7 +355,6 @@ export default function Oznameni() {
                 <p className={s.rubNadpis}>{T.rub.nadpis}</p>
               </>
             )}
-            {klic === "pasek" && <Pasek voditka={ukazVoditka} />}
             {klic === "obrad" && <Zvani {...T.obrad} />}
             {klic === "archObrad" && <ArchPozvanek zvani={T.obrad} voditka={ukazVoditka} />}
             {klic === "archStolu" && <ArchPozvanek zvani={T.vizitka} voditka={ukazVoditka} />}
@@ -439,40 +433,6 @@ function Info() {
       <p className={s.podpis}>{t.podpis}</p>
       <p className={s.infoZaver}>{t.zaver}</p>
     </>
-  );
-}
-
-/* Arch se třemi proužky vedle sebe. Každý proužek je třetina šířky A5, tedy
-   49,33 mm, a je vysoký přes celou stránku — po vytisknutí stačí dva svislé
-   řezy a jsou z toho tři pásky.
-
-   Všechny tři jsou stejné, ne tři různé sady fotek: jde o to mít víc kusů
-   téhož pásku, ne tři varianty.
-
-   Rozestupy mezi fotkami dělá space-between, takže sedí i po změně rozměru
-   fotek — stačí přegenerovat scripts/pasek-fotek.mjs a nesahat na styly. */
-function Pasek({ voditka }: { voditka: boolean }) {
-  return (
-    <div className={s.pasekArch}>
-      {[0, 1, 2].map((proužek) => (
-        <div key={proužek} className={s.pasekProuzek}>
-          {[1, 2, 3].map((n) => (
-            <img
-              key={n}
-              className={s.pasekFotka}
-              src={`/oznameni/pasek/${n}.jpg`}
-              alt=""
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-      ))}
-
-      {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
-      {voditka && [1, 2].map((i) => (
-        <i key={i} className={s.pasekRez} style={{ left: `${(i * 100) / 3}%` }} aria-hidden="true" />
-      ))}
-    </div>
   );
 }
 

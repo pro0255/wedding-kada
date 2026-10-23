@@ -438,57 +438,6 @@
   font-size: 2.9mm;
 }
 
-/* ---------- arch s pásky fotek ---------- */
-/* Tři proužky vedle sebe na A5. Arch vyplní celou plochu ořezu (bezpečná zóna
-   je u téhle karty nulová) a rozdělí se na třetiny — proužek je 49,33 mm.
-
-   Bílým okrajem vede baby blue linka. Bílý pásek se mezi bílými kartami sady
-   ztrácel; linka z něj dělá vlastní objekt.
-
-   Okraj je široký 6 mm a linka vede jeho středem: 3 mm od kraje proužku a 3 mm
-   od fotky. Tři milimetry jsou tolerance na řez — při užším okraji by ji ujetý
-   řez zasáhl. Fotky se kvůli tomu zmenšily na 37,33 mm a jsou přegenerované na
-   nový poměr stran, aby mezi nimi nezůstaly zbytečně velké mezery. */
-.k-pasek .text { padding: 0; }
-.pasekArch {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-.pasekProuzek {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  /* Odsazení je všude stejné, aby linka vedla přesně středem okraje i nahoře
-     a dole, nejen po stranách. */
-  padding: 6mm;
-  position: relative;
-}
-.pasekProuzek::before {
-  content: "";
-  position: absolute;
-  inset: 3mm;
-  border: .8mm solid var(--ramecek-modra);
-  pointer-events: none;
-}
-.pasekFotka {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* Vodítka řezu mezi proužky. Do tisku nejdou. */
-.pasekRez {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  border-left: .3mm dashed rgba(200, 90, 90, .55);
-  pointer-events: none;
-}
 
 /* ---------- archy pozvánek ---------- */
 /* Čtyři proužky pod sebou na ploše ořezu. Každý má vlastní overflow, aby se
