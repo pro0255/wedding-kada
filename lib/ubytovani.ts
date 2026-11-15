@@ -12,7 +12,7 @@ export const KAPACITA_CELKEM = 26;
  * v tabulce se proto na webu projeví nejpozději do 10 minut.
  */
 const CACHE_S = 600;
-const BASE_ID = "appw1s9BtzlKCPous";
+export const BASE_ID = "appw1s9BtzlKCPous";
 const TABULKA = "Rezervace";
 const API = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABULKA)}`;
 
