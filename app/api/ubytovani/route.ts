@@ -1,6 +1,6 @@
-import { pridejRezervaci, stavKapacity } from "@/lib/ubytovani";
-import { RezervacePostSchema } from "@/lib/schemata";
 import { chybaOdpoved } from "@/lib/chyby";
+import { RezervacePostSchema } from "@/lib/schemata";
+import { pridejRezervaci, stavKapacity } from "@/lib/ubytovani";
 
 /* Upozornění na novou rezervaci posílá automatizace v Airtable, ne web. */
 
@@ -8,8 +8,8 @@ import { chybaOdpoved } from "@/lib/chyby";
 export async function GET() {
   try {
     return Response.json(await stavKapacity());
-  } catch (chyba) {
-    console.error("[ubytovani] Nepodařilo se načíst kapacitu:", chyba);
+  } catch (error) {
+    console.error("[ubytovani] Nepodařilo se načíst kapacitu:", error);
     return chybaOdpoved("kapacita-nenactena");
   }
 }
@@ -24,8 +24,8 @@ export async function POST(request: Request) {
   let vysledek;
   try {
     vysledek = await pridejRezervaci(jmeno, pocet);
-  } catch (chyba) {
-    console.error("[ubytovani] Rezervaci se nepodařilo uložit:", chyba);
+  } catch (error) {
+    console.error("[ubytovani] Rezervaci se nepodařilo uložit:", error);
     return chybaOdpoved("rezervace-neulozena");
   }
 

@@ -11,7 +11,7 @@ export const HraSchema = z.enum(HRY);
 /** Náš vygenerovaný uuid z localStorage — nic jiného nepouštíme dál. */
 export const DeviceIdSchema = z.string().regex(/^[a-f0-9-]{16,64}$/i);
 
-export const SkoreSchema = z.number().int().min(0).max(100000);
+export const SkoreSchema = z.number().int().min(0).max(100_000);
 
 /** 1–30 znaků po oříznutí, bez řídicích a formátovacích znaků. */
 export const JmenoSchema = z
@@ -69,7 +69,7 @@ export const VstupPostSchema = z.object({
 
 /** Kam se po přihlášení v /admin vrátit. Jen cesta na tomhle webu —
  *  „//jiny.web“ nebo „https://…“ by z přihlášení udělalo přesměrování ven. */
-export const AdminDalSchema = z.string().regex(/^\/(?![\/\\])/);
+export const AdminDalSchema = z.string().regex(/^\/(?![/\\])/);
 
 export const MAX_OSOB_UBYTOVANI = 10;
 const NEPLATNY = "Neplatný požadavek.";
@@ -84,7 +84,7 @@ export const RezervacePostSchema = z.object(
     web: z.string({ error: NEPLATNY }).trim().max(0, NEPLATNY).optional(),
     jmeno: z
       .string({ error: BEZ_JMENA })
-      .transform((t) => t.trim().replace(/\s+/g, " "))
+      .transform((t) => t.trim().replaceAll(/\s+/g, " "))
       .pipe(z.string().min(3, BEZ_JMENA).max(80, BEZ_JMENA)),
     // formulář posílá číslo, starší klient mohl poslat text
     pocet: z.coerce

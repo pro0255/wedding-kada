@@ -1,6 +1,6 @@
+import { chybaOdpoved } from "@/lib/chyby";
 import { jmenoHosta, ulozJmeno } from "@/lib/host";
 import { DeviceIdSchema, HostPostSchema } from "@/lib/schemata";
-import { chybaOdpoved } from "@/lib/chyby";
 
 /** Jméno hosta pro dané zařízení (null = nevyplněno). */
 export async function GET(request: Request) {
@@ -8,8 +8,8 @@ export async function GET(request: Request) {
   if (!device.success) return chybaOdpoved("neplatny-pozadavek");
   try {
     return Response.json({ jmeno: await jmenoHosta(device.data) });
-  } catch (chyba) {
-    console.error("[host] Jméno se nepodařilo načíst:", chyba);
+  } catch (error) {
+    console.error("[host] Jméno se nepodařilo načíst:", error);
     return chybaOdpoved("jmeno-nenacteno");
   }
 }
@@ -23,8 +23,8 @@ export async function POST(request: Request) {
   try {
     await ulozJmeno(telo.data.deviceId, telo.data.jmeno);
     return Response.json({ ok: true, jmeno: telo.data.jmeno });
-  } catch (chyba) {
-    console.error("[host] Jméno se nepodařilo uložit:", chyba);
+  } catch (error) {
+    console.error("[host] Jméno se nepodařilo uložit:", error);
     return chybaOdpoved("jmeno-neulozeno");
   }
 }

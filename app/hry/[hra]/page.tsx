@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HRY, HraSchema } from "@/lib/schemata";
 import { HRY_REGISTR } from "../hry";
-import HraSeZebrickem from "./HraSeZebrickem";
 import s from "../hry.module.css";
+import HraSeZebrickem from "./HraSeZebrickem";
 
 export function generateStaticParams() {
   return HRY.map((hra) => ({ hra }));

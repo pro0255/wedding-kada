@@ -42,11 +42,15 @@ const vis = (i: number) => {
 
 /* Úsek provázku mezi dvěma kolíčky. Výšky v jednotkách: 80 = celý průvěs. */
 function Usek({ od, k, className }: { od: number; k: number; className: string }) {
-  const a = od * 80, b = k * 80;
+  const a = od * 80,
+    b = k * 80;
   const stred = (a + b) / 2 + 16;
   return (
     <svg className={className} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path d={`M0,${a.toFixed(1)} Q50,${stred.toFixed(1)} 100,${b.toFixed(1)}`} vectorEffect="non-scaling-stroke" />
+      <path
+        d={`M0,${a.toFixed(1)} Q50,${stred.toFixed(1)} 100,${b.toFixed(1)}`}
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -128,42 +132,76 @@ export default function Snura() {
         aria-label="Fotky z našeho příběhu"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === "ArrowRight") { e.preventDefault(); posun(1); }
-          else if (e.key === "ArrowLeft") { e.preventDefault(); posun(-1); }
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            posun(1);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            posun(-1);
+          }
         }}
       >
         <div className={s.snura}>
           <ol className={s.fotky}>
-          {FOTKY.map((f, i) => {
-            const k = vis(i);
-            return (
-              <li
-                key={f.src}
-                className={s.bod}
-                style={{ "--k": k.toFixed(3), "--rot": `${NATOCENI[i % NATOCENI.length]}deg` } as React.CSSProperties}
-              >
-                {/* úsek provázku k další fotce; u krajních i volný konec ke kraji pásu */}
-                {i < pocet - 1 && <Usek od={k} k={vis(i + 1)} className={s.usek} />}
-                {i === 0 && <Usek od={0} k={k} className={`${s.usek} ${s.konecL}`} />}
-                {i === pocet - 1 && <Usek od={k} k={0} className={`${s.usek} ${s.konecP}`} />}
-                <figure className={s.zaves}>
-                  <span className={s.kolicek} aria-hidden="true" />
-                  <span className={s.ram}>
-                    <img loading="lazy" decoding="async" draggable={false} src={f.src} alt={f.popis} />
-                  </span>
-                  <figcaption className={s.popis}>{f.popis}</figcaption>
-                </figure>
-              </li>
-            );
-          })}
+            {FOTKY.map((f, i) => {
+              const k = vis(i);
+              return (
+                <li
+                  key={f.src}
+                  className={s.bod}
+                  style={
+                    {
+                      "--k": k.toFixed(3),
+                      "--rot": `${NATOCENI[i % NATOCENI.length]}deg`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {/* úsek provázku k další fotce; u krajních i volný konec ke kraji pásu */}
+                  {i < pocet - 1 && <Usek od={k} k={vis(i + 1)} className={s.usek} />}
+                  {i === 0 && <Usek od={0} k={k} className={`${s.usek} ${s.konecL}`} />}
+                  {i === pocet - 1 && <Usek od={k} k={0} className={`${s.usek} ${s.konecP}`} />}
+                  <figure className={s.zaves}>
+                    <span className={s.kolicek} aria-hidden="true" />
+                    <span className={s.ram}>
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        src={f.src}
+                        alt={f.popis}
+                      />
+                    </span>
+                    <figcaption className={s.popis}>{f.popis}</figcaption>
+                  </figure>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </div>
 
       <div className={s.ovladani}>
-        <button ref={zpet} type="button" className={s.sipka} onClick={() => posun(-1)} aria-label="Předchozí fotky">‹</button>
-        <span className={s.napoveda} aria-hidden="true">táhněte do strany</span>
-        <button ref={dal} type="button" className={s.sipka} onClick={() => posun(1)} aria-label="Další fotky">›</button>
+        <button
+          ref={zpet}
+          type="button"
+          className={s.sipka}
+          onClick={() => posun(-1)}
+          aria-label="Předchozí fotky"
+        >
+          ‹
+        </button>
+        <span className={s.napoveda} aria-hidden="true">
+          táhněte do strany
+        </span>
+        <button
+          ref={dal}
+          type="button"
+          className={s.sipka}
+          onClick={() => posun(1)}
+          aria-label="Další fotky"
+        >
+          ›
+        </button>
       </div>
 
       <div className={s.dopis}>

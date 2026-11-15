@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Ramec from "../Ramec";
 import Snura from "./Snura";
 
-export const metadata: Metadata = { title: "Příběh — S1: fotky na šňůře", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Příběh — S1: fotky na šňůře",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

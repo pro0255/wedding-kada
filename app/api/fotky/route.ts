@@ -1,7 +1,7 @@
+import { chybaOdpoved } from "@/lib/chyby";
 import { odkazWhatsapp, pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
 import { BEZ_PRISTUPU, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import { DeviceIdSchema, FotkaDeleteSchema, FotkaPostSchema } from "@/lib/schemata";
-import { chybaOdpoved } from "@/lib/chyby";
 
 /** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup).
  *  Přibaluje i odkaz na WhatsApp skupinu (záloha k nahrávání) — ať ho vidí jen hosté. */
@@ -13,8 +13,8 @@ export async function GET(request: Request) {
       fotky: await seznamFotek(device.success ? device.data : ""),
       whatsapp: odkazWhatsapp(),
     });
-  } catch (chyba) {
-    console.error("[fotky] Galerii se nepodařilo načíst:", chyba);
+  } catch (error) {
+    console.error("[fotky] Galerii se nepodařilo načíst:", error);
     return chybaOdpoved("galerie-nenactena");
   }
 }
@@ -28,8 +28,8 @@ export async function POST(request: Request) {
   try {
     const id = await pridejFotku(telo.data.url, telo.data.publicId, telo.data.deviceId);
     return Response.json({ ok: true, id });
-  } catch (chyba) {
-    console.error("[fotky] Fotku se nepodařilo uložit:", chyba);
+  } catch (error) {
+    console.error("[fotky] Fotku se nepodařilo uložit:", error);
     return chybaOdpoved("fotka-neulozena");
   }
 }
@@ -46,8 +46,8 @@ export async function DELETE(request: Request) {
       return chybaOdpoved(vysledek.duvod === "neexistuje" ? "fotka-neexistuje" : "fotka-cizi");
     }
     return Response.json({ ok: true });
-  } catch (chyba) {
-    console.error("[fotky] Fotku se nepodařilo smazat:", chyba);
+  } catch (error) {
+    console.error("[fotky] Fotku se nepodařilo smazat:", error);
     return chybaOdpoved("fotka-nesmazana");
   }
 }

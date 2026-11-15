@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { PRIBEH } from "../_spolecne/pribeh";
-import s from "./obalka.module.css";
-import { BOK_L, BOK_P, CHLOPEN, CHLOPEN_RUB, CHLOPEN_RUB_PODSIVKA, Defs, SPODEK, Zrno } from "../_spolecne/svg";
 import { predehrat, pripojOvladani, vytvorPripravenost } from "../_spolecne/plynulost";
+import { PRIBEH } from "../_spolecne/pribeh";
+import {
+  BOK_L,
+  BOK_P,
+  CHLOPEN,
+  CHLOPEN_RUB,
+  CHLOPEN_RUB_PODSIVKA,
+  Defs,
+  SPODEK,
+  Zrno,
+} from "../_spolecne/svg";
+import s from "./obalka.module.css";
 
 /* V2 — CSS 3D bez JS animací. Klik jen přepne data-otevreno, celou
    choreografii (pečeť se rozlomí → chlopeň se otočí na pantu → přeložený dopis
@@ -44,11 +53,27 @@ const DELKA_OTEVRENI_MS = 2900;
 const DELKA_ZAVRENI_MS = 2500;
 
 /* Měkký stín bez filtru: pár posunutých kopií tvaru s nízkým krytím. */
-function MekkyStin({ d, dy, barva, kryti }: { d: string; dy: number; barva: string; kryti: number }) {
+function MekkyStin({
+  d,
+  dy,
+  barva,
+  kryti,
+}: {
+  d: string;
+  dy: number;
+  barva: string;
+  kryti: number;
+}) {
   return (
     <>
       {[0.35, 0.65, 1].map((k) => (
-        <path key={k} d={d} transform={`translate(0,${dy * k})`} fill={barva} opacity={kryti / 2.2} />
+        <path
+          key={k}
+          d={d}
+          transform={`translate(0,${dy * k})`}
+          fill={barva}
+          opacity={kryti / 2.2}
+        />
       ))}
     </>
   );
@@ -56,14 +81,16 @@ function MekkyStin({ d, dy, barva, kryti }: { d: string; dy: number; barva: stri
 
 export default function ObalkaCss() {
   const rawId = useId();
-  const p = "o" + rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const p = "o" + rawId.replaceAll(/[^a-zA-Z0-9]/g, "");
   const idDopisu = p + "dopis";
   const koren = useRef<HTMLDivElement>(null);
   const tlacitko = useRef<HTMLButtonElement>(null);
   const dopis = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const k = koren.current, t = tlacitko.current, d = dopis.current;
+    const k = koren.current,
+      t = tlacitko.current,
+      d = dopis.current;
     if (!k || !t || !d) return;
     const pr = vytvorPripravenost(k);
     const zrusPredehrati = predehrat(k, ["/obalka/vosk.webp", "/navrh/obalka/papir.webp"], pr);
@@ -95,13 +122,7 @@ export default function ObalkaCss() {
 
       {/* dopis: zdvih = vyjetí z kapsy; usazení = dopředu a narovnat */}
       <div className={s.zdvih}>
-        <div
-          ref={dopis}
-          className={s.usazeni}
-          id={idDopisu}
-          aria-hidden="true"
-          inert
-        >
+        <div ref={dopis} className={s.usazeni} id={idDopisu} aria-hidden="true" inert>
           <div className={s.polovinaHorni}>
             <div className={s.obsah}>
               <ObsahDopisu />
@@ -133,7 +154,13 @@ export default function ObalkaCss() {
         <MekkyStin d={SPODEK} dy={-1.4} barva="#7d8fa1" kryti={0.18} />
         <path d={SPODEK} fill={`url(#${p}kspodek)`} />
         <Zrno p={p + "k"} d={SPODEK} />
-        <path d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="0.35" />
+        <path
+          d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6"
+          fill="none"
+          stroke="#fff"
+          strokeOpacity="0.55"
+          strokeWidth="0.35"
+        />
       </svg>
 
       {/* stín zavřené chlopně na kapse — při otevření jen zmizí (opacity) */}
@@ -147,7 +174,13 @@ export default function ObalkaCss() {
           <Defs p={p + "c"} />
           <path d={CHLOPEN} fill={`url(#${p}cchlopen)`} />
           <Zrno p={p + "c"} d={CHLOPEN} />
-          <path d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="0.35" />
+          <path
+            d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4"
+            fill="none"
+            stroke="#fff"
+            strokeOpacity="0.6"
+            strokeWidth="0.35"
+          />
         </svg>
         <svg className={s.chlopenRub} viewBox="0 0 160 58">
           <Defs p={p + "r"} />

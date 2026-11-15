@@ -15,7 +15,9 @@
    třídou — nadpisy na informační kartě se kvůli tomu kreslily serifem
    a malými písmeny a odstavcům mizely mezery. Pravidla, kterých se to týká,
    proto začínají `.karta` a mají navrch nad resetem. */
-.zaklad section { padding: 0; }
+.zaklad section {
+  padding: 0;
+}
 .zaklad h2 {
   margin: 0;
   /* globals dává h1-h3 serif; nadpisy na kartě mají být stejným písmem jako
@@ -26,7 +28,9 @@
   letter-spacing: inherit;
   text-transform: none;
 }
-.zaklad p { margin: 0; }
+.zaklad p {
+  margin: 0;
+}
 
 /* Proměnné a resety, bez kterých se karta nevykreslí správně. Jsou zvlášť od
    .stranka, protože kartu používá i web — přední strana oznámení leží v obálce
@@ -40,7 +44,7 @@
   --ramecek-ruzova: #f4d3d9;
   /* Rub má rámeček baby blue, líc růžový — schválně, ne omylem. */
   --ramecek-modra: #dbe7f4;
-  --ruzove-pismo: #9e4750;    /* --palette-rose-text */
+  --ruzove-pismo: #9e4750; /* --palette-rose-text */
 
   /* Modrá na doprovodný text. Baby blue z plochy (#dbe7f4) je barva na pozadí,
      ne na písmo — na bílém papíře by se ztratila úplně.
@@ -70,33 +74,59 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .8rem 1.2rem;
+  gap: 0.8rem 1.2rem;
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 13px;
   color: var(--tlumene);
 }
-.listaInfo { flex: 1 1 280px; min-width: 0; }
-.lista strong { display: block; font-weight: 500; color: var(--inkoust); }
-.napoveda { display: block; font-size: 12px; line-height: 1.5; margin-top: .2rem; }
+.listaInfo {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.lista strong {
+  display: block;
+  font-weight: 500;
+  color: var(--inkoust);
+}
+.napoveda {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 0.2rem;
+}
 
-.prepinac { display: flex; gap: .3rem; }
+.prepinac {
+  display: flex;
+  gap: 0.3rem;
+}
 .volba {
   font: inherit;
-  padding: .4rem .8rem;
+  padding: 0.4rem 0.8rem;
   border: 1px solid #d6cec2;
   background: #f6f3ed;
   color: var(--tlumene);
   border-radius: 999px;
   cursor: pointer;
 }
-.volba:hover { border-color: #b6aa98; }
-.volbaAktivni { background: var(--inkoust); border-color: var(--inkoust); color: #f5f2ec; }
+.volba:hover {
+  border-color: #b6aa98;
+}
+.volbaAktivni {
+  background: var(--inkoust);
+  border-color: var(--inkoust);
+  color: #f5f2ec;
+}
 
-.prepinacVoditka { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+.prepinacVoditka {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
 
 .tlacitko {
   font: inherit;
-  padding: .5rem 1.1rem;
+  padding: 0.5rem 1.1rem;
   border: 0;
   border-radius: 999px;
   background: var(--inkoust);
@@ -121,7 +151,7 @@
   background: var(--papir);
   color: var(--inkoust);
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(80, 70, 60, .18);
+  box-shadow: 0 10px 40px rgba(80, 70, 60, 0.18);
 }
 
 /* Text sedí v bezpečné zóně: od kraje karty je to spad + zóna, takže ani při
@@ -178,12 +208,14 @@
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 3.2mm;
   line-height: 1.9;
-  letter-spacing: .3em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--modre-pismo);
 }
 
-.jmena { margin-top: 24mm; }
+.jmena {
+  margin-top: 24mm;
+}
 /* Jména jsou patkové verzálky s velkým prostrkáním, jako na předloze.
    Příjmení tam nejsou schválně. Jména a datum jsou černá, všechno kolem nich
    modré — tak drží karta hierarchii i bez rozdílu ve velikosti. */
@@ -192,10 +224,10 @@
   color: var(--inkoust);
   font-size: 10mm;
   line-height: 1.2;
-  letter-spacing: .2em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
-  text-indent: .2em;
+  text-indent: 0.2em;
 }
 /* Spojka je psacím písmem, aby mezi verzálkami nebyla další verzálka. */
 .karta .spojka {
@@ -243,7 +275,7 @@
 .datum {
   font-size: 9.5mm;
   font-weight: 600;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   color: var(--inkoust);
 }
 
@@ -261,7 +293,7 @@
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 3.6mm;
   line-height: 1.9;
-  letter-spacing: .18em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #41678a;
 }
@@ -327,10 +359,10 @@
   font-family: var(--serif), Georgia, serif;
   font-size: 8mm;
   line-height: 1.2;
-  letter-spacing: .2em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   /* prostrkání odsadí i poslední písmeno; posun doleva to vrátí na střed */
-  text-indent: .2em;
+  text-indent: 0.2em;
 }
 /* Spojka na vlastním řádku mezi jmény, kaligrafií a modře — jako na líci.
    Prostrkání se jí ruší, psací písmo se prokládat nemá. */
@@ -351,7 +383,7 @@
   margin-top: 3mm;
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 3.6mm;
-  letter-spacing: .16em;
+  letter-spacing: 0.16em;
   color: var(--ruzove-pismo);
 }
 .karta .rubNadpis {
@@ -403,14 +435,14 @@
   margin: 0;
   font-size: 3mm;
   line-height: 1.6;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   color: var(--ruzove-pismo);
 }
 .karta .qrPopis {
   margin: 2.5mm 0 0;
   font-size: 2.5mm;
   line-height: 1.6;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
 /* Adresa je to jediné, co si někdo bude opisovat, tak je zvýrazněná řezem —
    ne barvou, aby si nekonkurovala s nadpisem nad sebou. */
@@ -418,10 +450,8 @@
   margin: 1.5mm 0 0;
   font-size: 2.9mm;
   font-weight: 500;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
 }
-
-
 
 /* Kapitálky zůstaly jen tam, kde jsou krátké: nadpisy bloků a popisek u QR
    kódu. Odstavce na informační kartě je mají zakázané — prostrkané verzálky
@@ -430,26 +460,30 @@
    a těsnější proklad. */
 .qrPopis {
   text-transform: uppercase;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
   line-height: 1.85;
 }
 .infoText,
 .infoAdresa,
 .infoPoznamka,
 .karta .infoZaver {
-  letter-spacing: .015em;
+  letter-spacing: 0.015em;
   line-height: 1.6;
 }
 /* Odstup od bloku nad sebou. První blok žádný nemá — nad ním je jen kraj
    karty a sedm milimetrů navíc tam vypadalo jako chyba sazby. */
-.infoBlok { margin-top: 7mm; }
-.infoBlok:first-child { margin-top: 0; }
+.infoBlok {
+  margin-top: 7mm;
+}
+.infoBlok:first-child {
+  margin-top: 0;
+}
 .karta .infoNadpis {
   margin: 0 0 3.5mm;
   color: var(--ruzove-pismo);
   font-size: 3.4mm;
   font-weight: 500;
-  letter-spacing: .22em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 .infoText {
@@ -466,8 +500,8 @@
   color: var(--ruzove-pismo);
   font-size: 3.6mm;
   text-decoration: underline;
-  text-decoration-thickness: .05em;
-  text-underline-offset: .28em;
+  text-decoration-thickness: 0.05em;
+  text-underline-offset: 0.28em;
 }
 .karta .infoPoznamka {
   margin: 3mm 0 0;
@@ -488,7 +522,7 @@
   width: 4.5mm;
   height: 4.5mm;
   border-radius: 50%;
-  border: .2mm solid rgba(0, 0, 0, .1);
+  border: 0.2mm solid rgba(0, 0, 0, 0.1);
 }
 
 .karta .podpis {
@@ -505,14 +539,16 @@
   font-size: 3.6mm;
 }
 
-
 /* ---------- archy pozvánek ---------- */
 /* Čtyři proužky pod sebou na ploše ořezu. Každý má vlastní overflow, aby se
    kytka přetékající přes řez ustřihla přesně na řezu — jinak by zasahovala
    do sousední pozvánky. */
 .k-archObrad .text,
 .k-archStolu .text,
-.k-archQr .text { display: block; padding: 0; }
+.k-archQr .text {
+  display: block;
+  padding: 0;
+}
 
 /* Barvu nese celá karta včetně spadu, ne jednotlivé proužky — na vnějším
    okraji archu by jinak po ořezu mohl svítit bílý papír. Proužek kreslí jen
@@ -567,7 +603,7 @@
   left: 0;
   right: 0;
   height: 0;
-  border-top: .3mm dashed rgba(200, 90, 90, .55);
+  border-top: 0.3mm dashed rgba(200, 90, 90, 0.55);
   pointer-events: none;
 }
 
@@ -581,7 +617,7 @@
 .vizitkaUvod {
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 2.4mm;
-  letter-spacing: .3em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--modre-pismo);
 }
@@ -597,7 +633,7 @@
   margin-top: 3mm;
   font-family: var(--sans), system-ui, sans-serif;
   font-size: 2.4mm;
-  letter-spacing: .22em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--tlumene);
 }
@@ -605,9 +641,19 @@
 /* ---------- vodítka (jen na obrazovce) ---------- */
 /* Červená je řez, modrá bezpečná zóna. Do tisku nejdou, aby se nevytiskla
    do PDF, které jde do tiskárny. */
-.rez, .zona { position: absolute; pointer-events: none; }
-.rez { inset: var(--spad); outline: .3mm dashed rgba(200, 90, 90, .55); }
-.zona { inset: calc(var(--spad) + var(--zona)); outline: .3mm dashed rgba(90, 140, 200, .45); }
+.rez,
+.zona {
+  position: absolute;
+  pointer-events: none;
+}
+.rez {
+  inset: var(--spad);
+  outline: 0.3mm dashed rgba(200, 90, 90, 0.55);
+}
+.zona {
+  inset: calc(var(--spad) + var(--zona));
+  outline: 0.3mm dashed rgba(90, 140, 200, 0.45);
+}
 
 /* ---------- tisk ---------- */
 /* Rozměr stránky (@page) nastavuje komponenta podle vybrané karty — jeden
@@ -620,10 +666,19 @@
     gap: 0;
     background: #fff;
   }
-  .lista { display: none; }
-  .rez, .zona { display: none; }
+  .lista {
+    display: none;
+  }
+  .rez,
+  .zona {
+    display: none;
+  }
 
-  .obal { width: var(--karta-sirka); height: var(--karta-vyska); max-width: none; }
+  .obal {
+    width: var(--karta-sirka);
+    height: var(--karta-vyska);
+    max-width: none;
+  }
   .karta {
     transform: none;
     box-shadow: none;

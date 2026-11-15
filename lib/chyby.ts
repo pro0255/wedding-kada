@@ -130,7 +130,8 @@ export const CHYBY = {
   },
   "rezervace-duplicita": {
     status: 409,
-    hlaska: "Vypadá to, že rezervaci na toto jméno už máme. Změnu nebo doplnění s vámi vyřídí svědci.",
+    hlaska:
+      "Vypadá to, že rezervaci na toto jméno už máme. Změnu nebo doplnění s vámi vyřídí svědci.",
     znovu: false,
     kontakt: true,
   },

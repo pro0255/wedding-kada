@@ -7,8 +7,8 @@
  * hustém displeji) a uloží jako WebP do public/fotky/web. Originály zůstávají,
  */
 
-import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const PRIBEH = [1, 2, 4, 6, 11, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28];
 
@@ -23,4 +23,6 @@ for (const n of PRIBEH) {
 }
 
 // fotka hotelu na rubu mapy — PNG měl přes megabajt
-await sharp("predlohy/fotky/rekovice.png").webp({ quality: 80 }).toFile("public/fotky/rekovice.webp");
+await sharp("predlohy/fotky/rekovice.png")
+  .webp({ quality: 80 })
+  .toFile("public/fotky/rekovice.webp");

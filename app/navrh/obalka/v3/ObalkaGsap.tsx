@@ -2,9 +2,18 @@
 
 import { useEffect, useId, useRef } from "react";
 import gsap from "gsap";
-import { PRIBEH } from "../_spolecne/pribeh";
 import { predehrat, pripojOvladani, vytvorPripravenost } from "../_spolecne/plynulost";
-import { BOK_L, BOK_P, CHLOPEN, CHLOPEN_RUB, CHLOPEN_RUB_PODSIVKA, Defs, SPODEK, Zrno } from "../_spolecne/svg";
+import { PRIBEH } from "../_spolecne/pribeh";
+import {
+  BOK_L,
+  BOK_P,
+  CHLOPEN,
+  CHLOPEN_RUB,
+  CHLOPEN_RUB_PODSIVKA,
+  Defs,
+  SPODEK,
+  Zrno,
+} from "../_spolecne/svg";
 import s from "./obalka.module.css";
 
 /* V3 — GSAP timeline + „pošta“. Zavřená obálka leží adresou nahoru (ručně
@@ -42,7 +51,7 @@ const POPIS = { zavreno: "Otevřít obálku s naším příběhem", otevreno: "Z
 
 export default function ObalkaGsap() {
   const rawId = useId();
-  const p = "g" + rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const p = "g" + rawId.replaceAll(/[^a-zA-Z0-9]/g, "");
   const idDopisu = p + "dopis";
 
   const koren = useRef<HTMLDivElement>(null);
@@ -50,7 +59,9 @@ export default function ObalkaGsap() {
   const dopis = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = koren.current, b = tlacitko.current, d = dopis.current;
+    const el = koren.current,
+      b = tlacitko.current,
+      d = dopis.current;
     if (!el || !b || !d) return;
     const pr = vytvorPripravenost(el);
     const q = gsap.utils.selector(el);
@@ -58,27 +69,84 @@ export default function ObalkaGsap() {
     let naklonY: ((v: number) => void) | null = null;
 
     const ctx = gsap.context(() => {
-      gsap.set(q(`.${s.chlopen}`), { transformPerspective: 1400, transformOrigin: "50% 0%", rotationX: 0 });
-      gsap.set(q(`.${s.polovinaDolni}`), { transformPerspective: 1600, transformOrigin: "50% 0%", rotationX: 180 });
+      gsap.set(q(`.${s.chlopen}`), {
+        transformPerspective: 1400,
+        transformOrigin: "50% 0%",
+        rotationX: 0,
+      });
+      gsap.set(q(`.${s.polovinaDolni}`), {
+        transformPerspective: 1600,
+        transformOrigin: "50% 0%",
+        rotationX: 180,
+      });
       gsap.set(q(`.${s.jiskra}`), { scale: 0, opacity: 0 });
 
       const t = gsap.timeline({ paused: true, onComplete: pr.konec, onReverseComplete: pr.konec });
       // 1) zvednout a otočit na rub
-      t.to(q(`.${s.zdvihKarty}`), { yPercent: -5, scale: 1.04, duration: 0.45, ease: "power2.out" }, 0)
+      t.to(
+        q(`.${s.zdvihKarty}`),
+        { yPercent: -5, scale: 1.04, duration: 0.45, ease: "power2.out" },
+        0,
+      )
         .to(q(`.${s.karta}`), { rotationY: 180, duration: 0.95, ease: "power3.inOut" }, 0.05)
-        .to(q(`.${s.stinKarty}`), { opacity: 0.55, scale: 0.96, duration: 0.45, ease: "power2.out" }, 0)
-        .to(q(`.${s.zdvihKarty}`), { yPercent: 0, scale: 1, duration: 0.5, ease: "power2.inOut" }, 0.75)
-        .to(q(`.${s.stinKarty}`), { opacity: 1, scale: 1, duration: 0.5, ease: "power2.inOut" }, 0.75)
+        .to(
+          q(`.${s.stinKarty}`),
+          { opacity: 0.55, scale: 0.96, duration: 0.45, ease: "power2.out" },
+          0,
+        )
+        .to(
+          q(`.${s.zdvihKarty}`),
+          { yPercent: 0, scale: 1, duration: 0.5, ease: "power2.inOut" },
+          0.75,
+        )
+        .to(
+          q(`.${s.stinKarty}`),
+          { opacity: 1, scale: 1, duration: 0.5, ease: "power2.inOut" },
+          0.75,
+        )
         // 2) pečeť praskne, jiskry
-        .to(q(`.${s.pecetL}`), { xPercent: -40, yPercent: 45, rotation: -28, opacity: 0, duration: 0.6, ease: "power2.out" }, 1.15)
-        .to(q(`.${s.pecetP}`), { xPercent: 40, yPercent: 58, rotation: 24, opacity: 0, duration: 0.6, ease: "power2.out" }, 1.17)
-        .to(q(`.${s.jiskra}`), {
-          keyframes: [
-            { scale: 1, opacity: 1, duration: 0.12, ease: "power1.out" },
-            { xPercent: (i: number) => JISKRY[i].x, yPercent: (i: number) => JISKRY[i].y, scale: (i: number) => JISKRY[i].s, opacity: 0, duration: 0.7, ease: "power3.out" },
-          ],
-          stagger: 0.012,
-        }, 1.12)
+        .to(
+          q(`.${s.pecetL}`),
+          {
+            xPercent: -40,
+            yPercent: 45,
+            rotation: -28,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          1.15,
+        )
+        .to(
+          q(`.${s.pecetP}`),
+          {
+            xPercent: 40,
+            yPercent: 58,
+            rotation: 24,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          1.17,
+        )
+        .to(
+          q(`.${s.jiskra}`),
+          {
+            keyframes: [
+              { scale: 1, opacity: 1, duration: 0.12, ease: "power1.out" },
+              {
+                xPercent: (i: number) => JISKRY[i].x,
+                yPercent: (i: number) => JISKRY[i].y,
+                scale: (i: number) => JISKRY[i].s,
+                opacity: 0,
+                duration: 0.7,
+                ease: "power3.out",
+              },
+            ],
+            stagger: 0.012,
+          },
+          1.12,
+        )
         // 3) chlopeň
         .to(q(`.${s.chlopenStin}`), { opacity: 0, duration: 0.25 }, 1.3)
         .to(q(`.${s.chlopen}`), { rotationX: 180, duration: 0.8, ease: "power2.inOut" }, 1.3)
@@ -86,7 +154,11 @@ export default function ObalkaGsap() {
         // 4) dopis vyjede, přeskočí nad kapsu, usadí se a rozloží
         .to(q(`.${s.zdvih}`), { yPercent: -118, duration: 0.65, ease: "power3.out" }, 1.95)
         .set(q(`.${s.zdvih}`), { zIndex: 6 }, 2.55)
-        .to(q(`.${s.usazeni}`), { yPercent: -22, scale: 1.03, rotation: -4, duration: 0.75, ease: "back.out(1.5)" }, 2.55)
+        .to(
+          q(`.${s.usazeni}`),
+          { yPercent: -22, scale: 1.03, rotation: -4, duration: 0.75, ease: "back.out(1.5)" },
+          2.55,
+        )
         .to(q(`.${s.polovinaDolni}`), { rotationX: 0, duration: 0.85, ease: "power3.out" }, 2.85)
         .to(q(`.${s.dolniStin}`), { opacity: 0, duration: 0.6 }, 3.1);
       // předehřátí: všechny tweeny si teď (ne v prvním snímku) přečtou výchozí
@@ -118,7 +190,8 @@ export default function ObalkaGsap() {
     }, el);
 
     const pohyb = (e: PointerEvent) => {
-      if (el.dataset.otevreno === "true" || e.pointerType !== "mouse" || !naklonX || !naklonY) return;
+      if (el.dataset.otevreno === "true" || e.pointerType !== "mouse" || !naklonX || !naklonY)
+        return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const r = el.getBoundingClientRect();
       naklonX(((e.clientX - r.left) / r.width - 0.5) * 12);
@@ -130,7 +203,11 @@ export default function ObalkaGsap() {
     };
     el.addEventListener("pointermove", pohyb);
     el.addEventListener("pointerleave", pryc);
-    const zrusPredehrati = predehrat(el, ["/obalka/vosk.webp", "/navrh/obalka/papir.webp", "/fotky/web/1.webp"], pr);
+    const zrusPredehrati = predehrat(
+      el,
+      ["/obalka/vosk.webp", "/navrh/obalka/papir.webp", "/fotky/web/1.webp"],
+      pr,
+    );
 
     return () => {
       el.removeEventListener("pointermove", pohyb);
@@ -156,20 +233,48 @@ export default function ObalkaGsap() {
               </svg>
               <span className={s.znamka}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotky/web/1.webp" width={675} height={900} alt="" loading="lazy" decoding="async" />
+                <img
+                  src="/fotky/web/1.webp"
+                  width={675}
+                  height={900}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span className={s.znamkaCena}>18·9</span>
               </span>
               <svg className={s.razitko} viewBox="0 0 120 60">
                 <defs>
                   <path id={p + "kruh"} d="M30,30 m-21,0 a21,21 0 1,1 42,0 a21,21 0 1,1 -42,0" />
                 </defs>
-                <circle cx="30" cy="30" r="27" fill="none" stroke="currentColor" strokeWidth="1.1" />
-                <circle cx="30" cy="30" r="15" fill="none" stroke="currentColor" strokeWidth="0.8" />
+                <circle
+                  cx="30"
+                  cy="30"
+                  r="27"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.1"
+                />
+                <circle
+                  cx="30"
+                  cy="30"
+                  r="15"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.8"
+                />
                 <text fontSize="6.4" letterSpacing="1.4" fill="currentColor">
                   <textPath href={`#${p}kruh`}>REKOVICE · ZVONIČKA ·</textPath>
                 </text>
-                <text x="30" y="32.5" fontSize="6.5" textAnchor="middle" fill="currentColor">18.9.27</text>
-                <path d="M60,18 q8,-5 16,0 t16,0 t16,0 M60,30 q8,-5 16,0 t16,0 t16,0 M60,42 q8,-5 16,0 t16,0 t16,0" fill="none" stroke="currentColor" strokeWidth="1" />
+                <text x="30" y="32.5" fontSize="6.5" textAnchor="middle" fill="currentColor">
+                  18.9.27
+                </text>
+                <path
+                  d="M60,18 q8,-5 16,0 t16,0 t16,0 M60,30 q8,-5 16,0 t16,0 t16,0 M60,42 q8,-5 16,0 t16,0 t16,0"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                />
               </svg>
               <span className={s.adresa}>
                 <span className={s.adresaJmeno}>Naši milí hosté</span>
@@ -187,13 +292,7 @@ export default function ObalkaGsap() {
               </svg>
 
               <div className={s.zdvih}>
-                <div
-                  ref={dopis}
-                  className={s.usazeni}
-                  id={idDopisu}
-                  aria-hidden="true"
-                  inert
-                >
+                <div ref={dopis} className={s.usazeni} id={idDopisu} aria-hidden="true" inert>
                   <div className={s.polovinaHorni}>
                     <div className={s.obsah}>
                       <ObsahDopisu />
@@ -219,14 +318,32 @@ export default function ObalkaGsap() {
                 <Zrno p={p + "k"} d={BOK_L} />
                 <path d={BOK_P} fill={`url(#${p}kbokP)`} />
                 <Zrno p={p + "k"} d={BOK_P} />
-                <path d={SPODEK} transform="translate(0,-1.2)" fill="#7d8fa1" opacity="0.18" style={{ filter: "blur(1.2px)" }} />
+                <path
+                  d={SPODEK}
+                  transform="translate(0,-1.2)"
+                  fill="#7d8fa1"
+                  opacity="0.18"
+                  style={{ filter: "blur(1.2px)" }}
+                />
                 <path d={SPODEK} fill={`url(#${p}kspodek)`} />
                 <Zrno p={p + "k"} d={SPODEK} />
-                <path d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="0.35" />
+                <path
+                  d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6"
+                  fill="none"
+                  stroke="#fff"
+                  strokeOpacity="0.55"
+                  strokeWidth="0.35"
+                />
               </svg>
 
               <svg className={s.chlopenStin} viewBox="0 0 160 58" aria-hidden="true">
-                <path d={CHLOPEN} transform="translate(0,2.2)" fill="#5d6f82" opacity="0.28" style={{ filter: "blur(1.2px)" }} />
+                <path
+                  d={CHLOPEN}
+                  transform="translate(0,2.2)"
+                  fill="#5d6f82"
+                  opacity="0.28"
+                  style={{ filter: "blur(1.2px)" }}
+                />
               </svg>
 
               <div className={s.chlopen} aria-hidden="true">
@@ -234,7 +351,13 @@ export default function ObalkaGsap() {
                   <Defs p={p + "c"} />
                   <path d={CHLOPEN} fill={`url(#${p}cchlopen)`} />
                   <Zrno p={p + "c"} d={CHLOPEN} />
-                  <path d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="0.35" />
+                  <path
+                    d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4"
+                    fill="none"
+                    stroke="#fff"
+                    strokeOpacity="0.6"
+                    strokeWidth="0.35"
+                  />
                 </svg>
                 <svg className={s.chlopenRub} viewBox="0 0 160 58">
                   <Defs p={p + "r"} />

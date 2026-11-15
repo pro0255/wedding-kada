@@ -1,5 +1,5 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
 import { poSvatbe } from "./svatba.ts";
 
 test("před svatbou a v noci po ní web zůstává svatební", () => {

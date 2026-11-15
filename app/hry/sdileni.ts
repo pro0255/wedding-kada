@@ -100,8 +100,8 @@ export async function sdilejSkore(d: Sdileni): Promise<VysledekSdileni> {
     try {
       await nav.share({ files: [soubor], text, url: d.url });
       return "sdileno";
-    } catch (e) {
-      if ((e as Error).name === "AbortError") return "zruseno";
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return "zruseno";
     }
   }
   // fallback: obrázek do nového tabu (dlouhý stisk / uložit jako) + odkaz do schránky

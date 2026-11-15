@@ -19,7 +19,16 @@
 
 import { startTransition, useCallback, useEffect, useId, useRef, useState } from "react";
 import gsap from "gsap";
-import { BOK_L, BOK_P, CHLOPEN, CHLOPEN_RUB, CHLOPEN_RUB_PODSIVKA, Defs, SPODEK, Zrno } from "@/app/pribeh/svg";
+import {
+  BOK_L,
+  BOK_P,
+  CHLOPEN,
+  CHLOPEN_RUB,
+  CHLOPEN_RUB_PODSIVKA,
+  Defs,
+  SPODEK,
+  Zrno,
+} from "@/app/pribeh/svg";
 import { DOPIS, FOTKY } from "../data";
 import s from "./obalka.module.css";
 
@@ -31,10 +40,16 @@ const TAH_PX = 40;
    (tam v cqw). Pod 600 px šířky scény platí telefonní hodnoty. */
 type Geo = {
   W: number;
-  envTop: number; envH: number;
-  fan: number; apex: number; R: number; maxUhel: number;
-  selY: number; cardH: number;
-  svetY: number; svetScale: number;
+  envTop: number;
+  envH: number;
+  fan: number;
+  apex: number;
+  R: number;
+  maxUhel: number;
+  selY: number;
+  cardH: number;
+  svetY: number;
+  svetScale: number;
 };
 function geo(W: number, cardH: number): Geo {
   const tel = W < 600;
@@ -44,7 +59,10 @@ function geo(W: number, cardH: number): Geo {
   const stageH = (tel ? 1.4 : 0.74) * W;
   const envStred = envTop + envH / 2;
   return {
-    W, envTop, envH, cardH,
+    W,
+    envTop,
+    envH,
+    cardH,
     fan: tel ? 0.45 : 0.5,
     apex: (tel ? 0.24 : 0.15) * W,
     R: (tel ? 0.48 : 0.56) * W,
@@ -83,7 +101,7 @@ const veVejiri = (g: Geo, i: number, vybrana: number) => {
 };
 
 export default function ObalkaFotek() {
-  const p = "f" + useId().replace(/[^a-zA-Z0-9]/g, "");
+  const p = "f" + useId().replaceAll(/[^a-zA-Z0-9]/g, "");
   const [otevreno, setOtevreno] = useState(false);
   const [vybrana, setVybrana] = useState(0);
 
@@ -120,14 +138,23 @@ export default function ObalkaFotek() {
       const ks = karty.current.filter(Boolean) as HTMLElement[];
       gsap.set(ks, { xPercent: -50, yPercent: -50 });
       if (st.current.otevreno) {
-        ks.forEach((k, i) => gsap.set(k, { ...veVejiri(g, i, st.current.vybrana), zIndex: i === st.current.vybrana ? 100 : i + 1 }));
+        ks.forEach((k, i) =>
+          gsap.set(k, {
+            ...veVejiri(g, i, st.current.vybrana),
+            zIndex: i === st.current.vybrana ? 100 : i + 1,
+          }),
+        );
         gsap.set(svet.current, { y: 0, scale: 1 });
       } else {
         ks.forEach((k, i) => gsap.set(k, { ...uvnitr(g, i), zIndex: i + 1 }));
         gsap.set(svet.current, { y: g.svetY, scale: g.svetScale });
       }
     };
-    gsap.set(chlopen.current, { transformPerspective: 1400, transformOrigin: "50% 0%", rotationX: 0 });
+    gsap.set(chlopen.current, {
+      transformPerspective: 1400,
+      transformOrigin: "50% 0%",
+      rotationX: 0,
+    });
     rozestav();
     const ro = new ResizeObserver(() => {
       if (!st.current.zaneprazdneno) rozestav();
@@ -149,33 +176,69 @@ export default function ObalkaFotek() {
     });
     const ks = karty.current.filter(Boolean) as HTMLElement[];
     const vytazeno = 0.85 + 0.55 + 0.025 * (POCET - 1);
-    const t = gsap.timeline({ onComplete: () => { st.current.zaneprazdneno = false; } });
-    t.to(pecetL.current, { xPercent: -40, yPercent: 45, rotation: -28, opacity: 0, duration: 0.55, ease: "power2.out" }, 0)
-      .to(pecetP.current, { xPercent: 40, yPercent: 58, rotation: 24, opacity: 0, duration: 0.55, ease: "power2.out" }, 0.02)
+    const t = gsap.timeline({
+      onComplete: () => {
+        st.current.zaneprazdneno = false;
+      },
+    });
+    t.to(
+      pecetL.current,
+      {
+        xPercent: -40,
+        yPercent: 45,
+        rotation: -28,
+        opacity: 0,
+        duration: 0.55,
+        ease: "power2.out",
+      },
+      0,
+    )
+      .to(
+        pecetP.current,
+        {
+          xPercent: 40,
+          yPercent: 58,
+          rotation: 24,
+          opacity: 0,
+          duration: 0.55,
+          ease: "power2.out",
+        },
+        0.02,
+      )
       .to(chlopenStin.current, { opacity: 0, duration: 0.25 }, 0.15)
       .to(chlopen.current, { rotationX: 180, duration: 0.75, ease: "power2.inOut" }, 0.15)
       .set(chlopen.current, { zIndex: 0 }, 0.55)
       .to(svet.current, { y: 0, scale: 1, duration: 0.9, ease: "power2.inOut" }, 0.1)
       // karty vyjedou z obálky — poslední (nejspodnější) první
-      .to(ks, {
-        x: (i: number) => venku(g, i).x,
-        y: (i: number) => venku(g, i).y,
-        rotation: (i: number) => venku(g, i).rotation,
-        scale: g.fan,
-        duration: 0.55, ease: "power2.out",
-        stagger: { each: 0.025, from: "end" },
-      }, 0.85)
+      .to(
+        ks,
+        {
+          x: (i: number) => venku(g, i).x,
+          y: (i: number) => venku(g, i).y,
+          rotation: (i: number) => venku(g, i).rotation,
+          scale: g.fan,
+          duration: 0.55,
+          ease: "power2.out",
+          stagger: { each: 0.025, from: "end" },
+        },
+        0.85,
+      )
       // jsou celé nad hranou obálky → vrstva karet jde před kapsu
       .set(vrstva.current, { zIndex: 6 }, vytazeno)
       .set(ks, { zIndex: (i: number) => (i === 0 ? 100 : i + 1) }, vytazeno)
-      .to(ks, {
-        x: (i: number) => veVejiri(g, i, 0).x,
-        y: (i: number) => veVejiri(g, i, 0).y,
-        rotation: (i: number) => veVejiri(g, i, 0).rotation,
-        scale: (i: number) => veVejiri(g, i, 0).scale,
-        duration: 0.8, ease: "power3.out",
-        stagger: 0.02,
-      }, vytazeno + 0.02);
+      .to(
+        ks,
+        {
+          x: (i: number) => veVejiri(g, i, 0).x,
+          y: (i: number) => veVejiri(g, i, 0).y,
+          rotation: (i: number) => veVejiri(g, i, 0).rotation,
+          scale: (i: number) => veVejiri(g, i, 0).scale,
+          duration: 0.8,
+          ease: "power3.out",
+          stagger: 0.02,
+        },
+        vytazeno + 0.02,
+      );
     tl.current = t;
     if (tlumeno()) t.progress(1);
   };
@@ -187,30 +250,52 @@ export default function ObalkaFotek() {
     startTransition(() => setOtevreno(false));
     const ks = karty.current.filter(Boolean) as HTMLElement[];
     const nad = 0.5 + 0.015 * (POCET - 1);
-    const t = gsap.timeline({ onComplete: () => { st.current.zaneprazdneno = false; } });
-    t.to(ks, {
-      x: (i: number) => venku(g, i).x,
-      y: (i: number) => venku(g, i).y,
-      rotation: (i: number) => venku(g, i).rotation,
-      scale: g.fan,
-      duration: 0.5, ease: "power2.inOut",
-      stagger: 0.015,
-    }, 0)
+    const t = gsap.timeline({
+      onComplete: () => {
+        st.current.zaneprazdneno = false;
+      },
+    });
+    t.to(
+      ks,
+      {
+        x: (i: number) => venku(g, i).x,
+        y: (i: number) => venku(g, i).y,
+        rotation: (i: number) => venku(g, i).rotation,
+        scale: g.fan,
+        duration: 0.5,
+        ease: "power2.inOut",
+        stagger: 0.015,
+      },
+      0,
+    )
       .set(vrstva.current, { zIndex: 2 }, nad)
       .set(ks, { zIndex: (i: number) => i + 1 }, nad)
-      .to(ks, {
-        x: (i: number) => uvnitr(g, i).x,
-        y: (i: number) => uvnitr(g, i).y,
-        rotation: (i: number) => uvnitr(g, i).rotation,
-        scale: g.fan * 0.95,
-        duration: 0.45, ease: "power2.in",
-        stagger: 0.01,
-      }, nad + 0.02)
+      .to(
+        ks,
+        {
+          x: (i: number) => uvnitr(g, i).x,
+          y: (i: number) => uvnitr(g, i).y,
+          rotation: (i: number) => uvnitr(g, i).rotation,
+          scale: g.fan * 0.95,
+          duration: 0.45,
+          ease: "power2.in",
+          stagger: 0.01,
+        },
+        nad + 0.02,
+      )
       .to(chlopen.current, { rotationX: 0, duration: 0.7, ease: "power2.inOut" }, nad + 0.4)
       .set(chlopen.current, { zIndex: 4 }, nad + 0.75)
       .to(chlopenStin.current, { opacity: 1, duration: 0.3 }, nad + 0.95)
-      .to([pecetL.current, pecetP.current], { xPercent: 0, yPercent: 0, rotation: 0, opacity: 1, duration: 0.4, ease: "back.out(1.6)" }, nad + 1.0)
-      .to(svet.current, { y: g.svetY, scale: g.svetScale, duration: 0.85, ease: "power2.inOut" }, nad + 0.6);
+      .to(
+        [pecetL.current, pecetP.current],
+        { xPercent: 0, yPercent: 0, rotation: 0, opacity: 1, duration: 0.4, ease: "back.out(1.6)" },
+        nad + 1,
+      )
+      .to(
+        svet.current,
+        { y: g.svetY, scale: g.svetScale, duration: 0.85, ease: "power2.inOut" },
+        nad + 0.6,
+      );
     tl.current = t;
     if (tlumeno()) t.progress(1);
   };
@@ -229,13 +314,17 @@ export default function ObalkaFotek() {
       y: (j: number) => veVejiri(g, j, n).y,
       rotation: (j: number) => veVejiri(g, j, n).rotation,
       scale: (j: number) => veVejiri(g, j, n).scale,
-      duration: tlumeno() ? 0 : 0.6, ease: "power3.out",
+      duration: tlumeno() ? 0 : 0.6,
+      ease: "power3.out",
       overwrite: "auto",
     });
   };
 
   const naKartu = (i: number) => {
-    if (tahlo.current) { tahlo.current = false; return; }
+    if (tahlo.current) {
+      tahlo.current = false;
+      return;
+    }
     if (i === st.current.vybrana) vyber(i + 1);
     else vyber(i);
   };
@@ -247,9 +336,16 @@ export default function ObalkaFotek() {
       className={s.obal}
       onKeyDown={(e) => {
         if (!otevreno) return;
-        if (e.key === "ArrowRight") { e.preventDefault(); vyber(st.current.vybrana + 1); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); vyber(st.current.vybrana - 1); }
-        else if (e.key === "Escape") { e.preventDefault(); zavri(); }
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          vyber(st.current.vybrana + 1);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          vyber(st.current.vybrana - 1);
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          zavri();
+        }
       }}
     >
       <header className={s.hlavicka}>
@@ -260,7 +356,12 @@ export default function ObalkaFotek() {
       <div ref={scena} className={s.scena} data-otevreno={otevreno}>
         <div ref={svet} className={s.svet}>
           {/* zadní stěna obálky */}
-          <svg className={`${s.dil} ${s.zadek}`} viewBox="0 0 160 100" preserveAspectRatio="none" aria-hidden="true">
+          <svg
+            className={`${s.dil} ${s.zadek}`}
+            viewBox="0 0 160 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
             <Defs p={p} />
             <rect width="160" height="100" rx="2" fill={`url(#${p}zadek)`} />
             <Zrno p={p} d="M0,0 H160 V100 H0 Z" />
@@ -285,10 +386,14 @@ export default function ObalkaFotek() {
                 vyber(st.current.vybrana + (dx < 0 ? 1 : -1));
               }
             }}
-            onPointerCancel={() => { tah.current = null; }}
+            onPointerCancel={() => {
+              tah.current = null;
+            }}
           >
             <button
-              ref={(el) => { karty.current[0] = el; }}
+              ref={(el) => {
+                karty.current[0] = el;
+              }}
               type="button"
               className={`${s.karta} ${s.dopis}`}
               aria-label={vybrana === 0 ? "Dopis — další karta" : "Ukázat dopis"}
@@ -301,10 +406,14 @@ export default function ObalkaFotek() {
             {FOTKY.map((f, j) => (
               <button
                 key={f.src}
-                ref={(el) => { karty.current[j + 1] = el; }}
+                ref={(el) => {
+                  karty.current[j + 1] = el;
+                }}
                 type="button"
                 className={`${s.karta} ${s.polaroid}`}
-                aria-label={vybrana === j + 1 ? `${f.popis} — další karta` : `Ukázat fotku: ${f.popis}`}
+                aria-label={
+                  vybrana === j + 1 ? `${f.popis} — další karta` : `Ukázat fotku: ${f.popis}`
+                }
                 onClick={() => naKartu(j + 1)}
               >
                 <img src={f.src} alt="" loading="lazy" decoding="async" draggable={false} />
@@ -314,21 +423,49 @@ export default function ObalkaFotek() {
           </div>
 
           {/* přední kapsa */}
-          <svg className={`${s.dil} ${s.kapsa}`} viewBox="0 0 160 100" preserveAspectRatio="none" aria-hidden="true">
+          <svg
+            className={`${s.dil} ${s.kapsa}`}
+            viewBox="0 0 160 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
             <Defs p={p + "k"} />
             <path d={BOK_L} fill={`url(#${p}kbokL)`} />
             <Zrno p={p + "k"} d={BOK_L} />
             <path d={BOK_P} fill={`url(#${p}kbokP)`} />
             <Zrno p={p + "k"} d={BOK_P} />
-            <path d={SPODEK} transform="translate(0,-1.2)" fill="#7d8fa1" opacity="0.18" style={{ filter: "blur(1.2px)" }} />
+            <path
+              d={SPODEK}
+              transform="translate(0,-1.2)"
+              fill="#7d8fa1"
+              opacity="0.18"
+              style={{ filter: "blur(1.2px)" }}
+            />
             <path d={SPODEK} fill={`url(#${p}kspodek)`} />
             <Zrno p={p + "k"} d={SPODEK} />
-            <path d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="0.35" />
+            <path
+              d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6"
+              fill="none"
+              stroke="#fff"
+              strokeOpacity="0.55"
+              strokeWidth="0.35"
+            />
           </svg>
 
           <div className={`${s.dil} ${s.vrchniDily}`} aria-hidden="true">
-            <svg ref={chlopenStin} className={s.chlopenStin} viewBox="0 0 160 58" preserveAspectRatio="none">
-              <path d={CHLOPEN} transform="translate(0,2.2)" fill="#5d6f82" opacity="0.28" style={{ filter: "blur(1.2px)" }} />
+            <svg
+              ref={chlopenStin}
+              className={s.chlopenStin}
+              viewBox="0 0 160 58"
+              preserveAspectRatio="none"
+            >
+              <path
+                d={CHLOPEN}
+                transform="translate(0,2.2)"
+                fill="#5d6f82"
+                opacity="0.28"
+                style={{ filter: "blur(1.2px)" }}
+              />
             </svg>
           </div>
           <div ref={chlopen} className={`${s.dil} ${s.chlopen}`} aria-hidden="true">
@@ -336,7 +473,13 @@ export default function ObalkaFotek() {
               <Defs p={p + "c"} />
               <path d={CHLOPEN} fill={`url(#${p}cchlopen)`} />
               <Zrno p={p + "c"} d={CHLOPEN} />
-              <path d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="0.35" />
+              <path
+                d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4"
+                fill="none"
+                stroke="#fff"
+                strokeOpacity="0.6"
+                strokeWidth="0.35"
+              />
             </svg>
             <svg className={s.chlopenRub} viewBox="0 0 160 58" preserveAspectRatio="none">
               <Defs p={p + "r"} />
@@ -354,7 +497,12 @@ export default function ObalkaFotek() {
           </div>
 
           {!otevreno && (
-            <button type="button" className={`${s.dil} ${s.otevrit}`} onClick={otevri} aria-label="Otevřít obálku s fotkami a dopisem" />
+            <button
+              type="button"
+              className={`${s.dil} ${s.otevrit}`}
+              onClick={otevri}
+              aria-label="Otevřít obálku s fotkami a dopisem"
+            />
           )}
         </div>
       </div>
@@ -363,10 +511,28 @@ export default function ObalkaFotek() {
       <div className={s.pod}>
         {otevreno ? (
           <div className={s.ovladani}>
-            <button type="button" className={s.sipka} onClick={() => vyber(vybrana - 1)} aria-label="Předchozí karta">‹</button>
-            <span className={s.pocet} aria-live="polite">{popisek}</span>
-            <button type="button" className={s.sipka} onClick={() => vyber(vybrana + 1)} aria-label="Další karta">›</button>
-            <button type="button" className={s.zavrit} onClick={zavri}>Zavřít obálku</button>
+            <button
+              type="button"
+              className={s.sipka}
+              onClick={() => vyber(vybrana - 1)}
+              aria-label="Předchozí karta"
+            >
+              ‹
+            </button>
+            <span className={s.pocet} aria-live="polite">
+              {popisek}
+            </span>
+            <button
+              type="button"
+              className={s.sipka}
+              onClick={() => vyber(vybrana + 1)}
+              aria-label="Další karta"
+            >
+              ›
+            </button>
+            <button type="button" className={s.zavrit} onClick={zavri}>
+              Zavřít obálku
+            </button>
           </div>
         ) : (
           <p className={s.pokyn}>Klepněte na pečeť</p>

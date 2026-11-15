@@ -35,9 +35,9 @@ type AirtableZaznam = {
 function normalizujJmeno(jmeno: string): string {
   return jmeno
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u0300-\u036F]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
+    .replaceAll(/[^a-z0-9 ]/g, " ")
     .split(/\s+/)
     .filter(Boolean)
     .sort()
@@ -98,8 +98,8 @@ async function ulozDoCache(stav: Stav): Promise<void> {
   if (!maRedis()) return;
   try {
     await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
-  } catch (chyba) {
-    console.warn("[ubytovani] stav se nepodařilo uložit do cache", chyba);
+  } catch (error) {
+    console.warn("[ubytovani] stav se nepodařilo uložit do cache", error);
   }
 }
 
@@ -112,8 +112,8 @@ export async function stavKapacity(): Promise<Stav> {
     try {
       const ulozeny = await redis().get<Stav>(KLIC.ubytovani);
       if (ulozeny) return ulozeny;
-    } catch (chyba) {
-      console.warn("[ubytovani] cache nedostupná, čtu rovnou z Airtable", chyba);
+    } catch (error) {
+      console.warn("[ubytovani] cache nedostupná, čtu rovnou z Airtable", error);
     }
   }
   const stav = spocitej(await nactiZaznamy());
@@ -126,18 +126,14 @@ export type VysledekRezervace =
   | { ok: false; duvod: "plno" | "duplicita"; stav: Stav };
 
 /** Zapíše rezervaci do Airtable a vrátí přepočítaný stav. */
-export async function pridejRezervaci(
-  jmeno: string,
-  pocet: number
-): Promise<VysledekRezervace> {
+export async function pridejRezervaci(jmeno: string, pocet: number): Promise<VysledekRezervace> {
   const zaznamy = await nactiZaznamy();
   const pred = spocitej(zaznamy);
 
   const hledane = normalizujJmeno(jmeno);
   const uzRezervoval = zaznamy.some(
     (z) =>
-      z.fields.Status !== "Zrušeno" &&
-      normalizujJmeno(z.fields["Jméno hosta"] ?? "") === hledane
+      z.fields.Status !== "Zrušeno" && normalizujJmeno(z.fields["Jméno hosta"] ?? "") === hledane,
   );
   if (uzRezervoval) {
     return { ok: false, duvod: "duplicita", stav: pred };

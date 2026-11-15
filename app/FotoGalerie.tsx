@@ -112,9 +112,10 @@ export default function FotoGalerie({
       setFotky((f) => {
         if (f !== null) return f;
         try {
-          const ulozena = JSON.parse(localStorage.getItem(ULOZENA) ?? "null") as
-            | { fotky: Fotka[]; whatsapp: string | null }
-            | null;
+          const ulozena = JSON.parse(localStorage.getItem(ULOZENA) ?? "null") as {
+            fotky: Fotka[];
+            whatsapp: string | null;
+          } | null;
           if (ulozena?.fotky) {
             setZUlozene(true);
             setWhatsapp(ulozena.whatsapp);
@@ -130,7 +131,9 @@ export default function FotoGalerie({
     const ovladac = new AbortController();
     const casovac = window.setTimeout(() => ovladac.abort(), NACTENI_MS);
     try {
-      const odpoved = await fetch(`/api/fotky?device=${device.current}`, { signal: ovladac.signal });
+      const odpoved = await fetch(`/api/fotky?device=${device.current}`, {
+        signal: ovladac.signal,
+      });
       if (odpoved.status === 401) return zamceno?.();
       if (!odpoved.ok) return bezOdpovedi();
       setNacteniSelhalo(false);
@@ -138,7 +141,10 @@ export default function FotoGalerie({
       const data = (await odpoved.json()) as { fotky: Fotka[]; whatsapp?: string | null };
       setWhatsapp(data.whatsapp ?? null);
       try {
-        localStorage.setItem(ULOZENA, JSON.stringify({ fotky: data.fotky, whatsapp: data.whatsapp ?? null }));
+        localStorage.setItem(
+          ULOZENA,
+          JSON.stringify({ fotky: data.fotky, whatsapp: data.whatsapp ?? null }),
+        );
       } catch {
         /* plné úložiště / soukromé okno — příště jen bez zálohy */
       }
@@ -152,7 +158,7 @@ export default function FotoGalerie({
             return f;
           }
           return { ...f, lajklJsem: chteny, lajky: Math.max(0, f.lajky + (chteny ? 1 : -1)) };
-        })
+        }),
       );
     } catch {
       bezOdpovedi();
@@ -170,7 +176,11 @@ export default function FotoGalerie({
     return () => clearInterval(id);
   }, [nacti]);
 
-  const { stav: nahravani, pridej, odeber } = useNahravani({
+  const {
+    stav: nahravani,
+    pridej,
+    odeber,
+  } = useNahravani({
     deviceId: () => device.current || deviceId(),
     aktivni: true,
     poNahrani: () => void nacti(),
@@ -184,9 +194,12 @@ export default function FotoGalerie({
 
   function nahraj(vybrane: FileList | null) {
     // FileList je živý — vyčištěním inputu by zmizel, tak si soubory zkopírujeme
-    const soubory = Array.from(vybrane ?? []);
-    if (!soubory.length) return;
-    if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || !process.env.NEXT_PUBLIC_CLOUDINARY_PRESET) {
+    const soubory = [...(vybrane ?? [])];
+    if (soubory.length === 0) return;
+    if (
+      !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+      !process.env.NEXT_PUBLIC_CLOUDINARY_PRESET
+    ) {
       setChyba("Nahrávání zatím není nastavené.");
       setZaloha(true);
       return;
@@ -214,8 +227,8 @@ export default function FotoGalerie({
         f?.map((x) =>
           x.id === fotka.id
             ? { ...x, lajklJsem: chteny, lajky: Math.max(0, x.lajky + (chteny ? 1 : -1)) }
-            : x
-        ) ?? null
+            : x,
+        ) ?? null,
     );
     try {
       const odpoved = await fetch("/api/fotky/lajk", {
@@ -235,7 +248,11 @@ export default function FotoGalerie({
     /* Optimisticky pryč; když server smazání odmítne nebo nedojde, fotka se
        vrátí a host se dozví proč — dřív zmizela a po obnově se tiše vrátila. */
     const vrat = (hlaska: string) => {
-      setFotky((f) => (f && !f.some((x) => x.id === fotka.id) ? [fotka, ...f].sort((a, b) => b.nahrano.localeCompare(a.nahrano)) : f));
+      setFotky((f) =>
+        f && !f.some((x) => x.id === fotka.id)
+          ? [fotka, ...f].sort((a, b) => b.nahrano.localeCompare(a.nahrano))
+          : f,
+      );
       setChyba(hlaska);
     };
     try {
@@ -246,11 +263,10 @@ export default function FotoGalerie({
       });
       if (odpoved.status === 401) return zamceno?.();
       if (!odpoved.ok) vrat((await prectiChybu(odpoved)).hlaska);
-    } catch (vyjimka) {
-      vrat(chybaZVyjimky(vyjimka).hlaska);
+    } catch (error) {
+      vrat(chybaZVyjimky(error).hlaska);
     }
   }
-
 
   /* Konec správcovství: cookie zruší server, tady se jen přepne režim.
      Host tím o přístup do galerie nepřijde, ta cookie je druhá. */
@@ -271,7 +287,9 @@ export default function FotoGalerie({
   // prohlížečka: fotka se hledá podle id, takže přežije obnovu galerie
   const detailIndex = detailId ? viditelne.findIndex((f) => f.id === detailId) : -1;
   const detail = detailIndex >= 0 ? viditelne[detailIndex] : null;
-  const predchozi = detail ? viditelne[(detailIndex - 1 + viditelne.length) % viditelne.length] : null;
+  const predchozi = detail
+    ? viditelne[(detailIndex - 1 + viditelne.length) % viditelne.length]
+    : null;
   const nasledujici = detail ? viditelne[(detailIndex + 1) % viditelne.length] : null;
 
   function otevri(id: string) {
@@ -342,7 +360,7 @@ export default function FotoGalerie({
         <div className="galerie-filtr">
           <button
             type="button"
-            className={!jenMoje ? "aktivni" : ""}
+            className={jenMoje ? "" : "aktivni"}
             onClick={() => setJenMoje(false)}
           >
             Všechny
@@ -394,7 +412,12 @@ export default function FotoGalerie({
                   onClick={() => otevri(f.id)}
                   aria-label="Zobrazit fotku"
                 >
-                  <img src={nahledUrl(f.url, 600)} alt="Fotka od hosta" loading="lazy" crossOrigin="anonymous" />
+                  <img
+                    src={nahledUrl(f.url, 600)}
+                    alt="Fotka od hosta"
+                    loading="lazy"
+                    crossOrigin="anonymous"
+                  />
                   {jeVideo(f.url) && (
                     <span className="galerie-play" aria-hidden="true">
                       <svg viewBox="0 0 24 24">
@@ -472,13 +495,25 @@ export default function FotoGalerie({
               onLoad={() => setNacitaVelkou(false)}
             />
           )}
-          {nacitaVelkou && !jeVideo(detail.url) && <span className="galerie-nacitani" aria-hidden="true" />}
+          {nacitaVelkou && !jeVideo(detail.url) && (
+            <span className="galerie-nacitani" aria-hidden="true" />
+          )}
           {/* sousední fotky se stáhnou dopředu — listování je pak okamžité */}
           {predchozi && predchozi.id !== detail.id && !jeVideo(predchozi.url) && (
-            <link rel="preload" as="image" href={nahledUrl(predchozi.url, 1600)} crossOrigin="anonymous" />
+            <link
+              rel="preload"
+              as="image"
+              href={nahledUrl(predchozi.url, 1600)}
+              crossOrigin="anonymous"
+            />
           )}
           {nasledujici && nasledujici.id !== detail.id && !jeVideo(nasledujici.url) && (
-            <link rel="preload" as="image" href={nahledUrl(nasledujici.url, 1600)} crossOrigin="anonymous" />
+            <link
+              rel="preload"
+              as="image"
+              href={nahledUrl(nasledujici.url, 1600)}
+              crossOrigin="anonymous"
+            />
           )}
           {viditelne.length > 1 && (
             <>

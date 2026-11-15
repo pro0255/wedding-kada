@@ -18,7 +18,9 @@ export default function Ramec({
   return (
     <main className={s.stranka}>
       <header className={s.hlava}>
-        <Link href="/navrh" className={s.zpet}>← Návrhy</Link>
+        <Link href="/navrh" className={s.zpet}>
+          ← Návrhy
+        </Link>
         <h1 className={s.nazev}>
           <span className={s.cislo}>Menu {cislo}</span> {nazev}
         </h1>

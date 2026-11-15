@@ -38,10 +38,14 @@ const POSUNY = [];
 /* Vrátí data vrstvy s přesunutými květy podle POSUNY. */
 async function posun(zdroj, jmeno) {
   const ukoly = POSUNY.filter((u) => u.vrstva === jmeno);
-  if (!ukoly.length) return sharp(zdroj);
+  if (ukoly.length === 0) return sharp(zdroj);
 
-  const { data, info } = await sharp(zdroj).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const W = info.width, H = info.height;
+  const { data, info } = await sharp(zdroj)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const W = info.width,
+    H = info.height;
 
   /* souvislé ostrovy neprůhledných pixelů */
   const cislo = new Int32Array(W * H);
@@ -51,14 +55,21 @@ async function posun(zdroj, jmeno) {
     const id = ostrovy.length + 1;
     const zasobnik = [start];
     cislo[start] = id;
-    let sx = 0, sy = 0, pocet = 0;
-    while (zasobnik.length) {
+    let sx = 0,
+      sy = 0,
+      pocet = 0;
+    while (zasobnik.length > 0) {
       const q = zasobnik.pop();
-      const qx = q % W, qy = (q / W) | 0;
-      sx += qx; sy += qy; pocet++;
+      const qx = q % W,
+        qy = (q / W) | 0;
+      sx += qx;
+      sy += qy;
+      pocet++;
       const sousedi = [
-        qx > 0 ? q - 1 : -1, qx < W - 1 ? q + 1 : -1,
-        qy > 0 ? q - W : -1, qy < H - 1 ? q + W : -1,
+        qx > 0 ? q - 1 : -1,
+        qx < W - 1 ? q + 1 : -1,
+        qy > 0 ? q - W : -1,
+        qy < H - 1 ? q + W : -1,
       ];
       for (const n of sousedi) {
         if (n < 0 || cislo[n] || data[n * 4 + 3] < 40) continue;
@@ -86,10 +97,12 @@ async function posun(zdroj, jmeno) {
     ven.set(data.subarray(p * 4, p * 4 + 4), p * 4);
   }
   for (const [id, u] of stehovane) {
-    const posunX = Math.round(u.dx * W), posunY = Math.round(u.dy * H);
+    const posunX = Math.round(u.dx * W),
+      posunY = Math.round(u.dy * H);
     for (let p = 0; p < W * H; p++) {
       if (cislo[p] !== id) continue;
-      const x = (p % W) + posunX, y = ((p / W) | 0) + posunY;
+      const x = (p % W) + posunX,
+        y = ((p / W) | 0) + posunY;
       if (x < 0 || y < 0 || x >= W || y >= H) continue;
       ven.set(data.subarray(p * 4, p * 4 + 4), (y * W + x) * 4);
     }
@@ -106,14 +119,16 @@ for (const { zdroj, cil } of VRSTVY) {
   }
   rozmer = popis;
 
-  const vysledek = await (await posun(zdroj, zdroj.split("/").pop()))
+  const vysledek = await (
+    await posun(zdroj, zdroj.split("/").pop())
+  )
     .resize({ width: SIRKA, withoutEnlargement: true })
     .webp({ quality: 95, alphaQuality: 100 })
     .toFile(`${CIL}/${cil}.webp`);
 
   console.log(
-    `${CIL}/${cil}.webp  ${popis} → ${vysledek.width}x${vysledek.height}, `
-    + `${(vysledek.size / 1024).toFixed(0)} kB`,
+    `${CIL}/${cil}.webp  ${popis} → ${vysledek.width}x${vysledek.height}, ` +
+      `${(vysledek.size / 1024).toFixed(0)} kB`,
   );
 }
 console.log(`poměr stran plátna = ${rozmer.replace("x", " / ")}`);

@@ -96,9 +96,9 @@ Nejdřív si stáhni nejnovější verzi (kdyby mezitím měnil někdo jiný) �
 
 ## Rychlý tahák
 
-| Co chci | Jak |
-|---|---|
-| Spustit web u sebe | `npm run dev` v Git Bash → [localhost:3000](http://localhost:3000) |
-| Otevřít AI asistenta | `claude` v Git Bash (ve složce projektu) |
-| Stáhnout nejnovější verzi | napiš Claudovi: _„udělej git pull"_ |
-| Nahrát změny | napiš Claudovi: _„commitni a pushni změny"_ |
+| Co chci                   | Jak                                                                |
+| ------------------------- | ------------------------------------------------------------------ |
+| Spustit web u sebe        | `npm run dev` v Git Bash → [localhost:3000](http://localhost:3000) |
+| Otevřít AI asistenta      | `claude` v Git Bash (ve složce projektu)                           |
+| Stáhnout nejnovější verzi | napiš Claudovi: _„udělej git pull"_                                |
+| Nahrát změny              | napiš Claudovi: _„commitni a pushni změny"_                        |

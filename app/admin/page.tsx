@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { jeSpravce } from "@/lib/fotkyPristup";
 import { odkazWhatsapp, seznamFotek } from "@/lib/fotky";
+import { jeSpravce } from "@/lib/fotkyPristup";
 import { HRY, prehledHer } from "@/lib/hra";
 import { AdminDalSchema } from "@/lib/schemata";
 import { BASE_ID as AIRTABLE_BASE, KAPACITA_CELKEM, stavKapacity } from "@/lib/ubytovani";
 import { HRY_REGISTR } from "../hry/hry";
+import s from "./admin.module.css";
 import AdminVstup from "./AdminVstup";
 import Odhlasit from "./Odhlasit";
 import StahnoutFotky, { type Polozka } from "./StahnoutFotky";
-import s from "./admin.module.css";
 
 export const metadata: Metadata = {
   title: "Správa · Kateřina & Jakub",
@@ -36,12 +36,14 @@ const ODKAZY = {
     {
       href: "/fotky",
       nazev: "Moderace galerie",
-      popis: "Galerie, jak ji vidí hosté. Jako správce smažete i cizí fotku — zmizí z galerie i z Cloudinary naráz.",
+      popis:
+        "Galerie, jak ji vidí hosté. Jako správce smažete i cizí fotku — zmizí z galerie i z Cloudinary naráz.",
     },
     {
       href: CLOUDINARY,
       nazev: "Cloudinary",
-      popis: "Úložiště souborů (free: 25 kreditů za 30 dní, nejvíc je žere přehrávání videí). Spotřebu ukáže sekce Usage. Mazat raději v galerii — fotka smazaná jen tady v ní zůstane jako rozbitý obrázek.",
+      popis:
+        "Úložiště souborů (free: 25 kreditů za 30 dní, nejvíc je žere přehrávání videí). Spotřebu ukáže sekce Usage. Mazat raději v galerii — fotka smazaná jen tady v ní zůstane jako rozbitý obrázek.",
     },
   ],
   ubytovani: [
@@ -74,39 +76,46 @@ const ODKAZY = {
     {
       href: "/?svatba=1",
       nazev: "Hlavní stránka",
-      popis: "Svatební web pro hosty. Odkaz funguje i po svatbě, kdy hlavní stránka vede na poděkování.",
+      popis:
+        "Svatební web pro hosty. Odkaz funguje i po svatbě, kdy hlavní stránka vede na poděkování.",
     },
     {
       href: "/podekovani",
       nazev: "Poděkování",
-      popis: "Web po svatbě: poděkování, fotky a hry. Od rána po svatbě na něj vede hlavní stránka.",
+      popis:
+        "Web po svatbě: poděkování, fotky a hry. Od rána po svatbě na něj vede hlavní stránka.",
     },
   ],
   technika: [
     {
       href: `${VERCEL}/settings/environment-variables`,
       nazev: "Hesla a klíče",
-      popis: "Odpověď u vstupu do galerie (FOTKY_HESLO), správcovské heslo (FOTKY_SPRAVCE) a klíče ke službám. Platí až po novém nasazení; nové heslo odhlásí všechny přihlášené starým.",
+      popis:
+        "Odpověď u vstupu do galerie (FOTKY_HESLO), správcovské heslo (FOTKY_SPRAVCE) a klíče ke službám. Platí až po novém nasazení; nové heslo odhlásí všechny přihlášené starým.",
     },
     {
       href: VERCEL,
       nazev: "Nasazení a logy",
-      popis: "Vercel — kde web běží. Vrácení na starší verzi (Instant Rollback) a v záložce Logs chyby z nahrávání, rezervací a her.",
+      popis:
+        "Vercel — kde web běží. Vrácení na starší verzi (Instant Rollback) a v záložce Logs chyby z nahrávání, rezervací a her.",
     },
     {
       href: `${VERCEL}/stores`,
       nazev: "Databáze",
-      popis: "Upstash Redis (svatba-redis): záznamy fotek, lajky, skóre, jména hostů. Z detailu úložiště vede odkaz do konzole, kde jdou záznamy upravit.",
+      popis:
+        "Upstash Redis (svatba-redis): záznamy fotek, lajky, skóre, jména hostů. Z detailu úložiště vede odkaz do konzole, kde jdou záznamy upravit.",
     },
     {
       href: `${GITHUB}/actions`,
       nazev: "Běhy nasazení",
-      popis: "GitHub Actions — každý push na main tu spustí nasazení. Když web po změně nenaběhne, chyba je tady.",
+      popis:
+        "GitHub Actions — každý push na main tu spustí nasazení. Když web po změně nenaběhne, chyba je tady.",
     },
     {
       href: GITHUB,
       nazev: "Kód webu",
-      popis: "Veřejný repozitář — hesla a jméno psa do něj nepatří, jsou jen ve Vercelu a v .env.local.",
+      popis:
+        "Veřejný repozitář — hesla a jméno psa do něj nepatří, jsou jen ve Vercelu a v .env.local.",
     },
   ],
 } satisfies Record<string, Odkaz[]>;
@@ -119,7 +128,8 @@ function whatsappKarta(): Odkaz[] {
         {
           href: odkaz,
           nazev: "WhatsApp skupina",
-          popis: "Záloha, když nahrávání na webu nejde — hosté ji uvidí jen po neúspěšném nahrání. Fotky odtud do galerie ani do ZIPu nepřejdou, stáhněte je po svatbě zvlášť.",
+          popis:
+            "Záloha, když nahrávání na webu nejde — hosté ji uvidí jen po neúspěšném nahrání. Fotky odtud do galerie ani do ZIPu nepřejdou, stáhněte je po svatbě zvlášť.",
         },
       ]
     : [];
@@ -152,7 +162,13 @@ function Karty({ odkazy }: { odkazy: Odkaz[] }) {
           </>
         );
         return ven ? (
-          <a key={o.href} href={o.href} className={s.karta} target="_blank" rel="noopener noreferrer">
+          <a
+            key={o.href}
+            href={o.href}
+            className={s.karta}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {obsah}
           </a>
         ) : (
@@ -200,8 +216,8 @@ function Tema({
 /* Živá čísla. Každé se načítá zvlášť: když jedna služba nejede, ostatní
    čísla i zbytek rozcestníku se ukážou dál. */
 const nebo = <T,>(slib: Promise<T>): Promise<T | null> =>
-  slib.catch((chyba) => {
-    console.error("[admin] přehled:", chyba);
+  slib.catch((error) => {
+    console.error("[admin] přehled:", error);
     return null;
   });
 
@@ -215,7 +231,9 @@ function Prihlaseni({ dal, zFiltru }: { dal: string; zFiltru: boolean }) {
         <p className={s.stitek}>Kateřina &amp; Jakub · správa</p>
         <h1 className={s.nadpis}>Jen pro nás</h1>
         <p className={s.uvod}>
-          {zFiltru ? "Tahle stránka je jen pro snoubence. Zadejte správcovské heslo." : "Zadejte správcovské heslo."}
+          {zFiltru
+            ? "Tahle stránka je jen pro snoubence. Zadejte správcovské heslo."
+            : "Zadejte správcovské heslo."}
         </p>
       </header>
       <AdminVstup dal={dal} />
@@ -282,7 +300,10 @@ export default async function Admin({
         popis="Rezervace z formuláře na webu."
         cislo={
           kapacita
-            ? { hodnota: `${kapacita.obsazeno} / ${kapacita.celkem}`, poznamka: `obsazeno · volno ${kapacita.volno}` }
+            ? {
+                hodnota: `${kapacita.obsazeno} / ${kapacita.celkem}`,
+                poznamka: `obsazeno · volno ${kapacita.volno}`,
+              }
             : { hodnota: "—", poznamka: "Airtable teď neodpovídá" }
         }
       >
@@ -307,7 +328,9 @@ export default async function Admin({
             {HRY.map((h) => (
               <li key={h}>
                 <span>{HRY_REGISTR[h].nazev}</span>
-                <span className={s.seznamCislo}>{sklonuj(hry.hraci[h], "hráč", "hráči", "hráčů")}</span>
+                <span className={s.seznamCislo}>
+                  {sklonuj(hry.hraci[h], "hráč", "hráči", "hráčů")}
+                </span>
               </li>
             ))}
           </ul>
@@ -315,7 +338,11 @@ export default async function Admin({
         <Karty odkazy={ODKAZY.hry} />
       </Tema>
 
-      <Tema id="tisk" nazev="Oznámení a návrhy" popis="Jen pro vás — bez správcovského hesla se sem nikdo nedostane.">
+      <Tema
+        id="tisk"
+        nazev="Oznámení a návrhy"
+        popis="Jen pro vás — bez správcovského hesla se sem nikdo nedostane."
+      >
         <Karty odkazy={ODKAZY.tisk} />
       </Tema>
 

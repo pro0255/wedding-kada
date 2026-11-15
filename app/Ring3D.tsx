@@ -68,7 +68,7 @@ export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
     renderer.toneMappingExposure = 1.1;
     renderer.domElement.style.opacity = "0";
     renderer.domElement.style.transition = "opacity .6s ease";
-    el.appendChild(renderer.domElement);
+    el.append(renderer.domElement);
     requestAnimationFrame(() => (renderer.domElement.style.opacity = "1"));
 
     const scene = new THREE.Scene();
@@ -115,7 +115,7 @@ export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-      })
+      }),
     );
     scene.add(dust);
 

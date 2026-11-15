@@ -39,16 +39,26 @@ const NATOCENI = [-3, 2.2, -1.4, 3, -2.4, 1.2, -3.2, 2.6, -1, 2, -2.8, 1.6, -1.8
 
 /* Úsek provázku mezi dvěma kolíčky. Výšky v jednotkách: 80 = celý průvěs. */
 function Usek({ od, k, className }: { od: number; k: number; className: string }) {
-  const a = od * 80, b = k * 80;
+  const a = od * 80,
+    b = k * 80;
   const stred = (a + b) / 2 + 16;
   return (
     <svg className={className} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path d={`M0,${a.toFixed(1)} Q50,${stred.toFixed(1)} 100,${b.toFixed(1)}`} vectorEffect="non-scaling-stroke" />
+      <path
+        d={`M0,${a.toFixed(1)} Q50,${stred.toFixed(1)} 100,${b.toFixed(1)}`}
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
 
-export default function Snura({ fotky, children }: { fotky: FotkaNaSnure[]; children: React.ReactNode }) {
+export default function Snura({
+  fotky,
+  children,
+}: {
+  fotky: FotkaNaSnure[];
+  children: React.ReactNode;
+}) {
   const pas = useRef<HTMLDivElement>(null);
   const zpet = useRef<HTMLButtonElement>(null);
   const dal = useRef<HTMLButtonElement>(null);
@@ -126,8 +136,13 @@ export default function Snura({ fotky, children }: { fotky: FotkaNaSnure[]; chil
         aria-label="Fotky z našeho příběhu"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === "ArrowRight") { e.preventDefault(); posun(1); }
-          else if (e.key === "ArrowLeft") { e.preventDefault(); posun(-1); }
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            posun(1);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            posun(-1);
+          }
         }}
       >
         <div className={s.snura}>
@@ -138,7 +153,12 @@ export default function Snura({ fotky, children }: { fotky: FotkaNaSnure[]; chil
                 <li
                   key={f.src}
                   className={s.bod}
-                  style={{ "--k": k.toFixed(3), "--rot": `${NATOCENI[i % NATOCENI.length]}deg` } as React.CSSProperties}
+                  style={
+                    {
+                      "--k": k.toFixed(3),
+                      "--rot": `${NATOCENI[i % NATOCENI.length]}deg`,
+                    } as React.CSSProperties
+                  }
                 >
                   {/* úsek provázku k další fotce; u krajních i volný konec ke kraji pásu */}
                   {i < pocet - 1 && <Usek od={k} k={vis(i + 1)} className={s.usek} />}
@@ -147,7 +167,13 @@ export default function Snura({ fotky, children }: { fotky: FotkaNaSnure[]; chil
                   <figure className={s.zaves}>
                     <span className={s.kolicek} aria-hidden="true" />
                     <span className={s.ram}>
-                      <img loading="lazy" decoding="async" draggable={false} src={f.src} alt={f.popis} />
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        src={f.src}
+                        alt={f.popis}
+                      />
                     </span>
                     <figcaption className={s.popis}>{f.popis}</figcaption>
                   </figure>
@@ -159,9 +185,27 @@ export default function Snura({ fotky, children }: { fotky: FotkaNaSnure[]; chil
       </div>
 
       <div className={s.ovladani}>
-        <button ref={zpet} type="button" className={s.sipka} onClick={() => posun(-1)} aria-label="Předchozí fotky">‹</button>
-        <span className={s.napoveda} aria-hidden="true">táhněte do strany</span>
-        <button ref={dal} type="button" className={s.sipka} onClick={() => posun(1)} aria-label="Další fotky">›</button>
+        <button
+          ref={zpet}
+          type="button"
+          className={s.sipka}
+          onClick={() => posun(-1)}
+          aria-label="Předchozí fotky"
+        >
+          ‹
+        </button>
+        <span className={s.napoveda} aria-hidden="true">
+          táhněte do strany
+        </span>
+        <button
+          ref={dal}
+          type="button"
+          className={s.sipka}
+          onClick={() => posun(1)}
+          aria-label="Další fotky"
+        >
+          ›
+        </button>
       </div>
 
       <div className={s.dopis}>

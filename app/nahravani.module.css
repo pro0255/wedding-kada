@@ -7,89 +7,255 @@
   padding: 1rem 1rem 1.1rem;
   border: 1px solid var(--bezova-linka);
   border-radius: 12px;
-  background: rgba(255, 255, 255, .62);
+  background: rgba(255, 255, 255, 0.62);
   text-align: left;
   display: grid;
-  gap: .75rem;
-  animation: panel-in .35s ease;
+  gap: 0.75rem;
+  animation: panel-in 0.35s ease;
 }
-@keyframes panel-in { from { opacity: 0; transform: translateY(6px); } }
-.panelCeka { border-style: dashed; }
-.panelHotovo { border-color: color-mix(in srgb, var(--palette-sage-text) 45%, var(--bezova-linka)); }
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.panelCeka {
+  border-style: dashed;
+}
+.panelHotovo {
+  border-color: color-mix(in srgb, var(--palette-sage-text) 45%, var(--bezova-linka));
+}
 
-.hlava { display: grid; gap: .2rem; }
+.hlava {
+  display: grid;
+  gap: 0.2rem;
+}
 .titulek {
-  margin: 0; display: flex; align-items: center; gap: .45rem;
-  font-family: var(--serif), Georgia, serif; font-size: 1.2rem; color: var(--ink);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--serif), Georgia, serif;
+  font-size: 1.2rem;
+  color: var(--ink);
 }
-.titulekIkona { width: 1.15rem; height: 1.15rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.panelHotovo .titulek { color: var(--palette-sage-text); }
-.procentoCelkem { margin-left: auto; font-family: var(--sans), sans-serif; font-size: .85rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-.podtitulek { margin: 0; font-size: .88rem; line-height: 1.5; color: var(--ink-soft); animation: panel-in .4s ease; }
+.titulekIkona {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.panelHotovo .titulek {
+  color: var(--palette-sage-text);
+}
+.procentoCelkem {
+  margin-left: auto;
+  font-family: var(--sans), sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.podtitulek {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  animation: panel-in 0.4s ease;
+}
 
-.bar { height: 4px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--palette-blue-text) 15%, transparent); }
-.bar span { display: block; height: 100%; border-radius: 2px; background: var(--palette-blue-text); transition: width .35s ease; }
-.panelCeka .bar span { background: var(--ink-soft); opacity: .45; }
+.bar {
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--palette-blue-text) 15%, transparent);
+}
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--palette-blue-text);
+  transition: width 0.35s ease;
+}
+.panelCeka .bar span {
+  background: var(--ink-soft);
+  opacity: 0.45;
+}
 
 .soubory {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: .5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 0.5rem;
 }
 .soubor {
-  position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
   background: var(--bezova);
 }
-.soubor img, .soubor video { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .3s, filter .3s; }
+.soubor img,
+.soubor video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition:
+    opacity 0.3s,
+    filter 0.3s;
+}
 
 /* čeká: vybledlé, ať je vidět, že na ně ještě nedošlo */
-.ceka img, .ceka video { opacity: .45; filter: grayscale(.4); }
-.znovu img, .znovu video { opacity: .55; filter: grayscale(.4); }
+.ceka img,
+.ceka video {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+}
+.znovu img,
+.znovu video {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
 /* nahrává se: ztmavené s procenty a lištou dole */
-.nahrava img, .nahrava video { filter: brightness(.62); }
-.nahrava { box-shadow: 0 0 0 2px var(--palette-blue-text); }
-.hotovo { animation: hotovo-puls .45s ease; }
-@keyframes hotovo-puls { 50% { transform: scale(1.06); } }
+.nahrava img,
+.nahrava video {
+  filter: brightness(0.62);
+}
+.nahrava {
+  box-shadow: 0 0 0 2px var(--palette-blue-text);
+}
+.hotovo {
+  animation: hotovo-puls 0.45s ease;
+}
+@keyframes hotovo-puls {
+  50% {
+    transform: scale(1.06);
+  }
+}
 
 .procento {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  color: #fff; font-size: .8rem; font-weight: 500; font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-.souborBar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, .35); }
-.souborBar span { display: block; height: 100%; background: #fff; transition: width .3s ease; }
+.souborBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+}
+.souborBar span {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transition: width 0.3s ease;
+}
 
 .odznak {
-  position: absolute; right: 4px; bottom: 4px; width: 20px; height: 20px; border-radius: 50%;
-  display: grid; place-items: center; background: rgba(255, 255, 255, .92); color: var(--ink-soft);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .18);
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-soft);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
-.odznak svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.odznakHotovo { background: var(--palette-sage-text); color: #fff; }
-.odznakZnovu { color: var(--palette-rose-text); }
+.odznak svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.odznakHotovo {
+  background: var(--palette-sage-text);
+  color: #fff;
+}
+.odznakZnovu {
+  color: var(--palette-rose-text);
+}
 
 .videoZnak {
-  position: absolute; left: 5px; top: 4px; font-size: .62rem; color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  font-size: 0.62rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* odebrat soubor, který ještě nezačal — velký cíl pro prst, malý křížek */
 .odebrat {
-  position: absolute; top: 0; right: 0; width: 30px; height: 30px; padding: 0; border: 0; cursor: pointer;
-  background: none; color: #fff; font-size: 1.05rem; line-height: 1;
-  display: grid; place-items: start end;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: none;
+  color: #fff;
+  font-size: 1.05rem;
+  line-height: 1;
+  display: grid;
+  place-items: start end;
 }
 .odebrat::before {
-  content: ""; position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(43, 41, 37, .55); z-index: -1;
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(43, 41, 37, 0.55);
+  z-index: -1;
 }
-.odebrat { isolation: isolate; padding: 3px 8px 0 0; }
-.odebrat:hover::before, .odebrat:focus-visible::before { background: rgba(43, 41, 37, .8); }
+.odebrat {
+  isolation: isolate;
+  padding: 3px 8px 0 0;
+}
+.odebrat:hover::before,
+.odebrat:focus-visible::before {
+  background: rgba(43, 41, 37, 0.8);
+}
 
 .srOnly {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel, .podtitulek, .hotovo { animation: none; }
+  .panel,
+  .podtitulek,
+  .hotovo {
+    animation: none;
+  }
 }

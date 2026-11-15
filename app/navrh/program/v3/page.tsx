@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Ramec from "../Ramec";
 import { PULKY } from "../data";
+import Ramec from "../Ramec";
 import s from "./pulky.module.css";
 
-export const metadata: Metadata = { title: "Program — H3: dvě půlky dne", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Program — H3: dvě půlky dne",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (
@@ -20,7 +23,12 @@ export default function Stranka() {
             <ol className={s.seznam}>
               {p.body.map((b) => (
                 <li key={b.nazev} className={s.bod}>
-                  <img className={s.ikona} src={`/program/${b.ikona}.webp`} alt="" aria-hidden="true" />
+                  <img
+                    className={s.ikona}
+                    src={`/program/${b.ikona}.webp`}
+                    alt=""
+                    aria-hidden="true"
+                  />
                   <span className={s.text}>
                     <span className={s.cas}>{b.cas}</span>
                     <span className={s.nazev}>{b.nazev}</span>

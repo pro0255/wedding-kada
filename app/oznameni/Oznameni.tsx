@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Parisienne } from "next/font/google";
-import s from "./oznameni.module.css";
 import { WEB_ADRESA } from "./adresa";
+import s from "./oznameni.module.css";
 
 /* Svatební oznámení k tisku — sada pěti karet.
 
@@ -31,7 +31,7 @@ const kaligrafie = Parisienne({
   preload: false,
 });
 
-const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
+const SPAD = 3; // přesah přes ořez na každou stranu, v mm
 
 /* Archy spad nemají: řežou se z nich jen linie MEZI kartami, vnější okraj
    zůstane, jak vyjel z tiskárny. Se spadem by první kartička dostala navíc
@@ -41,9 +41,25 @@ const SPAD = 3;   // přesah přes ořez na každou stranu, v mm
    kartičky. */
 const SPAD_ARCHU = 0;
 
-type KartaKlic = "hlavni" | "info" | "rub" | "qr" | "obrad" | "vizitka" | "archObrad" | "archStolu" | "archQr";
+type KartaKlic =
+  | "hlavni"
+  | "info"
+  | "rub"
+  | "qr"
+  | "obrad"
+  | "vizitka"
+  | "archObrad"
+  | "archStolu"
+  | "archQr";
 
-const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zona: number; spad?: number }[] = [
+const KARTY: {
+  klic: KartaKlic;
+  nazev: string;
+  sirka: number;
+  vyska: number;
+  zona: number;
+  spad?: number;
+}[] = [
   { klic: "hlavni", nazev: "Hlavní (A5)", sirka: 148, vyska: 210, zona: 10 },
   /* Informační karta je stejně široká jako hlavní, aby se daly srovnat na sebe.
      QR kód na ní není. Vešel by se, ale karta by tím byla zaplněná na 99 %
@@ -66,8 +82,22 @@ const KARTY: { klic: KartaKlic; nazev: string; sirka: number; vyska: number; zon
   /* Archy pozvánek. Pozvánka je 148 x 50 mm, takže se čtyři vejdou na výšku
      200 mm a řežou se třemi vodorovnými řezy. Bezpečná zóna je nulová: obsah
      sahá až k ořezu a dělí se přesně na čtvrtiny. */
-  { klic: "archObrad", nazev: "Pozvánky na obřad (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
-  { klic: "archStolu", nazev: "Pozvánky ke stolu (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
+  {
+    klic: "archObrad",
+    nazev: "Pozvánky na obřad (arch)",
+    sirka: 148,
+    vyska: 200,
+    zona: 0,
+    spad: SPAD_ARCHU,
+  },
+  {
+    klic: "archStolu",
+    nazev: "Pozvánky ke stolu (arch)",
+    sirka: 148,
+    vyska: 200,
+    zona: 0,
+    spad: SPAD_ARCHU,
+  },
   { klic: "archQr", nazev: "QR na web (arch)", sirka: 148, vyska: 200, zona: 0, spad: SPAD_ARCHU },
 ];
 
@@ -81,7 +111,7 @@ const SNITEK3 = 14;
    a klient by vykreslily jinou kartu a React by na tom spadl. Sinusový hash
    dává pokaždé stejné číslo a přitom to nevypadá pravidelně. */
 function sum(a: number, b: number) {
-  const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  const x = Math.sin(a * 127.1 + b * 311.7) * 43_758.5453;
   return x - Math.floor(x);
 }
 
@@ -101,13 +131,16 @@ type Kytka = { snitka: string; x: number; y: number; v: number; uhel: number };
    Souřadnice jsou v milimetrech od rohu karty VČETNĚ spadu — kytky u kraje
    mají po ořezu vybíhat ven, jako na předloze. */
 function rozsyp(
-  sirka: number, vyska: number,
-  sloupcu: number, radku: number,
+  sirka: number,
+  vyska: number,
+  sloupcu: number,
+  radku: number,
   zony: Zona[],
   /* Rozsah výšky snítek. Stejný na všech kusech sady: karty se skládají na sebe
      a kdyby měla každá jinak velké kytky, je ten rozdíl na hromádce hned vidět.
      Sedmnáct milimetrů je strop — na pozvánce vysoké padesát je víc už moc. */
-  nejmensi = 11, nejvetsi = 17,
+  nejmensi = 11,
+  nejvetsi = 17,
   /* Kolik snítek má sada, ze které se bere. */
   snitek = SNITEK,
   /* O kolik se v sadě poskočí mezi sousedními buňkami. MUSÍ být nesoudělný
@@ -127,12 +160,13 @@ function rozsyp(
   for (let r = 0; r < radku; r++) {
     for (let c = 0; c < sloupcu; c++) {
       const v = nejmensi + sum(c, r) * (nejvetsi - nejmensi);
-      const sirkaKytky = v * 0.55;      // snítky jsou zhruba 1 : 1,8
+      const sirkaKytky = v * 0.55; // snítky jsou zhruba 1 : 1,8
       const x = c * bunkaX + (bunkaX - sirkaKytky) * (0.15 + sum(c + 10, r) * 0.7);
       const y = r * bunkaY + (bunkaY - v) * (0.15 + sum(c, r + 10) * 0.7);
 
-      const zasahujeText = zony.some((z) =>
-        x < z.x2 && x + sirkaKytky > z.x1 && y < z.y2 && y + v > z.y1);
+      const zasahujeText = zony.some(
+        (z) => x < z.x2 && x + sirkaKytky > z.x1 && y < z.y2 && y + v > z.y1,
+      );
       if (zasahujeText) continue;
 
       /* Krok místo pořadí: sousední buňky tak nedostanou sousední snítky
@@ -144,11 +178,11 @@ function rozsyp(
       const nadva = (n: number) => Math.round(n * 100) / 100;
       kytky.push({
         snitka: String(
-          vyber.length > 0
-            ? vyber[(poradi * krok) % vyber.length]
-            : ((poradi * krok) % snitek) + 1,
+          vyber.length > 0 ? vyber[(poradi * krok) % vyber.length] : ((poradi * krok) % snitek) + 1,
         ).padStart(2, "0"),
-        x: nadva(x), y: nadva(y), v: nadva(v),
+        x: nadva(x),
+        y: nadva(y),
+        v: nadva(v),
         uhel: Math.round(-22 + sum(c + 20, r + 20) * 44),
       });
       poradi++;
@@ -172,12 +206,22 @@ function cestaKeSnitce(snitka: string): string {
    Mřížka je 4 x 6, takže po odečtení textových zón zbyde kolem desítky snítek
    — řidší rozsyp, ve kterém je každá květina vidět jako květina, ne jako
    tečka. Snítky jsou tím pádem vyšší (16 až 26 mm). */
-const KYTKY = rozsyp(154, 216, 4, 6, [
-  { x1: 61, y1: 26, x2: 93, y2: 42 },      // ty a já, teď a navždy
-  { x1: 40, y1: 60, x2: 114, y2: 103 },    // jména
-  { x1: 57, y1: 106, x2: 97, y2: 119 },    // si řeknou své ano
-  { x1: 54, y1: 132, x2: 100, y2: 180 },   // datum a místo
-], 16, 26, SNITEK3, 5);
+const KYTKY = rozsyp(
+  154,
+  216,
+  4,
+  6,
+  [
+    { x1: 61, y1: 26, x2: 93, y2: 42 }, // ty a já, teď a navždy
+    { x1: 40, y1: 60, x2: 114, y2: 103 }, // jména
+    { x1: 57, y1: 106, x2: 97, y2: 119 }, // si řeknou své ano
+    { x1: 54, y1: 132, x2: 100, y2: 180 }, // datum a místo
+  ],
+  16,
+  26,
+  SNITEK3,
+  5,
+);
 
 /* Na pozvánkách stejný rozsyp i stejná velikost snítek jako na hlavní kartě — pravidelná mřížka, jedna
    snítka na buňku, takže mají všude podobné rozestupy a žádná nepřekrývá
@@ -210,7 +254,7 @@ const KVETY_BEZ_STONKU = [5, 9, 12, 7, 13, 3];
 function prohodKvety(kytky: Kytka[], a: string, b: string): Kytka[] {
   const i = kytky.findIndex((k) => k.snitka === a);
   const j = kytky.findIndex((k) => k.snitka === b);
-  if (i < 0 || j < 0) return kytky;
+  if (i === -1 || j === -1) return kytky;
   const prohozene = [...kytky];
   prohozene[i] = { ...kytky[j], snitka: a };
   prohozene[j] = { ...kytky[i], snitka: b };
@@ -219,9 +263,18 @@ function prohodKvety(kytky: Kytka[], a: string, b: string): Kytka[] {
 
 const KYTKY_MALE: Kytka[] = [
   ...prohodKvety(
-    rozsyp(154, 56, 7, 2, [
-      { x1: 32, y1: 17, x2: 122, y2: 39 },
-    ], 10, 15, SNITEK3, 5, KVETY_BEZ_STONKU),
+    rozsyp(
+      154,
+      56,
+      7,
+      2,
+      [{ x1: 32, y1: 17, x2: 122, y2: 39 }],
+      10,
+      15,
+      SNITEK3,
+      5,
+      KVETY_BEZ_STONKU,
+    ),
     "05",
     "09",
   ),
@@ -252,21 +305,18 @@ type InfoBlok = {
 const BLOKY: InfoBlok[] = [
   {
     nadpis: "Místo konání",
-    text:
-      "Milí svatebčané, celý náš svatební den včetně obřadu se bude konat v krásném lesním hotelu Rekovice.",
+    text: "Milí svatebčané, celý náš svatební den včetně obřadu se bude konat v krásném lesním hotelu Rekovice.",
     /* Bez názvu hotelu — ten je o větu výš, dvakrát ho tam nikdo nepotřebuje. */
     adresa: "Trojanovice 2, 744 01 Trojanovice",
     poznamka: "Doražte prosím na obřad s předstihem.",
   },
   {
     nadpis: "Svatební dary",
-    text:
-      "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule, deky nebo hračky našim chlupatým kamarádům do útulku.",
+    text: "Nejradši bychom místo věcí přivítali příspěvek do naší společné budoucnosti — svatební kasička bude po ruce. A místo kytky nebo lahve rádi odvezeme granule, deky nebo hračky našim chlupatým kamarádům do útulku.",
   },
   {
     nadpis: "Dress code",
-    text:
-      "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost.",
+    text: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost.",
     barvy: ["#c3d7ec", "#f6c396", "#f5a3a8", "#f4d3d9", "#a8c8ec", "#f8e4a3", "#b7d3ab"],
   },
 ];
@@ -347,11 +397,12 @@ export default function Oznameni() {
         <div className={s.listaInfo}>
           <strong>Svatební oznámení</strong>
           <span className={s.napoveda}>
-            {karta.nazev}: {spad
+            {karta.nazev}:{" "}
+            {spad
               ? `ořez ${karta.sirka} × ${karta.vyska} mm, se spadem ${spadSirka} × ${spadVyska} mm`
-              : `${karta.sirka} × ${karta.vyska} mm bez spadu — řeže se jen mezi kartičkami`}. Tiskne
-            se po jedné kartě — v dialogu zvolte „Uložit jako PDF“, okraje
-            „Žádné“ a zapněte grafiku pozadí.
+              : `${karta.sirka} × ${karta.vyska} mm bez spadu — řeže se jen mezi kartičkami`}
+            . Tiskne se po jedné kartě — v dialogu zvolte „Uložit jako PDF“, okraje „Žádné“ a
+            zapněte grafiku pozadí.
           </span>
         </div>
 
@@ -370,7 +421,11 @@ export default function Oznameni() {
         </div>
 
         <label className={s.prepinacVoditka}>
-          <input type="checkbox" checked={ukazVoditka} onChange={(e) => setUkazVoditka(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={ukazVoditka}
+            onChange={(e) => setUkazVoditka(e.target.checked)}
+          />
           Vodítka řezu
         </label>
 
@@ -395,9 +450,11 @@ export default function Oznameni() {
         <section className={`${s.karta} ${s[`k-${klic}`]}`} aria-label={`Karta: ${karta.nazev}`}>
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
-          {(klic === "hlavni" ? KYTKY
-            : klic === "obrad" || klic === "vizitka" ? KYTKY_MALE
-            : []
+          {(klic === "hlavni"
+            ? KYTKY
+            : klic === "obrad" || klic === "vizitka"
+              ? KYTKY_MALE
+              : []
           ).map((k, i) => (
             <img
               key={i}
@@ -405,7 +462,12 @@ export default function Oznameni() {
               src={cestaKeSnitce(k.snitka)}
               alt=""
               aria-hidden="true"
-              style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+              style={{
+                left: `${k.x}mm`,
+                top: `${k.y}mm`,
+                height: `${k.v}mm`,
+                rotate: `${k.uhel}deg`,
+              }}
             />
           ))}
 
@@ -512,7 +574,13 @@ function Info() {
    se bude řezat — na hotové pozvánce to vypadá stejně jako na samostatné kartě.
 
    Všechny čtyři jsou stejné, ne čtyři varianty: jde o to mít víc kusů téhož. */
-function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: string }; voditka: boolean }) {
+function ArchPozvanek({
+  zvani,
+  voditka,
+}: {
+  zvani: { uvod: string; hlavni: string };
+  voditka: boolean;
+}) {
   return (
     <div className={s.archPozvanek}>
       {[0, 1, 2, 3].map((poradi) => (
@@ -524,7 +592,12 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
               src={cestaKeSnitce(k.snitka)}
               alt=""
               aria-hidden="true"
-              style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+              style={{
+                left: `${k.x}mm`,
+                top: `${k.y}mm`,
+                height: `${k.v}mm`,
+                rotate: `${k.uhel}deg`,
+              }}
             />
           ))}
           <div className={s.pozvankaText}>
@@ -535,9 +608,10 @@ function ArchPozvanek({ zvani, voditka }: { zvani: { uvod: string; hlavni: strin
       ))}
 
       {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
-      {voditka && [1, 2, 3].map((i) => (
-        <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
-      ))}
+      {voditka &&
+        [1, 2, 3].map((i) => (
+          <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
+        ))}
     </div>
   );
 }
@@ -582,9 +656,10 @@ function ArchQr({ voditka }: { voditka: boolean }) {
       ))}
 
       {/* Kudy řezat. Jen na obrazovce — do PDF pro tiskárnu nesmí. */}
-      {voditka && [1, 2, 3].map((i) => (
-        <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
-      ))}
+      {voditka &&
+        [1, 2, 3].map((i) => (
+          <i key={i} className={s.archRez} style={{ top: `${i * 50}mm` }} aria-hidden="true" />
+        ))}
     </div>
   );
 }
@@ -655,7 +730,12 @@ export function OznameniHlavni() {
             src={cestaKeSnitce(k.snitka)}
             alt=""
             aria-hidden="true"
-            style={{ left: `${k.x}mm`, top: `${k.y}mm`, height: `${k.v}mm`, rotate: `${k.uhel}deg` }}
+            style={{
+              left: `${k.x}mm`,
+              top: `${k.y}mm`,
+              height: `${k.v}mm`,
+              rotate: `${k.uhel}deg`,
+            }}
           />
         ))}
         <div className={s.text}>

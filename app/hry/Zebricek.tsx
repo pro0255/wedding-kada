@@ -29,7 +29,7 @@ export default function Zebricek({ hra, obnovit }: { hra: HraSlug; obnovit: numb
     nacti();
     const t = setInterval(() => {
       if (!document.hidden) nacti();
-    }, 30000);
+    }, 30_000);
     return () => {
       zivy = false;
       clearInterval(t);

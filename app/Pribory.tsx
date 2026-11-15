@@ -154,13 +154,7 @@ export function Vidlicka() {
 }
 
 export function Lzice() {
-  return (
-    <Pribor
-      hlava={LZICE}
-      trida="menu-pribor-lzice"
-      popis="Lžíce"
-    />
-  );
+  return <Pribor hlava={LZICE} trida="menu-pribor-lzice" popis="Lžíce" />;
 }
 
 export function Nuz() {

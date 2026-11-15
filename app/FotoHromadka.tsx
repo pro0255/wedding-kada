@@ -67,7 +67,7 @@ export default function FotoHromadka({
         for (const img of el.querySelectorAll<HTMLImageElement>("img.foto-list")) {
           await klid();
           if (zruseno) return;
-          await img.decode().catch(() => undefined);
+          await img.decode().catch(() => {});
         }
       },
       { rootMargin: "300px" },
@@ -106,8 +106,13 @@ export default function FotoHromadka({
       aria-roledescription="galerie"
       aria-label={nazev}
       onKeyDown={(e) => {
-        if (e.key === "ArrowRight") { e.preventDefault(); dal(); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); zpet(); }
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          dal();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          zpet();
+        }
       }}
     >
       <div
@@ -160,7 +165,10 @@ export default function FotoHromadka({
                   ? {
                       // decentní: fotka jen kousek sklouzne a rozplyne se
                       // nad tou další — působí to jako listování, ne odhazování
-                      x: 22, y: 12, rotate: 2.5, opacity: 0,
+                      x: 22,
+                      y: 12,
+                      rotate: 2.5,
+                      opacity: 0,
                     }
                   : {
                       x: poloha.x,
@@ -183,10 +191,19 @@ export default function FotoHromadka({
         <span
           className="foto-popis"
           aria-hidden="true"
-          style={{ opacity: fotky[aktivni].popis || fotky[aktivni].popisSrc ? 1 : 0, zIndex: pocet + 1 }}
+          style={{
+            opacity: fotky[aktivni].popis || fotky[aktivni].popisSrc ? 1 : 0,
+            zIndex: pocet + 1,
+          }}
         >
           {fotky[aktivni].popisSrc ? (
-            <img loading="lazy" decoding="async" className="foto-popis-obrazek" src={fotky[aktivni].popisSrc} alt={fotky[aktivni].popis ?? ""} />
+            <img
+              loading="lazy"
+              decoding="async"
+              className="foto-popis-obrazek"
+              src={fotky[aktivni].popisSrc}
+              alt={fotky[aktivni].popis ?? ""}
+            />
           ) : (
             <span className="foto-popis-text">{fotky[aktivni].popis}</span>
           )}
@@ -214,7 +231,9 @@ export default function FotoHromadka({
         <span className="jen-pro-odecitace" aria-live="polite">
           Fotka {aktivni + 1} z {pocet}
         </span>
-        <span className="foto-napoveda" aria-hidden="true">klepněte na fotku</span>
+        <span className="foto-napoveda" aria-hidden="true">
+          klepněte na fotku
+        </span>
       </div>
     </div>
   );

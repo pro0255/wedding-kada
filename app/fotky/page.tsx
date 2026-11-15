@@ -16,8 +16,8 @@ export default function FotkyStranka() {
           <p className="eyebrow">Vzpomínky</p>
           <h2>Fotky od vás</h2>
           <p className="lead">
-            Vyfoťte, nahrajte, rozdávejte srdíčka. Fotky i videa se tu objeví
-            všem — díky, že nám pomáháte posbírat celý den.
+            Vyfoťte, nahrajte, rozdávejte srdíčka. Fotky i videa se tu objeví všem — díky, že nám
+            pomáháte posbírat celý den.
           </p>
         </div>
         <FotkyBrana />

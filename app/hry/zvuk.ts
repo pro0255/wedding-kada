@@ -57,26 +57,31 @@ export class Zvuky {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     switch (z) {
-      case "skok":
+      case "skok": {
         this.ton("square", 320, 620, t, 0.11, 0.05);
         break;
-      case "bod":
+      }
+      case "bod": {
         this.ton("sine", 880, 880, t, 0.07, 0.05);
         break;
-      case "bonus":
+      }
+      case "bonus": {
         this.ton("sine", 660, 660, t, 0.08, 0.06);
         this.ton("sine", 880, 880, t + 0.08, 0.08, 0.06);
         this.ton("sine", 1320, 1320, t + 0.16, 0.12, 0.06);
         break;
-      case "zasah":
+      }
+      case "zasah": {
         this.ton("sawtooth", 180, 90, t, 0.22, 0.07);
         break;
-      case "konec":
+      }
+      case "konec": {
         this.ton("triangle", 440, 440, t, 0.14, 0.07);
         this.ton("triangle", 330, 330, t + 0.15, 0.14, 0.07);
         this.ton("triangle", 220, 160, t + 0.3, 0.35, 0.07);
         break;
-      case "rekord":
+      }
+      case "rekord": {
         // krátká fanfára: C E G C'
         this.ton("square", 523, 523, t, 0.12, 0.05);
         this.ton("square", 659, 659, t + 0.12, 0.12, 0.05);
@@ -84,6 +89,7 @@ export class Zvuky {
         this.ton("square", 1046, 1046, t + 0.36, 0.4, 0.06);
         this.ton("sine", 1046, 1046, t + 0.36, 0.4, 0.04);
         break;
+      }
     }
   }
 

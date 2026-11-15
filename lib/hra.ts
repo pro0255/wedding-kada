@@ -48,7 +48,7 @@ export function sestavZebricek(
 }
 
 // skóre všech her + jména; žebříčky se obnovují každých 30 s na každém telefonu
-const vse = kratkaPamet(5_000, async () => {
+const vse = kratkaPamet(5000, async () => {
   const p = redis().pipeline();
   for (const hra of HRY) p.zrange(KLIC.skore(hra), 0, -1, { withScores: true });
   const [vysledky, jmena] = await Promise.all([p.exec<(string | number)[][]>(), vsechnaJmena()]);
@@ -84,7 +84,8 @@ export async function lidri(): Promise<Record<HraSlug, Lidr>> {
   for (const hra of HRY) {
     for (const s of skore[hra]) {
       const cur = out[hra];
-      if (!cur || s.skore > cur.skore) out[hra] = { jmeno: jmena.get(s.deviceId) ?? NEZNAMY, skore: s.skore };
+      if (!cur || s.skore > cur.skore)
+        out[hra] = { jmeno: jmena.get(s.deviceId) ?? NEZNAMY, skore: s.skore };
     }
   }
   return out;
@@ -92,7 +93,11 @@ export async function lidri(): Promise<Record<HraSlug, Lidr>> {
 
 /** Pro přehled v /admin: kolik zařízení hrálo (celkem a v každé hře)
  *  a kolik hostů vyplnilo jméno. */
-export async function prehledHer(): Promise<{ celkem: number; hraci: Record<HraSlug, number>; jmen: number }> {
+export async function prehledHer(): Promise<{
+  celkem: number;
+  hraci: Record<HraSlug, number>;
+  jmen: number;
+}> {
   const { skore, jmena } = await vse.get();
   const hraci = Object.fromEntries(HRY.map((h) => [h, skore[h].length])) as Record<HraSlug, number>;
   const celkem = new Set(HRY.flatMap((h) => skore[h].map((s) => s.deviceId))).size;

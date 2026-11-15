@@ -67,12 +67,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#f5f2ec" };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="cs">
-      <body className={`${serif.variable} ${sans.variable} ${rukopis.variable} ${dopisRuka.variable}`}>
+      <body
+        className={`${serif.variable} ${sans.variable} ${rukopis.variable} ${dopisRuka.variable}`}
+      >
         {children}
         <ServiceWorker />
       </body>

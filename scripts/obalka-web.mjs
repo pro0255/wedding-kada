@@ -23,8 +23,8 @@
  * Výstupem je WebP s alfou — fotky jsou hladké přechody, na které je PNG
  * zbytečně velké (rozdíl je řádový). */
 
-import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const ZAVRENA = "predlohy/fotky/obalka zavřená.jpg";
 const OTEVRENA = "predlohy/fotky/obalka otevřená.jpg";
@@ -56,14 +56,18 @@ async function syrove(soubor) {
 {
   const { data, w, h } = await syrove(ZAVRENA);
   const [pr, pg, pb] = [data[0], data[1], data[2]];
-  let minX = w, maxX = 0, minY = h, maxY = 0;
+  let minX = w,
+    maxX = 0,
+    minY = h,
+    maxY = 0;
 
   for (let p = 0; p < w * h; p++) {
     const d = Math.hypot(data[p * 4] - pr, data[p * 4 + 1] - pg, data[p * 4 + 2] - pb);
     const a = prah(d, 14, 34);
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
-      const x = p % w, y = (p / w) | 0;
+      const x = p % w,
+        y = (p / w) | 0;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -80,7 +84,7 @@ async function syrove(soubor) {
     .toFile(`${CIL}/zavrena.webp`);
 
   console.log(`zavrena.webp  ořez ${minX},${minY} ${sirkaOrez}x${maxY - minY + 1}`);
-  console.log(`  poměr výška/šířka = ${((maxY - minY + 1) / sirkaOrez * 100).toFixed(1)} %`);
+  console.log(`  poměr výška/šířka = ${(((maxY - minY + 1) / sirkaOrez) * 100).toFixed(1)} %`);
 }
 
 /* ---------- otevřená obálka ---------- */
@@ -88,19 +92,25 @@ async function syrove(soubor) {
   const { data, w, h } = await syrove(OTEVRENA);
   const jas = (p) => (data[p * 4] + data[p * 4 + 1] + data[p * 4 + 2]) / 3;
   const bily = (p) => {
-    const r = data[p * 4], g = data[p * 4 + 1], b = data[p * 4 + 2];
+    const r = data[p * 4],
+      g = data[p * 4 + 1],
+      b = data[p * 4 + 2];
     return r > 212 && g > 212 && b > 212 && Math.max(r, g, b) - Math.min(r, g, b) < 16;
   };
 
   /* Šachovnice pozadí je tmavá (odstíny kolem 30–62), obálka i kartička
    * světlé. Práh na jasu je tu spolehlivější než vzdálenost od barvy —
    * šachovnice má dva odstíny, ne jeden. */
-  let minX = w, maxX = 0, minY = h, maxY = 0;
+  let minX = w,
+    maxX = 0,
+    minY = h,
+    maxY = 0;
   for (let p = 0; p < w * h; p++) {
     const a = prah(jas(p), 72, 112);
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
-      const x = p % w, y = (p / w) | 0;
+      const x = p % w,
+        y = (p / w) | 0;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -120,12 +130,17 @@ async function syrove(soubor) {
   const dno = new Int32Array(w).fill(-1);
   const kartickaY = { min: h, max: 0 };
   for (let x = 0; x < w; x++) {
-    let zacatek = -1, nejZac = -1, nejDelka = 0;
+    let zacatek = -1,
+      nejZac = -1,
+      nejDelka = 0;
     for (let y = 0; y <= h; y++) {
       const je = y < h && bily(y * w + x);
       if (je && zacatek < 0) zacatek = y;
       if (!je && zacatek >= 0) {
-        if (y - zacatek > nejDelka) { nejDelka = y - zacatek; nejZac = zacatek; }
+        if (y - zacatek > nejDelka) {
+          nejDelka = y - zacatek;
+          nejZac = zacatek;
+        }
         zacatek = -1;
       }
     }
@@ -163,8 +178,12 @@ async function syrove(soubor) {
       : dno[kartickaX.max - 5] + sklonP * (x - (kartickaX.max - 5));
   };
 
-  console.log(`  kartička x ${kartickaX.min}–${kartickaX.max}, y ${kartickaY.min}–${kartickaY.max}`);
-  console.log(`  ústa kapsy (nejnižší bod) y = ${Math.max(...sloupceSKartickou.map((x) => dno[x]))}`);
+  console.log(
+    `  kartička x ${kartickaX.min}–${kartickaX.max}, y ${kartickaY.min}–${kartickaY.max}`,
+  );
+  console.log(
+    `  ústa kapsy (nejnižší bod) y = ${Math.max(...sloupceSKartickou.map((x) => dno[x]))}`,
+  );
 
   /* --- zadek: kartička pryč, místo ní vnitřek obálky --- */
   const zadek = Buffer.from(data);
@@ -208,7 +227,9 @@ async function syrove(soubor) {
   console.log(`otevrena-zadek.webp + otevrena-predek.webp  ${SIRKA}x${Math.round(SIRKA * pomer)}`);
   console.log(`  poměr výška/šířka = ${(pomer * 100).toFixed(1)} %`);
   const usta = Math.max(...sloupceSKartickou.map((x) => dno[x]));
-  console.log(`  ústa od horní hrany výřezu = ${((usta - orez.top) / orez.width * 100).toFixed(1)} % šířky`);
+  console.log(
+    `  ústa od horní hrany výřezu = ${(((usta - orez.top) / orez.width) * 100).toFixed(1)} % šířky`,
+  );
 }
 
 /* ---------- pečeť ---------- */
@@ -221,11 +242,17 @@ async function syrove(soubor) {
 {
   const ZDROJ = "predlohy/obalka/vosk na obalku.jpg";
   const { data, w, h } = await syrove(ZDROJ);
-  let minX = w, maxX = 0, minY = h, maxY = 0;
+  let minX = w,
+    maxX = 0,
+    minY = h,
+    maxY = 0;
 
   for (let p = 0; p < w * h; p++) {
-    const r = data[p * 4], g = data[p * 4 + 1], b = data[p * 4 + 2];
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const r = data[p * 4],
+      g = data[p * 4 + 1],
+      b = data[p * 4 + 2];
+    const max = Math.max(r, g, b),
+      min = Math.min(r, g, b);
     /* Vzdálenost od bílé i sytost — čím dál od bílé nebo čím barevnější,
      * tím neprůhlednější. Bere se to větší z obou, ať projde jak tmavý
      * obrys, tak bledý zlatý odlesk. */
@@ -233,7 +260,8 @@ async function syrove(soubor) {
     const a = Math.max(prah(odBile, 18, 42), prah(max - min, 8, 22));
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
-      const x = p % w, y = (p / w) | 0;
+      const x = p % w,
+        y = (p / w) | 0;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -241,7 +269,8 @@ async function syrove(soubor) {
     }
   }
 
-  const sirkaOrez = maxX - minX + 1, vyskaOrez = maxY - minY + 1;
+  const sirkaOrez = maxX - minX + 1,
+    vyskaOrez = maxY - minY + 1;
   await sharp(data, { raw: { width: w, height: h, channels: 4 } })
     .extract({ left: minX, top: minY, width: sirkaOrez, height: vyskaOrez })
     .resize({ width: 400 })
@@ -249,5 +278,5 @@ async function syrove(soubor) {
     .toFile(`${CIL}/vosk.webp`);
 
   console.log(`vosk.webp  ořez ${minX},${minY} ${sirkaOrez}x${vyskaOrez}`);
-  console.log(`  poměr výška/šířka = ${(vyskaOrez / sirkaOrez * 100).toFixed(1)} %`);
+  console.log(`  poměr výška/šířka = ${((vyskaOrez / sirkaOrez) * 100).toFixed(1)} %`);
 }

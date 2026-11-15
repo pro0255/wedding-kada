@@ -39,7 +39,9 @@ export default function Skladacka() {
               <div className={s.stinKridla} aria-hidden="true" />
             </div>
             <div className={s.rubKridla} aria-hidden="true">
-              <span className={s.rubOzdoba}><Ornament /></span>
+              <span className={s.rubOzdoba}>
+                <Ornament />
+              </span>
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import VyberHry from "./VyberHry";
 import s from "./hry.module.css";
+import VyberHry from "./VyberHry";
 
 export const metadata: Metadata = {
   title: "Hry · Kateřina & Jakub",

@@ -3,35 +3,53 @@
 
 .chyba {
   margin-top: 1.1rem;
-  font-size: .88rem;
+  font-size: 0.88rem;
   line-height: 1.55;
   color: var(--palette-rose-text, #9e4750);
 }
-.chyba > p { margin: 0; }
+.chyba > p {
+  margin: 0;
+}
 
 .znovu {
-  margin-top: .7rem;
-  padding: .45rem 1.1rem;
+  margin-top: 0.7rem;
+  padding: 0.45rem 1.1rem;
   border: 1px solid currentColor;
   border-radius: 999px;
   background: none;
   color: inherit;
   font: inherit;
-  font-size: .8rem;
-  letter-spacing: .08em;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
   cursor: pointer;
 }
-.znovu:hover { background: var(--palette-rose-text, #9e4750); color: #fff; }
+.znovu:hover {
+  background: var(--palette-rose-text, #9e4750);
+  color: #fff;
+}
 
 .svedci {
-  margin-top: .8rem;
-  font-size: .84rem;
+  margin-top: 0.8rem;
+  font-size: 0.84rem;
   line-height: 1.55;
   color: var(--ink-soft, #635d55);
 }
-.svedci > p { margin: 0; }
-.svedci ul { list-style: none; margin: .35rem 0 0; padding: 0; display: grid; gap: .25rem; }
-.svedci li { display: flex; flex-wrap: wrap; gap: .2rem .8rem; justify-content: inherit; }
+.svedci > p {
+  margin: 0;
+}
+.svedci ul {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.svedci li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.8rem;
+  justify-content: inherit;
+}
 .svedci a {
   color: var(--palette-rose-text, #9e4750);
   text-decoration: none;
@@ -60,9 +78,22 @@
   font-weight: 500;
   margin: 0;
 }
-.stranka > p { max-width: 44ch; margin: 0; color: var(--ink-soft, #635d55); font-size: 15px; }
-.stranka .svedci li { justify-content: center; }
-.akce { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 10px; }
+.stranka > p {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--ink-soft, #635d55);
+  font-size: 15px;
+}
+.stranka .svedci li {
+  justify-content: center;
+}
+.akce {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
 .tlacitko {
   padding: 12px 28px;
   border: 1px solid var(--ink, #2b2925);
@@ -71,9 +102,12 @@
   color: var(--ink, #2b2925);
   font: inherit;
   font-size: 13px;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
 }
-.tlacitko:hover { background: var(--ink, #2b2925); color: var(--bg, #f5f2ec); }
+.tlacitko:hover {
+  background: var(--ink, #2b2925);
+  color: var(--bg, #f5f2ec);
+}

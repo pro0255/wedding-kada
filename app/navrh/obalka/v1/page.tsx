@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Scena from "../_spolecne/Scena";
 import ObalkaLazy from "./ObalkaLazy";
 
-export const metadata: Metadata = { title: "Návrh obálky V1 — three.js model", robots: { index: false } };
+export const metadata: Metadata = {
+  title: "Návrh obálky V1 — three.js model",
+  robots: { index: false },
+};
 
 export default function Page() {
   return (

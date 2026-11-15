@@ -5,7 +5,19 @@
    vykreslí (data-predehrev), ať se nerasterizují až v prvním snímku. */
 
 .obalka {
-  --pruzina: linear(0, 0.07 3%, 0.26 8%, 0.56 14%, 0.84 21%, 1.01 28%, 1.05 34%, 1.035 42%, 1.005 55%, 0.996 70%, 1);
+  --pruzina: linear(
+    0,
+    0.07 3%,
+    0.26 8%,
+    0.56 14%,
+    0.84 21%,
+    1.01 28%,
+    1.05 34%,
+    1.035 42%,
+    1.005 55%,
+    0.996 70%,
+    1
+  );
   --ven: cubic-bezier(0.22, 1, 0.36, 1);
   --tam: cubic-bezier(0.65, 0, 0.35, 1);
   position: relative;
@@ -247,7 +259,8 @@
 /* ---------- will-change jen kolem animace ----------
    JS ho zapne při záměru (najetí myší, fokus, dotyk) a vypne chvíli po
    doběhnutí animace — vrstvy tak nedrží paměť celou dobu, co je stránka otevřená. */
-.obalka[data-pripraveno="true"] :is(.kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
+.obalka[data-pripraveno="true"]
+  :is(.kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
   will-change: transform;
 }
 .obalka[data-pripraveno="true"] :is(.pecetL, .pecetP, .dolniStin) {

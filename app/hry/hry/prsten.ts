@@ -1,5 +1,15 @@
-import { novaSrdce, posunSrdce, type Barvy, type Hra, type Krok, type Rozmer, type Srdce, type Vstup, type Zvuk } from "./typy";
 import { PRSTEN, SRDCE, kresli, sirka, vyska } from "./sprity";
+import {
+  novaSrdce,
+  posunSrdce,
+  type Barvy,
+  type Hra,
+  type Krok,
+  type Rozmer,
+  type Srdce,
+  type Vstup,
+  type Zvuk,
+} from "./typy";
 
 /* Jeden prsten letí mezi dvojicemi svíček. Tap = mávnutí. Prošlá dvojice = bod. */
 
@@ -77,7 +87,7 @@ export const prsten: Hra<Stav> = {
     for (const sv of s.svicky) sv.x -= RYCHLOST * dt;
     if (s.svicky[0].x < -SVICKA_W) {
       s.svicky.shift();
-      s.svicky.push(novaSvicka(s, s.svicky[s.svicky.length - 1].x + ROZESTUP));
+      s.svicky.push(novaSvicka(s, s.svicky.at(-1)!.x + ROZESTUP));
     }
     const x1 = s.prstenX + 3;
     const x2 = s.prstenX + PRSTEN_W - 3;

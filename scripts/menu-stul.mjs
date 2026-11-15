@@ -20,8 +20,8 @@
  * baby blue rámečku, zatímco krémová výplň zůstane skoro bílá. Kdyby se místo
  * toho jen otočil odstín, vyšla by z linek tmavá námořnická modř. */
 
-import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const ZDROJ = "predlohy/menu/menu se stolem.png";
 const CIL = "public/menu";
@@ -47,8 +47,11 @@ const prah = (v, od, do_) => {
 };
 
 function naHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   if (max === min) return [0, 0, l];
   const d = max - min;
@@ -61,8 +64,11 @@ function naHsl(r, g, b) {
 }
 
 function naRgb(h, s, l) {
-  h = ((h % 360) + 360) % 360 / 360;
-  if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  h = (((h % 360) + 360) % 360) / 360;
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const kanal = (t) => {
@@ -77,7 +83,8 @@ function naRgb(h, s, l) {
 }
 
 const { data, info } = await sharp(ZDROJ).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-const W = info.width, H = info.height;
+const W = info.width,
+  H = info.height;
 
 /* --- maska: pryč s šedým pozadím --- */
 const [pr, pg, pb] = [data[0], data[1], data[2]];
@@ -90,7 +97,9 @@ for (let p = 0; p < W * H; p++) {
 /* --- pruh kolem stolu: přetne linku rámečku ---
  * Šířka se měří na řádcích pod linkou, kde v obraze žádný rám není. Svisle
  * se začíná kousek nad nejvyšší svíčkou — výš už je jenom rám. */
-let tblMin = W, tblMax = 0, tblTop = H;
+let tblMin = W,
+  tblMax = 0,
+  tblTop = H;
 for (let y = CISTE_RADKY.od; y <= Math.min(CISTE_RADKY.do, H - 1); y++) {
   for (let x = 0; x < W; x++) {
     if (alfa[y * W + x] <= 0.5) continue;
@@ -100,8 +109,15 @@ for (let y = CISTE_RADKY.od; y <= Math.min(CISTE_RADKY.do, H - 1); y++) {
 }
 for (let y = 1000; y < H; y++) {
   let je = false;
-  for (let x = tblMin; x <= tblMax; x++) if (alfa[y * W + x] > 0.5) { je = true; break; }
-  if (je) { tblTop = y; break; }
+  for (let x = tblMin; x <= tblMax; x++)
+    if (alfa[y * W + x] > 0.5) {
+      je = true;
+      break;
+    }
+  if (je) {
+    tblTop = y;
+    break;
+  }
 }
 
 const OKRAJ = 4;
@@ -129,7 +145,10 @@ const svisle = new Int32Array(W * H);
 for (let x = 0; x < W; x++) {
   let y = 0;
   while (y < H) {
-    if (alfa[y * W + x] <= 0.5) { y++; continue; }
+    if (alfa[y * W + x] <= 0.5) {
+      y++;
+      continue;
+    }
     let k = y;
     while (k < H && alfa[k * W + x] > 0.5) k++;
     for (let i = y; i < k; i++) svisle[i * W + x] = k - y;
@@ -142,11 +161,23 @@ for (let y = 0; y < H; y++) {
     const uKraje = x - pruh.x1 < OKOLI_KRAJE || pruh.x2 - x < OKOLI_KRAJE;
     if (!uKraje) continue;
     const p = y * W + x;
-    if (alfa[p] > 0.5 && svisle[p] < NEJKRATSI_SVISLE) { alfa[p] = 0; smazano++; }
+    if (alfa[p] > 0.5 && svisle[p] < NEJKRATSI_SVISLE) {
+      alfa[p] = 0;
+      smazano++;
+    }
   }
 }
-console.log("pruh se stolem: x " + pruh.x1 + ".." + pruh.x2 + ", od y " + pruh.y1
-  + "; smazáno " + smazano + " px ležaté linky u krajů");
+console.log(
+  "pruh se stolem: x " +
+    pruh.x1 +
+    ".." +
+    pruh.x2 +
+    ", od y " +
+    pruh.y1 +
+    "; smazáno " +
+    smazano +
+    " px ležaté linky u krajů",
+);
 
 /* --- záplava od semene: co je stůl --- */
 /* Zásobník, ne rekurze — deska má přes dva miliony pixelů a zásobník volání
@@ -155,11 +186,18 @@ const stul = new Uint8Array(W * H);
 const zasobnik = [SEMENO.y * W + SEMENO.x];
 if (alfa[zasobnik[0]] <= 0.5) throw new Error("semeno leží mimo kresbu — zkontroluj SEMENO");
 stul[zasobnik[0]] = 1;
-while (zasobnik.length) {
+while (zasobnik.length > 0) {
   const p = zasobnik.pop();
-  const x = p % W, y = (p / W) | 0;
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-    const nx = x + dx, ny = y + dy;
+  const x = p % W,
+    y = (p / W) | 0;
+  for (const [dx, dy] of [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]) {
+    const nx = x + dx,
+      ny = y + dy;
     if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
     const np = ny * W + nx;
     if (stul[np] || alfa[np] <= 0.5) continue;
@@ -169,17 +207,22 @@ while (zasobnik.length) {
 }
 
 /* --- výřez a přebarvení --- */
-let minX = W, maxX = 0, minY = H, maxY = 0;
+let minX = W,
+  maxX = 0,
+  minY = H,
+  maxY = 0;
 for (let p = 0; p < W * H; p++) {
   if (!stul[p]) continue;
-  const x = p % W, y = (p / W) | 0;
+  const x = p % W,
+    y = (p / W) | 0;
   if (x < minX) minX = x;
   if (x > maxX) maxX = x;
   if (y < minY) minY = y;
   if (y > maxY) maxY = y;
 }
 
-const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
+const sirka = maxX - minX + 1,
+  vyska = maxY - minY + 1;
 const ven = Buffer.alloc(sirka * vyska * 4);
 for (let y = 0; y < vyska; y++) {
   for (let x = 0; x < sirka; x++) {
@@ -188,7 +231,9 @@ for (let y = 0; y < vyska; y++) {
     if (!stul[p]) continue;
     const [h, s, l] = naHsl(data[p * 4], data[p * 4 + 1], data[p * 4 + 2]);
     const [r, g, b] = naRgb(ODSTIN, Math.min(s, STROP_SYTOSTI), SVETLOST(l));
-    ven[q] = r; ven[q + 1] = g; ven[q + 2] = b;
+    ven[q] = r;
+    ven[q + 1] = g;
+    ven[q + 2] = b;
     ven[q + 3] = Math.round(255 * alfa[p]);
   }
 }
@@ -199,5 +244,7 @@ const vysledek = await sharp(ven, { raw: { width: sirka, height: vyska, channels
   .webp({ quality: 92, alphaQuality: 100 })
   .toFile(`${CIL}/stul.webp`);
 
-console.log(`${CIL}/stul.webp  výřez ${minX},${minY} ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`);
-console.log(`  poměr výška/šířka = ${(vyska / sirka * 100).toFixed(1)} %`);
+console.log(
+  `${CIL}/stul.webp  výřez ${minX},${minY} ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`,
+);
+console.log(`  poměr výška/šířka = ${((vyska / sirka) * 100).toFixed(1)} %`);

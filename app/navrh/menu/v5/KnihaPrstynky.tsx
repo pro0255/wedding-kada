@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import Kniha from "../v1/Kniha";
-import type { Prstynky } from "./prstynky";
 import s from "./kniha5.module.css";
+import type { Prstynky } from "./prstynky";
 
 /* Návrh 5 — DOM kniha z návrhu 1 beze změny a vedle ní na stole dva zlaté
    prstýnky ve WebGL (stejné zlato jako prsten v úvodu webu) a svatební
@@ -41,7 +41,9 @@ export default function KnihaPrstynky() {
           .then((m) => m.vytvorPrstynky(el, { klid, signal: ac.signal }))
           .then((p) => {
             prstynky.current = p;
-            hlidac = new IntersectionObserver((zz) => p.viditelnost(zz.some((x) => x.isIntersecting)));
+            hlidac = new IntersectionObserver((zz) =>
+              p.viditelnost(zz.some((x) => x.isIntersecting)),
+            );
             hlidac.observe(el);
           })
           .catch(() => {

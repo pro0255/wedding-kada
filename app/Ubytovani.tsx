@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { VENUE_WEB_URL } from "./venue";
-import { UbytovaniStavSchema } from "../lib/schemataKlient";
 import { chybaZOdpovedi, chybaZVyjimky, type Chyba } from "../lib/chyby";
+import { UbytovaniStavSchema } from "../lib/schemataKlient";
 import ChybaHlaska from "./ChybaHlaska";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
+import { VENUE_WEB_URL } from "./venue";
 
 /* Fotky pokojů a snídaní. Bez popisků — na fotce pokoje je vidět, co na ní je,
    a text vedle o tom mluví. */
@@ -20,7 +20,6 @@ const UBYTOVANI_FOTKY: FotkaNaHromadce[] = [
 ];
 
 type Stav = { obsazeno: number; celkem: number; volno: number };
-
 
 /* Růžové doodle auto, které projede po lince nad ubytováním — vyjede z mlhy
    vlevo a do mlhy vpravo zase zmizí. Kreslí se stejnou rukou jako doodly
@@ -162,8 +161,8 @@ export default function Ubytovani() {
       } catch {
         /* nevadí */
       }
-    } catch (vyjimka) {
-      setChyba(chybaZVyjimky(vyjimka));
+    } catch (error) {
+      setChyba(chybaZVyjimky(error));
     } finally {
       setOdesila(false);
     }
@@ -181,111 +180,112 @@ export default function Ubytovani() {
         <AutoNaLince />
       </div>
       <div className="ubytovani">
-      {/* Dva sloupce: vlevo hromádka fotek pokojů, vpravo text s formulářem.
+        {/* Dva sloupce: vlevo hromádka fotek pokojů, vpravo text s formulářem.
           Hromádka je stejná komponenta jako u příběhu, jen s jinou sadou a bez
           popisků — na fotkách pokoje je vidět, co na nich je. Výšku si bere
           z řádku, takže je přesně tak vysoká jako text vedle. */}
-      <div className="ubytovani-fotky">
-        <FotoHromadka fotky={UBYTOVANI_FOTKY} />
-      </div>
-      <div className="ubytovani-text">
-      <h3>Ubytování</h3>
-      <p className="lead">
-        Máme pro vás zamluvená lůžka přímo v místě konání —{" "}
-        <strong>1&nbsp;150&nbsp;Kč za osobu se snídaní</strong>. Kapacita je
-        omezená, místa přidělujeme postupně podle toho, jak se hlásíte. Dejte nám
-        vědět, kdo má zájem.
-      </p>
-      <p className="ubytovani-hotel">
-        <a href={VENUE_WEB_URL} target="_blank" rel="noopener">Web hotelu Rekovice</a>
-      </p>
-
-      {stav && (
-        <div className="kapacita" aria-live="polite">
-          <div className="kapacita-cisla">
-            <b>
-              {stav.obsazeno}
-              <span>/{stav.celkem}</span>
-            </b>
-            <span className="kapacita-popis">
-              {plno ? "kapacita je plná" : `volných míst: ${stav.volno}`}
-            </span>
-          </div>
-          <div className="kapacita-bar">
-            <div className="kapacita-fill" style={{ width: `${procenta}%` }} />
-          </div>
+        <div className="ubytovani-fotky">
+          <FotoHromadka fotky={UBYTOVANI_FOTKY} />
         </div>
-      )}
+        <div className="ubytovani-text">
+          <h3>Ubytování</h3>
+          <p className="lead">
+            Máme pro vás zamluvená lůžka přímo v místě konání —{" "}
+            <strong>1&nbsp;150&nbsp;Kč za osobu se snídaní</strong>. Kapacita je omezená, místa
+            přidělujeme postupně podle toho, jak se hlásíte. Dejte nám vědět, kdo má zájem.
+          </p>
+          <p className="ubytovani-hotel">
+            <a href={VENUE_WEB_URL} target="_blank" rel="noopener">
+              Web hotelu Rekovice
+            </a>
+          </p>
 
-      {hotovo ? (
-        <div className="ubytovani-dekujeme" role="status">
-          <p>Děkujeme, máme to zapsané! Ozveme se vám s detaily.</p>
-          {!plno && (
-            <button
-              type="button"
-              className="ubytovani-znovu"
-              onClick={() => {
-                setHotovo(false);
-                setChyba(null);
-                try {
-                  localStorage.removeItem("ubytovani-rezervovano");
-                } catch {
-                  /* nevadí */
-                }
-              }}
-            >
-              Přidat další rezervaci
-            </button>
+          {stav && (
+            <div className="kapacita" aria-live="polite">
+              <div className="kapacita-cisla">
+                <b>
+                  {stav.obsazeno}
+                  <span>/{stav.celkem}</span>
+                </b>
+                <span className="kapacita-popis">
+                  {plno ? "kapacita je plná" : `volných míst: ${stav.volno}`}
+                </span>
+              </div>
+              <div className="kapacita-bar">
+                <div className="kapacita-fill" style={{ width: `${procenta}%` }} />
+              </div>
+            </div>
           )}
-        </div>
-      ) : (
-        <form className="ubytovani-form" onSubmit={odesli}>
-          <label>
-            <span>Jméno a příjmení</span>
-            <input
-              type="text"
-              value={jmeno}
-              onChange={(e) => setJmeno(e.target.value)}
-              placeholder="Jana Nováková"
-              autoComplete="name"
-              required
-              minLength={3}
-              maxLength={80}
-              disabled={plno}
-            />
-          </label>
 
-          <label className="ubytovani-pocet">
-            <span>Počet osob</span>
-            <input
-              type="number"
-              value={pocet}
-              onChange={(e) => setPocet(e.target.value)}
-              min={1}
-              max={10}
-              required
-              disabled={plno}
-            />
-          </label>
+          {hotovo ? (
+            <div className="ubytovani-dekujeme" role="status">
+              <p>Děkujeme, máme to zapsané! Ozveme se vám s detaily.</p>
+              {!plno && (
+                <button
+                  type="button"
+                  className="ubytovani-znovu"
+                  onClick={() => {
+                    setHotovo(false);
+                    setChyba(null);
+                    try {
+                      localStorage.removeItem("ubytovani-rezervovano");
+                    } catch {
+                      /* nevadí */
+                    }
+                  }}
+                >
+                  Přidat další rezervaci
+                </button>
+              )}
+            </div>
+          ) : (
+            <form className="ubytovani-form" onSubmit={odesli}>
+              <label>
+                <span>Jméno a příjmení</span>
+                <input
+                  type="text"
+                  value={jmeno}
+                  onChange={(e) => setJmeno(e.target.value)}
+                  placeholder="Jana Nováková"
+                  autoComplete="name"
+                  required
+                  minLength={3}
+                  maxLength={80}
+                  disabled={plno}
+                />
+              </label>
 
-          {/* skryté pole proti spamu — návštěvník ho nevidí */}
-          <input
-            type="text"
-            className="ubytovani-past"
-            tabIndex={-1}
-            autoComplete="off"
-            value={web}
-            onChange={(e) => setWeb(e.target.value)}
-            aria-hidden="true"
-          />
+              <label className="ubytovani-pocet">
+                <span>Počet osob</span>
+                <input
+                  type="number"
+                  value={pocet}
+                  onChange={(e) => setPocet(e.target.value)}
+                  min={1}
+                  max={10}
+                  required
+                  disabled={plno}
+                />
+              </label>
 
-          <button className="btn" type="submit" disabled={odesila || plno}>
-            {plno ? "Obsazeno" : odesila ? "Odesílám…" : "Rezervovat"}
-          </button>
-        </form>
-      )}
+              {/* skryté pole proti spamu — návštěvník ho nevidí */}
+              <input
+                type="text"
+                className="ubytovani-past"
+                tabIndex={-1}
+                autoComplete="off"
+                value={web}
+                onChange={(e) => setWeb(e.target.value)}
+                aria-hidden="true"
+              />
 
-      <ChybaHlaska chyba={chyba} className="ubytovani-chyba" />
+              <button className="btn" type="submit" disabled={odesila || plno}>
+                {plno ? "Obsazeno" : odesila ? "Odesílám…" : "Rezervovat"}
+              </button>
+            </form>
+          )}
+
+          <ChybaHlaska chyba={chyba} className="ubytovani-chyba" />
         </div>
       </div>
     </>

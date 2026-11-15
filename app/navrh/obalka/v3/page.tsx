@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Scena from "../_spolecne/Scena";
 import ObalkaGsap from "./ObalkaGsap";
 
-export const metadata: Metadata = { title: "Návrh obálky V3 — GSAP, adresa a rub", robots: { index: false } };
+export const metadata: Metadata = {
+  title: "Návrh obálky V3 — GSAP, adresa a rub",
+  robots: { index: false },
+};
 
 export default function Page() {
   return (

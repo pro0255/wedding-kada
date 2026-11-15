@@ -3,8 +3,8 @@
 import { startTransition, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ALERGENY, DETI, DOSPELI, UVOD } from "../obsah";
 import Kniha from "../v1/Kniha";
-import type { Scena } from "./scena";
 import s from "./kniha3d.module.css";
+import type { Scena } from "./scena";
 
 /* Návrh 4 — kniha z návrhu 1 jako opravdový 3D objekt (WebGL, three.js).
 
@@ -71,12 +71,14 @@ export default function Kniha3D() {
             scena.current = sc;
             setRezim("3d");
             // Mimo obrazovku se nekreslí.
-            hlidac = new IntersectionObserver((z) => sc.viditelnost(z.some((x) => x.isIntersecting)));
+            hlidac = new IntersectionObserver((z) =>
+              sc.viditelnost(z.some((x) => x.isIntersecting)),
+            );
             hlidac.observe(el);
           })
-          .catch((chyba: unknown) => {
+          .catch((error: unknown) => {
             if (ac.signal.aborted) return;
-            console.warn("Menu 3D: přepínám na DOM knihu", chyba);
+            console.warn("Menu 3D: přepínám na DOM knihu", error);
             setRezim("zaloha");
           });
       },
@@ -171,7 +173,11 @@ export default function Kniha3D() {
 
       {/* Obsah menu pro čtečky obrazovky — vizuálně je v plátně. */}
       {/* visibility místo hidden: skrytí nemění rozložení stránky. */}
-      <div id="menu-v4-text" className={s.ctecky} style={{ visibility: otevrene ? "visible" : "hidden" }}>
+      <div
+        id="menu-v4-text"
+        className={s.ctecky}
+        style={{ visibility: otevrene ? "visible" : "hidden" }}
+      >
         <h3>Menu</h3>
         <p>{UVOD}</p>
         <ul>

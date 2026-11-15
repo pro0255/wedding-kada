@@ -39,16 +39,21 @@ const prah = (v, od, do_) => {
 };
 
 const { data, info } = await sharp(ZDROJ).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-const W = info.width, H = info.height;
+const W = info.width,
+  H = info.height;
 
 const alfa = new Float32Array(W * H);
-let minX = W, maxX = 0, minY = H, maxY = 0;
+let minX = W,
+  maxX = 0,
+  minY = H,
+  maxY = 0;
 for (let p = 0; p < W * H; p++) {
   const jas = (data[p * 4] + data[p * 4 + 1] + data[p * 4 + 2]) / 3;
   const a = prah(255 - jas, PAPIR, TAH);
   alfa[p] = a;
   if (a > 0.4) {
-    const x = p % W, y = (p / W) | 0;
+    const x = p % W,
+      y = (p / W) | 0;
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;
@@ -90,15 +95,20 @@ const maxVOkoli = (zdroj, r) => {
   return ven;
 };
 const silna = maxVOkoli(alfa, ZTLOUSTNUTI);
-minX = Math.max(0, minX - ZTLOUSTNUTI); maxX = Math.min(W - 1, maxX + ZTLOUSTNUTI);
-minY = Math.max(0, minY - ZTLOUSTNUTI); maxY = Math.min(H - 1, maxY + ZTLOUSTNUTI);
+minX = Math.max(0, minX - ZTLOUSTNUTI);
+maxX = Math.min(W - 1, maxX + ZTLOUSTNUTI);
+minY = Math.max(0, minY - ZTLOUSTNUTI);
+maxY = Math.min(H - 1, maxY + ZTLOUSTNUTI);
 
-const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
+const sirka = maxX - minX + 1,
+  vyska = maxY - minY + 1;
 const ven = Buffer.alloc(sirka * vyska * 4);
 for (let y = 0; y < vyska; y++) {
   for (let x = 0; x < sirka; x++) {
     const q = (y * sirka + x) * 4;
-    ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
+    ven[q] = BARVA[0];
+    ven[q + 1] = BARVA[1];
+    ven[q + 2] = BARVA[2];
     ven[q + 3] = Math.round(255 * silna[(y + minY) * W + (x + minX)]);
   }
 }
@@ -109,5 +119,7 @@ const vysledek = await sharp(ven, { raw: { width: sirka, height: vyska, channels
   .webp({ quality: 92, alphaQuality: 100 })
   .toFile(CIL);
 
-console.log(`${CIL}  ořez ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`);
-console.log(`  poměr výška/šířka = ${(vysledek.height / vysledek.width * 100).toFixed(1)} %`);
+console.log(
+  `${CIL}  ořez ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB`,
+);
+console.log(`  poměr výška/šířka = ${((vysledek.height / vysledek.width) * 100).toFixed(1)} %`);

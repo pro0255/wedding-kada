@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Ramec from "../Ramec";
 import { PROGRAM } from "../data";
+import Ramec from "../Ramec";
 import s from "./rada.module.css";
 
-export const metadata: Metadata = { title: "Program — H4: řada jako odpočet", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Program — H4: řada jako odpočet",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

@@ -40,7 +40,9 @@ export function Defs({ p }: { p: string }) {
 /* Zrno přes tvar: šedý šum v soft-light je kolem 50 % šedi neutrální,
    takže jen „zdrsní“ barvu, neztmaví ji. Rasterizuje se jednou s vrstvou. */
 export function Zrno({ p, d }: { p: string; d: string }) {
-  return <path d={d} fill={`url(#${p}zrno)`} style={{ mixBlendMode: "soft-light", opacity: 0.55 }} />;
+  return (
+    <path d={d} fill={`url(#${p}zrno)`} style={{ mixBlendMode: "soft-light", opacity: 0.55 }} />
+  );
 }
 
 // tvary ve viewBoxu 160 × 100 (obálka 1.6 : 1)
@@ -52,4 +54,3 @@ export const CHLOPEN = "M0,0 L160,0 L88,52 Q80,58 72,52 Z";
 // rub chlopně je vzhůru nohama (po otočení o 180° míří špička nahoru)
 export const CHLOPEN_RUB = "M0,58 L160,58 L88,6 Q80,0 72,6 Z";
 export const CHLOPEN_RUB_PODSIVKA = "M12,55 L148,55 L86,10 Q80,5 74,10 Z";
-

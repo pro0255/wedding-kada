@@ -1,5 +1,4 @@
-import { createHash, randomBytes } from "crypto";
-
+import { createHash, randomBytes } from "node:crypto";
 /**
  * Fotky od hostů: soubory žijí v Cloudinary (free tier), metadata a lajky
  * v Redisu (hash fotek + set lajků). Smazání záznamu fotku okamžitě schová
@@ -31,7 +30,7 @@ function noveId(): string {
 const lajkKlic = (fotkaId: string, deviceId: string) => `${fotkaId}:${deviceId}`;
 
 // celá galerie pro všechna zařízení naráz; „moje“ a „lajkl jsem“ se dopočítá zvlášť
-const galerie = kratkaPamet(5_000, async () => {
+const galerie = kratkaPamet(5000, async () => {
   const [fotky, lajky] = await redis()
     .pipeline()
     .hgetall<Record<string, Fotka>>(KLIC.fotky)
@@ -71,7 +70,11 @@ export function odkazWhatsapp(): string | null {
 /** Zapíše nahranou fotku. Stejnou fotku (publicId) podruhé nezapíše —
  *  fronta v telefonu registraci zopakuje, když se na slabém signálu ztratí
  *  odpověď, a bez téhle kontroly by v galerii byla dvakrát. */
-export async function pridejFotku(url: string, publicId: string, deviceId: string): Promise<string> {
+export async function pridejFotku(
+  url: string,
+  publicId: string,
+  deviceId: string,
+): Promise<string> {
   const vsechny = (await redis().hgetall<Record<string, Fotka>>(KLIC.fotky)) ?? {};
   const uz = Object.entries(vsechny).find(([, f]) => f.publicId === publicId);
   if (uz) return uz[0];
@@ -83,7 +86,10 @@ export async function pridejFotku(url: string, publicId: string, deviceId: strin
 }
 
 /** Přepne lajk zařízení na fotce. Vrací, jestli po přepnutí lajk je. */
-export async function prepniLajk(fotkaId: string, deviceId: string): Promise<{ lajknuto: boolean }> {
+export async function prepniLajk(
+  fotkaId: string,
+  deviceId: string,
+): Promise<{ lajknuto: boolean }> {
   const klic = lajkKlic(fotkaId, deviceId);
   const odebrano = await redis().srem(KLIC.lajky, klic);
   if (odebrano === 0) await redis().sadd(KLIC.lajky, klic);
@@ -112,10 +118,10 @@ async function smazZCloudinary(publicId: string, typ: "image" | "video"): Promis
     api_key: klic,
     signature: podpis,
   });
-  const odpoved = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloud}/${typ}/destroy`,
-    { method: "POST", body: telo }
-  );
+  const odpoved = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/${typ}/destroy`, {
+    method: "POST",
+    body: telo,
+  });
   if (!odpoved.ok) {
     console.warn("[fotky] Cloudinary destroy selhal:", odpoved.status, await odpoved.text());
   }
@@ -127,7 +133,7 @@ export type VysledekSmazani = { ok: true } | { ok: false; duvod: "cizi" | "neexi
 export async function smazFotku(
   id: string,
   deviceId: string,
-  jakoSpravce = false
+  jakoSpravce = false,
 ): Promise<VysledekSmazani> {
   const fotka = await redis().hget<Fotka>(KLIC.fotky, id);
   if (!fotka) return { ok: false, duvod: "neexistuje" };

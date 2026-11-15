@@ -37,7 +37,7 @@ export function VyberMenu({
   const id = useId();
 
   useEffect(() => {
-    const zmer = () => setVyska(otevreno ? seznam.current?.scrollHeight ?? 0 : 0);
+    const zmer = () => setVyska(otevreno ? (seznam.current?.scrollHeight ?? 0) : 0);
     zmer();
     if (!otevreno) return;
     window.addEventListener("resize", zmer);
@@ -99,19 +99,32 @@ export function VyberMenu({
 
 /* Odkaz do Google Kalendáře je hotové URL; Apple, Outlook i Android berou
    .ics z /api/kalendar. Outlook.com má vlastní odkaz, ať se nemusí importovat. */
-const utc = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const utc = (d: Date) =>
+  d
+    .toISOString()
+    .replaceAll(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 
 /* Kreslený kalendářík se srdíčkem místo čísla — stejná ruka jako doodly
    u příběhu: jen obrys, kulaté konce tahů. */
 function KalendarikIkona() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M4.5 6.2 C4.5 5.3 5.2 4.8 6 4.8 L18 4.8 C18.9 4.8 19.5 5.4 19.5 6.3 L19.4 18.6 C19.4 19.5 18.8 20.1 17.9 20.1 L6.1 20.2 C5.2 20.2 4.6 19.5 4.6 18.6 Z" />
         <path d="M4.7 9.3 L19.3 9.3" />
         <path d="M8.3 3.2 L8.3 6.4" />
         <path d="M15.7 3.2 L15.7 6.4" />
-        <path className="kal-srdce" d="M12 17.2 C10.6 16.1 9.1 15 9.1 13.6 C9.1 12.7 9.8 12.1 10.6 12.1 C11.2 12.1 11.7 12.4 12 12.9 C12.3 12.4 12.8 12.1 13.4 12.1 C14.2 12.1 14.9 12.7 14.9 13.6 C14.9 15 13.4 16.1 12 17.2 Z" />
+        <path
+          className="kal-srdce"
+          d="M12 17.2 C10.6 16.1 9.1 15 9.1 13.6 C9.1 12.7 9.8 12.1 10.6 12.1 C11.2 12.1 11.7 12.4 12 12.9 C12.3 12.4 12.8 12.1 13.4 12.1 C14.2 12.1 14.9 12.7 14.9 13.6 C14.9 15 13.4 16.1 12 17.2 Z"
+        />
       </g>
     </svg>
   );
@@ -210,9 +223,22 @@ export function Kopirovat({
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         {ok ? (
-          <path d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M5 12.5 10 17.5 19 7"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         ) : (
-          <g fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <g
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
             <path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5" />
           </g>
@@ -231,7 +257,13 @@ export function SdiletWeb({ className = "" }: { className?: string }) {
 
   const ikona = (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="17.5" cy="5.5" r="2.3" />
         <circle cx="6.5" cy="12" r="2.3" />
         <circle cx="17.5" cy="18.5" r="2.3" />
@@ -248,7 +280,11 @@ export function SdiletWeb({ className = "" }: { className?: string }) {
         className={`akce-odkaz ${className}`}
         onClick={() =>
           navigator
-            .share({ title: SVATBA_NAZEV, text: "Bereme se — a chceme vás u toho.", url: location.href.split("#")[0] })
+            .share({
+              title: SVATBA_NAZEV,
+              text: "Bereme se — a chceme vás u toho.",
+              url: location.href.split("#")[0],
+            })
             .catch(() => {
               /* host panel zavřel */
             })

@@ -1,4 +1,16 @@
 import {
+  DORT,
+  HUSKY,
+  KYTICE,
+  SRDCE,
+  TCHYNE,
+  ZENICH_BEH,
+  ZENICH_SKOK,
+  kresli,
+  sirka,
+  vyska,
+} from "./sprity";
+import {
   novaSrdce,
   posunSrdce,
   type Barvy,
@@ -9,7 +21,6 @@ import {
   type Vstup,
   type Zvuk,
 } from "./typy";
-import { DORT, HUSKY, KYTICE, SRDCE, TCHYNE, ZENICH_BEH, ZENICH_SKOK, kresli, sirka, vyska } from "./sprity";
 
 /* Dino klon: ženich běží k oltáři a skáče přes dort, Pluta, kytici a tchýni. */
 
@@ -113,7 +124,12 @@ export const zenich: Hra<Stav> = {
       const def = PREKAZKY[p.typ];
       const sp = def.snimky[0];
       const o = def.odsazeni;
-      if (zx1 < p.x + sirka(sp) - o && zx2 > p.x + o && zy1 < s.zem && zy2 > s.zem - vyska(sp) + o) {
+      if (
+        zx1 < p.x + sirka(sp) - o &&
+        zx2 > p.x + o &&
+        zy1 < s.zem &&
+        zy2 > s.zem - vyska(sp) + o
+      ) {
         s.konec = true;
         s.zvuky.push("konec");
         break;

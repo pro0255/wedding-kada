@@ -1,5 +1,5 @@
-import { VENUE_MAP_URL } from "./venue";
 import { Navigace } from "./Akce";
+import { VENUE_MAP_URL } from "./venue";
 
 /* Ve vlastním souboru, ne ve VenueMap.tsx: statický import odtamtud by do
    úvodního bundlu stáhl celé maplibre, i když se mapa načítá líně. */

@@ -1,5 +1,5 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
 import {
   CHYBY,
   ChybaOdpovedSchema,
@@ -24,14 +24,25 @@ test("chybaOdpoved pošle kód, hlášku a stav z katalogu", async () => {
   const r = chybaOdpoved("rezervace-neulozena");
   assert.equal(r.status, 502);
   const telo = await r.json();
-  assert.deepEqual(telo, { kod: "rezervace-neulozena", chyba: CHYBY["rezervace-neulozena"].hlaska });
+  assert.deepEqual(telo, {
+    kod: "rezervace-neulozena",
+    chyba: CHYBY["rezervace-neulozena"].hlaska,
+  });
   assert.equal(ChybaOdpovedSchema.safeParse(telo).success, true);
 });
 
 test("chybaOdpoved přibalí data a přepíše hlášku, kód přepsat nejde", async () => {
-  const r = chybaOdpoved("rezervace-malo-mist", { hlaska: "Zbývají 2.", stav: { volno: 2 }, kod: "x" });
+  const r = chybaOdpoved("rezervace-malo-mist", {
+    hlaska: "Zbývají 2.",
+    stav: { volno: 2 },
+    kod: "x",
+  });
   assert.equal(r.status, 409);
-  assert.deepEqual(await r.json(), { kod: "rezervace-malo-mist", chyba: "Zbývají 2.", stav: { volno: 2 } });
+  assert.deepEqual(await r.json(), {
+    kod: "rezervace-malo-mist",
+    chyba: "Zbývají 2.",
+    stav: { volno: 2 },
+  });
 });
 
 test("prectiChybu vrátí typovanou chybu ze serveru", async () => {

@@ -1,13 +1,20 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AdminDalSchema, HraSchema, JmenoSchema, RezervacePostSchema, SkorePostSchema, SkoreSchema } from "./schemata.ts";
+import { test } from "node:test";
+import {
+  AdminDalSchema,
+  HraSchema,
+  JmenoSchema,
+  RezervacePostSchema,
+  SkorePostSchema,
+  SkoreSchema,
+} from "./schemata.ts";
 
 test("SkoreSchema bere jen celá čísla 0–100000", () => {
   assert.equal(SkoreSchema.safeParse(12).success, true);
   assert.equal(SkoreSchema.safeParse(0).success, true);
   assert.equal(SkoreSchema.safeParse(12.5).success, false);
   assert.equal(SkoreSchema.safeParse(-1).success, false);
-  assert.equal(SkoreSchema.safeParse(100001).success, false);
+  assert.equal(SkoreSchema.safeParse(100_001).success, false);
   assert.equal(SkoreSchema.safeParse("12").success, false);
 });
 
@@ -65,7 +72,14 @@ test("AdminDalSchema pustí jen cestu na tomhle webu", () => {
   for (const ok of ["/oznameni", "/navrh/menu/v1", "/admin", "/navrh?x=1"]) {
     assert.equal(AdminDalSchema.safeParse(ok).success, true, ok);
   }
-  for (const spatne of ["//zly.cz", "/\\zly.cz", "https://zly.cz", "oznameni", "", undefined]) {
+  for (const spatne of [
+    "//zly.cz",
+    String.raw`/\zly.cz`,
+    "https://zly.cz",
+    "oznameni",
+    "",
+    undefined,
+  ]) {
     assert.equal(AdminDalSchema.safeParse(spatne).success, false, String(spatne));
   }
 });

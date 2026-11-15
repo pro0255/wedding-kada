@@ -1,5 +1,5 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
 import { jeSpravnaOdpoved, mocPokusu, normalizuj, platnyToken, tokenPristupu } from "./pristup.ts";
 
 // heslo v testu je vymyšlené — skutečné je jen v proměnné prostředí

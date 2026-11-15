@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { chybaZVyjimky, prectiChybu, type Chyba } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
+import s from "./brana.module.css";
 import { Svedci } from "./ChybaHlaska";
 import FotoGalerie from "./FotoGalerie";
-import s from "./brana.module.css";
 
 /* Vstup do galerie fotek: u dveří sedí náš pes s kyticí a pustí dál jen toho,
    kdo ví, jak se jmenuje. Odpověď ověřuje server (/api/fotky/vstup) a nastaví
@@ -123,8 +123,8 @@ export default function FotkyBrana() {
         // jméno necháme v poli — až to půjde, stačí klepnout znovu
         if (duvod.kod === "moc-pokusu") setHodnota("");
       }
-    } catch (vyjimka) {
-      setChyba(chybaZVyjimky(vyjimka));
+    } catch (error) {
+      setChyba(chybaZVyjimky(error));
     } finally {
       setOdesila(false);
     }
@@ -132,13 +132,19 @@ export default function FotkyBrana() {
 
   if (stav === "otevreno") {
     // vypršela cookie / změnilo se heslo → zpátky ke psovi
-    return <FotoGalerie zamceno={zamknout} spravce={spravce} naKonecSpravy={() => setSpravce(false)} />;
+    return (
+      <FotoGalerie zamceno={zamknout} spravce={spravce} naKonecSpravy={() => setSpravce(false)} />
+    );
   }
   // než server odpoví, nic neblikne — jen místo, ať stránka neposkočí
   if (stav === "zjistuji") return <div className={s.cekani} aria-hidden="true" />;
 
   const vrti = stav === "vrti";
-  const hlaska = chyba ? (chyba.kod === "moc-pokusu" ? chyba.hlaska : `Haf… ${chyba.hlaska}`) : null;
+  const hlaska = chyba
+    ? chyba.kod === "moc-pokusu"
+      ? chyba.hlaska
+      : `Haf… ${chyba.hlaska}`
+    : null;
   const bublina =
     hlaska ??
     (vrti
@@ -166,7 +172,9 @@ export default function FotkyBrana() {
       </div>
       {!vrti && (
         <form className={s.formular} onSubmit={odeslat}>
-          <label htmlFor="brana-jmeno" className={s.popisek}>Jak se jmenuje náš pes?</label>
+          <label htmlFor="brana-jmeno" className={s.popisek}>
+            Jak se jmenuje náš pes?
+          </label>
           <input
             id="brana-jmeno"
             key={pokusy}

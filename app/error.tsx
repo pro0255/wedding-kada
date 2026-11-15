@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Svedci } from "./ChybaHlaska";
 import s from "./chyba.module.css";
+import { Svedci } from "./ChybaHlaska";
 
 /* Když se stránka při vykreslení rozbije: místo bílé obrazovky hláška,
    druhý pokus, cesta domů a kontakt na svědky. */

@@ -50,8 +50,11 @@ const PRAH_STINU = 175;
 const ZAPLATA = 150;
 
 const naHsl = (r, g, b) => {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   if (max === min) return [0, 0, l];
   const d = max - min;
@@ -65,7 +68,10 @@ const naHsl = (r, g, b) => {
 
 const naRgb = (h, s, l) => {
   h = (((h % 360) + 360) % 360) / 360;
-  if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const kanal = (tt) => {
@@ -85,13 +91,17 @@ const { data, info } = await sharp(ZDROJ)
   .ensureAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
-const W = info.width, H = info.height;
+const W = info.width,
+  H = info.height;
 
 /* --- kde je potisk --- */
 const inkoust = new Uint8Array(W * H);
 let pocetInkoustu = 0;
 for (let p = 0; p < W * H; p++) {
-  if (data[p * 4 + 2] - data[p * 4] > MODROST_INKOUSTU) { inkoust[p] = 1; pocetInkoustu++; }
+  if (data[p * 4 + 2] - data[p * 4] > MODROST_INKOUSTU) {
+    inkoust[p] = 1;
+    pocetInkoustu++;
+  }
 }
 /* Rozšíření masky — kolem tahu je lem, který prahem neprojde, ale barvu už má
  * potaženou. */
@@ -102,9 +112,13 @@ for (let y = 0; y < H; y++) {
     let je = 0;
     for (let dy = -LEM; dy <= LEM && !je; dy++) {
       for (let dx = -LEM; dx <= LEM; dx++) {
-        const nx = x + dx, ny = y + dy;
+        const nx = x + dx,
+          ny = y + dy;
         if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
-        if (inkoust[ny * W + nx]) { je = 1; break; }
+        if (inkoust[ny * W + nx]) {
+          je = 1;
+          break;
+        }
       }
     }
     maska[y * W + x] = je;
@@ -121,18 +135,27 @@ for (let p = 0; p < W * H; p++) {
 }
 const body = [];
 for (let y = 0; y < H; y++) {
-  let prechod = -1, kolik = 0, predchozi = null;
+  let prechod = -1,
+    kolik = 0,
+    predchozi = null;
   for (let x = 0; x < W; x++) {
-    if (maska[y * W + x]) { predchozi = null; continue; }
+    if (maska[y * W + x]) {
+      predchozi = null;
+      continue;
+    }
     const stin = svetlost[y * W + x] < PRAH_STINU ? 1 : 0;
-    if (predchozi !== null && stin !== predchozi) { prechod = x; kolik++; }
+    if (predchozi !== null && stin !== predchozi) {
+      prechod = x;
+      kolik++;
+    }
     predchozi = stin;
   }
   if (kolik === 1) body.push([y, prechod]);
 }
 
 /* Nejmenší čtverce: x = a·y + b. */
-let a = 0, b = W / 2;
+let a = 0,
+  b = W / 2;
 if (body.length > 20) {
   const n = body.length;
   const sy = body.reduce((s, [y]) => s + y, 0);
@@ -142,22 +165,32 @@ if (body.length > 20) {
   a = (n * sxy - sy * sx) / (n * syy - sy * sy);
   b = (sx - a * sy) / n;
 }
-console.log(`  hrana stínu proložena z ${body.length} řádků: x = ${a.toFixed(3)}·y + ${b.toFixed(0)}`);
+console.log(
+  `  hrana stínu proložena z ${body.length} řádků: x = ${a.toFixed(3)}·y + ${b.toFixed(0)}`,
+);
 
 /* Která strana přímky je stín — rozhodne průměr papíru na obou stranách. */
-let sumaVlevo = 0, nVlevo = 0, sumaVpravo = 0, nVpravo = 0;
+let sumaVlevo = 0,
+  nVlevo = 0,
+  sumaVpravo = 0,
+  nVpravo = 0;
 for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
     if (maska[y * W + x]) continue;
-    if (x < a * y + b) { sumaVlevo += svetlost[y * W + x]; nVlevo++; }
-    else { sumaVpravo += svetlost[y * W + x]; nVpravo++; }
+    if (x < a * y + b) {
+      sumaVlevo += svetlost[y * W + x];
+      nVlevo++;
+    } else {
+      sumaVpravo += svetlost[y * W + x];
+      nVpravo++;
+    }
   }
 }
-const stinVlevo = (sumaVlevo / Math.max(1, nVlevo)) < (sumaVpravo / Math.max(1, nVpravo));
+const stinVlevo = sumaVlevo / Math.max(1, nVlevo) < sumaVpravo / Math.max(1, nVpravo);
 const strana = new Uint8Array(W * H);
 for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
-    strana[y * W + x] = ((x < a * y + b) === stinVlevo) ? 1 : 0;
+    strana[y * W + x] = x < a * y + b === stinVlevo ? 1 : 0;
   }
 }
 
@@ -165,9 +198,11 @@ for (let y = 0; y < H; y++) {
 /* Centrované okno počítané z předpočítaných součtů, aby cena nerostla
  * s poloměrem. Jednostranné okno by průměr posunulo o svůj poloměr. */
 function prumerStrany(kanal, chtenaStrana, r) {
-  const radekS = new Float64Array(W * H), radekV = new Float64Array(W * H);
+  const radekS = new Float64Array(W * H),
+    radekV = new Float64Array(W * H);
   for (let y = 0; y < H; y++) {
-    const s = new Float64Array(W + 1), v = new Float64Array(W + 1);
+    const s = new Float64Array(W + 1),
+      v = new Float64Array(W + 1);
     for (let x = 0; x < W; x++) {
       const p = y * W + x;
       const platny = !maska[p] && strana[p] === chtenaStrana ? 1 : 0;
@@ -175,21 +210,25 @@ function prumerStrany(kanal, chtenaStrana, r) {
       v[x + 1] = v[x] + platny;
     }
     for (let x = 0; x < W; x++) {
-      const od = Math.max(0, x - r), doo = Math.min(W - 1, x + r);
+      const od = Math.max(0, x - r),
+        doo = Math.min(W - 1, x + r);
       radekS[y * W + x] = s[doo + 1] - s[od];
       radekV[y * W + x] = v[doo + 1] - v[od];
     }
   }
   const ven = new Float64Array(W * H);
   for (let x = 0; x < W; x++) {
-    const s = new Float64Array(H + 1), v = new Float64Array(H + 1);
+    const s = new Float64Array(H + 1),
+      v = new Float64Array(H + 1);
     for (let y = 0; y < H; y++) {
       s[y + 1] = s[y] + radekS[y * W + x];
       v[y + 1] = v[y] + radekV[y * W + x];
     }
     for (let y = 0; y < H; y++) {
-      const od = Math.max(0, y - r), doo = Math.min(H - 1, y + r);
-      const su = s[doo + 1] - s[od], va = v[doo + 1] - v[od];
+      const od = Math.max(0, y - r),
+        doo = Math.min(H - 1, y + r);
+      const su = s[doo + 1] - s[od],
+        va = v[doo + 1] - v[od];
       ven[y * W + x] = va > 0 ? su / va : -1;
     }
   }
@@ -208,15 +247,26 @@ for (let p = 0; p < W * H; p++) {
   let r, g, bb;
   if (maska[p]) {
     const s = strana[p];
-    r = kanaly[0][s][p]; g = kanaly[1][s][p]; bb = kanaly[2][s][p];
+    r = kanaly[0][s][p];
+    g = kanaly[1][s][p];
+    bb = kanaly[2][s][p];
     /* Kdyby na dané straně v okolí nebyl žádný papír, vezme se druhá. */
-    if (r < 0) { r = kanaly[0][1 - s][p]; g = kanaly[1][1 - s][p]; bb = kanaly[2][1 - s][p]; }
+    if (r < 0) {
+      r = kanaly[0][1 - s][p];
+      g = kanaly[1][1 - s][p];
+      bb = kanaly[2][1 - s][p];
+    }
   } else {
-    r = data[p * 4]; g = data[p * 4 + 1]; bb = data[p * 4 + 2];
+    r = data[p * 4];
+    g = data[p * 4 + 1];
+    bb = data[p * 4 + 2];
   }
   const [, , l] = naHsl(Math.max(0, r), Math.max(0, g), Math.max(0, bb));
   const [nr, ng, nb] = naRgb(ODSTIN, SYTOST, l);
-  ven[p * 4] = nr; ven[p * 4 + 1] = ng; ven[p * 4 + 2] = nb; ven[p * 4 + 3] = 255;
+  ven[p * 4] = nr;
+  ven[p * 4 + 1] = ng;
+  ven[p * 4 + 2] = nb;
+  ven[p * 4 + 3] = 255;
 }
 
 const vysledek = await sharp(ven, { raw: { width: W, height: H, channels: 4 } })
@@ -224,5 +274,7 @@ const vysledek = await sharp(ven, { raw: { width: W, height: H, channels: 4 } })
   .toFile(CIL);
 
 console.log(`${CIL}  ${W}x${H}, ${(vysledek.size / 1024).toFixed(0)} kB`);
-console.log(`  smazáno ${pocetInkoustu} px potisku (${(pocetInkoustu / (W * H) * 100).toFixed(1)} % desky)`);
-console.log(`  poměr výška/šířka = ${(H / W * 100).toFixed(1)} %`);
+console.log(
+  `  smazáno ${pocetInkoustu} px potisku (${((pocetInkoustu / (W * H)) * 100).toFixed(1)} % desky)`,
+);
+console.log(`  poměr výška/šířka = ${((H / W) * 100).toFixed(1)} %`);

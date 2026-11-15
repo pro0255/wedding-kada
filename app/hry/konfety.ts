@@ -4,7 +4,15 @@ import type { Rozmer } from "./hry/typy";
 /* Konfety při novém rekordu: pixelová srdíčka a prstýnky prší z vrchu
    plátna zhruba dvě sekundy. Kreslí se až přes hru, nezasahují do stavu. */
 
-type Kus = { x: number; y: number; vx: number; vy: number; rot: number; prsten: boolean; m: number };
+type Kus = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  prsten: boolean;
+  m: number;
+};
 
 export class Konfety {
   private kusy: Kus[] = [];

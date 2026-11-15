@@ -15,19 +15,18 @@ const Ring3D = dynamic(() => import("./Ring3D"), {
   loading: () => <div className="loader-ring3d" />,
 });
 
-import Ubytovani from "./Ubytovani";
-import { VenueAkce } from "./VenueAkce";
 import Link from "next/link";
 import { Kopirovat, PridatDoKalendare, SdiletWeb } from "./Akce";
-import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
-import { VENUE_ADDRESS } from "./venue";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 import Klikni from "./Klikni";
+import { KONTAKTY, formatTel, type Kontakt } from "./kontakty";
 import Kniha from "./menu/Kniha";
-import { IkonaKlik } from "./StoryDoodles";
 import { OznameniHlavni } from "./oznameni/Oznameni";
+import { IkonaKlik } from "./StoryDoodles";
+import Ubytovani from "./Ubytovani";
 import { spustUvodniHudbu, type UvodniHudba } from "./uvodHudba";
-
+import { VENUE_ADDRESS } from "./venue";
+import { VenueAkce } from "./VenueAkce";
 
 // hlášky z Pána prstenů, lehce svatebně upravené
 /* V hlášce jsou mezi částmi data nezlomitelné mezery (U+00A0, v editoru
@@ -64,7 +63,7 @@ function useCountdown(target: Date) {
     const tick = () => {
       const s = Math.max(0, Math.floor((target.getTime() - Date.now()) / 1000));
       setLeft({
-        d: Math.floor(s / 86400),
+        d: Math.floor(s / 86_400),
         h: Math.floor((s / 3600) % 24),
         m: Math.floor((s / 60) % 60),
         s: s % 60,
@@ -146,7 +145,11 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
      pointer-events: none. */
   const prohodit = () => setStav(stav === "oznameni" ? "zavreno" : "oznameni");
   return (
-    <div className={"obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")}>
+    <div
+      className={
+        "obalka" + (otevrena ? " je-otevrena" : "") + (stav === "oznameni" ? " je-oznameni" : "")
+      }
+    >
       {/* Papír stojí nad obálkou v běžném toku. Jeho výška se animuje přes
           grid-template-rows 0fr → 1fr — jediný způsob, jak plynule přejít do
           „auto“ výšky bez měření v JS, které by se muselo opakovat při každé
@@ -180,8 +183,18 @@ function ObalkaPribeh({ children }: { children: React.ReactNode }) {
         onClick={() => setStav(otevrena ? "zavreno" : "dopis")}
         aria-expanded={otevrena}
       >
-        <img className="obalka-vrstva obalka-zadek" src="/obalka/otevrena-zadek.webp" alt="" aria-hidden="true" />
-        <img className="obalka-vrstva obalka-predek" src="/obalka/otevrena-predek.webp" alt="" aria-hidden="true" />
+        <img
+          className="obalka-vrstva obalka-zadek"
+          src="/obalka/otevrena-zadek.webp"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          className="obalka-vrstva obalka-predek"
+          src="/obalka/otevrena-predek.webp"
+          alt=""
+          aria-hidden="true"
+        />
         {/* Zavřená obálka i s pečetí je jeden celek: pečeť sedí ve špičce
             chlopně, takže musí mizet spolu s ní. */}
         <span className="obalka-zavrena-obal" aria-hidden="true">
@@ -216,7 +229,7 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
             io.unobserve(e.target);
           }
         }),
-      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -237,13 +250,11 @@ function useZaostreniSekci() {
     // s vypnutými animacemi ať web zůstane celý ostrý
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const sekce = document.querySelectorAll<HTMLElement>(".obsah-ramec > section");
-    if (!sekce.length) return;
+    if (sekce.length === 0) return;
 
     const io = new IntersectionObserver(
       (entries) =>
-        entries.forEach((e) =>
-          e.target.classList.toggle("sekce-mimo", !e.isIntersecting),
-        ),
+        entries.forEach((e) => e.target.classList.toggle("sekce-mimo", !e.isIntersecting)),
       // úzký pás uprostřed okna — sekce je ostrá, dokud jím prochází
       { rootMargin: "-42% 0px -42% 0px" },
     );
@@ -271,53 +282,66 @@ function usePoSvatbe() {
 type Barva = { nazev: string; hex: string };
 
 /* Nejčastější dotazy. Přidávat/mazat se dá rovnou tady — sekce se vykreslí sama. */
-const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obrazek?: string }[] = [
-  {
-    q: "Je na svatbě nějaký dresscode?",
-    a: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost — hlavně ať vám je v tom, co si vezmete, dobře.",
-    barvy: [
-      { nazev: "Světle modrá", hex: "#c3d7ec" },
-      { nazev: "Broskvová", hex: "#f6c396" },
-      { nazev: "Růžová", hex: "#f5a3a8" },
-      { nazev: "Světle růžová", hex: "#f4d3d9" },
-      { nazev: "Modrá", hex: "#a8c8ec" },
-      { nazev: "Krémově žlutá", hex: "#f8e4a3" },
-      { nazev: "Šalvějová", hex: "#b7d3ab" },
-    ],
-  },
-  {
-    q: "Bude na svatbě zajištěn odvoz?",
-    a: "Odvoz ze svatby zajištěný máme — od 15 hodin budou k dispozici dva řidiči, kteří vás rádi odvezou domů. Dopravu na místo si ale, prosím, zařiďte každý sám.",
-  },
-  {
-    q: "Můžeme vzít děti?",
-    a: "Děti jsou vítané a počítáme s nimi. Ať už je vezmete s sebou, nebo je necháte na pár hodin u babičky, dejte nám prosím vědět — ať víme, kolik nás u stolu bude.",
-  },
-  {
-    q: "Jak to bude s fotkami od hostů?",
-    a: "Na svatbě bude vyvěšený QR kód. Načtete ho foťákem v telefonu a otevře se stránka, kam nahrajete, co jste během dne nafotili — fotky i videa. Nemusíte nic instalovat ani se nikam přihlašovat.\n\nVšechno se sejde na jednom místě, kde si to všichni můžou prohlédnout, dát tomu srdíčko nebo si to stáhnout. Když něco nahrajete omylem, můžete to sami smazat.\n\nJen prosíme: během obřadu telefony do kapsy, fotíme až po jeho skončení. Stejnou galerii pak najdete i tady na webu, takže se k ní vrátíte, i když už QR kód po ruce mít nebudete.",
-  },
-  {
-    q: "Na koho se obrátit v den svatby?",
-    a: "Telefony budeme mít nejspíš někde v kabelce nebo v saku. Když se ztratíte, zpozdíte nebo budete cokoli potřebovat, volejte nebo pište svědkům:",
-    kontakty: KONTAKTY,
-  },
-  {
-    q: "Co si přejete za dar?",
-    obrazek: "/fotky/pes-s-kytici.png",
-    a: "Hrnce, ručníky i sklenice už doma máme, a tak nám nejvíc pomůže příspěvek do svatební kasičky. A místo kytky nebo lahve rádi odvezeme krmivo, deky nebo hračky našim chlupatým kamarádům do útulku. Tam udělají větší radost než další vázička u nás na poličce.",
-  },
-];
+const DOTAZY: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obrazek?: string }[] =
+  [
+    {
+      q: "Je na svatbě nějaký dresscode?",
+      a: "Svatba bude v pastelových barvách. Sladit se s nimi je milé gesto, ne povinnost — hlavně ať vám je v tom, co si vezmete, dobře.",
+      barvy: [
+        { nazev: "Světle modrá", hex: "#c3d7ec" },
+        { nazev: "Broskvová", hex: "#f6c396" },
+        { nazev: "Růžová", hex: "#f5a3a8" },
+        { nazev: "Světle růžová", hex: "#f4d3d9" },
+        { nazev: "Modrá", hex: "#a8c8ec" },
+        { nazev: "Krémově žlutá", hex: "#f8e4a3" },
+        { nazev: "Šalvějová", hex: "#b7d3ab" },
+      ],
+    },
+    {
+      q: "Bude na svatbě zajištěn odvoz?",
+      a: "Odvoz ze svatby zajištěný máme — od 15 hodin budou k dispozici dva řidiči, kteří vás rádi odvezou domů. Dopravu na místo si ale, prosím, zařiďte každý sám.",
+    },
+    {
+      q: "Můžeme vzít děti?",
+      a: "Děti jsou vítané a počítáme s nimi. Ať už je vezmete s sebou, nebo je necháte na pár hodin u babičky, dejte nám prosím vědět — ať víme, kolik nás u stolu bude.",
+    },
+    {
+      q: "Jak to bude s fotkami od hostů?",
+      a: "Na svatbě bude vyvěšený QR kód. Načtete ho foťákem v telefonu a otevře se stránka, kam nahrajete, co jste během dne nafotili — fotky i videa. Nemusíte nic instalovat ani se nikam přihlašovat.\n\nVšechno se sejde na jednom místě, kde si to všichni můžou prohlédnout, dát tomu srdíčko nebo si to stáhnout. Když něco nahrajete omylem, můžete to sami smazat.\n\nJen prosíme: během obřadu telefony do kapsy, fotíme až po jeho skončení. Stejnou galerii pak najdete i tady na webu, takže se k ní vrátíte, i když už QR kód po ruce mít nebudete.",
+    },
+    {
+      q: "Na koho se obrátit v den svatby?",
+      a: "Telefony budeme mít nejspíš někde v kabelce nebo v saku. Když se ztratíte, zpozdíte nebo budete cokoli potřebovat, volejte nebo pište svědkům:",
+      kontakty: KONTAKTY,
+    },
+    {
+      q: "Co si přejete za dar?",
+      obrazek: "/fotky/pes-s-kytici.png",
+      a: "Hrnce, ručníky i sklenice už doma máme, a tak nám nejvíc pomůže příspěvek do svatební kasičky. A místo kytky nebo lahve rádi odvezeme krmivo, deky nebo hračky našim chlupatým kamarádům do útulku. Tam udělají větší radost než další vázička u nás na poličce.",
+    },
+  ];
 
 /* Jeden dotaz. Výšku odpovědi měříme a nastavujeme v px — do `auto` se plynule
    animovat nedá, tak ji po každém přepnutí změříme z obsahu. */
-function Dotaz({ q, a, barvy, kontakty, obrazek }: { q: string; a: string; barvy?: Barva[]; kontakty?: Kontakt[]; obrazek?: string }) {
+function Dotaz({
+  q,
+  a,
+  barvy,
+  kontakty,
+  obrazek,
+}: {
+  q: string;
+  a: string;
+  barvy?: Barva[];
+  kontakty?: Kontakt[];
+  obrazek?: string;
+}) {
   const [otevreno, setOtevreno] = useState(false);
   const [vyska, setVyska] = useState(0);
   const obsah = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const zmer = () => setVyska(otevreno ? obsah.current?.scrollHeight ?? 0 : 0);
+    const zmer = () => setVyska(otevreno ? (obsah.current?.scrollHeight ?? 0) : 0);
     zmer();
     if (!otevreno) return;
     // text se při změně šířky přelomí jinak, takže otevřenou odpověď přeměřujeme
@@ -339,39 +363,43 @@ function Dotaz({ q, a, barvy, kontakty, obrazek }: { q: string; a: string; barvy
       <div className="faq-obal" style={{ height: vyska }}>
         <div className={`faq-odpoved ${obrazek ? "faq-odpoved-s-obrazkem" : ""}`} ref={obsah}>
           <div className="faq-text">
-          {/* Delší odpovědi se dají v textu rozdělit prázdným řádkem a vysází
+            {/* Delší odpovědi se dají v textu rozdělit prázdným řádkem a vysází
              se jako samostatné odstavce — jeden dlouhý blok se čte hůř. */}
-          {a.split("\n\n").map((odstavec, i) => (
-            <p key={i}>{odstavec}</p>
-          ))}
-          {kontakty && (
-            <ul className="faq-kontakty">
-              {kontakty.map((k) => (
-                <li key={k.jmeno}>
-                  <span className="faq-kontakt-jmeno">
-                    {k.jmeno} <small>{k.role}</small>
-                  </span>
-                  <span className="faq-kontakt-odkazy">
-                    <a href={`tel:${k.tel}`}>{formatTel(k.tel)}</a>
-                    <a href={`https://wa.me/${k.tel.replace("+", "")}`} target="_blank" rel="noopener">
-                      WhatsApp
-                    </a>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {barvy && (
-            <ul className="faq-barvy">
-              {barvy.map((b) => (
-                <li key={b.hex}>
-                  {/* název jen pro čtečky — vizuálně stačí samotná kulička */}
-                  <span className="faq-kulicka" style={{ background: b.hex }} />
-                  <span className="faq-skryte">{b.nazev}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+            {a.split("\n\n").map((odstavec, i) => (
+              <p key={i}>{odstavec}</p>
+            ))}
+            {kontakty && (
+              <ul className="faq-kontakty">
+                {kontakty.map((k) => (
+                  <li key={k.jmeno}>
+                    <span className="faq-kontakt-jmeno">
+                      {k.jmeno} <small>{k.role}</small>
+                    </span>
+                    <span className="faq-kontakt-odkazy">
+                      <a href={`tel:${k.tel}`}>{formatTel(k.tel)}</a>
+                      <a
+                        href={`https://wa.me/${k.tel.replace("+", "")}`}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        WhatsApp
+                      </a>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {barvy && (
+              <ul className="faq-barvy">
+                {barvy.map((b) => (
+                  <li key={b.hex}>
+                    {/* název jen pro čtečky — vizuálně stačí samotná kulička */}
+                    <span className="faq-kulicka" style={{ background: b.hex }} />
+                    <span className="faq-skryte">{b.nazev}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           {/* Obrázek leží uvnitř .faq-odpoved, takže se odkrývá tou samou
              animací výšky jako text — neobjeví se dřív ani zvlášť. */}
@@ -436,20 +464,40 @@ function Odpocet() {
    zápisníku (samotná data se nevypisují). `popis` je ručně psaný popisek na
    spodním pruhu polaroidu a zároveň alt fotky. */
 const PRIBEH_FOTKY: FotkaNaHromadce[] = [
-  { src: "/fotky/web/2.webp", alt: "První společná fotka", popis: "první společná fotka", popisSrc: "/písmo/text-1791314141854.png" },
+  {
+    src: "/fotky/web/2.webp",
+    alt: "První společná fotka",
+    popis: "první společná fotka",
+    popisSrc: "/písmo/text-1791314141854.png",
+  },
   { src: "/fotky/web/27.webp", alt: "ZOO Ostrava" },
   { src: "/fotky/web/28.webp", alt: "Bílovec" },
   { src: "/fotky/web/4.webp", alt: "Chorvatsko" },
   { src: "/fotky/web/6.webp", alt: "Kozmice" },
   { src: "/fotky/web/11.webp", alt: "Sicílie" },
   { src: "/fotky/web/21.webp", alt: "Svatba I a O" },
-  { src: "/fotky/web/16.webp", alt: "Těhotenské focení", popis: "těhotenské focení", popisSrc: "/písmo/text-1791314260363.png" },
-  { src: "/fotky/web/22.webp", alt: "První Chorvatsko jako rodina", popis: "první Chorvatsko jako rodina", popisSrc: "/písmo/text-1791314337709.png" },
+  {
+    src: "/fotky/web/16.webp",
+    alt: "Těhotenské focení",
+    popis: "těhotenské focení",
+    popisSrc: "/písmo/text-1791314260363.png",
+  },
+  {
+    src: "/fotky/web/22.webp",
+    alt: "První Chorvatsko jako rodina",
+    popis: "první Chorvatsko jako rodina",
+    popisSrc: "/písmo/text-1791314337709.png",
+  },
   { src: "/fotky/web/20.webp", alt: "Slovensko" },
   { src: "/fotky/web/23.webp", alt: "Štramberk" },
   { src: "/fotky/web/24.webp", alt: "FM City Fest" },
   { src: "/fotky/web/25.webp", alt: "Trogir" },
-  { src: "/fotky/web/1.webp", alt: "Zásnuby na Troskách", popis: "zásnuby na Troskách", popisSrc: "/písmo/text-1791314232757.png" },
+  {
+    src: "/fotky/web/1.webp",
+    alt: "Zásnuby na Troskách",
+    popis: "zásnuby na Troskách",
+    popisSrc: "/písmo/text-1791314232757.png",
+  },
   { src: "/fotky/web/26.webp", alt: "Kutná Hora" },
 ];
 
@@ -460,20 +508,45 @@ const PRIBEH_FOTKY: FotkaNaHromadce[] = [
 /* Za jednopísmennými předložkami a spojkami je nezlomitelná mezera (\u00a0),
    ať „v“ nebo „a“ nezůstane viset na konci řádku. */
 const PROGRAM = [
-  { cas: "9:00", nazev: "Snídaně", ikona: "snidane", misto: "U\u00a0ženicha a\u00a0nevěsty",
-    popis: "Poslední klidné sousto předtím, než to celé začne." },
-  { cas: "11:00", nazev: "Obřad", ikona: "obrad", misto: "U\u00a0zvoničky v\u00a0Rekovicích",
-    popis: "Tady si řekneme své „ano“." },
-  { cas: "13:30", nazev: "Přípitek a\u00a0svatební oběd", ikona: "obed",
-    popis: "Na zdraví, na lásku a\u00a0na pořádný hlad." },
-  { cas: "15:30", nazev: "Krájení dortu", ikona: "dort",
-    popis: "Jeden nůž a dva lidé — snad to všichni přežijeme." },
-  { cas: "16:30", nazev: "První tanec", ikona: "tanec",
-    popis: "Zkoušeli jsme to doma. Moc to nepomohlo." },
-  { cas: "Odpoledne", nazev: "Svatební odpoledne", ikona: "odpoledne",
-    popis: "Dobré jídlo, sklenka v\u00a0ruce a\u00a0čas užít si den naplno." },
-  { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party",
-    popis: "Boty dolů, hudbu nahoru." },
+  {
+    cas: "9:00",
+    nazev: "Snídaně",
+    ikona: "snidane",
+    misto: "U\u00A0ženicha a\u00A0nevěsty",
+    popis: "Poslední klidné sousto předtím, než to celé začne.",
+  },
+  {
+    cas: "11:00",
+    nazev: "Obřad",
+    ikona: "obrad",
+    misto: "U\u00A0zvoničky v\u00A0Rekovicích",
+    popis: "Tady si řekneme své „ano“.",
+  },
+  {
+    cas: "13:30",
+    nazev: "Přípitek a\u00A0svatební oběd",
+    ikona: "obed",
+    popis: "Na zdraví, na lásku a\u00A0na pořádný hlad.",
+  },
+  {
+    cas: "15:30",
+    nazev: "Krájení dortu",
+    ikona: "dort",
+    popis: "Jeden nůž a dva lidé — snad to všichni přežijeme.",
+  },
+  {
+    cas: "16:30",
+    nazev: "První tanec",
+    ikona: "tanec",
+    popis: "Zkoušeli jsme to doma. Moc to nepomohlo.",
+  },
+  {
+    cas: "Odpoledne",
+    nazev: "Svatební odpoledne",
+    ikona: "odpoledne",
+    popis: "Dobré jídlo, sklenka v\u00A0ruce a\u00A0čas užít si den naplno.",
+  },
+  { cas: "Od 19:00", nazev: "Večerní párty", ikona: "party", popis: "Boty dolů, hudbu nahoru." },
 ];
 
 /* Den ve dvou půlkách: Obřad (do oběda) a Oslava. */
@@ -499,9 +572,19 @@ function SvatebniMenu() {
     <div className={"menu-kniha" + (otevrene ? " je-otevrene" : "")}>
       {/* Příbory leží po stranách zavřené knihy — vlevo vidlička, vpravo nůž
           se lžící. Když se kniha rozevře, uhnou: zabrala by jim místo. */}
-      <img className="menu-pribor menu-pribor-vidlicka" src="/menu/vidlicka.webp" alt="" aria-hidden="true" />
+      <img
+        className="menu-pribor menu-pribor-vidlicka"
+        src="/menu/vidlicka.webp"
+        alt=""
+        aria-hidden="true"
+      />
       <img className="menu-pribor menu-pribor-nuz" src="/menu/nuz.webp" alt="" aria-hidden="true" />
-      <img className="menu-pribor menu-pribor-lzice" src="/menu/lzice.webp" alt="" aria-hidden="true" />
+      <img
+        className="menu-pribor menu-pribor-lzice"
+        src="/menu/lzice.webp"
+        alt=""
+        aria-hidden="true"
+      />
       <div className="menu-vnitrek" id="svatebni-menu-obsah">
         {/* Pravá deska leží pod obálkou a čeká, až se odklopí. */}
         <div className="menu-deska menu-deska-prava" onClick={() => setOtevrene(false)}>
@@ -553,8 +636,8 @@ function SvatebniMenu() {
                   vtip pak funguje jako pointa, ne jako úvodní odstavec. */}
               <p className="menu-nadstrana">Menu</p>
               <p className="menu-uvod">
-                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili
-                na obřad — my víme svoje.
+                To nejlepší z kuchyně. Klidně si nalžeme, že jste se nejvíc těšili na obřad — my
+                víme svoje.
               </p>
               <ul className="menu-chody">
                 <li>
@@ -570,15 +653,17 @@ function SvatebniMenu() {
                 <li>
                   <span className="menu-kurz">Dezert</span>
                   <span className="menu-jidlo">Svatební dort</span>
-                  <span className="menu-detail">Čokoládový korpus, pařížský krém, malinový kompot</span>
+                  <span className="menu-detail">
+                    Čokoládový korpus, pařížský krém, malinový kompot
+                  </span>
                 </li>
               </ul>
               {/* Poznámka o stravovacích požadavcích patří sem, ne na dětskou
                   stranu: tam se tlačila pod ilustraci, kdežto levá strana má
                   o chod míň a pod dezertem zůstávala prázdná plocha. */}
               <p className="menu-alergeny">
-                Speciální stravovací požadavky (vegetariánské, veganské či
-                zdravotní) nám prosím napište nejpozději do 1.&nbsp;8.&nbsp;2027.
+                Speciální stravovací požadavky (vegetariánské, veganské či zdravotní) nám prosím
+                napište nejpozději do 1.&nbsp;8.&nbsp;2027.
               </p>
             </div>
           </div>
@@ -612,10 +697,14 @@ function CasovaOsa() {
               src={`/program/${b.ikona}.webp`}
               alt=""
               aria-hidden="true"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           </span>
-          <span className="osa-cas"><b>{b.cas}</b></span>
+          <span className="osa-cas">
+            <b>{b.cas}</b>
+          </span>
           <span className="osa-nazev">{b.nazev}</span>
           {b.misto && <span className="osa-misto">{b.misto}</span>}
           <span className="osa-popis">{b.popis}</span>
@@ -644,7 +733,9 @@ function ProgramDne() {
                 src={`/program/${b.ikona}.webp`}
                 alt=""
                 aria-hidden="true"
-                onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                onError={(e) => {
+                  e.currentTarget.style.visibility = "hidden";
+                }}
               />
               <span className="den-text">
                 <span className="den-cas">{b.cas}</span>
@@ -711,7 +802,7 @@ function UvodniObrazovka() {
      na obal, ale vstup() druhé volání ignoruje. */
   return (
     <div
-      className={`loader ${stage !== "loading" ? "loader-hide" : ""}`}
+      className={`loader ${stage === "loading" ? "" : "loader-hide"}`}
       aria-hidden={stage !== "loading"}
       onClick={vstup}
     >
@@ -807,185 +898,219 @@ export default function Home() {
       {/* od odpočtu níž rámuje obsah tenká linka a po stranách jdou květiny;
           panorama Beskyd (hory.svg) je jen na úvodní obrazovce, ne tady */}
       <div className="obsah-ramec">
+        {/* countdown */}
+        <Odpocet />
 
-      {/* countdown */}
-      <Odpocet />
-
-      {/* příběh */}
-      <section className="story" id="story">
-        <Reveal className="scena">
-          <KvetinyVrstva />
-          <div className="scena-foto">
-            <FotoHromadka fotky={PRIBEH_FOTKY} />
-          </div>
-          <div className="scena-obalka">
-            <ObalkaPribeh>
-              <p className="eyebrow">Naše svatba</p>
-              <h2>Pojďte dál</h2>
-              {/* Oslovení a podpis rukopisem. Kačka chce jejich vlastní vysázené
+        {/* příběh */}
+        <section className="story" id="story">
+          <Reveal className="scena">
+            <KvetinyVrstva />
+            <div className="scena-foto">
+              <FotoHromadka fotky={PRIBEH_FOTKY} />
+            </div>
+            <div className="scena-obalka">
+              <ObalkaPribeh>
+                <p className="eyebrow">Naše svatba</p>
+                <h2>Pojďte dál</h2>
+                {/* Oslovení a podpis rukopisem. Kačka chce jejich vlastní vysázené
                   písmo jako u popisků polaroidů; než ho dodá, nesou je tyhle
                   dva odstavce v rukopisu, který web už má. */}
-              <p className="obalka-osloveni">Milí hosté,</p>
-              <p className="lead">
-                Je to k nevíře, ale rozhodli jsme se po 6 letech vztahu, 2 kočkách,
-                želvě, psovi a jednom miminu, že se máme rádi a chceme se vzít.
-              </p>
-              <p className="lead">
-                Prošli jsme si nebem i peklem a shodli se, že jsme celkem
-                kompatibilní. Stačilo jedno zásnubní „ano“ na Troskách
-                a započalo plánování mejdanu na oslavu naší lásky a souznění…
-                A teď jsme tady! 18. září 2027 si řekneme své „ano“.
-              </p>
-              <p className="lead">
-                Vítejte na našem svatebním webu, který vám poskytne veškeré
-                důležité informace a zodpoví otázky, které se vám teď honí hlavou.
-              </p>
-              <p className="obalka-podpis">Kačka &amp; Kuba</p>
-              {/* Dovětek až pod podpisem — v dopise se P.S. připisuje po něm,
+                <p className="obalka-osloveni">Milí hosté,</p>
+                <p className="lead">
+                  Je to k nevíře, ale rozhodli jsme se po 6 letech vztahu, 2 kočkách, želvě, psovi a
+                  jednom miminu, že se máme rádi a chceme se vzít.
+                </p>
+                <p className="lead">
+                  Prošli jsme si nebem i peklem a shodli se, že jsme celkem kompatibilní. Stačilo
+                  jedno zásnubní „ano“ na Troskách a započalo plánování mejdanu na oslavu naší lásky
+                  a souznění… A teď jsme tady! 18. září 2027 si řekneme své „ano“.
+                </p>
+                <p className="lead">
+                  Vítejte na našem svatebním webu, který vám poskytne veškeré důležité informace a
+                  zodpoví otázky, které se vám teď honí hlavou.
+                </p>
+                <p className="obalka-podpis">Kačka &amp; Kuba</p>
+                {/* Dovětek až pod podpisem — v dopise se P.S. připisuje po něm,
                   ne před něj. */}
-              <p className="obalka-ps">
-                P.S. A nebojte, oficiální pozvání spolu s oznámením
-                (a svatebními koláči) samozřejmě bude taky!
-              </p>
-            </ObalkaPribeh>
-            {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
+                <p className="obalka-ps">
+                  P.S. A nebojte, oficiální pozvání spolu s oznámením (a svatebními koláči)
+                  samozřejmě bude taky!
+                </p>
+              </ObalkaPribeh>
+              {/* Pokyn hostovi: nápis a pod ním šipka mířící na pravý okraj obálky.
                 Sedí uvnitř jejího wrapperu, takže se s ní hýbe — když se obálka
                 po otevření odsune, jde pokyn s ní. Nechytá myš, aby pod ním
                 šla obálka pořád otevřít. */}
-            <Klikni id="klikni-drah-obalka" />
-          </div>
-          <KvetinyVrstva nad />
-        </Reveal>
-      </section>
+              <Klikni id="klikni-drah-obalka" />
+            </div>
+            <KvetinyVrstva nad />
+          </Reveal>
+        </section>
 
-      {/* místo */}
-      <section className="location" id="location">
-        <Reveal className="wrap location-wrap">
-          {/* Text vlevo, mapa vpravo. Celý web jinak staví všechno na střed pod
+        {/* místo */}
+        <section className="location" id="location">
+          <Reveal className="wrap location-wrap">
+            {/* Text vlevo, mapa vpravo. Celý web jinak staví všechno na střed pod
               sebe; tahle sekce ten rytmus jednou přeruší, aby stránka nebyla
               sedmkrát za sebou stejná. Ubytování pod tím zůstává přes celou
               šířku, je to samostatný krok. */}
-          <div className="location-radek">
-          <div className="location-text">
-          <p className="eyebrow">Kde se to stane</p>
-          <h2>Místo konání</h2>
-          {/* Jméno místa stojí natvrdo pod nadpisem. Dřív se objevovalo jen na
+            <div className="location-radek">
+              <div className="location-text">
+                <p className="eyebrow">Kde se to stane</p>
+                <h2>Místo konání</h2>
+                {/* Jméno místa stojí natvrdo pod nadpisem. Dřív se objevovalo jen na
               chvíli místo adresy, když host otočil mapu — kdo ji neotočil, název
               hotelu nikde nenašel. Proto je teď vidět pořád a mapa se otáčí bez
               toho, aby text pod ní přepínala. */}
-          <p className="venue-nazev">Hotel Rekovice</p>
-          <p className="lead venue-address">
-            Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm
-          </p>
-          {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
-          <Kopirovat className="venue-kopirovat" text={VENUE_ADDRESS} popisek="Kopírovat adresu" />
-          <VenueAkce />
-          </div>
-          <div className="location-mapa">
-            <MapaNaDohled />
-          </div>
-          </div>
-          <Ubytovani />
-        </Reveal>
-      </section>
+                <p className="venue-nazev">Hotel Rekovice</p>
+                <p className="lead venue-address">
+                  Trojanovice 2 · 744 01 Trojanovice-Frenštát pod Radhoštěm
+                </p>
+                {/* pro ty, kdo si adresu vkládají do vlastní navigace nebo posílají dál */}
+                <Kopirovat
+                  className="venue-kopirovat"
+                  text={VENUE_ADDRESS}
+                  popisek="Kopírovat adresu"
+                />
+                <VenueAkce />
+              </div>
+              <div className="location-mapa">
+                <MapaNaDohled />
+              </div>
+            </div>
+            <Ubytovani />
+          </Reveal>
+        </section>
 
-      {/* program */}
-      <section className="schedule" id="schedule">
-        {/* Kytice po stranách osy. Na telefonu je CSS schová — tam je místo osy
+        {/* program */}
+        <section className="schedule" id="schedule">
+          {/* Kytice po stranách osy. Na telefonu je CSS schová — tam je místo osy
             jedna karta a kytice by jí lezly do textu. */}
-        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vlevo" src="/kytky/kytice_program_vlevo.webp?v=4" alt="" aria-hidden="true" />
-        <img loading="lazy" decoding="async" className="program-kytice program-kytice-vpravo" src="/kytky/kytice_program_vpravo.webp?v=4" alt="" aria-hidden="true" />
-        <Reveal className="wrap">
-          <p className="eyebrow">Nahlédněte</p>
-          <h2>Program dne</h2>
-        </Reveal>
-        <Reveal>
-          <CasovaOsa />
-          <ProgramDne />
-        </Reveal>
-      </section>
+          <img
+            loading="lazy"
+            decoding="async"
+            className="program-kytice program-kytice-vlevo"
+            src="/kytky/kytice_program_vlevo.webp?v=4"
+            alt=""
+            aria-hidden="true"
+          />
+          <img
+            loading="lazy"
+            decoding="async"
+            className="program-kytice program-kytice-vpravo"
+            src="/kytky/kytice_program_vpravo.webp?v=4"
+            alt=""
+            aria-hidden="true"
+          />
+          <Reveal className="wrap">
+            <p className="eyebrow">Nahlédněte</p>
+            <h2>Program dne</h2>
+          </Reveal>
+          <Reveal>
+            <CasovaOsa />
+            <ProgramDne />
+          </Reveal>
+        </section>
 
-      {/* menu */}
-      <section className="menu" id="menu">
-        <Reveal className="wrap">
-          <p className="eyebrow">Dobrou chuť</p>
-          <h2>Svatební menu</h2>
-        </Reveal>
-        <Reveal>
-          {/* Dvě podoby menu: na širokém okně staré desky s příbory, na telefonu
+        {/* menu */}
+        <section className="menu" id="menu">
+          <Reveal className="wrap">
+            <p className="eyebrow">Dobrou chuť</p>
+            <h2>Svatební menu</h2>
+          </Reveal>
+          <Reveal>
+            {/* Dvě podoby menu: na širokém okně staré desky s příbory, na telefonu
               novější kniha. Vykreslí se obě, přepíná se jen to, co je vidět. */}
-          <div className="menu-pc"><SvatebniMenu /></div>
-          <div className="menu-mobil"><Kniha /></div>
-        </Reveal>
-      </section>
+            <div className="menu-pc">
+              <SvatebniMenu />
+            </div>
+            <div className="menu-mobil">
+              <Kniha />
+            </div>
+          </Reveal>
+        </section>
 
-      {/* Rozcestník na galerii fotek. Bez něj se na /fotky dalo dostat jen
+        {/* Rozcestník na galerii fotek. Bez něj se na /fotky dalo dostat jen
          přes QR kódy na stolech — po svatbě, až kódy nikdo mít nebude, by
          byla stránka z webu nedosažitelná. */}
-      <section className="fotky-odkaz" id="fotky">
-        {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
+        <section className="fotky-odkaz" id="fotky">
+          {/* Kytice po stranách. Každá má vlastní obrázek s hotovou kompozicí,
             takže se neotáčí ani nezrcadlí. Schválně přesahují nahoru i dolů
             mimo béžový pruh. */}
-        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vlevo" src="/kytky/kytice_fotky_vlevo.webp" alt="" aria-hidden="true" />
-        <img loading="lazy" decoding="async" className="fotky-kytice fotky-kytice-vpravo" src="/kytky/kytice_fotky_vpravo.webp" alt="" aria-hidden="true" />
-        <Reveal className="wrap">
-          <p className="eyebrow">Vzpomínky</p>
-          <h2>Fotky od vás</h2>
-          {poSvatbe ? (
-            <>
+          <img
+            loading="lazy"
+            decoding="async"
+            className="fotky-kytice fotky-kytice-vlevo"
+            src="/kytky/kytice_fotky_vlevo.webp"
+            alt=""
+            aria-hidden="true"
+          />
+          <img
+            loading="lazy"
+            decoding="async"
+            className="fotky-kytice fotky-kytice-vpravo"
+            src="/kytky/kytice_fotky_vpravo.webp"
+            alt=""
+            aria-hidden="true"
+          />
+          <Reveal className="wrap">
+            <p className="eyebrow">Vzpomínky</p>
+            <h2>Fotky od vás</h2>
+            {poSvatbe ? (
+              <>
+                <p className="lead">
+                  Vyfoťte, nahrajte, rozdávejte srdíčka. Fotky i videa se tu objeví všem — díky, že
+                  nám pomáháte posbírat celý den.
+                </p>
+                <Link className="btn" href="/fotky">
+                  Otevřít galerii
+                </Link>
+              </>
+            ) : (
               <p className="lead">
-                Vyfoťte, nahrajte, rozdávejte srdíčka. Fotky i videa se tu
-                objeví všem — díky, že nám pomáháte posbírat celý den.
+                18. září se tu otevře galerie, kam budete moct nahrát všechno, co nafotíte. Zatím je
+                prázdná — stačí mít nabitý telefon.
               </p>
-              <Link className="btn" href="/fotky">
-                Otevřít galerii
-              </Link>
-            </>
-          ) : (
-            <p className="lead">
-              18. září se tu otevře galerie, kam budete moct nahrát všechno,
-              co nafotíte. Zatím je prázdná — stačí mít nabitý telefon.
+            )}
+            {/* prosba platí před svatbou i v její den, proto stojí mimo podmínku */}
+            <p className="fotky-prosba">
+              Jen malá prosba: <strong>během obřadu nechte telefony v kapse.</strong> Chceme se
+              dívat na vás, ne na displeje — a od toho máme fotografa. Po jeho skončení pak foťte,
+              co hrdlo ráčí.
             </p>
-          )}
-          {/* prosba platí před svatbou i v její den, proto stojí mimo podmínku */}
-          <p className="fotky-prosba">
-            Jen malá prosba: <strong>během obřadu nechte telefony v kapse.</strong>{" "}
-            Chceme se dívat na vás, ne na displeje — a od toho máme fotografa.
-            Po jeho skončení pak foťte, co hrdlo ráčí.
-          </p>
-        </Reveal>
-      </section>
+          </Reveal>
+        </section>
 
-      {/* nejčastější dotazy */}
-      <section className="faq" id="faq">
-        <Reveal className="wrap">
-          <p className="eyebrow">Ptáte se</p>
-          <h2>Nejčastější dotazy</h2>
-          <p className="lead">Klepnutím na otázku se rozbalí odpověď.</p>
-        </Reveal>
-        <Reveal className="faq-list">
-          {DOTAZY.map(({ q, a, barvy, kontakty, obrazek }) => (
-            <Dotaz key={q} q={q} a={a} barvy={barvy} kontakty={kontakty} obrazek={obrazek} />
-          ))}
-        </Reveal>
-      </section>
+        {/* nejčastější dotazy */}
+        <section className="faq" id="faq">
+          <Reveal className="wrap">
+            <p className="eyebrow">Ptáte se</p>
+            <h2>Nejčastější dotazy</h2>
+            <p className="lead">Klepnutím na otázku se rozbalí odpověď.</p>
+          </Reveal>
+          <Reveal className="faq-list">
+            {DOTAZY.map(({ q, a, barvy, kontakty, obrazek }) => (
+              <Dotaz key={q} q={q} a={a} barvy={barvy} kontakty={kontakty} obrazek={obrazek} />
+            ))}
+          </Reveal>
+        </section>
 
-      <footer>
-        {/* Béžový pruh přes celé okno a na něm medailonek: fotka zvoničky
+        <footer>
+          {/* Béžový pruh přes celé okno a na něm medailonek: fotka zvoničky
            v kolečku s bílým rámečkem. Uzavírá stránku tím, čím začala.
            Jména jsou tu domácky — je to podpis pod „Těšíme se na vás“
            (pravidlo jmen viz AGENTS.md). */}
-        <div className="paticka-pas">
-          <div className="paticka-kolecko">
-            <p className="paticka-jmena">Kačka &amp; Kuba</p>
-            <p className="paticka-datum">18 · 09 · 2027</p>
-            <p className="paticka-vzkaz">Těšíme se na vás</p>
+          <div className="paticka-pas">
+            <div className="paticka-kolecko">
+              <p className="paticka-jmena">Kačka &amp; Kuba</p>
+              <p className="paticka-datum">18 · 09 · 2027</p>
+              <p className="paticka-vzkaz">Těšíme se na vás</p>
+            </div>
           </div>
-        </div>
-        <div className="akce-radek paticka-sdilet">
-          <SdiletWeb />
-        </div>
-      </footer>
+          <div className="akce-radek paticka-sdilet">
+            <SdiletWeb />
+          </div>
+        </footer>
 
         {/* Boční květinové pruhy, motýli i světlý pruh středem tu byli do doby,
             než se pozadí změnilo na bílé. Středový pruh byl vidět jen proto, že

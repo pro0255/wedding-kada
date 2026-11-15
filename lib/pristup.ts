@@ -23,7 +23,11 @@ export const COOKIE_FOTKY_MAX_AGE = 60 * 60 * 24 * 365;
 
 /** Bez ohledu na velikost písmen, diakritiku a mezery okolo: „ Bára “ = „bara“. */
 export function normalizuj(text: string): string {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  return text
+    .normalize("NFD")
+    .replaceAll(/[\u0300-\u036F]/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 function stejne(a: string, b: string): boolean {
@@ -68,7 +72,7 @@ export function jeSpravcovskyToken(token: string | undefined): boolean {
 export function platnyToken(
   token: string | undefined,
   heslo: string,
-  role: Role = "host"
+  role: Role = "host",
 ): boolean {
   if (!token || !normalizuj(heslo)) return false;
   return stejne(token, tokenPristupu(heslo, role));

@@ -18,8 +18,8 @@
  * Listy a stonky se nepřebarvují nikdy — pásmo listů jde vždycky na šalvějovou,
  * jinak by olivový stonek zežloutl spolu s květem. */
 
-import sharp from "sharp";
 import { mkdir, rm } from "node:fs/promises";
+import sharp from "sharp";
 
 const PREDLOHA = "predlohy/fotky/oznámení/kytičky 2.jpg";
 const KAM = "public/oznameni/kyticky2";
@@ -29,7 +29,7 @@ const PALETA = ["#c3d7ec", "#f6c396", "#f5a3a8", "#f4d3d9", "#a8c8ec", "#f8e4a3"
 
 /* Na které odstíny se květy přetáčejí. Šalvějová v seznamu není: je to barva
  * listí, květ v ní zmizí. */
-const VARIANTY = [0, 1, 2, 5];   // světle modrá, broskvová, růžová, krémově žlutá
+const VARIANTY = [0, 1, 2, 5]; // světle modrá, broskvová, růžová, krémově žlutá
 
 const TAH_SYTOST = 0.5;
 const TAH_SVETLOST = 0.18;
@@ -42,7 +42,7 @@ const LISTY = [55, 190];
 const SALVEJ = 6;
 
 const PAPIR_ARCHU = [255, 252, 247];
-const PODKLAD = [236, 231, 222];   // --bg-alt, na něj se pruh skládá
+const PODKLAD = [236, 231, 222]; // --bg-alt, na něj se pruh skládá
 
 /* Měkký práh průhlednosti: pod DOLE je to papír, nad NAHORE plná barva. */
 const DOLE = 6;
@@ -54,8 +54,11 @@ const NEJMENE_STRANA = 30;
 const OKRAJ = 4;
 
 function naHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   const d = max - min;
   if (d === 0) return [0, 0, l];
@@ -68,7 +71,10 @@ function naHsl(r, g, b) {
 }
 
 function naRgb(h, s, l) {
-  if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const slozka = (t) => {
@@ -82,11 +88,13 @@ function naRgb(h, s, l) {
   return [slozka(h + 1 / 3), slozka(h), slozka(h - 1 / 3)].map((v) => Math.round(v * 255));
 }
 
-const paletaHsl = PALETA.map((hex) => naHsl(
-  parseInt(hex.slice(1, 3), 16),
-  parseInt(hex.slice(3, 5), 16),
-  parseInt(hex.slice(5, 7), 16),
-));
+const paletaHsl = PALETA.map((hex) =>
+  naHsl(
+    Number.parseInt(hex.slice(1, 3), 16),
+    Number.parseInt(hex.slice(3, 5), 16),
+    Number.parseInt(hex.slice(5, 7), 16),
+  ),
+);
 
 /** Přetočí květ na daný paletový odstín; listy nechá zelené. */
 function prebarvi(r, g, b, cil) {
@@ -131,7 +139,10 @@ for (let start = 0; start < W * H; start++) {
   zasobnik[vrchol++] = start;
   stitek[start] = id;
   let pocet = 0;
-  let x1 = W, y1 = H, x2 = 0, y2 = 0;
+  let x1 = W,
+    y1 = H,
+    x2 = 0,
+    y2 = 0;
 
   while (vrchol > 0) {
     const p = zasobnik[--vrchol];
@@ -145,7 +156,8 @@ for (let start = 0; start < W * H; start++) {
 
     for (let dy = -1; dy <= 1; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
-        const nx = x + dx, ny = y + dy;
+        const nx = x + dx,
+          ny = y + dy;
         if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
         const q = ny * W + nx;
         if (stitek[q] !== -1 || alfa[q] < PRAH_MASKY) continue;
@@ -158,9 +170,10 @@ for (let start = 0; start < W * H; start++) {
 }
 
 const vybrane = plochy
-  .filter((p) => p.pocet >= NEJMENE_PIXELU
-    && p.x2 - p.x1 >= NEJMENE_STRANA
-    && p.y2 - p.y1 >= NEJMENE_STRANA)
+  .filter(
+    (p) =>
+      p.pocet >= NEJMENE_PIXELU && p.x2 - p.x1 >= NEJMENE_STRANA && p.y2 - p.y1 >= NEJMENE_STRANA,
+  )
   .sort((a, b) => b.pocet - a.pocet);
 
 await rm(KAM, { recursive: true, force: true });
@@ -198,8 +211,15 @@ for (let n = 0; n < vybrane.length; n++) {
     const varianta = Buffer.from(cisty);
     for (let q = 0; q < width * height; q++) {
       if (varianta[q * 4 + 3] === 0) continue;
-      const [r, g, b] = prebarvi(varianta[q * 4], varianta[q * 4 + 1], varianta[q * 4 + 2], VARIANTY[v]);
-      varianta[q * 4] = r; varianta[q * 4 + 1] = g; varianta[q * 4 + 2] = b;
+      const [r, g, b] = prebarvi(
+        varianta[q * 4],
+        varianta[q * 4 + 1],
+        varianta[q * 4 + 2],
+        VARIANTY[v],
+      );
+      varianta[q * 4] = r;
+      varianta[q * 4 + 1] = g;
+      varianta[q * 4 + 2] = b;
     }
     kusy.push({ pripona: "bcde"[v], data: varianta });
   }
@@ -213,26 +233,35 @@ for (let n = 0; n < vybrane.length; n++) {
     nahledy.push({ jmeno, png, width, height });
   }
 
-  console.log(`${cislo}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy, ${kusy.length} variant`);
+  console.log(
+    `${cislo}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy, ${kusy.length} variant`,
+  );
 }
 
 /* Přehledový arch, ať se dá vybírat okem. */
 const SLOUPCU = VARIANTY.length + 1;
 const BUNKA = 190;
 const radku = Math.ceil(nahledy.length / SLOUPCU);
-const vrstvy = await Promise.all(nahledy.map(async (nh, i) => {
-  const meritko = Math.min((BUNKA - 16) / nh.width, (BUNKA - 16) / nh.height, 1.4);
-  const w = Math.max(1, Math.round(nh.width * meritko));
-  const h = Math.max(1, Math.round(nh.height * meritko));
-  return {
-    input: await sharp(nh.png).resize(w, h).png().toBuffer(),
-    left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
-    top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
-  };
-}));
+const vrstvy = await Promise.all(
+  nahledy.map(async (nh, i) => {
+    const meritko = Math.min((BUNKA - 16) / nh.width, (BUNKA - 16) / nh.height, 1.4);
+    const w = Math.max(1, Math.round(nh.width * meritko));
+    const h = Math.max(1, Math.round(nh.height * meritko));
+    return {
+      input: await sharp(nh.png).resize(w, h).png().toBuffer(),
+      left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
+      top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
+    };
+  }),
+);
 
 await sharp({
   create: { width: SLOUPCU * BUNKA, height: radku * BUNKA, channels: 4, background: "#ece7de" },
-}).composite(vrstvy).png().toFile(`${KAM}/nahled.png`);
+})
+  .composite(vrstvy)
+  .png()
+  .toFile(`${KAM}/nahled.png`);
 
-console.log(`\ncelkem ${nahledy.length} kusů (${vybrane.length} květin x ${VARIANTY.length + 1} barev), přehled v ${KAM}/nahled.png`);
+console.log(
+  `\ncelkem ${nahledy.length} kusů (${vybrane.length} květin x ${VARIANTY.length + 1} barev), přehled v ${KAM}/nahled.png`,
+);

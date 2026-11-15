@@ -44,8 +44,11 @@ const prah = (v, od, do_) => {
 };
 
 const naHsl = (r, g, b) => {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   if (max === min) return [0, 0, l];
   const d = max - min;
@@ -59,7 +62,10 @@ const naHsl = (r, g, b) => {
 
 const naRgb = (h, s, l) => {
   h = (((h % 360) + 360) % 360) / 360;
-  if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const kanal = (tt) => {
@@ -75,21 +81,28 @@ const naRgb = (h, s, l) => {
 };
 
 const { data, info } = await sharp(ZDROJ).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-const W = info.width, H = info.height;
+const W = info.width,
+  H = info.height;
 
 /* --- průhlednost a přebarvení mašlí --- */
 const alfa = new Float32Array(W * H);
 const barva = Buffer.alloc(W * H * 3);
 for (let p = 0; p < W * H; p++) {
-  const r = data[p * 4], g = data[p * 4 + 1], b = data[p * 4 + 2];
+  const r = data[p * 4],
+    g = data[p * 4 + 1],
+    b = data[p * 4 + 2];
   const jas = (r + g + b) / 3;
   alfa[p] = prah(255 - jas, PAPIR, TAH);
   const [, s, l] = naHsl(r, g, b);
   if (s > SYTOST_MASLE) {
     const [nr, ng, nb] = naRgb(ODSTIN, Math.min(s, SYTOST), l);
-    barva[p * 3] = nr; barva[p * 3 + 1] = ng; barva[p * 3 + 2] = nb;
+    barva[p * 3] = nr;
+    barva[p * 3 + 1] = ng;
+    barva[p * 3 + 2] = nb;
   } else {
-    barva[p * 3] = r; barva[p * 3 + 1] = g; barva[p * 3 + 2] = b;
+    barva[p * 3] = r;
+    barva[p * 3 + 1] = g;
+    barva[p * 3 + 2] = b;
   }
 }
 
@@ -105,7 +118,10 @@ let od = -1;
 for (let x = 0; x <= W; x++) {
   const je = x < W && vSloupci[x] > 0;
   if (je && od < 0) od = x;
-  if (!je && od >= 0) { useky.push([od, x - 1]); od = -1; }
+  if (!je && od >= 0) {
+    useky.push([od, x - 1]);
+    od = -1;
+  }
 }
 /* Drobné úlomky (odlesk, tečka po skenu) nejsou příbor. */
 const prib = useky.filter(([a, b]) => b - a > W * 0.05);
@@ -116,18 +132,27 @@ if (prib.length !== NAZVY.length) {
 
 for (let i = 0; i < prib.length && i < NAZVY.length; i++) {
   const [x1, x2] = prib[i];
-  let y1 = H, y2 = 0;
+  let y1 = H,
+    y2 = 0;
   for (let y = 0; y < H; y++) {
     for (let x = x1; x <= x2; x++) {
-      if (alfa[y * W + x] > 0.35) { if (y < y1) y1 = y; if (y > y2) y2 = y; break; }
+      if (alfa[y * W + x] > 0.35) {
+        if (y < y1) y1 = y;
+        if (y > y2) y2 = y;
+        break;
+      }
     }
   }
-  const sirka = x2 - x1 + 1, vyska = y2 - y1 + 1;
+  const sirka = x2 - x1 + 1,
+    vyska = y2 - y1 + 1;
   const ven = Buffer.alloc(sirka * vyska * 4);
   for (let y = 0; y < vyska; y++) {
     for (let x = 0; x < sirka; x++) {
-      const p = (y + y1) * W + (x + x1), q = (y * sirka + x) * 4;
-      ven[q] = barva[p * 3]; ven[q + 1] = barva[p * 3 + 1]; ven[q + 2] = barva[p * 3 + 2];
+      const p = (y + y1) * W + (x + x1),
+        q = (y * sirka + x) * 4;
+      ven[q] = barva[p * 3];
+      ven[q + 1] = barva[p * 3 + 1];
+      ven[q + 2] = barva[p * 3 + 2];
       ven[q + 3] = Math.round(255 * alfa[p]);
     }
   }
@@ -135,5 +160,7 @@ for (let i = 0; i < prib.length && i < NAZVY.length; i++) {
     .resize({ width: Math.min(sirka, SIRKA) })
     .webp({ quality: 92, alphaQuality: 100 })
     .toFile(`${CIL}/${NAZVY[i]}.webp`);
-  console.log(`${NAZVY[i]}  ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB, poměr ${(vysledek.height / vysledek.width).toFixed(2)}`);
+  console.log(
+    `${NAZVY[i]}  ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ${(vysledek.size / 1024).toFixed(0)} kB, poměr ${(vysledek.height / vysledek.width).toFixed(2)}`,
+  );
 }

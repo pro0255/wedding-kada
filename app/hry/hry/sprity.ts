@@ -188,15 +188,7 @@ export const TCHYNE: Sprite = [
   "...###...###....",
 ];
 
-export const SRDCE: Sprite = [
-  ".##.##.",
-  "#######",
-  "#######",
-  ".#####.",
-  "..###..",
-  "...#...",
-];
-
+export const SRDCE: Sprite = [".##.##.", "#######", "#######", ".#####.", "..###..", "...#..."];
 
 export const PRSTEN: Sprite = [
   "...oooo...",
@@ -235,4 +227,3 @@ export function kresli(
 
 export const sirka = (sp: Sprite) => sp[0].length * S;
 export const vyska = (sp: Sprite) => sp.length * S;
-

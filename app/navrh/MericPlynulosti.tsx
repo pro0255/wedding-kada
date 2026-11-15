@@ -128,7 +128,13 @@ export default function MericPlynulosti() {
 
   if (!vidim) return null;
 
-  const stav = !vysledek ? "nic" : vysledek.vyrazna > 0 ? "spatne" : vysledek.cuknuti > 0 ? "hrana" : "dobre";
+  const stav = vysledek
+    ? vysledek.vyrazna > 0
+      ? "spatne"
+      : vysledek.cuknuti > 0
+        ? "hrana"
+        : "dobre"
+    : "nic";
   return (
     <div className={s.meric} data-stav={stav} data-meric aria-live="polite">
       <button
@@ -148,8 +154,8 @@ export default function MericPlynulosti() {
       {rozbaleno && vysledek && (
         <div className={s.detail}>
           <p>
-            {vysledek.snimku} snímků za {OKNO_MS / 1000} s, displej {vysledek.hz} Hz.
-            Cuknutí = snímek nad {CUKNUTI_MS} ms, výrazné nad {VYRAZNE_MS} ms ({vysledek.vyrazna}).
+            {vysledek.snimku} snímků za {OKNO_MS / 1000} s, displej {vysledek.hz} Hz. Cuknutí =
+            snímek nad {CUKNUTI_MS} ms, výrazné nad {VYRAZNE_MS} ms ({vysledek.vyrazna}).
           </p>
           {vysledek.pricina.length > 0 && (
             <ul>

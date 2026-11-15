@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Ramec from "../Ramec";
 import Album from "./Album";
 
-export const metadata: Metadata = { title: "Příběh — S2: fotoalbum", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Příběh — S2: fotoalbum",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

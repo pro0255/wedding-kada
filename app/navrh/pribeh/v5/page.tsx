@@ -3,7 +3,10 @@ import { La_Belle_Aurore } from "next/font/google";
 import Ramec from "../Ramec";
 import Pribeh from "./Pribeh";
 
-export const metadata: Metadata = { title: "Příběh — S5: příběh při scrollu", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Příběh — S5: příběh při scrollu",
+  robots: { index: false, follow: false },
+};
 
 // rukopis popisků na polaroidech — latin-ext kvůli háčkům a čárkám
 const rukopis = La_Belle_Aurore({

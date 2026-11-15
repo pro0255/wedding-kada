@@ -112,22 +112,89 @@
 }
 
 /* desktop — kytice za průsečíkem (pravý okraj hromádky × horní hrana obálky) */
-.kvOstrozkaModra { left: 47cqw; top: calc(var(--nahore) + 12cqw); width: 6cqw; rotate: 20deg; }
-.kvOstrozkaRuzova { left: 56cqw; top: calc(var(--nahore) + 18cqw); width: 5.5cqw; rotate: 40deg; }
-.kvGypsophila { left: 51cqw; top: calc(var(--nahore) + 18cqw); width: 14cqw; rotate: 6deg; }
-.kvPomnenky { left: 68cqw; top: calc(var(--nahore) + 27cqw); width: 6cqw; rotate: 46deg; }
-.kvGerberaZluta { left: 67.5cqw; top: calc(var(--nahore) + 33.5cqw); width: 9cqw; rotate: 14deg; }
-.kvPivonka { left: 58cqw; top: calc(var(--nahore) + 30.5cqw); width: 12cqw; }
-.kvHortenzie { left: 42cqw; top: calc(var(--nahore) + 28.5cqw); width: 17cqw; rotate: -8deg; }
+.kvOstrozkaModra {
+  left: 47cqw;
+  top: calc(var(--nahore) + 12cqw);
+  width: 6cqw;
+  rotate: 20deg;
+}
+.kvOstrozkaRuzova {
+  left: 56cqw;
+  top: calc(var(--nahore) + 18cqw);
+  width: 5.5cqw;
+  rotate: 40deg;
+}
+.kvGypsophila {
+  left: 51cqw;
+  top: calc(var(--nahore) + 18cqw);
+  width: 14cqw;
+  rotate: 6deg;
+}
+.kvPomnenky {
+  left: 68cqw;
+  top: calc(var(--nahore) + 27cqw);
+  width: 6cqw;
+  rotate: 46deg;
+}
+.kvGerberaZluta {
+  left: 67.5cqw;
+  top: calc(var(--nahore) + 33.5cqw);
+  width: 9cqw;
+  rotate: 14deg;
+}
+.kvPivonka {
+  left: 58cqw;
+  top: calc(var(--nahore) + 30.5cqw);
+  width: 12cqw;
+}
+.kvHortenzie {
+  left: 42cqw;
+  top: calc(var(--nahore) + 28.5cqw);
+  width: 17cqw;
+  rotate: -8deg;
+}
 /* pod spodní hranou hromádky, vlevo od obálky */
-.kvPivonkaZluta { left: 11cqw; top: calc(var(--nahore) + 49cqw); width: 9cqw; rotate: -8deg; }
-.kvKarafiatBroskvovy { left: 18.5cqw; top: calc(var(--nahore) + 51.5cqw); width: 9.5cqw; rotate: 10deg; }
-.kvGerbera { left: 25.5cqw; top: calc(var(--nahore) + 50cqw); width: 10cqw; }
-.kvKarafiatRuzovy { left: 30.5cqw; top: calc(var(--nahore) + 54.5cqw); width: 8.5cqw; rotate: -12deg; }
+.kvPivonkaZluta {
+  left: 11cqw;
+  top: calc(var(--nahore) + 49cqw);
+  width: 9cqw;
+  rotate: -8deg;
+}
+.kvKarafiatBroskvovy {
+  left: 18.5cqw;
+  top: calc(var(--nahore) + 51.5cqw);
+  width: 9.5cqw;
+  rotate: 10deg;
+}
+.kvGerbera {
+  left: 25.5cqw;
+  top: calc(var(--nahore) + 50cqw);
+  width: 10cqw;
+}
+.kvKarafiatRuzovy {
+  left: 30.5cqw;
+  top: calc(var(--nahore) + 54.5cqw);
+  width: 8.5cqw;
+  rotate: -12deg;
+}
 /* před scénou */
-.kvHermanek { left: 78cqw; top: calc(var(--nahore) + 63cqw); width: 12cqw; rotate: 22deg; }
-.kvKrasenka { left: 74.5cqw; top: calc(var(--nahore) + 70cqw); width: 6.5cqw; }
-.kvRuze { left: -3cqw; top: calc(var(--nahore) + 42cqw); width: 9cqw; rotate: -20deg; }
+.kvHermanek {
+  left: 78cqw;
+  top: calc(var(--nahore) + 63cqw);
+  width: 12cqw;
+  rotate: 22deg;
+}
+.kvKrasenka {
+  left: 74.5cqw;
+  top: calc(var(--nahore) + 70cqw);
+  width: 6.5cqw;
+}
+.kvRuze {
+  left: -3cqw;
+  top: calc(var(--nahore) + 42cqw);
+  width: 9cqw;
+  rotate: -20deg;
+}
 
 @media (max-width: 700px) {
   .stranka {
@@ -146,19 +213,66 @@
   }
 
   /* telefon: kytice vykukuje vpravo od hromádky nad obálkou */
-  .kvOstrozkaModra { left: 71cqw; top: calc(var(--nahore) + 21cqw); width: 8cqw; rotate: 10deg; }
-  .kvOstrozkaRuzova { left: 84cqw; top: calc(var(--nahore) + 31cqw); width: 7cqw; rotate: 28deg; }
-  .kvGypsophila { left: 75cqw; top: calc(var(--nahore) + 27cqw); width: 18cqw; rotate: 10deg; }
+  .kvOstrozkaModra {
+    left: 71cqw;
+    top: calc(var(--nahore) + 21cqw);
+    width: 8cqw;
+    rotate: 10deg;
+  }
+  .kvOstrozkaRuzova {
+    left: 84cqw;
+    top: calc(var(--nahore) + 31cqw);
+    width: 7cqw;
+    rotate: 28deg;
+  }
+  .kvGypsophila {
+    left: 75cqw;
+    top: calc(var(--nahore) + 27cqw);
+    width: 18cqw;
+    rotate: 10deg;
+  }
   .kvPomnenky,
-  .kvGerberaZluta { display: none; }
-  .kvPivonka { left: 84cqw; top: calc(var(--nahore) + 50cqw); width: 15cqw; }
-  .kvHortenzie { left: 63cqw; top: calc(var(--nahore) + 46cqw); width: 22cqw; rotate: -8deg; }
+  .kvGerberaZluta {
+    display: none;
+  }
+  .kvPivonka {
+    left: 84cqw;
+    top: calc(var(--nahore) + 50cqw);
+    width: 15cqw;
+  }
+  .kvHortenzie {
+    left: 63cqw;
+    top: calc(var(--nahore) + 46cqw);
+    width: 22cqw;
+    rotate: -8deg;
+  }
   .kvPivonkaZluta,
-  .kvGerbera { display: none; }
-  .kvKarafiatRuzovy { left: -2cqw; top: calc(var(--nahore) + 79cqw); width: 13cqw; rotate: -12deg; }
-  .kvKarafiatBroskvovy { display: none; }
+  .kvGerbera {
+    display: none;
+  }
+  .kvKarafiatRuzovy {
+    left: -2cqw;
+    top: calc(var(--nahore) + 79cqw);
+    width: 13cqw;
+    rotate: -12deg;
+  }
+  .kvKarafiatBroskvovy {
+    display: none;
+  }
 
-  .kvHermanek { left: 82cqw; top: calc(var(--nahore) + 101cqw); width: 18cqw; }
-  .kvKrasenka { left: 76cqw; top: calc(var(--nahore) + 112cqw); width: 9cqw; }
-  .kvRuze { left: -3cqw; top: calc(var(--nahore) + 64cqw); width: 13cqw; }
+  .kvHermanek {
+    left: 82cqw;
+    top: calc(var(--nahore) + 101cqw);
+    width: 18cqw;
+  }
+  .kvKrasenka {
+    left: 76cqw;
+    top: calc(var(--nahore) + 112cqw);
+    width: 9cqw;
+  }
+  .kvRuze {
+    left: -3cqw;
+    top: calc(var(--nahore) + 64cqw);
+    width: 13cqw;
+  }
 }

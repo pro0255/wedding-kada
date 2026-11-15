@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { HraSlug } from "@/lib/schemata";
-import { HRY_REGISTR } from "./hry/hry";
 import HraSeZebrickem from "./hry/[hra]/HraSeZebrickem";
+import { HRY_REGISTR } from "./hry/hry";
 import VyberHry from "./hry/VyberHry";
 import s from "./not-found.module.css";
 
@@ -19,8 +19,8 @@ export default function Hra404() {
         <p className={s.kod}>404</p>
         <h1 className={s.nadpis}>Tady se nikdo nebere</h1>
         <p className={s.podtitul}>
-          Tahle stránka se někam zatoulala. Než ji najdeme, zahraj si — každá hra má svůj
-          žebříček. Porazíš toho, kdo právě vede?
+          Tahle stránka se někam zatoulala. Než ji najdeme, zahraj si — každá hra má svůj žebříček.
+          Porazíš toho, kdo právě vede?
         </p>
         <VyberHry onVyber={(hra) => setFaze({ typ: "hra", hra })} />
       </div>

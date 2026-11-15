@@ -65,7 +65,10 @@ function db(): Promise<IDBDatabase | null> {
   return dbSlib;
 }
 
-async function transakce<T>(rezim: IDBTransactionMode, prace: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+async function transakce<T>(
+  rezim: IDBTransactionMode,
+  prace: (s: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   const d = await db();
   if (!d) throw new Error("bez IndexedDB");
   return new Promise((vyres, zamitni) => {
@@ -79,7 +82,10 @@ async function transakce<T>(rezim: IDBTransactionMode, prace: (s: IDBObjectStore
 
 async function vsechny(): Promise<Polozka[]> {
   try {
-    return [...(await transakce("readonly", (s) => s.getAll() as IDBRequest<Polozka[]>)), ...pamet.values()];
+    return [
+      ...(await transakce("readonly", (s) => s.getAll() as IDBRequest<Polozka[]>)),
+      ...pamet.values(),
+    ];
   } catch {
     return [...pamet.values()];
   }
@@ -164,10 +170,13 @@ function doCloudinary(
         zamitni(new ChybaNahrani(0));
       }
     };
-    xhr.onerror = xhr.onabort = xhr.ontimeout = () => {
-      window.clearTimeout(hlidac);
-      zamitni(new ChybaNahrani(0));
-    };
+    xhr.onerror =
+      xhr.onabort =
+      xhr.ontimeout =
+        () => {
+          window.clearTimeout(hlidac);
+          zamitni(new ChybaNahrani(0));
+        };
     const data = new FormData();
     data.append("file", soubor);
     data.append("upload_preset", preset);
@@ -183,12 +192,16 @@ async function registruj(p: Polozka): Promise<void> {
     const r = await fetch("/api/fotky", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: p.nahrano!.url, publicId: p.nahrano!.publicId, deviceId: p.deviceId }),
+      body: JSON.stringify({
+        url: p.nahrano!.url,
+        publicId: p.nahrano!.publicId,
+        deviceId: p.deviceId,
+      }),
       signal: ovladac.signal,
     });
     if (!r.ok) throw new ChybaNahrani(r.status);
-  } catch (chyba) {
-    throw chyba instanceof ChybaNahrani ? chyba : new ChybaNahrani(0);
+  } catch (error) {
+    throw error instanceof ChybaNahrani ? error : new ChybaNahrani(0);
   } finally {
     window.clearTimeout(casovac);
   }
@@ -334,8 +347,8 @@ export function useNahravani({
         radek.procento = 100;
         vykresli();
         zpetne.current.poNahrani();
-      } catch (chyba) {
-        const status = chyba instanceof ChybaNahrani ? chyba.status : 0;
+      } catch (error) {
+        const status = error instanceof ChybaNahrani ? error.status : 0;
         const verdikt = posudChybu(status);
         if (verdikt === "zamceno") {
           zpetne.current.zamceno?.();
@@ -347,7 +360,9 @@ export function useNahravani({
           await smaz(p.id);
           URL.revokeObjectURL(radek.nahled);
           ui.current.delete(p.id);
-          zpetne.current.naChybu("Jeden soubor se nahrát nepodařilo — zkuste ho prosím poslat jinak.");
+          zpetne.current.naChybu(
+            "Jeden soubor se nahrát nepodařilo — zkuste ho prosím poslat jinak.",
+          );
           continue;
         }
         radek.stav = "znovu";
@@ -374,7 +389,9 @@ export function useNahravani({
         .catch(() => {})
         .finally(hotovo);
     } else {
-      smycka().catch(() => {}).finally(hotovo);
+      smycka()
+        .catch(() => {})
+        .finally(hotovo);
     }
   }, [smycka]);
 

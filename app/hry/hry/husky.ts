@@ -1,3 +1,4 @@
+import { HUSKY, KYTICE, PRSTEN, SRDCE, TCHYNE, kresli, sirka, vyska } from "./sprity";
 import {
   novaSrdce,
   posunSrdce,
@@ -9,7 +10,6 @@ import {
   type Vstup,
   type Zvuk,
 } from "./typy";
-import { HUSKY, KYTICE, PRSTEN, SRDCE, TCHYNE, kresli, sirka, vyska } from "./sprity";
 
 /* Pluto (husky) běhá po zemi, shora padají věci. Prstýnek +1, kytice +5,
    tchýně bere život. Bez tří životů je konec. */

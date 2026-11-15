@@ -2,9 +2,18 @@
 
 import { useEffect, useId, useRef } from "react";
 import gsap from "gsap";
-import { predehrat, pripojOvladani, vytvorPripravenost } from "./plynulost";
-import { BOK_L, BOK_P, CHLOPEN, CHLOPEN_RUB, CHLOPEN_RUB_PODSIVKA, Defs, SPODEK, Zrno } from "./svg";
 import s from "./obalka.module.css";
+import { predehrat, pripojOvladani, vytvorPripravenost } from "./plynulost";
+import {
+  BOK_L,
+  BOK_P,
+  CHLOPEN,
+  CHLOPEN_RUB,
+  CHLOPEN_RUB_PODSIVKA,
+  Defs,
+  SPODEK,
+  Zrno,
+} from "./svg";
 
 /* Obálka s příběhem. Leží pečetí nahoru jako v dřívější verzi webu — zlatá
    pečeť je jediný teplý akcent scény a host hned ví, kam klepnout. Jedno
@@ -49,7 +58,7 @@ function ObsahDopisu({ children }: { children: React.ReactNode }) {
 
 export default function ObalkaPosta({ children }: { children: React.ReactNode }) {
   const rawId = useId();
-  const p = "o" + rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const p = "o" + rawId.replaceAll(/[^a-zA-Z0-9]/g, "");
   const idDopisu = p + "dopis";
 
   const koren = useRef<HTMLDivElement>(null);
@@ -57,7 +66,9 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
   const dopis = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = koren.current, b = tlacitko.current, d = dopis.current;
+    const el = koren.current,
+      b = tlacitko.current,
+      d = dopis.current;
     if (!el || !b || !d) return;
     const pr = vytvorPripravenost(el);
     const q = gsap.utils.selector(el);
@@ -65,26 +76,83 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
     let naklonY: ((v: number) => void) | null = null;
 
     const ctx = gsap.context(() => {
-      gsap.set(q(`.${s.chlopen}`), { transformPerspective: 1400, transformOrigin: "50% 0%", rotationX: 0 });
-      gsap.set(q(`.${s.polovinaDolni}`), { transformPerspective: 1600, transformOrigin: "50% 0%", rotationX: 180 });
+      gsap.set(q(`.${s.chlopen}`), {
+        transformPerspective: 1400,
+        transformOrigin: "50% 0%",
+        rotationX: 0,
+      });
+      gsap.set(q(`.${s.polovinaDolni}`), {
+        transformPerspective: 1600,
+        transformOrigin: "50% 0%",
+        rotationX: 180,
+      });
       gsap.set(q(`.${s.jiskra}`), { scale: 0, opacity: 0 });
 
       const t = gsap.timeline({ paused: true, onComplete: pr.konec, onReverseComplete: pr.konec });
       // 1) zvednout
-      t.to(q(`.${s.zdvihKarty}`), { yPercent: -4, scale: 1.035, duration: 0.35, ease: "power2.out" }, 0)
-        .to(q(`.${s.stinKarty}`), { opacity: 0.6, scale: 0.97, duration: 0.35, ease: "power2.out" }, 0)
-        .to(q(`.${s.zdvihKarty}`), { yPercent: 0, scale: 1, duration: 0.45, ease: "power2.inOut" }, 0.4)
-        .to(q(`.${s.stinKarty}`), { opacity: 1, scale: 1, duration: 0.45, ease: "power2.inOut" }, 0.4)
+      t.to(
+        q(`.${s.zdvihKarty}`),
+        { yPercent: -4, scale: 1.035, duration: 0.35, ease: "power2.out" },
+        0,
+      )
+        .to(
+          q(`.${s.stinKarty}`),
+          { opacity: 0.6, scale: 0.97, duration: 0.35, ease: "power2.out" },
+          0,
+        )
+        .to(
+          q(`.${s.zdvihKarty}`),
+          { yPercent: 0, scale: 1, duration: 0.45, ease: "power2.inOut" },
+          0.4,
+        )
+        .to(
+          q(`.${s.stinKarty}`),
+          { opacity: 1, scale: 1, duration: 0.45, ease: "power2.inOut" },
+          0.4,
+        )
         // 2) pečeť praskne, jiskry
-        .to(q(`.${s.pecetL}`), { xPercent: -40, yPercent: 45, rotation: -28, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.2)
-        .to(q(`.${s.pecetP}`), { xPercent: 40, yPercent: 58, rotation: 24, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.22)
-        .to(q(`.${s.jiskra}`), {
-          keyframes: [
-            { scale: 1, opacity: 1, duration: 0.12, ease: "power1.out" },
-            { xPercent: (i: number) => JISKRY[i].x, yPercent: (i: number) => JISKRY[i].y, scale: (i: number) => JISKRY[i].s, opacity: 0, duration: 0.7, ease: "power3.out" },
-          ],
-          stagger: 0.012,
-        }, 0.17)
+        .to(
+          q(`.${s.pecetL}`),
+          {
+            xPercent: -40,
+            yPercent: 45,
+            rotation: -28,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          0.2,
+        )
+        .to(
+          q(`.${s.pecetP}`),
+          {
+            xPercent: 40,
+            yPercent: 58,
+            rotation: 24,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          0.22,
+        )
+        .to(
+          q(`.${s.jiskra}`),
+          {
+            keyframes: [
+              { scale: 1, opacity: 1, duration: 0.12, ease: "power1.out" },
+              {
+                xPercent: (i: number) => JISKRY[i].x,
+                yPercent: (i: number) => JISKRY[i].y,
+                scale: (i: number) => JISKRY[i].s,
+                opacity: 0,
+                duration: 0.7,
+                ease: "power3.out",
+              },
+            ],
+            stagger: 0.012,
+          },
+          0.17,
+        )
         // 3) chlopeň
         .to(q(`.${s.chlopenStin}`), { opacity: 0, duration: 0.25 }, 0.35)
         .to(q(`.${s.chlopen}`), { rotationX: 180, duration: 0.8, ease: "power2.inOut" }, 0.35)
@@ -92,7 +160,17 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
         // 4) dopis vyjede, přeskočí nad kapsu, usadí se a rozloží
         .to(q(`.${s.zdvih}`), { yPercent: -118, duration: 0.65, ease: "power3.out" }, 1)
         .set(q(`.${s.zdvih}`), { zIndex: 6 }, 1.6)
-        .to(q(`.${s.usazeni}`), { yPercent: () => (uzka() ? -22 : -8), scale: () => (uzka() ? 1.03 : 0.86), rotation: -4, duration: 0.75, ease: "back.out(1.5)" }, 1.6)
+        .to(
+          q(`.${s.usazeni}`),
+          {
+            yPercent: () => (uzka() ? -22 : -8),
+            scale: () => (uzka() ? 1.03 : 0.86),
+            rotation: -4,
+            duration: 0.75,
+            ease: "back.out(1.5)",
+          },
+          1.6,
+        )
         .to(q(`.${s.polovinaDolni}`), { rotationX: 0, duration: 0.85, ease: "power3.out" }, 1.9)
         .to(q(`.${s.dolniStin}`), { opacity: 0, duration: 0.6 }, 2.15);
       // předehřátí: všechny tweeny si teď (ne v prvním snímku) přečtou výchozí
@@ -123,7 +201,8 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
     }, el);
 
     const pohyb = (e: PointerEvent) => {
-      if (el.dataset.otevreno === "true" || e.pointerType !== "mouse" || !naklonX || !naklonY) return;
+      if (el.dataset.otevreno === "true" || e.pointerType !== "mouse" || !naklonX || !naklonY)
+        return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const r = el.getBoundingClientRect();
       naklonX(((e.clientX - r.left) / r.width - 0.5) * 12);
@@ -187,14 +266,32 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
                 <Zrno p={p + "k"} d={BOK_L} />
                 <path d={BOK_P} fill={`url(#${p}kbokP)`} />
                 <Zrno p={p + "k"} d={BOK_P} />
-                <path d={SPODEK} transform="translate(0,-1.2)" fill="#7d8fa1" opacity="0.18" style={{ filter: "blur(1.2px)" }} />
+                <path
+                  d={SPODEK}
+                  transform="translate(0,-1.2)"
+                  fill="#7d8fa1"
+                  opacity="0.18"
+                  style={{ filter: "blur(1.2px)" }}
+                />
                 <path d={SPODEK} fill={`url(#${p}kspodek)`} />
                 <Zrno p={p + "k"} d={SPODEK} />
-                <path d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="0.35" />
+                <path
+                  d="M0.6,99.6 L73,49 Q80,44 87,49 L159.4,99.6"
+                  fill="none"
+                  stroke="#fff"
+                  strokeOpacity="0.55"
+                  strokeWidth="0.35"
+                />
               </svg>
 
               <svg className={s.chlopenStin} viewBox="0 0 160 58" aria-hidden="true">
-                <path d={CHLOPEN} transform="translate(0,2.2)" fill="#5d6f82" opacity="0.28" style={{ filter: "blur(1.2px)" }} />
+                <path
+                  d={CHLOPEN}
+                  transform="translate(0,2.2)"
+                  fill="#5d6f82"
+                  opacity="0.28"
+                  style={{ filter: "blur(1.2px)" }}
+                />
               </svg>
 
               <div className={s.chlopen} aria-hidden="true">
@@ -202,7 +299,13 @@ export default function ObalkaPosta({ children }: { children: React.ReactNode })
                   <Defs p={p + "c"} />
                   <path d={CHLOPEN} fill={`url(#${p}cchlopen)`} />
                   <Zrno p={p + "c"} d={CHLOPEN} />
-                  <path d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="0.35" />
+                  <path
+                    d="M0.4,0.4 L72,52 Q80,58 88,52 L159.6,0.4"
+                    fill="none"
+                    stroke="#fff"
+                    strokeOpacity="0.6"
+                    strokeWidth="0.35"
+                  />
                 </svg>
                 <svg className={s.chlopenRub} viewBox="0 0 160 58">
                   <Defs p={p + "r"} />

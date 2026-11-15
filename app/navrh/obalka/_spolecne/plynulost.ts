@@ -81,7 +81,11 @@ export function vytvorPripravenost(el: HTMLElement): Pripravenost {
 const dalsiSnimek = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 /* Spustí předehřátí, až bude obálka poprvé (skoro) vidět. Vrací úklid. */
-export function predehrat(el: HTMLElement, obrazky: string[], pripravenost: Pripravenost): () => void {
+export function predehrat(
+  el: HTMLElement,
+  obrazky: string[],
+  pripravenost: Pripravenost,
+): () => void {
   let zruseno = false;
   const io = new IntersectionObserver(
     async (zaznamy) => {
@@ -92,7 +96,7 @@ export function predehrat(el: HTMLElement, obrazky: string[], pripravenost: Prip
         ...obrazky.map((src) => {
           const img = new Image();
           img.src = src;
-          return img.decode().catch(() => undefined);
+          return img.decode().catch(() => {});
         }),
       ]);
       // uživatel mezitím mohl obálku otevřít — pak už není co předehřívat

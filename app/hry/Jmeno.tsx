@@ -68,8 +68,8 @@ export default function Jmeno({
         localStorage.setItem(KLIC, t);
       } catch {}
       onZmena?.(t);
-    } catch (vyjimka) {
-      setChyba(chybaZVyjimky(vyjimka));
+    } catch (error) {
+      setChyba(chybaZVyjimky(error));
       setStav("chyba");
     }
   }

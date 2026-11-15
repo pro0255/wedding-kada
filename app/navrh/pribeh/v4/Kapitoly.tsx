@@ -20,12 +20,36 @@ const F = (popis: string) => {
 /* Úryvky jsou doslova z dopisu; trojtečky říkají, že věta pokračuje
    v další kapitole. */
 const KAPITOLY = [
-  { nazev: "Poznali jsme se", text: "Poznali jsme se…", fotky: [F("První společná fotka"), F("ZOO Ostrava")] },
-  { nazev: "Zamilovali se", text: "…zamilovali se…", fotky: [F("Bílovec"), F("Chorvatsko"), F("Kozmice")] },
-  { nazev: "Krásné i náročnější chvíle", text: "…prošli spolu krásnými i náročnějšími chvílemi…", fotky: [F("Sicílie"), F("Svatba I & O")] },
-  { nazev: "Domov plný smíchu", text: "…a vybudovali domov plný smíchu, lásky a společných vzpomínek.", fotky: [F("Těhotenské focení"), F("První Chorvatsko jako rodina"), F("Slovensko")] },
-  { nazev: "Zásnuby na Troskách", text: "Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše největší společné dobrodružství.", fotky: [F("Zásnuby na Troskách"), F("Štramberk"), F("FM City Fest"), F("Trogir")] },
-  { nazev: "18. září 2027", text: "Dnes už víme, že chceme jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.", fotky: [F("Kutná Hora")] },
+  {
+    nazev: "Poznali jsme se",
+    text: "Poznali jsme se…",
+    fotky: [F("První společná fotka"), F("ZOO Ostrava")],
+  },
+  {
+    nazev: "Zamilovali se",
+    text: "…zamilovali se…",
+    fotky: [F("Bílovec"), F("Chorvatsko"), F("Kozmice")],
+  },
+  {
+    nazev: "Krásné i náročnější chvíle",
+    text: "…prošli spolu krásnými i náročnějšími chvílemi…",
+    fotky: [F("Sicílie"), F("Svatba I & O")],
+  },
+  {
+    nazev: "Domov plný smíchu",
+    text: "…a vybudovali domov plný smíchu, lásky a společných vzpomínek.",
+    fotky: [F("Těhotenské focení"), F("První Chorvatsko jako rodina"), F("Slovensko")],
+  },
+  {
+    nazev: "Zásnuby na Troskách",
+    text: "Pět let spolu, jedno zásnubní „ano“ na Troskách a teď nás čeká naše největší společné dobrodružství.",
+    fotky: [F("Zásnuby na Troskách"), F("Štramberk"), F("FM City Fest"), F("Trogir")],
+  },
+  {
+    nazev: "18. září 2027",
+    text: "Dnes už víme, že chceme jít životem bok po boku — a proto si 18. září 2027 řekneme své „ano“.",
+    fotky: [F("Kutná Hora")],
+  },
 ];
 
 const cislo = (i: number) => String(i + 1).padStart(2, "0");
@@ -53,7 +77,7 @@ export default function Kapitoly() {
       for (const f of dalsi.fotky) {
         const img = new Image();
         img.src = f.src;
-        img.decode?.().catch(() => undefined);
+        img.decode?.().catch(() => {});
       }
     }, 400);
     return () => window.clearTimeout(id);
@@ -66,8 +90,13 @@ export default function Kapitoly() {
       aria-roledescription="kapitoly"
       aria-label="Náš příběh v kapitolách"
       onKeyDown={(e) => {
-        if (e.key === "ArrowRight") { e.preventDefault(); jdi(k + 1); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); jdi(k - 1); }
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          jdi(k + 1);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          jdi(k - 1);
+        }
       }}
     >
       <header className={s.hlavicka}>
@@ -97,18 +126,25 @@ export default function Kapitoly() {
 
       <div
         className={s.dvoustrana}
-        onPointerDown={(e) => { tah.current = { x: e.clientX, y: e.clientY }; }}
+        onPointerDown={(e) => {
+          tah.current = { x: e.clientX, y: e.clientY };
+        }}
         onPointerUp={(e) => {
           const z = tah.current;
           tah.current = null;
           if (!z || e.pointerType === "mouse") return;
           const dx = e.clientX - z.x;
-          if (Math.abs(dx) > TAH_PX && Math.abs(dx) > Math.abs(e.clientY - z.y)) jdi(dx < 0 ? k + 1 : k - 1);
+          if (Math.abs(dx) > TAH_PX && Math.abs(dx) > Math.abs(e.clientY - z.y))
+            jdi(dx < 0 ? k + 1 : k - 1);
         }}
-        onPointerCancel={() => { tah.current = null; }}
+        onPointerCancel={() => {
+          tah.current = null;
+        }}
       >
         <div key={`t${k}`} className={s.text}>
-          <span className={s.velkeCislo} aria-hidden="true">{cislo(k)}</span>
+          <span className={s.velkeCislo} aria-hidden="true">
+            {cislo(k)}
+          </span>
           <p className={s.kapitolaNazev}>
             <span className="jen-pro-odecitace">Kapitola {k + 1}: </span>
             {kap.nazev}
@@ -118,7 +154,14 @@ export default function Kapitoly() {
 
         <div key={`f${k}`} className={s.fotky}>
           <figure className={s.velka}>
-            <img key={velka.src} src={velka.src} alt={velka.popis} loading="lazy" decoding="async" draggable={false} />
+            <img
+              key={velka.src}
+              src={velka.src}
+              alt={velka.popis}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
             <figcaption>{velka.popis}</figcaption>
           </figure>
           {male.length > 0 && (
@@ -140,9 +183,16 @@ export default function Kapitoly() {
         </div>
 
         <div className={s.listovani}>
-          <button type="button" onClick={() => jdi(k - 1)} aria-label="Předchozí kapitola">←</button>
-          <span aria-live="polite">{cislo(k)} <span aria-hidden="true">/</span><span className="jen-pro-odecitace"> z </span> {cislo(pocet - 1)}</span>
-          <button type="button" onClick={() => jdi(k + 1)} aria-label="Další kapitola">→</button>
+          <button type="button" onClick={() => jdi(k - 1)} aria-label="Předchozí kapitola">
+            ←
+          </button>
+          <span aria-live="polite">
+            {cislo(k)} <span aria-hidden="true">/</span>
+            <span className="jen-pro-odecitace"> z </span> {cislo(pocet - 1)}
+          </span>
+          <button type="button" onClick={() => jdi(k + 1)} aria-label="Další kapitola">
+            →
+          </button>
         </div>
       </div>
     </div>

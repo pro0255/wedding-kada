@@ -51,7 +51,8 @@ export async function vytvorPrstynky(
   renderer.shadowMap.autoUpdate = false;
   const platno = renderer.domElement;
   platno.setAttribute("aria-hidden", "true");
-  platno.style.cssText = "display:block;width:100%;height:100%;opacity:0;transition:opacity .8s ease";
+  platno.style.cssText =
+    "display:block;width:100%;height:100%;opacity:0;transition:opacity .8s ease";
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -102,7 +103,10 @@ export async function vytvorPrstynky(
 
   const stolGeo = new THREE.PlaneGeometry(6, 6);
   stolGeo.rotateX(-Math.PI / 2);
-  const stul = new THREE.Mesh(stolGeo, new THREE.ShadowMaterial({ color: "#3b2a1c", opacity: 0.28 }));
+  const stul = new THREE.Mesh(
+    stolGeo,
+    new THREE.ShadowMaterial({ color: "#3b2a1c", opacity: 0.28 }),
+  );
   stul.receiveShadow = true;
   scene.add(stul);
 
@@ -153,7 +157,7 @@ export async function vytvorPrstynky(
   renderer.initTexture(napis);
   renderer.shadowMap.needsUpdate = true;
   vykresli();
-  el.appendChild(platno);
+  el.append(platno);
   ro.observe(el);
   requestAnimationFrame(() => (platno.style.opacity = "1"));
 

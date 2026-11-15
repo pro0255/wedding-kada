@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { chybaOdpoved } from "@/lib/chyby";
 import { hesloFotek, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import {
   COOKIE_FOTKY,
@@ -12,7 +13,6 @@ import {
 } from "@/lib/pristup";
 import { KLIC, maRedis, redis } from "@/lib/redis";
 import { VstupPostSchema } from "@/lib/schemata";
-import { chybaOdpoved } from "@/lib/chyby";
 
 /* Vstup do galerie fotek a zároveň přihlášení správce (/admin). Odpověď
    na otázku zná jen server (FOTKY_HESLO), prohlížeč po správné odpovědi
@@ -44,8 +44,8 @@ async function spatnePokusy(k: Klice): Promise<{ zarizeni: number; ip: number }>
     const klice = k.zarizeni ? [k.ip, k.zarizeni] : [k.ip];
     const [ip, zarizeni] = await redis().mget<(number | null)[]>(...klice);
     return { ip: ip ?? 0, zarizeni: zarizeni ?? 0 };
-  } catch (chyba) {
-    console.warn("[fotky] počítadlo pokusů je nedostupné, limit se nepočítá", chyba);
+  } catch (error) {
+    console.warn("[fotky] počítadlo pokusů je nedostupné, limit se nepočítá", error);
     return nic;
   }
 }
@@ -58,8 +58,8 @@ async function zapocitejPokus(k: Klice): Promise<void> {
       if (klic) tx.incr(klic).expire(klic, OKNO_POKUSU_S);
     }
     await tx.exec();
-  } catch (chyba) {
-    console.error("[fotky] Pokus se nepodařilo započítat:", chyba);
+  } catch (error) {
+    console.error("[fotky] Pokus se nepodařilo započítat:", error);
   }
 }
 

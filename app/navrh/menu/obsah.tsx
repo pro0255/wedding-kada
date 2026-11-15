@@ -14,8 +14,16 @@ type Chod = { kurz: string; jidlo: string; detail: string };
 
 export const DOSPELI: Chod[] = [
   { kurz: "Polévka", jidlo: "Svatební vývar", detail: "Játrové knedlíčky, zelenina, nudle" },
-  { kurz: "Hlavní chod", jidlo: "Vepřová panenka sous-vide", detail: "Pečené brambory grenaille, pepřová omáčka" },
-  { kurz: "Dezert", jidlo: "Svatební dort", detail: "Čokoládový korpus, pařížský krém, malinový kompot" },
+  {
+    kurz: "Hlavní chod",
+    jidlo: "Vepřová panenka sous-vide",
+    detail: "Pečené brambory grenaille, pepřová omáčka",
+  },
+  {
+    kurz: "Dezert",
+    jidlo: "Svatební dort",
+    detail: "Čokoládový korpus, pařížský krém, malinový kompot",
+  },
 ];
 
 export const DETI: Chod[] = [
@@ -57,7 +65,11 @@ export const Ornament = memo(function Ornament() {
 
 /** Menu pro dospělé. `sUvodem` přidá vtip pod nadpis a poznámku o alergenech
     (kniha je má na téže straně; skládačka je dává na vlastní panel). */
-export const StranaDospeli = memo(function StranaDospeli({ sUvodem = true }: { sUvodem?: boolean }) {
+export const StranaDospeli = memo(function StranaDospeli({
+  sUvodem = true,
+}: {
+  sUvodem?: boolean;
+}) {
   return (
     <div className={s.papir}>
       <div className={s.obsah}>

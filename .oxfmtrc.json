@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "sortImports": {
+    "customGroups": [
+      {
+        "groupName": "react",
+        "elementNamePattern": ["react"]
+      }
+    ],
+    "groups": [
+      "react",
+      ["builtin", "external"],
+      "internal",
+      ["parent", "sibling", "index"],
+      "unknown"
+    ],
+    "internalPattern": ["@/"],
+    "newlinesBetween": false,
+    "partitionByNewline": false,
+    "sortSideEffects": false
+  },
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "/node_modules",
+    "/.next/",
+    "package-lock.json",
+    ".agents/",
+    ".claude/",
+    "skills-lock.json",
+    "public/",
+    "predlohy/",
+    "docs/"
+  ]
+}

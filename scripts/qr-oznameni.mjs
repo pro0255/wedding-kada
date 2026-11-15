@@ -15,8 +15,8 @@
  * ohne nebo se na něj posvítí pod úhlem; výchozí M by stačilo na obrazovku,
  * ne na kartu, kterou si někdo bude vozit v kapse. */
 
-import QRCode from "qrcode";
 import { writeFile, mkdir } from "node:fs/promises";
+import QRCode from "qrcode";
 import { WEB_URL } from "../app/oznameni/adresa.ts";
 
 const CIL = "public/oznameni/qr.svg";

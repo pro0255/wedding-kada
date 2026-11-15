@@ -41,7 +41,9 @@ type Props = { className?: string };
 function Svg({ children, className = "" }: Props & { children: React.ReactNode }) {
   return (
     <span className={`kytky-kresba ${className}`} aria-hidden="true">
-      <svg viewBox="0 0 64 120" focusable="false">{children}</svg>
+      <svg viewBox="0 0 64 120" focusable="false">
+        {children}
+      </svg>
     </span>
   );
 }
@@ -108,7 +110,10 @@ export function SnitkaTulipan({ className }: Props) {
       <path {...T} d={listek(31.4, 81.2, 46, 72.6, 0.22)} />
       {/* kalich stojí na konci stonku (34, 38): prostřední lístek uprostřed,
          dva boční se od něj rozevírají */}
-      <path {...T} d="M 34 38 C 27 34, 25 25, 27 18 C 30 22, 33 26, 34 30 C 35 26, 38 22, 41 18 C 43 25, 41 34, 34 38 Z" />
+      <path
+        {...T}
+        d="M 34 38 C 27 34, 25 25, 27 18 C 30 22, 33 26, 34 30 C 35 26, 38 22, 41 18 C 43 25, 41 34, 34 38 Z"
+      />
       <path {...T} d="M 34 30 C 33 24, 33.5 19, 34 15 C 34.5 19, 35 24, 34 30" />
     </Svg>
   );
@@ -156,7 +161,10 @@ export function SnitkaPoupe({ className }: Props) {
       <path {...T} d={listek(32.3, 86.6, 19.6, 78.6)} />
       <path {...T} d={listek(31.9, 60.4, 42.7, 53.3)} />
       {/* kalíšek objímá spodek poupěte, samo poupě je špičatá kapka */}
-      <path {...T} d="M 39 14 C 34 12, 32 6, 34 1 C 37 3, 39 6, 39 10 C 39 6, 41 3, 44 1 C 46 6, 44 12, 39 14 Z" />
+      <path
+        {...T}
+        d="M 39 14 C 34 12, 32 6, 34 1 C 37 3, 39 6, 39 10 C 39 6, 41 3, 44 1 C 46 6, 44 12, 39 14 Z"
+      />
       <path {...T} d="M 36.5 14.5 C 37 18, 38.5 19.5, 39 21 C 39.5 19.5, 41 18, 41.5 14.5" />
     </Svg>
   );

@@ -34,12 +34,18 @@ function barvaVrstvy(id: string): string | null {
   if (id === "background") return BARVY.zem;
   if (id.includes("water") || id.startsWith("waterway")) return BARVY.voda;
   if (id.includes("wood") || id.includes("forest")) return BARVY.les;
-  if (id.startsWith("landcover") || id.startsWith("landuse") || id.startsWith("park")) return BARVY.zelen;
+  if (id.startsWith("landcover") || id.startsWith("landuse") || id.startsWith("park"))
+    return BARVY.zelen;
   if (id.startsWith("building")) return BARVY.budova;
   if (id.includes("motorway") || id.includes("trunk")) {
     return id.includes("casing") ? BARVY.dalniceLem : BARVY.dalnice;
   }
-  if (id.startsWith("highway") || id.startsWith("road") || id.startsWith("tunnel") || id.startsWith("bridge")) {
+  if (
+    id.startsWith("highway") ||
+    id.startsWith("road") ||
+    id.startsWith("tunnel") ||
+    id.startsWith("bridge")
+  ) {
     return id.includes("casing") ? BARVY.silniceLem : BARVY.silnice;
   }
   return null;
@@ -155,7 +161,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
           map.setPaintProperty(
             vrstva.id,
             vlastnost as Parameters<typeof map.setPaintProperty>[1],
-            barva
+            barva,
           );
         } catch {
           /* vrstva si barvu nastavit nedá, necháme původní */
@@ -165,11 +171,8 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
 
     const pinEl = document.createElement("div");
     pinEl.className = "venue-pin";
-    pinEl.innerHTML =
-      '<span class="venue-pin-dot"></span><span class="venue-pin-ring"></span>';
-    const marker = new Marker({ element: pinEl })
-      .setLngLat([VENUE[1], VENUE[0]])
-      .addTo(map);
+    pinEl.innerHTML = '<span class="venue-pin-dot"></span><span class="venue-pin-ring"></span>';
+    const marker = new Marker({ element: pinEl }).setLngLat([VENUE[1], VENUE[0]]).addTo(map);
 
     return () => {
       marker.remove();
@@ -205,10 +208,19 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
       >
         <div className={`venue-map${otoceno ? " je-otoceny" : ""}`}>
           <div className="venue-flip-front">
-            <div ref={containerRef} style={{ width: "100%", height: "100%", pointerEvents: "none" }} />
+            <div
+              ref={containerRef}
+              style={{ width: "100%", height: "100%", pointerEvents: "none" }}
+            />
           </div>
           <div className="venue-flip-back">
-            <img loading="lazy" decoding="async" src="/fotky/rekovice.webp" alt="Hotel Rekovice" className="venue-flip-photo" />
+            <img
+              loading="lazy"
+              decoding="async"
+              src="/fotky/rekovice.webp"
+              alt="Hotel Rekovice"
+              className="venue-flip-photo"
+            />
           </div>
         </div>
         {/* Ikonka stojí mimo otáčející se kartu, aby se neodtočila pryč.
@@ -217,7 +229,13 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
            a paprsky — stejná ikona, jakou lidi znají z „klikni sem“. */}
         <span className={`venue-flip-pokyn${otoceno ? " je-skryty" : ""}`} aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
-            <g fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               {/* paprsky nad špičkou ukazováčku — „klepni“ */}
               <path d="M11.7 4.6 V1.9" />
               <path d="M9.1 5.3 L7.4 3.1" />
@@ -237,7 +255,13 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
            spustí sám, není na co klepat. Ikona ruky by tu byla matoucí. */}
         <span className={`venue-flip-otocka${otoceno ? " je-skryty" : ""}`} aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
-            <g fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 10 A7.6 7.6 0 0 1 17.5 6.6" />
               <path d="M13.4 7.4 L17.5 6.6 L16.8 10.7" />
               <path d="M19 14 A7.6 7.6 0 0 1 6.5 17.4" />

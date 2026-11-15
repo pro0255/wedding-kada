@@ -97,9 +97,15 @@ export default function Film() {
               if (pas.current) delete pas.current.dataset.tazeno;
               // click po tažení se nemá brát jako klepnutí na políčko
               if (t?.posunuto) {
-                const zrus = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
+                const zrus = (ev: Event) => {
+                  ev.stopPropagation();
+                  ev.preventDefault();
+                };
                 pas.current?.addEventListener("click", zrus, { capture: true, once: true });
-                setTimeout(() => pas.current?.removeEventListener("click", zrus, { capture: true }), 0);
+                setTimeout(
+                  () => pas.current?.removeEventListener("click", zrus, { capture: true }),
+                  0,
+                );
               }
             }}
             onPointerCancel={() => {
@@ -114,7 +120,12 @@ export default function Film() {
                     <span>{cislo(i)}</span>
                     <span className={s.okrajA}>{cislo(i)}A</span>
                   </span>
-                  <button type="button" className={s.snimek} onClick={() => setLupa(i)} aria-label={`Zvětšit: ${f.popis}`}>
+                  <button
+                    type="button"
+                    className={s.snimek}
+                    onClick={() => setLupa(i)}
+                    aria-label={`Zvětšit: ${f.popis}`}
+                  >
                     <img src={f.src} alt="" loading="lazy" decoding="async" draggable={false} />
                   </button>
                   <span className={s.popisek}>{f.popis}</span>
@@ -123,9 +134,13 @@ export default function Film() {
             </ol>
           </div>
           <div className={s.ovladani}>
-            <button type="button" onClick={() => posun(-1)} aria-label="Posunout pás zpět">←</button>
+            <button type="button" onClick={() => posun(-1)} aria-label="Posunout pás zpět">
+              ←
+            </button>
             <span>{FOTKY.length} snímků · táhněte do strany</span>
-            <button type="button" onClick={() => posun(1)} aria-label="Posunout pás dál">→</button>
+            <button type="button" onClick={() => posun(1)} aria-label="Posunout pás dál">
+              →
+            </button>
           </div>
         </div>
       </div>
@@ -139,16 +154,28 @@ export default function Film() {
         inert={lupa === null}
       >
         {lupa !== null && (
-          <figure className={s.zvetseni} role="dialog" aria-modal="true" aria-label={FOTKY[lupa].popis} onClick={(e) => e.stopPropagation()}>
+          <figure
+            className={s.zvetseni}
+            role="dialog"
+            aria-modal="true"
+            aria-label={FOTKY[lupa].popis}
+            onClick={(e) => e.stopPropagation()}
+          >
             <img src={FOTKY[lupa].src} alt={FOTKY[lupa].popis} decoding="async" />
             <figcaption>
               <span className={s.zvetseniCislo}>č. {cislo(lupa)}</span>
               <span>{FOTKY[lupa].popis}</span>
             </figcaption>
             <div className={s.zvetseniOvladani}>
-              <button type="button" onClick={() => dalsi(-1)} aria-label="Předchozí snímek">←</button>
-              <button ref={zavrit} type="button" onClick={() => setLupa(null)}>zavřít</button>
-              <button type="button" onClick={() => dalsi(1)} aria-label="Další snímek">→</button>
+              <button type="button" onClick={() => dalsi(-1)} aria-label="Předchozí snímek">
+                ←
+              </button>
+              <button ref={zavrit} type="button" onClick={() => setLupa(null)}>
+                zavřít
+              </button>
+              <button type="button" onClick={() => dalsi(1)} aria-label="Další snímek">
+                →
+              </button>
             </div>
           </figure>
         )}

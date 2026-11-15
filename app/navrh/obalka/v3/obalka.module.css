@@ -5,7 +5,19 @@
    načtení jednou předehřejí (data-predehrev) — viz _spolecne/plynulost.ts. */
 
 .obalka {
-  --pruzina: linear(0, 0.07 3%, 0.26 8%, 0.56 14%, 0.84 21%, 1.01 28%, 1.05 34%, 1.035 42%, 1.005 55%, 0.996 70%, 1);
+  --pruzina: linear(
+    0,
+    0.07 3%,
+    0.26 8%,
+    0.56 14%,
+    0.84 21%,
+    1.01 28%,
+    1.05 34%,
+    1.035 42%,
+    1.005 55%,
+    0.996 70%,
+    1
+  );
   --ven: cubic-bezier(0.22, 1, 0.36, 1);
   --tam: cubic-bezier(0.65, 0, 0.35, 1);
   position: relative;
@@ -21,7 +33,12 @@
   position: absolute;
   inset: -2% -3% -6%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(63 52 43 / 0.26), rgb(63 52 43 / 0.14) 62%, rgb(63 52 43 / 0) 100%);
+  background: radial-gradient(
+    closest-side,
+    rgb(63 52 43 / 0.26),
+    rgb(63 52 43 / 0.14) 62%,
+    rgb(63 52 43 / 0) 100%
+  );
 }
 .naklon,
 .zdvihKarty,
@@ -345,7 +362,19 @@
 }
 
 /* ---------- will-change jen kolem animace (viz _spolecne/plynulost.ts) ---------- */
-.obalka[data-pripraveno="true"] :is(.stinKarty, .naklon, .zdvihKarty, .karta, .kapsa, .chlopenStin, .chlopen, .zdvih, .usazeni, .polovinaDolni) {
+.obalka[data-pripraveno="true"]
+  :is(
+    .stinKarty,
+    .naklon,
+    .zdvihKarty,
+    .karta,
+    .kapsa,
+    .chlopenStin,
+    .chlopen,
+    .zdvih,
+    .usazeni,
+    .polovinaDolni
+  ) {
   will-change: transform;
 }
 .obalka[data-pripraveno="true"] :is(.pecetL, .pecetP, .jiskra, .dolniStin) {

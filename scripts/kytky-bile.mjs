@@ -17,8 +17,8 @@
  * Výstup je jeden roh — hotová kompozice několika snítek. Na kartě se použije
  * čtyřikrát, pokaždé otočený, takže se nemusí skládat v CSS. */
 
-import sharp from "sharp";
 import { readdir, mkdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const ZDROJ = "predlohy/oznameni/kyticky";
 const CIL = "public/roh-kytky.png";
@@ -40,16 +40,16 @@ const ROH = [
 /* Umocnění alfy. Pod jedničkou polotóny zesvětlí, tedy zneprůhlední. */
 const SILA = 0.62;
 
-const soubory = (await readdir(ZDROJ))
-  .filter((f) => /^[0-9]+[.]png$/.test(f))
-  .sort();
+const soubory = (await readdir(ZDROJ)).filter((f) => /^[0-9]+[.]png$/.test(f)).sort();
 
 /** Snítka jako bílá silueta: barva pryč, tvar z alfy. */
 async function bila(soubor, vyska, uhel) {
   const { data, info } = await sharp(`${ZDROJ}/${soubor}`)
     .resize({ height: vyska })
     .rotate(uhel, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
 
   const ven = Buffer.alloc(info.width * info.height * 4);
   for (let p = 0; p < info.width * info.height; p++) {
@@ -59,7 +59,11 @@ async function bila(soubor, vyska, uhel) {
     ven[p * 4 + 2] = 255;
     ven[p * 4 + 3] = Math.round(255 * Math.pow(a, SILA));
   }
-  return { buffer: await sharp(ven, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer() };
+  return {
+    buffer: await sharp(ven, { raw: { width: info.width, height: info.height, channels: 4 } })
+      .png()
+      .toBuffer(),
+  };
 }
 
 await mkdir("public", { recursive: true });
@@ -77,4 +81,6 @@ const info = await sharp({
   .png({ compressionLevel: 9 })
   .toFile(CIL);
 
-console.log(`${CIL}  ${info.width} x ${info.height} px, ${(info.size / 1024).toFixed(0)} kB, ${vrstvy.length} snítek`);
+console.log(
+  `${CIL}  ${info.width} x ${info.height} px, ${(info.size / 1024).toFixed(0)} kB, ${vrstvy.length} snítek`,
+);

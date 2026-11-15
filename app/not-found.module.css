@@ -41,9 +41,15 @@
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
-.tlacitko:hover, .tlacitko:focus-visible { background: var(--ink); color: var(--bg); }
+.tlacitko:hover,
+.tlacitko:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}
 
 .odkaz {
   font-size: 14px;
@@ -51,7 +57,10 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.odkaz:hover, .odkaz:focus-visible { color: var(--ink); }
+.odkaz:hover,
+.odkaz:focus-visible {
+  color: var(--ink);
+}
 
 .blok {
   display: flex;
@@ -74,4 +83,7 @@
   width: min(100%, 720px);
   text-align: left;
 }
-.zpet:hover, .zpet:focus-visible { color: var(--ink); }
+.zpet:hover,
+.zpet:focus-visible {
+  color: var(--ink);
+}

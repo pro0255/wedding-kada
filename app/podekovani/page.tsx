@@ -28,9 +28,9 @@ export default function Podekovani() {
           <p className="eyebrow">Kateřina &amp; Jakub</p>
           <h2>Díky, že jste byli u toho</h2>
           <p className="lead">
-            Za každé objetí, každý tanec, každou slzu i každou skleničku. Bez vás by to byl
-            jen hezký den — s vámi to byl ten nejlepší. Fotky, které jste nafotili, jsou tady
-            všechny pohromadě. Dívejte se, stahujte, rozdávejte srdíčka.
+            Za každé objetí, každý tanec, každou slzu i každou skleničku. Bez vás by to byl jen
+            hezký den — s vámi to byl ten nejlepší. Fotky, které jste nafotili, jsou tady všechny
+            pohromadě. Dívejte se, stahujte, rozdávejte srdíčka.
           </p>
         </div>
       </section>

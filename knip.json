@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "app/**/{layout,page,route,template,default,error,global-error,loading,not-found,manifest,robots,sitemap,opengraph-image,icon,apple-icon}.{ts,tsx}",
+    "scripts/**/*.mjs",
+    "lib/**/*.test.ts",
+    "*.config.{js,mjs,ts}"
+  ],
+  "project": ["**/*.{js,mjs,ts,tsx}", "!.agents/**", "!.claude/**", "!public/**"],
+  "ignoreDependencies": ["oxfmt", "oxlint"],
+  "ignoreBinaries": ["shasum"]
+}

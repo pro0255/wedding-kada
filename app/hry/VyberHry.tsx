@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { HRY, type HraSlug } from "@/lib/hry";
 import type { Lidr } from "@/lib/hra";
-import { HRY_REGISTR } from "./hry";
-import IkonaHry from "./IkonaHry";
-import s from "./hry.module.css";
+import { HRY, type HraSlug } from "@/lib/hry";
 import h2 from "./hra.module.css";
+import { HRY_REGISTR } from "./hry";
+import s from "./hry.module.css";
+import IkonaHry from "./IkonaHry";
 
 type Lidri = Partial<Record<HraSlug, Lidr>>;
 

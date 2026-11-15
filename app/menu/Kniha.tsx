@@ -1,8 +1,8 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
-import { Lic, StranaDeti, StranaDospeli } from "./obsah";
 import s from "./kniha.module.css";
+import { Lic, StranaDeti, StranaDospeli } from "./obsah";
 
 /* Svatební menu jako kniha s opravdovou tloušťkou.
 
@@ -51,7 +51,7 @@ export default function Kniha() {
     startTransition(() => setOtevrene(nove));
 
     const bezi = animace.current.filter((a) => a.playState === "running");
-    if (bezi.length) {
+    if (bezi.length > 0) {
       bezi.forEach((a) => a.reverse());
       return;
     }
@@ -78,8 +78,15 @@ export default function Kniha() {
     const seznam: Animation[] = [
       kniha.current.animate(
         [
-          { transform: `rotateX(${naklonZ}deg) translateX(${posun})`, easing: "cubic-bezier(.55,0,.25,1)" },
-          { transform: `rotateX(${naklonZ}deg) translateX(${posun})`, offset: 0.1, easing: "cubic-bezier(.45,0,.2,1)" },
+          {
+            transform: `rotateX(${naklonZ}deg) translateX(${posun})`,
+            easing: "cubic-bezier(.55,0,.25,1)",
+          },
+          {
+            transform: `rotateX(${naklonZ}deg) translateX(${posun})`,
+            offset: 0.1,
+            easing: "cubic-bezier(.45,0,.2,1)",
+          },
           { transform: `rotateX(${naklonO}deg) translateX(0%)` },
         ],
         z,
@@ -87,8 +94,16 @@ export default function Kniha() {
       obalka.current.animate(
         [
           { transform: "translateZ(0px) rotateY(0deg)", easing: "cubic-bezier(.3,0,.4,1)" },
-          { transform: "translateZ(16px) rotateY(-10deg)", offset: 0.17, easing: "cubic-bezier(.42,.02,.32,1)" },
-          { transform: "translateZ(7px) rotateY(-184deg)", offset: 0.8, easing: "cubic-bezier(.3,0,.25,1)" },
+          {
+            transform: "translateZ(16px) rotateY(-10deg)",
+            offset: 0.17,
+            easing: "cubic-bezier(.42,.02,.32,1)",
+          },
+          {
+            transform: "translateZ(7px) rotateY(-184deg)",
+            offset: 0.8,
+            easing: "cubic-bezier(.3,0,.25,1)",
+          },
           { transform: "translateZ(0px) rotateY(-180deg)" },
         ],
         z,
@@ -109,14 +124,24 @@ export default function Kniha() {
     if (tmaLic.current)
       seznam.push(
         tmaLic.current.animate(
-          [{ opacity: 0 }, { opacity: 0, offset: 0.2 }, { opacity: 0.5, offset: 0.5 }, { opacity: 0.5 }],
+          [
+            { opacity: 0 },
+            { opacity: 0, offset: 0.2 },
+            { opacity: 0.5, offset: 0.5 },
+            { opacity: 0.5 },
+          ],
           z,
         ),
       );
     if (tmaRub.current)
       seznam.push(
         tmaRub.current.animate(
-          [{ opacity: 0.55 }, { opacity: 0.55, offset: 0.5 }, { opacity: 0.12, offset: 0.82 }, { opacity: 0 }],
+          [
+            { opacity: 0.55 },
+            { opacity: 0.55, offset: 0.5 },
+            { opacity: 0.12, offset: 0.82 },
+            { opacity: 0 },
+          ],
           z,
         ),
       );
@@ -133,7 +158,9 @@ export default function Kniha() {
         ),
       );
     if (stul.current)
-      seznam.push(stul.current.animate([{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1 }], z));
+      seznam.push(
+        stul.current.animate([{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1 }], z),
+      );
     return seznam;
   }
 
@@ -154,7 +181,10 @@ export default function Kniha() {
   function naStranu(i: number) {
     const el = slajdy.current;
     if (!el) return;
-    el.scrollTo({ left: i * el.clientWidth, behavior: matchMedia(KLID).matches ? "auto" : "smooth" });
+    el.scrollTo({
+      left: i * el.clientWidth,
+      behavior: matchMedia(KLID).matches ? "auto" : "smooth",
+    });
   }
 
   /* Listování klepnutím — vedle swipu. Strany jsou dvě, takže klepnutí prostě
@@ -192,7 +222,9 @@ export default function Kniha() {
                 <div
                   ref={slajdy}
                   className={s.slajdy}
-                  onPointerDown={(e) => { stisk.current = e.clientX; }}
+                  onPointerDown={(e) => {
+                    stisk.current = e.clientX;
+                  }}
                   onClick={(e) => {
                     if (Math.abs(e.clientX - stisk.current) < 10) klepnutiNaStranu();
                   }}
@@ -246,9 +278,17 @@ export default function Kniha() {
 
       <div className={s.ovladani}>
         {otevrene && (
-          <div className={s.prepinac + " " + s.jenTelefonBlok} role="group" aria-label="Strana menu">
-            <button type="button" aria-pressed={strana === 0} onClick={() => naStranu(0)}>Menu</button>
-            <button type="button" aria-pressed={strana === 1} onClick={() => naStranu(1)}>Pro děti</button>
+          <div
+            className={s.prepinac + " " + s.jenTelefonBlok}
+            role="group"
+            aria-label="Strana menu"
+          >
+            <button type="button" aria-pressed={strana === 0} onClick={() => naStranu(0)}>
+              Menu
+            </button>
+            <button type="button" aria-pressed={strana === 1} onClick={() => naStranu(1)}>
+              Pro děti
+            </button>
           </div>
         )}
         <button

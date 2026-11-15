@@ -1,9 +1,12 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
 import { cekatDo, pauzaPredPokusem, posudChybu, vyberDalsi } from "./frontaNahravani.ts";
 
 test("pauza mezi pokusy roste a zastaví se na minutě", () => {
-  assert.deepEqual([1, 2, 3, 4, 5, 6, 50].map(pauzaPredPokusem), [2000, 5000, 15000, 30000, 60000, 60000, 60000]);
+  assert.deepEqual(
+    [1, 2, 3, 4, 5, 6, 50].map(pauzaPredPokusem),
+    [2000, 5000, 15_000, 30_000, 60_000, 60_000, 60_000],
+  );
   assert.equal(pauzaPredPokusem(0), 2000);
 });
 
@@ -22,5 +25,14 @@ test("nahrává se nejstarší položka, na kterou došla řada", () => {
   assert.equal(vyberDalsi(polozky, 100)?.id, "b");
   assert.equal(vyberDalsi(polozky, 500)?.id, "a");
   assert.equal(vyberDalsi([{ id: "a", pridano: 1, dalsiPokus: 500 }], 100), null);
-  assert.equal(cekatDo([{ id: "a", pridano: 1, dalsiPokus: 500 }, { id: "b", pridano: 2, dalsiPokus: 300 }], 100), 200);
+  assert.equal(
+    cekatDo(
+      [
+        { id: "a", pridano: 1, dalsiPokus: 500 },
+        { id: "b", pridano: 2, dalsiPokus: 300 },
+      ],
+      100,
+    ),
+    200,
+  );
 });

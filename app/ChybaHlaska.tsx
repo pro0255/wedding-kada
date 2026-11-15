@@ -1,8 +1,8 @@
 "use client";
 
 import type { Chyba } from "@/lib/chyby";
-import { KONTAKTY, formatTel, maTelefon } from "./kontakty";
 import s from "./chyba.module.css";
+import { KONTAKTY, formatTel, maTelefon } from "./kontakty";
 
 /* Kam dál, když něco nejde: svědci. Dokud v kontakty.ts nejsou skutečná
    čísla, ukáže se jen jména bez odkazů. */

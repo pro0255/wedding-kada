@@ -1,7 +1,7 @@
 "use client";
 
-import { MotionConfig, motion, type TargetAndTransition, type Transition } from "motion/react";
 import { startTransition, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { MotionConfig, motion, type TargetAndTransition, type Transition } from "motion/react";
 import { StranaDeti, StranaDospeli } from "../obsah";
 import s from "./kapsa.module.css";
 
@@ -75,7 +75,12 @@ export default function Kapsa() {
           rotate: [null, 0, i ? 2.5 : 0],
           scale: [null, 1.02, 1],
         },
-        transition: { duration: 1.2, times: [0, 0.4, 1], ease: [VYTAZENI, [0.45, 0, 0.25, 1]], delay: zpozdeni },
+        transition: {
+          duration: 1.2,
+          times: [0, 0.4, 1],
+          ease: [VYTAZENI, [0.45, 0, 0.25, 1]],
+          delay: zpozdeni,
+        },
       };
     }
     if (telefon) {
@@ -87,7 +92,12 @@ export default function Kapsa() {
           rotate: [null, i ? 3 : -2, naVrchu ? 0 : 3.5],
           scale: [null, 1.02, naVrchu ? 1 : 0.97],
         },
-        transition: { duration: 1.5, times: [0, 0.42, 1], ease: [VYTAZENI, DOSEDNUTI], delay: zpozdeni },
+        transition: {
+          duration: 1.5,
+          times: [0, 0.42, 1],
+          ease: [VYTAZENI, DOSEDNUTI],
+          delay: zpozdeni,
+        },
       };
     }
     return {
@@ -97,7 +107,12 @@ export default function Kapsa() {
         rotate: [null, i ? 3 : -2, i ? 1.6 : -1.8],
         scale: [null, 1.03, 1],
       },
-      transition: { duration: 1.6, times: [0, 0.4, 1], ease: [VYTAZENI, DOSEDNUTI], delay: zpozdeni },
+      transition: {
+        duration: 1.6,
+        times: [0, 0.4, 1],
+        ease: [VYTAZENI, DOSEDNUTI],
+        delay: zpozdeni,
+      },
     };
   }
 
@@ -106,9 +121,23 @@ export default function Kapsa() {
     const naVrchu = predni === i;
     return {
       animate: naVrchu
-        ? { x: [null, "70%", "0%"], rotate: [null, 9, 0], scale: [null, 1, 1], y: [null, "0%", "0%"] }
-        : { x: [null, "-6%", "4%"], rotate: [null, -2, 3.5], scale: [null, 0.97, 0.97], y: [null, "1.5%", "1.5%"] },
-      transition: { duration: 0.6, times: [0, 0.45, 1], ease: [[0.3, 0, 0.3, 1], DOSEDNUTI] } as Transition,
+        ? {
+            x: [null, "70%", "0%"],
+            rotate: [null, 9, 0],
+            scale: [null, 1, 1],
+            y: [null, "0%", "0%"],
+          }
+        : {
+            x: [null, "-6%", "4%"],
+            rotate: [null, -2, 3.5],
+            scale: [null, 0.97, 0.97],
+            y: [null, "1.5%", "1.5%"],
+          },
+      transition: {
+        duration: 0.6,
+        times: [0, 0.45, 1],
+        ease: [[0.3, 0, 0.3, 1], DOSEDNUTI],
+      } as Transition,
     };
   }
 
@@ -163,8 +192,16 @@ export default function Kapsa() {
             {...kapsa}
             style={{ pointerEvents: otevrene ? "none" : "auto" }}
           >
-            <svg className={s.kapsaTvar} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <path className={s.kapsaPlocha} d="M0 0 H38 C42 0 43 9 50 9 C57 9 58 0 62 0 H100 V100 H0 Z" />
+            <svg
+              className={s.kapsaTvar}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                className={s.kapsaPlocha}
+                d="M0 0 H38 C42 0 43 9 50 9 C57 9 58 0 62 0 H100 V100 H0 Z"
+              />
               <path
                 className={s.kapsaLinka}
                 d="M4 4 H36.5 C40.5 4 42 13 50 13 C58 13 59.5 4 63.5 4 H96 V96 H4 Z"
@@ -190,8 +227,12 @@ export default function Kapsa() {
         <div className={s.ovladani}>
           {otevrene && telefon && (
             <div className={s.prepinac} role="group" aria-label="Která karta je navrchu">
-              <button type="button" aria-pressed={predni === 0} onClick={() => naKartu(0)}>Menu</button>
-              <button type="button" aria-pressed={predni === 1} onClick={() => naKartu(1)}>Pro děti</button>
+              <button type="button" aria-pressed={predni === 0} onClick={() => naKartu(0)}>
+                Menu
+              </button>
+              <button type="button" aria-pressed={predni === 1} onClick={() => naKartu(1)}>
+                Pro děti
+              </button>
             </div>
           )}
           <button

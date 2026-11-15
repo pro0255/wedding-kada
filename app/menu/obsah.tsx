@@ -12,8 +12,16 @@ type Chod = { kurz: string; jidlo: string; detail: string };
 
 const DOSPELI: Chod[] = [
   { kurz: "Polévka", jidlo: "Svatební vývar", detail: "Játrové knedlíčky, zelenina, nudle" },
-  { kurz: "Hlavní chod", jidlo: "Vepřová panenka sous-vide", detail: "Pečené brambory grenaille, pepřová omáčka" },
-  { kurz: "Dezert", jidlo: "Svatební dort", detail: "Čokoládový korpus, pařížský krém, malinový kompot" },
+  {
+    kurz: "Hlavní chod",
+    jidlo: "Vepřová panenka sous-vide",
+    detail: "Pečené brambory grenaille, pepřová omáčka",
+  },
+  {
+    kurz: "Dezert",
+    jidlo: "Svatební dort",
+    detail: "Čokoládový korpus, pařížský krém, malinový kompot",
+  },
 ];
 
 const DETI: Chod[] = [

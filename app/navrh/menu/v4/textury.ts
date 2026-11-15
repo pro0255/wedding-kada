@@ -23,7 +23,7 @@ const DIAKRITIKA = "ěščřžýáíéůúťďňó ĚŠČŘŽÝÁÍÉŮÚŤĎŇ�
 export async function nactiPisma(): Promise<Pisma> {
   const zkouska = document.createElement("span");
   zkouska.style.cssText = "position:absolute;visibility:hidden;font-family:var(--serif)";
-  document.body.appendChild(zkouska);
+  document.body.append(zkouska);
   const serif = getComputedStyle(zkouska).fontFamily;
   zkouska.style.fontFamily = "var(--sans)";
   const sans = getComputedStyle(zkouska).fontFamily;
@@ -40,7 +40,11 @@ export async function nactiPisma(): Promise<Pisma> {
 
 /* ---------- jednoduchá sazba: řádky pod sebou, svisle na střed ---------- */
 
-type Radek = { pred: number; vyska: number; kresli: (ctx: CanvasRenderingContext2D, y: number) => void };
+type Radek = {
+  pred: number;
+  vyska: number;
+  kresli: (ctx: CanvasRenderingContext2D, y: number) => void;
+};
 
 function zalom(ctx: CanvasRenderingContext2D, text: string, max: number): string[] {
   const radky: string[] = [];
@@ -63,7 +67,13 @@ function sirkaProstrkana(ctx: CanvasRenderingContext2D, text: string, tr: number
   return w - tr;
 }
 
-function kresliProstrkane(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, tr: number) {
+function kresliProstrkane(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  tr: number,
+) {
   for (const z of text) {
     ctx.fillText(z, x, y);
     x += ctx.measureText(z).width + tr;
@@ -83,7 +93,10 @@ type StylTextu = {
 
 class Sazba {
   radky: Radek[] = [];
-  constructor(private ctx: CanvasRenderingContext2D, private stred: number) {}
+  constructor(
+    private ctx: CanvasRenderingContext2D,
+    private stred: number,
+  ) {}
 
   text(text: string, o: StylTextu) {
     const ctx = this.ctx;
@@ -159,7 +172,13 @@ class Sazba {
 }
 
 /** Zlatá ozdoba z obsah.tsx (viewBox 120 × 12): dvě linky a kosočtverec. */
-function kresliOrnament(c: CanvasRenderingContext2D, x: number, y: number, k: number, barva: string) {
+function kresliOrnament(
+  c: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  k: number,
+  barva: string,
+) {
   c.save();
   c.translate(x, y);
   c.scale(k, k);
@@ -217,28 +236,76 @@ export function kresliStranu(druh: "dospeli" | "deti", p: Pisma, sirkaPx: number
   const s = new Sazba(ctx, cv.width / 2);
 
   const nadpis = druh === "dospeli" ? "Menu" : "Pro naše nejmenší";
-  s.text(nadpis, { font: serif("500", 4.6 * c), px: 4.6 * c, lh: 1.7, barva: INKOUST, tracking: 0.28, velka: true });
+  s.text(nadpis, {
+    font: serif("500", 4.6 * c),
+    px: 4.6 * c,
+    lh: 1.7,
+    barva: INKOUST,
+    tracking: 0.28,
+    velka: true,
+  });
   s.ornament(30 * c, 3 * c, 5 * c, ZLATO);
   if (druh === "dospeli") {
-    s.text(UVOD, { font: serif("italic 400", 3.7 * c), px: 3.7 * c, lh: 1.5, barva: INKOUST, max: obsah * 0.86, pred: -1 * c });
+    s.text(UVOD, {
+      font: serif("italic 400", 3.7 * c),
+      px: 3.7 * c,
+      lh: 1.5,
+      barva: INKOUST,
+      max: obsah * 0.86,
+      pred: -1 * c,
+    });
     s.mezera(5.5 * c);
   }
   (druh === "dospeli" ? DOSPELI : DETI).forEach((ch, i) => {
     s.text(ch.kurz, {
-      font: sans("400", 2.6 * c), px: 2.6 * c, lh: 1.7, barva: ZLATO, tracking: 0.32, velka: true, pred: i ? 5 * c : 0,
+      font: sans("400", 2.6 * c),
+      px: 2.6 * c,
+      lh: 1.7,
+      barva: ZLATO,
+      tracking: 0.32,
+      velka: true,
+      pred: i ? 5 * c : 0,
     });
     s.mezera(1.2 * c);
-    s.text(ch.jidlo, { font: serif("500", 5.1 * c), px: 5.1 * c, lh: 1.2, barva: INKOUST, max: obsah });
-    s.text(ch.detail, { font: serif("italic 400", 3.7 * c), px: 3.7 * c, lh: 1.35, barva: INKOUST, max: obsah, pred: 1.2 * c });
+    s.text(ch.jidlo, {
+      font: serif("500", 5.1 * c),
+      px: 5.1 * c,
+      lh: 1.2,
+      barva: INKOUST,
+      max: obsah,
+    });
+    s.text(ch.detail, {
+      font: serif("italic 400", 3.7 * c),
+      px: 3.7 * c,
+      lh: 1.35,
+      barva: INKOUST,
+      max: obsah,
+      pred: 1.2 * c,
+    });
   });
   if (druh === "dospeli") {
-    s.text(ALERGENY, { font: sans("300", 2.9 * c), px: 2.9 * c, lh: 1.55, barva: INKOUST, max: obsah * 0.9, pred: 6 * c });
+    s.text(ALERGENY, {
+      font: sans("300", 2.9 * c),
+      px: 2.9 * c,
+      lh: 1.55,
+      barva: INKOUST,
+      max: obsah * 0.9,
+      pred: 6 * c,
+    });
   } else {
     ctx.font = serif("500", 3.6 * c);
     const tr = 0.28 * 3.6 * c;
     const sirka = sirkaProstrkana(ctx, "DOBROU CHUŤ", tr) + tr;
     s.linka(sirka, 6 * c, "rgba(168, 135, 74, .45)", Math.max(1.5, c * 0.22));
-    s.text("Dobrou chuť", { font: serif("500", 3.6 * c), px: 3.6 * c, lh: 1.7, barva: INKOUST, tracking: 0.28, velka: true, pred: 4 * c });
+    s.text("Dobrou chuť", {
+      font: serif("500", 3.6 * c),
+      px: 3.6 * c,
+      lh: 1.7,
+      barva: INKOUST,
+      tracking: 0.28,
+      velka: true,
+      pred: 4 * c,
+    });
   }
   s.vykresli(Math.max(9 * c, (cv.height - s.vyska) / 2));
   return cv;
@@ -270,10 +337,30 @@ function kresliRazbu(ctx: CanvasRenderingContext2D, p: Pisma, w: number, h: numb
   const serif = (styl: string, px: number) => `${styl} ${px}px ${p.serif}`;
   const sans = (styl: string, px: number) => `${styl} ${px}px ${p.sans}`;
   const s = new Sazba(ctx, w / 2);
-  s.text("Menu", { font: serif("500", 15 * c), px: 15 * c, lh: 1, barva: v.folie, tracking: 0.26, velka: true });
+  s.text("Menu", {
+    font: serif("500", 15 * c),
+    px: 15 * c,
+    lh: 1,
+    barva: v.folie,
+    tracking: 0.26,
+    velka: true,
+  });
   s.ornament(30 * c, 3 * c, 5 * c, v.folie);
-  s.text("K & J", { font: serif("italic 400", 9 * c), px: 9 * c, lh: 1.7, barva: v.folie, tracking: 0.08 });
-  s.text("18 · 09 · 2027", { font: sans("400", 3.2 * c), px: 3.2 * c, lh: 1.7, barva: v.folie, tracking: 0.4, pred: 4 * c });
+  s.text("K & J", {
+    font: serif("italic 400", 9 * c),
+    px: 9 * c,
+    lh: 1.7,
+    barva: v.folie,
+    tracking: 0.08,
+  });
+  s.text("18 · 09 · 2027", {
+    font: sans("400", 3.2 * c),
+    px: 3.2 * c,
+    lh: 1.7,
+    barva: v.folie,
+    tracking: 0.4,
+    pred: 4 * c,
+  });
   s.vykresli((h - s.vyska) / 2);
   ctx.filter = "none";
 }
@@ -286,13 +373,23 @@ export function kresliObalku(p: Pisma, sirkaPx: number, pomer: number) {
     return cv;
   };
   const barva = plátno(1);
-  kresliRazbu(barva.getContext("2d")!, p, barva.width, barva.height, { pozadi: OBALKA, folie: "#d8b26e" });
+  kresliRazbu(barva.getContext("2d")!, p, barva.width, barva.height, {
+    pozadi: OBALKA,
+    folie: "#d8b26e",
+  });
   // drsnost papíru 0,8 (zelená 204), ražba 0,3 (77) a plný kov (modrá 255)
   const orm = plátno(0.5);
-  kresliRazbu(orm.getContext("2d")!, p, orm.width, orm.height, { pozadi: "rgb(0,204,0)", folie: "rgb(0,77,255)" });
+  kresliRazbu(orm.getContext("2d")!, p, orm.width, orm.height, {
+    pozadi: "rgb(0,204,0)",
+    folie: "rgb(0,77,255)",
+  });
   // reliéf: papír nahoře, ražba vtlačená o kus níž, s měkkou hranou
   const relief = plátno(0.5);
-  kresliRazbu(relief.getContext("2d")!, p, relief.width, relief.height, { pozadi: "#fff", folie: "#8a8a8a", rozmaz: 0.8 });
+  kresliRazbu(relief.getContext("2d")!, p, relief.width, relief.height, {
+    pozadi: "#fff",
+    folie: "#8a8a8a",
+    rozmaz: 0.8,
+  });
   return { barva, orm, relief };
 }
 
@@ -331,7 +428,10 @@ export function kresliSkvrnu() {
 }
 
 /** Stín květiny: její silueta, rozmazaná. Sedí pod ní, kousek po světle. */
-export function kresliStinKvetu(obr: CanvasImageSource & { width: number; height: number }, sirka = 160) {
+export function kresliStinKvetu(
+  obr: CanvasImageSource & { width: number; height: number },
+  sirka = 160,
+) {
   const pomer = obr.height / obr.width;
   const okraj = Math.round(sirka * 0.12);
   const cv = document.createElement("canvas");

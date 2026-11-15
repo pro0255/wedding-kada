@@ -47,8 +47,8 @@ export default function AdminVstup({ dal }: { dal: string }) {
       }
       setHlaska("Tohle není správcovské heslo.");
       setHeslo("");
-    } catch (vyjimka) {
-      setHlaska(chybaZVyjimky(vyjimka).hlaska);
+    } catch (error) {
+      setHlaska(chybaZVyjimky(error).hlaska);
     } finally {
       setOdesila(false);
     }

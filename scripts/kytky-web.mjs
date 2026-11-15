@@ -15,8 +15,8 @@
  * která je která — v CSS se na ně odkazuje jménem.
  */
 
-import sharp from "sharp";
 import { readdir, mkdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const ZDROJ = "predlohy/cut outs/png";
 const CIL = "public/kytky";
@@ -47,27 +47,36 @@ const PRAH_ALFY = 12;
 await mkdir(CIL, { recursive: true });
 
 const soubory = (await readdir(ZDROJ)).filter((f) => /\.png$/i.test(f)).sort();
-if (!soubory.length) console.log(`v ${ZDROJ} nejsou žádné png`);
+if (soubory.length === 0) console.log(`v ${ZDROJ} nejsou žádné png`);
 
 for (const soubor of soubory) {
   const { data, info } = await sharp(`${ZDROJ}/${soubor}`)
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const W = info.width, H = info.height;
+  const W = info.width,
+    H = info.height;
 
-  let minX = W, maxX = 0, minY = H, maxY = 0;
+  let minX = W,
+    maxX = 0,
+    minY = H,
+    maxY = 0;
   for (let p = 0; p < W * H; p++) {
     if (data[p * 4 + 3] < PRAH_ALFY) continue;
-    const x = p % W, y = (p / W) | 0;
+    const x = p % W,
+      y = (p / W) | 0;
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
-  if (maxX < minX) { console.log(`${soubor}: celý průhledný, přeskakuji`); continue; }
+  if (maxX < minX) {
+    console.log(`${soubor}: celý průhledný, přeskakuji`);
+    continue;
+  }
 
-  const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
+  const sirka = maxX - minX + 1,
+    vyska = maxY - minY + 1;
   const klic = soubor.replace(/\.png$/i, "");
   const vysledek = await sharp(`${ZDROJ}/${soubor}`)
     .extract({ left: minX, top: minY, width: sirka, height: vyska })
@@ -81,7 +90,7 @@ for (const soubor of soubory) {
     .toFile(`${CIL}/${klic}.webp`);
 
   console.log(
-    `${klic}  ${W}x${H} → ořez ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, `
-    + `${(vysledek.size / 1024).toFixed(0)} kB, poměr ${(vysledek.height / vysledek.width).toFixed(2)}`,
+    `${klic}  ${W}x${H} → ořez ${sirka}x${vyska} → ${vysledek.width}x${vysledek.height}, ` +
+      `${(vysledek.size / 1024).toFixed(0)} kB, poměr ${(vysledek.height / vysledek.width).toFixed(2)}`,
   );
 }

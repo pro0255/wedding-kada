@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Ramec from "../Ramec";
 import { PROGRAM } from "../data";
+import Ramec from "../Ramec";
 import s from "./osa.module.css";
 
-export const metadata: Metadata = { title: "Program — H2: svislá osa", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Program — H2: svislá osa",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

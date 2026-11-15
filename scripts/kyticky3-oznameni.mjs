@@ -18,8 +18,8 @@
  *
  * Vedle výřezů vzniká přehledový arch nahled.png, ať se dá vybírat okem. */
 
-import sharp from "sharp";
 import { mkdir, rm } from "node:fs/promises";
+import sharp from "sharp";
 
 const PREDLOHA = "predlohy/oznameni/nove kyticky/98e52a5889af34b6fa2cf9a3d5ad1081.jpg";
 const KAM = "public/oznameni/kyticky3";
@@ -52,8 +52,8 @@ const OKRAJ = 4;
  * Dělá se to tady a ne přes CSS filtr schválně: filtrovaný obrázek si
  * prohlížeč při tisku přepočítá v rozlišení, které si zvolí sám. V PNG je
  * barva hotová a do tiskového PDF jde tak, jak je. */
-const PASTEL_SVETLOST = 0.42;  // o kolik se barva přiblíží bílé
-const PASTEL_SYTOST = 1.18;    // násobek sytosti, ať při tom nezešedne
+const PASTEL_SVETLOST = 0.42; // o kolik se barva přiblíží bílé
+const PASTEL_SYTOST = 1.18; // násobek sytosti, ať při tom nezešedne
 
 /* Barevné varianty vybraných snítek. Originál zůstává, varianta vzniká vedle
  * — na kartě se pak vybere, která se použije.
@@ -92,8 +92,11 @@ function prebarvi(surovy, sirka, vyska, posun) {
 }
 
 function naHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   const d = max - min;
   if (d === 0) return [0, 0, l];
@@ -106,7 +109,10 @@ function naHsl(r, g, b) {
 }
 
 function naRgb(h, sat, l) {
-  if (sat === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  if (sat === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat;
   const pp = 2 * l - q;
   const slozka = (t) => {
@@ -139,7 +145,12 @@ const { width: W, height: H, channels: C } = info;
 function papirZRohu() {
   const R = 40;
   const vzorky = [[], [], []];
-  const rohy = [[0, 0], [W - R, 0], [0, H - R], [W - R, H - R]];
+  const rohy = [
+    [0, 0],
+    [W - R, 0],
+    [0, H - R],
+    [W - R, H - R],
+  ];
   for (const [rx, ry] of rohy) {
     for (let y = ry; y < ry + R; y++) {
       for (let x = rx; x < rx + R; x++) {
@@ -194,7 +205,10 @@ for (let start = 0; start < W * H; start++) {
   zasobnik[vrchol++] = start;
   stitek[start] = id;
   let pocet = 0;
-  let x1 = W, y1 = H, x2 = 0, y2 = 0;
+  let x1 = W,
+    y1 = H,
+    x2 = 0,
+    y2 = 0;
 
   while (vrchol > 0) {
     const p = zasobnik[--vrchol];
@@ -222,9 +236,10 @@ for (let start = 0; start < W * H; start++) {
 }
 
 const vybrane = plochy
-  .filter((p) => p.pocet >= NEJMENE_PIXELU
-    && p.x2 - p.x1 >= NEJMENE_STRANA
-    && p.y2 - p.y1 >= NEJMENE_STRANA)
+  .filter(
+    (p) =>
+      p.pocet >= NEJMENE_PIXELU && p.x2 - p.x1 >= NEJMENE_STRANA && p.y2 - p.y1 >= NEJMENE_STRANA,
+  )
   .sort((a, b) => b.pocet - a.pocet);
 
 await rm(KAM, { recursive: true, force: true });
@@ -235,7 +250,9 @@ const nahledy = [];
 /* Na web jde bezeztrátový WebP: pixel po pixelu stejný jako PNG s paletou
  * (tisk oznámení nic neztratí), jen zhruba o 40 % menší. */
 const ulozWebp = (png, jmeno) =>
-  sharp(png).webp({ lossless: true, effort: 6 }).toFile(`${KAM}/${jmeno.replace(/\.png$/, ".webp")}`);
+  sharp(png)
+    .webp({ lossless: true, effort: 6 })
+    .toFile(`${KAM}/${jmeno.replace(/\.png$/, ".webp")}`);
 
 for (let i = 0; i < vybrane.length; i++) {
   const p = vybrane[i];
@@ -261,17 +278,21 @@ for (let i = 0; i < vybrane.length; i++) {
 
   const jmeno = `${String(i + 1).padStart(2, "0")}.png`;
   const vyrez = await sharp(surovy, { raw: { width, height, channels: 4 } })
-    .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
+    .png({ compressionLevel: 9, palette: true, quality: 90 })
+    .toBuffer();
   await ulozWebp(vyrez, jmeno);
 
   nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet });
-  console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
+  console.log(
+    `${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`,
+  );
 
   for (const v of VARIANTY.filter((v) => v.snitka === i + 1)) {
     const jinaBarva = prebarvi(surovy, width, height, v.posun);
     const jmenoV = `${String(i + 1).padStart(2, "0")}-${v.pripona}.png`;
     const vyrezV = await sharp(jinaBarva, { raw: { width, height, channels: 4 } })
-      .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
+      .png({ compressionLevel: 9, palette: true, quality: 90 })
+      .toBuffer();
     await ulozWebp(vyrezV, jmenoV);
     nahledy.push({ jmeno: jmenoV, vyrez: vyrezV, width, height, pocet: p.pocet });
     console.log(`${jmenoV}  varianta, odstín o ${v.posun}°`);
@@ -282,22 +303,29 @@ for (let i = 0; i < vybrane.length; i++) {
 const SLOUPCU = 5;
 const BUNKA = 200;
 const radku = Math.ceil(nahledy.length / SLOUPCU);
-const vrstvy = await Promise.all(nahledy.map(async (n, i) => {
-  const meritko = Math.min((BUNKA - 20) / n.width, (BUNKA - 20) / n.height, 1.6);
-  const w = Math.max(1, Math.round(n.width * meritko));
-  const h = Math.max(1, Math.round(n.height * meritko));
-  return {
-    input: await sharp(n.vyrez).resize(w, h).png().toBuffer(),
-    left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
-    top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
-  };
-}));
+const vrstvy = await Promise.all(
+  nahledy.map(async (n, i) => {
+    const meritko = Math.min((BUNKA - 20) / n.width, (BUNKA - 20) / n.height, 1.6);
+    const w = Math.max(1, Math.round(n.width * meritko));
+    const h = Math.max(1, Math.round(n.height * meritko));
+    return {
+      input: await sharp(n.vyrez).resize(w, h).png().toBuffer(),
+      left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
+      top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
+    };
+  }),
+);
 
 await sharp({
   create: {
-    width: SLOUPCU * BUNKA, height: radku * BUNKA,
-    channels: 4, background: "#ffffff",
+    width: SLOUPCU * BUNKA,
+    height: radku * BUNKA,
+    channels: 4,
+    background: "#ffffff",
   },
-}).composite(vrstvy).png().toFile(NAHLED);
+})
+  .composite(vrstvy)
+  .png()
+  .toFile(NAHLED);
 
 console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${NAHLED}`);

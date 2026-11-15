@@ -1,5 +1,5 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
 import { sestavZebricek } from "./hra.ts";
 
 test("nejlepší skóre na zařízení, seřazeno sestupně, jména doplněna", () => {

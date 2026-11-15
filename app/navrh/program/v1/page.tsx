@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Ramec from "../Ramec";
 import { PROGRAM } from "../data";
+import Ramec from "../Ramec";
 import s from "./karta.module.css";
 
-export const metadata: Metadata = { title: "Program — H1: tištěná karta", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Program — H1: tištěná karta",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

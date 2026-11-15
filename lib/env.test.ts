@@ -1,6 +1,6 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
+import { test } from "node:test";
 import { EnvSchema, problemyEnv } from "./env.ts";
 
 // vymyšlené hodnoty — skutečné jsou jen v .env.local a na Vercelu
@@ -32,7 +32,10 @@ test("chybějící nebo prázdná proměnná se ohlásí i s popisem", () => {
 
 test("WhatsApp musí být pozvánka do skupiny", () => {
   for (const spatne of ["https://zly.cz/x", "https://chat.whatsapp.com/Abc?s=qs", ""]) {
-    assert.deepEqual(problemyEnv({ ...PLNE, WHATSAPP_SKUPINA: spatne }).map((p) => p.nazev), ["WHATSAPP_SKUPINA"]);
+    assert.deepEqual(
+      problemyEnv({ ...PLNE, WHATSAPP_SKUPINA: spatne }).map((p) => p.nazev),
+      ["WHATSAPP_SKUPINA"],
+    );
   }
 });
 
@@ -45,11 +48,19 @@ test("adresa Redisu musí být URL", () => {
 
 test("každá proměnná, kterou kód čte, je ve schématu", () => {
   // VERCEL_* a NODE_ENV nastavuje platforma, ty se nekontrolují
-  const zdroje = execSync("git grep -hoE 'process\\.env\\.[A-Z_0-9]+' -- app lib proxy.ts", {
-    cwd: new URL("..", import.meta.url),
-    encoding: "utf8",
-  });
-  const ctene = new Set(zdroje.split("\n").filter(Boolean).map((r) => r.slice("process.env.".length)));
+  const zdroje = execSync(
+    String.raw`git grep -hoE 'process\.env\.[A-Z_0-9]+' -- app lib proxy.ts`,
+    {
+      cwd: new URL("..", import.meta.url),
+      encoding: "utf8",
+    },
+  );
+  const ctene = new Set(
+    zdroje
+      .split("\n")
+      .filter(Boolean)
+      .map((r) => r.slice("process.env.".length)),
+  );
   const chybi = [...ctene].filter(
     (n) => !(n in EnvSchema.shape) && n !== "NODE_ENV" && !n.startsWith("VERCEL_"),
   );

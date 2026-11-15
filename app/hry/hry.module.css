@@ -16,8 +16,14 @@
   margin-bottom: 8px;
   font-size: 14px;
 }
-.drobky a { color: var(--ink-soft); text-decoration: none; }
-.drobky a:hover, .drobky a:focus-visible { color: var(--ink); }
+.drobky a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.drobky a:hover,
+.drobky a:focus-visible {
+  color: var(--ink);
+}
 
 .nadpis {
   font-size: clamp(28px, 5vw, 44px);
@@ -53,18 +59,32 @@
   text-decoration: none;
   color: var(--ink);
   background: color-mix(in srgb, var(--bg-alt) 50%, var(--bg));
-  transition: transform 0.15s, border-color 0.15s;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
 }
-.karta:hover, .karta:focus-visible { transform: translateY(-2px); border-color: var(--accent); }
+.karta:hover,
+.karta:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
 
-.kartaIkona { display: block; height: 72px; margin: 0 auto 6px; image-rendering: pixelated; }
+.kartaIkona {
+  display: block;
+  height: 72px;
+  margin: 0 auto 6px;
+  image-rendering: pixelated;
+}
 
 .kartaNazev {
   font-family: var(--serif), Georgia, serif;
   font-size: 20px;
   font-weight: 500;
 }
-.kartaPopis { font-size: 13px; color: var(--ink-soft); }
+.kartaPopis {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
 .kartaLidr {
   margin-top: 8px;
   padding-top: 8px;
@@ -72,8 +92,17 @@
   font-size: 13px;
   color: var(--ink-soft);
 }
-.kartaLidr strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
-.kartaLidrPopisek { text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; color: var(--accent); }
+.kartaLidr strong {
+  color: var(--ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.kartaLidrPopisek {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  color: var(--accent);
+}
 
 .tlacitko {
   margin-top: 28px;
@@ -85,6 +114,12 @@
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
-.tlacitko:hover, .tlacitko:focus-visible { background: var(--ink); color: var(--bg); }
+.tlacitko:hover,
+.tlacitko:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}

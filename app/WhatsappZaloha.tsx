@@ -19,7 +19,13 @@ export default function WhatsappZaloha({ odkaz }: { odkaz: string }) {
     if (!window.matchMedia("(min-width: 700px) and (pointer: fine)").matches) return;
     let zivy = true;
     import("qrcode")
-      .then((QRCode) => QRCode.toDataURL(odkaz, { margin: 1, width: 360, color: { dark: "#3f342b", light: "#ffffff" } }))
+      .then((QRCode) =>
+        QRCode.toDataURL(odkaz, {
+          margin: 1,
+          width: 360,
+          color: { dark: "#3f342b", light: "#ffffff" },
+        }),
+      )
       .then((url) => zivy && setQr(url))
       .catch(() => {
         /* bez QR to jde taky — tlačítko zůstává */

@@ -33,7 +33,9 @@ export const EnvSchema = z.object({
     .string()
     .trim()
     .regex(/^https:\/\/chat\.whatsapp\.com\/\w+$/)
-    .describe("pozvánka do WhatsApp skupiny (https://chat.whatsapp.com/…) — záloha, když nahrávání fotek nejde"),
+    .describe(
+      "pozvánka do WhatsApp skupiny (https://chat.whatsapp.com/…) — záloha, když nahrávání fotek nejde",
+    ),
 
   NEXT_PUBLIC_WEB_URL: nepovinna("adresa webu pro OG obrázek; bez ní produkční doména z Vercelu"),
 });

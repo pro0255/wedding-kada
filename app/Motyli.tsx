@@ -19,7 +19,8 @@ const POCET = 18;
 /* Kde končí obsah stránky. Dekorační vrstva .kvetiny je vysoká 15000px, ale
    začíná až pod hero sekcí, takže užitečný pás je zhruba o 800px kratší než
    celá stránka. Motýli se rozsadí sem, aby žádný nezůstal pod patičkou. */
-const OD = 700, DO = 7300;
+const OD = 700,
+  DO = 7300;
 
 /* Tři tvary ve čtyřech barvách palety. Tvary jsou všechny z modrých předloh,
    barvy dodělal scripts/pruh-kvetin.mjs přebarvením — růžové předlohy byly
@@ -32,7 +33,7 @@ const SOUBORY = TVARY.flatMap((t) => BARVY.map((b) => `${b}-${t}`));
    nepřeskládají při každém načtení stránky a nedělají neklid. Kdyby to bylo
    opravdu náhodné, každý build by vypadal jinak a nešlo by to doladit. */
 function sum(i: number, posun: number) {
-  const x = Math.sin((i + 1) * 12.9898 + posun * 78.233) * 43758.5453;
+  const x = Math.sin((i + 1) * 12.9898 + posun * 78.233) * 43_758.5453;
   return x - Math.floor(x);
 }
 
@@ -41,7 +42,7 @@ const MOTYLI = Array.from({ length: POCET }, (_, i) => {
   /* rozestup s rozházením, ať nejsou jako korálky na niti */
   const vyska = Math.round(OD + i * krok + (sum(i, 1) - 0.5) * krok * 0.7);
   /* strany se střídají, ale ne pravidelně — jednou za čas přijdou dva po sobě */
-  const strana: "l" | "r" = sum(i, 2) > 0.45 ? (i % 2 ? "r" : "l") : (i % 2 ? "l" : "r");
+  const strana: "l" | "r" = sum(i, 2) > 0.45 ? (i % 2 ? "r" : "l") : i % 2 ? "l" : "r";
   return {
     klic: `m${i}`,
     /* krok 5 přes dvanáct souborů = barva i tvar se střídají jinak než
@@ -89,22 +90,32 @@ export default function Motyli() {
           <span
             key={m.klic}
             className={`motyl motyl-${m.strana}`}
-            style={{
-              "--motyl-odsazeni": m.odsazeni.toFixed(2),
-              "--motyl-vyska": `${m.vyska}px`,
-              "--motyl-sirka": `${m.sirka}px`,
-              "--motyl-doba": `${m.doba}s`,
-              "--motyl-zpozdeni": `${m.zpozdeni}s`,
-              "--motyl-faze": `-${m.faze}s`,
-              "--motyl-tempo": `${m.tempo}s`,
-              "--motyl-zrcadlo": m.zrcadlo,
-              "--motyl-uhel": `${m.uhel}deg`,
-              "--x1": `${x1 * smer}px`, "--y1": `${y1}px`,
-              "--x2": `${x2 * smer}px`, "--y2": `${y2}px`,
-              "--x3": `${x3 * smer}px`, "--y3": `${y3}px`,
-            } as React.CSSProperties}
+            style={
+              {
+                "--motyl-odsazeni": m.odsazeni.toFixed(2),
+                "--motyl-vyska": `${m.vyska}px`,
+                "--motyl-sirka": `${m.sirka}px`,
+                "--motyl-doba": `${m.doba}s`,
+                "--motyl-zpozdeni": `${m.zpozdeni}s`,
+                "--motyl-faze": `-${m.faze}s`,
+                "--motyl-tempo": `${m.tempo}s`,
+                "--motyl-zrcadlo": m.zrcadlo,
+                "--motyl-uhel": `${m.uhel}deg`,
+                "--x1": `${x1 * smer}px`,
+                "--y1": `${y1}px`,
+                "--x2": `${x2 * smer}px`,
+                "--y2": `${y2}px`,
+                "--x3": `${x3 * smer}px`,
+                "--y3": `${y3}px`,
+              } as React.CSSProperties
+            }
           >
-            <img className="motyl-kridlo" src={`/fotky/motyl-${m.soubor}.png`} alt="" aria-hidden="true" />
+            <img
+              className="motyl-kridlo"
+              src={`/fotky/motyl-${m.soubor}.png`}
+              alt=""
+              aria-hidden="true"
+            />
           </span>
         );
       })}

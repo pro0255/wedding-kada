@@ -3,7 +3,10 @@ import { Courier_Prime } from "next/font/google";
 import Ramec from "../Ramec";
 import Film from "./Film";
 
-export const metadata: Metadata = { title: "Příběh — S6: kontaktní arch", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Příběh — S6: kontaktní arch",
+  robots: { index: false, follow: false },
+};
 
 // psací stroj na dopis a popisky snímků — latin-ext kvůli háčkům a čárkám
 const stroj = Courier_Prime({

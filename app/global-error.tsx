@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Svedci } from "./ChybaHlaska";
 import s from "./chyba.module.css";
+import { Svedci } from "./ChybaHlaska";
 
 /* Pád už v kořenovém layoutu. Kreslí vlastní <html> a nemá globals.css ani
    písma — chyba.module.css proto nese záložní barvy. */

@@ -21,7 +21,15 @@ function nazevSouboru(p: Polozka, i: number): string {
   return `${String(i + 1).padStart(3, "0")}_${kdy}.${pripona}`;
 }
 
-function Tlacitko({ polozky, popisek, soubor }: { polozky: Polozka[]; popisek: string; soubor: string }) {
+function Tlacitko({
+  polozky,
+  popisek,
+  soubor,
+}: {
+  polozky: Polozka[];
+  popisek: string;
+  soubor: string;
+}) {
   const [stav, setStav] = useState<{ hotovo: number } | null>(null);
   const [hlaska, setHlaska] = useState<string | null>(null);
 
@@ -64,7 +72,9 @@ function Tlacitko({ polozky, popisek, soubor }: { polozky: Polozka[]; popisek: s
       odkaz.click();
       setTimeout(() => URL.revokeObjectURL(odkaz.href), 60_000);
       const chybi = serazene.length - stazene.length;
-      setHlaska(chybi > 0 ? `Hotovo, ale ${chybi} se nepodařilo stáhnout — zkuste to znovu.` : "Hotovo.");
+      setHlaska(
+        chybi > 0 ? `Hotovo, ale ${chybi} se nepodařilo stáhnout — zkuste to znovu.` : "Hotovo.",
+      );
     } catch {
       setHlaska("Stažení se nepovedlo. Zkontrolujte připojení a zkuste to znovu.");
     } finally {
@@ -94,9 +104,17 @@ function Tlacitko({ polozky, popisek, soubor }: { polozky: Polozka[]; popisek: s
 export default function StahnoutFotky({ fotky, videa }: { fotky: Polozka[]; videa: Polozka[] }) {
   return (
     <div className={s.stahnoutRada}>
-      <Tlacitko polozky={fotky} popisek="Stáhnout všechny fotky" soubor="Katerina-a-Jakub-fotky.zip" />
+      <Tlacitko
+        polozky={fotky}
+        popisek="Stáhnout všechny fotky"
+        soubor="Katerina-a-Jakub-fotky.zip"
+      />
       {videa.length > 0 && (
-        <Tlacitko polozky={videa} popisek="Stáhnout všechna videa" soubor="Katerina-a-Jakub-videa.zip" />
+        <Tlacitko
+          polozky={videa}
+          popisek="Stáhnout všechna videa"
+          soubor="Katerina-a-Jakub-videa.zip"
+        />
       )}
     </div>
   );

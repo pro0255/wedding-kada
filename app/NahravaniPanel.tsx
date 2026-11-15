@@ -40,7 +40,12 @@ function Odznak({ stav }: { stav: "ceka" | "nahrava" | "hotovo" | "znovu" }) {
   return null;
 }
 
-const POPIS = { ceka: "čeká", nahrava: "nahrává se", hotovo: "nahráno", znovu: "zkusí se znovu" } as const;
+const POPIS = {
+  ceka: "čeká",
+  nahrava: "nahrává se",
+  hotovo: "nahráno",
+  znovu: "zkusí se znovu",
+} as const;
 
 export default function NahravaniPanel({
   stav,
@@ -65,7 +70,8 @@ export default function NahravaniPanel({
   let podtitulek: string;
   if (hotovo) {
     titulek = "Hotovo";
-    podtitulek = celkem === 1 ? "Je v galerii. Děkujeme!" : `Všech ${celkem} je v galerii. Děkujeme!`;
+    podtitulek =
+      celkem === 1 ? "Je v galerii. Děkujeme!" : `Všech ${celkem} je v galerii. Děkujeme!`;
   } else if (ceka === "signal") {
     titulek = "Bez signálu";
     podtitulek = `${zbyva} ${pluralSouboru(zbyva, "soubor čeká — nahraje se sám", "soubory čekají — nahrají se samy", "souborů čeká — nahraje se samo")}, jakmile bude připojení. Stránku můžete i zavřít.`;
@@ -119,7 +125,11 @@ export default function NahravaniPanel({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={f.nahled} alt="" />
             )}
-            {f.video && <span className={s.videoZnak} aria-hidden="true">▶</span>}
+            {f.video && (
+              <span className={s.videoZnak} aria-hidden="true">
+                ▶
+              </span>
+            )}
             {f.stav === "nahrava" && (
               <>
                 <span className={s.procento}>{f.procento} %</span>
@@ -130,7 +140,12 @@ export default function NahravaniPanel({
             )}
             <Odznak stav={f.stav} />
             {(f.stav === "ceka" || f.stav === "znovu") && (
-              <button type="button" className={s.odebrat} onClick={() => odeber(f.id)} aria-label="Odebrat ze seznamu">
+              <button
+                type="button"
+                className={s.odebrat}
+                onClick={() => odeber(f.id)}
+                aria-label="Odebrat ze seznamu"
+              >
                 ×
               </button>
             )}

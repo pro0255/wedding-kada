@@ -34,7 +34,16 @@ const PISMO = { className: "doodle-napis" };
    zaoblený čtverec pod ní dělá .ikona-klik-obal v CSS — odznak leží přes fotku
    a samotný obrys by se na světlém snímku ztratil. */
 export function IkonaKlik() {
-  return <img className="ikona-klik" src="/ikony/klik.png" alt="" aria-hidden="true" width={512} height={512} />;
+  return (
+    <img
+      className="ikona-klik"
+      src="/ikony/klik.png"
+      alt=""
+      aria-hidden="true"
+      width={512}
+      height={512}
+    />
+  );
 }
 
 /* „první společná fotka“ + stejná šipka jako u zásnub — patří k zimní fotce
@@ -42,9 +51,18 @@ export function IkonaKlik() {
    vždycky jen jedna z nich, podle toho, která fotka je zrovna navrchu. */
 export function SipkaPrvniFotka() {
   return (
-    <svg className="story-doodle doodle-prvni-fotka" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="22" y="42" fontSize="24">PRVNÍ</text>
-      <text {...PISMO} x="22" y="74" fontSize="15">SPOLEČNÁ FOTKA</text>
+    <svg
+      className="story-doodle doodle-prvni-fotka"
+      viewBox="0 0 220 170"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <text {...PISMO} x="22" y="42" fontSize="24">
+        PRVNÍ
+      </text>
+      <text {...PISMO} x="22" y="74" fontSize="15">
+        SPOLEČNÁ FOTKA
+      </text>
       <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
@@ -56,9 +74,18 @@ export function SipkaPrvniFotka() {
    patří k fotce z krčského přístavu se synkem v náručí. */
 export function SipkaChorvatsko() {
   return (
-    <svg className="story-doodle doodle-chorvatsko" viewBox="0 0 220 170" aria-hidden="true" focusable="false">
-      <text {...PISMO} x="14" y="40" fontSize="30">první Chorvatsko</text>
-      <text {...PISMO} x="14" y="82" fontSize="30">jako rodina</text>
+    <svg
+      className="story-doodle doodle-chorvatsko"
+      viewBox="0 0 220 170"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <text {...PISMO} x="14" y="40" fontSize="30">
+        první Chorvatsko
+      </text>
+      <text {...PISMO} x="14" y="82" fontSize="30">
+        jako rodina
+      </text>
       <path {...T} d="M 66 102 C 47 118, 36 133, 27 153" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 32 131" />
       <path {...T} className="doodle-hrot" d="M 27 153 L 49 146" />
@@ -73,7 +100,12 @@ export function SipkaChorvatsko() {
    Hrot míří doleva, tedy do středu stránky — doodle visí u pravého okraje. */
 export function SrdceIniciraly() {
   return (
-    <svg className="story-doodle doodle-srdce" viewBox="0 0 220 218" aria-hidden="true" focusable="false">
+    <svg
+      className="story-doodle doodle-srdce"
+      viewBox="0 0 220 218"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         {...T}
         d="M 110 174 C 96 161, 34 123, 34 85 C 34 60, 57 45, 77 54 C 91 60, 103 73, 110 89 C 117 73, 129 60, 143 54 C 163 45, 186 60, 186 85 C 186 123, 124 161, 110 174 Z"
@@ -106,10 +138,23 @@ export function SrdceIniciraly() {
       {/* Kotvy nejsou symetrické kolem 110: Caveat má u „K“ výrazný přesah
          doprava a plus posazené vedle své šířky, takže se rovnalo podle
          skutečných obrysů písmen, ne podle jejich kotev. */}
-      <text {...PISMO} x="85" y="116" fontSize="42" textAnchor="end">K</text>
-      <text {...PISMO} x="108.7" y="116" fontSize="42" textAnchor="middle">+</text>
-      <text {...PISMO} x="130" y="116" fontSize="42" textAnchor="start">J</text>
-      <text {...PISMO} x="109" y="136" fontSize="20" textAnchor="middle" className="doodle-napis doodle-datum">
+      <text {...PISMO} x="85" y="116" fontSize="42" textAnchor="end">
+        K
+      </text>
+      <text {...PISMO} x="108.7" y="116" fontSize="42" textAnchor="middle">
+        +
+      </text>
+      <text {...PISMO} x="130" y="116" fontSize="42" textAnchor="start">
+        J
+      </text>
+      <text
+        {...PISMO}
+        x="109"
+        y="136"
+        fontSize="20"
+        textAnchor="middle"
+        className="doodle-napis doodle-datum"
+      >
         30. 7. 2026
       </text>
     </svg>

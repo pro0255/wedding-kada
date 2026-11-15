@@ -28,8 +28,8 @@
  * výstupní šířky a teprve hotová silueta se zmenší. Prahem se to dělat nedá:
  * ten by z lehkých tahů ukousl víc než z tmavých a kresba by se rozpadla. */
 
-import sharp from "sharp";
 import { readdir } from "node:fs/promises";
+import sharp from "sharp";
 
 const SLOZKA = "predlohy/program";
 const CIL = "public/program";
@@ -38,18 +38,36 @@ const CIL = "public/program";
  * zdroje, `papir` zvedá práh průhlednosti u archů s texturou papíru — na
  * hladkém skenu stačí výchozí hodnota, tady by z textury zbyly tečky. */
 const VYREZY = [
-  { zdroj: "prstynky a disko.jpg", klic: "obrad",
-    oblast: { left: 425, top: 312, width: 200, height: 108 } },
-  { zdroj: "prstynky a disko.jpg", klic: "obed",
-    oblast: { left: 780, top: 330, width: 240, height: 136 } },
-  { zdroj: "prstynky a disko.jpg", klic: "dort",
-    oblast: { left: 838, top: 610, width: 190, height: 172 } },
-  { zdroj: "prstynky a disko.jpg", klic: "odpoledne",
-    oblast: { left: 440, top: 168, width: 180, height: 140 } },
-  { zdroj: "prstynky a disko.jpg", klic: "party",
-    oblast: { left: 615, top: 764, width: 127, height: 144 } },
-  { zdroj: "prstynky a disko.jpg", klic: "tanec",
-    oblast: { left: 850, top: 40, width: 200, height: 158 } },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "obrad",
+    oblast: { left: 425, top: 312, width: 200, height: 108 },
+  },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "obed",
+    oblast: { left: 780, top: 330, width: 240, height: 136 },
+  },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "dort",
+    oblast: { left: 838, top: 610, width: 190, height: 172 },
+  },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "odpoledne",
+    oblast: { left: 440, top: 168, width: 180, height: 140 },
+  },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "party",
+    oblast: { left: 615, top: 764, width: 127, height: 144 },
+  },
+  {
+    zdroj: "prstynky a disko.jpg",
+    klic: "tanec",
+    oblast: { left: 850, top: 40, width: 200, height: 158 },
+  },
 ];
 
 /* Výchozí hodnoty pro výřezy z archů: textura papíru potřebuje vyšší práh
@@ -89,8 +107,12 @@ function rozeber(soubor) {
   const m = soubor.match(/^(\d+)[.\s-]+(.+)\.(jpe?g|png)$/i);
   if (!m) return null;
   const klic = m[2]
-    .normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    .normalize("NFD")
+    .replaceAll(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim()
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/^-|-$/g, "");
   return { poradi: Number(m[1]), klic };
 }
 
@@ -131,11 +153,13 @@ function ztencit(alfa, W, H, r) {
   const rozmaz = (zdroj, cil, delka, pocet, krok) => {
     for (let i = 0; i < pocet; i++) {
       for (let j = 0; j < delka; j++) {
-        let s = 0, n = 0;
+        let s = 0,
+          n = 0;
         for (let d = -1; d <= 1; d++) {
           const k = j + d;
           if (k < 0 || k >= delka) continue;
-          s += zdroj[i * krok.i + k * krok.j]; n++;
+          s += zdroj[i * krok.i + k * krok.j];
+          n++;
         }
         cil[i * krok.i + j * krok.j] = s / n;
       }
@@ -187,13 +211,17 @@ function ztloustit(alfa, W, H, r) {
 /** Z dat RGBA udělá barevnou siluetu oříznutou na inkoust. */
 async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   const alfa = new Float32Array(W * H);
-  let minX = W, maxX = 0, minY = H, maxY = 0;
+  let minX = W,
+    maxX = 0,
+    minY = H,
+    maxY = 0;
   for (let p = 0; p < W * H; p++) {
     const jas = (data[p * 4] + data[p * 4 + 1] + data[p * 4 + 2]) / 3;
     const a = prah(255 - jas, papir, LINKA);
     alfa[p] = a;
     if (a > 0.35) {
-      const x = p % W, y = (p / W) | 0;
+      const x = p % W,
+        y = (p / W) | 0;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -203,15 +231,16 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   if (maxX < minX) return null;
 
   const r = Math.round(Math.abs(ztenceni) * ZVETSENI);
-  const zeslabena = ztenceni >= 0
-    ? ztencit(alfa, W, H, r)
-    : ztloustit(alfa, W, H, r);
-  const sirka = maxX - minX + 1, vyska = maxY - minY + 1;
+  const zeslabena = ztenceni >= 0 ? ztencit(alfa, W, H, r) : ztloustit(alfa, W, H, r);
+  const sirka = maxX - minX + 1,
+    vyska = maxY - minY + 1;
   const ven = Buffer.alloc(sirka * vyska * 4);
   for (let y = 0; y < vyska; y++) {
     for (let x = 0; x < sirka; x++) {
       const q = (y * sirka + x) * 4;
-      ven[q] = BARVA[0]; ven[q + 1] = BARVA[1]; ven[q + 2] = BARVA[2];
+      ven[q] = BARVA[0];
+      ven[q + 1] = BARVA[1];
+      ven[q + 2] = BARVA[2];
       ven[q + 3] = Math.round(255 * zeslabena[(y + minY) * W + (x + minX)]);
     }
   }
@@ -227,13 +256,18 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
 for (const v of VYREZY) {
   const { data, W, H } = await nacti(v.zdroj, v.oblast);
   const r = await ikonka(data, W, H, v.klic, v.papir ?? ARCH_PAPIR, v.ztenceni ?? ARCH_ZTENCENI);
-  if (!r) { console.log(`${v.klic}: v zadané oblasti není žádná kresba`); continue; }
-  console.log(`${v.klic} (výřez z ${v.zdroj})  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`);
+  if (!r) {
+    console.log(`${v.klic}: v zadané oblasti není žádná kresba`);
+    continue;
+  }
+  console.log(
+    `${v.klic} (výřez z ${v.zdroj})  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`,
+  );
 }
 
 /* --- samostatné kresby --- */
 const soubory = (await readdir(SLOZKA)).filter((f) => rozeber(f));
-if (!soubory.length) {
+if (soubory.length === 0) {
   console.log(`v ${SLOZKA} nejsou žádné kresby ve tvaru „1. nazev.jpg“`);
 }
 
@@ -241,6 +275,11 @@ for (const soubor of soubory.sort()) {
   const { poradi, klic } = rozeber(soubor);
   const { data, W, H } = await nacti(soubor);
   const r = await ikonka(data, W, H, klic, PAPIR, ZTENCENI_KRESEB[klic] ?? 0);
-  if (!r) { console.log(`${soubor}: nenašel jsem žádnou kresbu, přeskakuji`); continue; }
-  console.log(`${poradi}. ${klic}  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`);
+  if (!r) {
+    console.log(`${soubor}: nenašel jsem žádnou kresbu, přeskakuji`);
+    continue;
+  }
+  console.log(
+    `${poradi}. ${klic}  inkoust ${r.sirka}x${r.vyska} → ${r.vysledek.width}x${r.vysledek.height}, ${(r.vysledek.size / 1024).toFixed(0)} kB`,
+  );
 }

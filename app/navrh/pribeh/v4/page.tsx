@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Ramec from "../Ramec";
 import Kapitoly from "./Kapitoly";
 
-export const metadata: Metadata = { title: "Příběh — S4: kapitoly", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Příběh — S4: kapitoly",
+  robots: { index: false, follow: false },
+};
 
 export default function Stranka() {
   return (

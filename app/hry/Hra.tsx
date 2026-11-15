@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { deviceId } from "@/lib/deviceId";
 import type { HraSlug } from "@/lib/hra";
+import s from "./hra.module.css";
 import { HRY_REGISTR } from "./hry";
 import type { Barvy, Vstup } from "./hry/typy";
-import { Zvuky } from "./zvuk";
+import { IKONY } from "./IkonaHry";
 import Jmeno from "./Jmeno";
 import { Konfety } from "./konfety";
 import { sdilejSkore, type VysledekSdileni } from "./sdileni";
-import { IKONY } from "./IkonaHry";
 import { dorucCekajici, odesliSkore } from "./skoreFronta";
-import s from "./hra.module.css";
+import { Zvuky } from "./zvuk";
 
 type Faze = "start" | "hra" | "konec";
 
@@ -43,7 +43,13 @@ export default function Hra({
   const [jmenoOtevrene, setJmenoOtevrene] = useState(false);
   const [sdileni, setSdileni] = useState<"klid" | "pracuji" | VysledekSdileni>("klid");
   const [vyzva, setVyzva] = useState<{ od: string; skore: number } | null>(null);
-  const barvyRef = useRef({ ink: "#2b2925", inkJemny: "#635d55", zlata: "#9a8158", pozadi: "#ece7de", bg: "#f5f2ec" });
+  const barvyRef = useRef({
+    ink: "#2b2925",
+    inkJemny: "#635d55",
+    zlata: "#9a8158",
+    pozadi: "#ece7de",
+    bg: "#f5f2ec",
+  });
 
   // skóre, která minule neodešla (slabý signál), pošli teď a pak při každém návratu signálu
   useEffect(() => {
@@ -196,7 +202,10 @@ export default function Hra({
       const t = e.target as HTMLElement | null;
       return (
         !!t &&
-        (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "BUTTON" || t.isContentEditable)
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.tagName === "BUTTON" ||
+          t.isContentEditable)
       );
     };
     const naKlavesu = (e: KeyboardEvent) => {
@@ -338,7 +347,11 @@ export default function Hra({
                 <button type="button" className={s.primarni} onClick={() => znovuRef.current()}>
                   Hrát znovu
                 </button>
-                <button type="button" className={s.sekundarni} onClick={() => setJmenoOtevrene(true)}>
+                <button
+                  type="button"
+                  className={s.sekundarni}
+                  onClick={() => setJmenoOtevrene(true)}
+                >
                   Uložit jméno
                 </button>
                 <button

@@ -2,9 +2,17 @@ import { SVATBA_END, SVATBA_NAZEV, SVATBA_START, VENUE_ADDRESS } from "../../ven
 
 /* Soubor .ics pro Apple Calendar, Outlook i Android. Generuje se za běhu,
    aby odkaz na web v popisu odpovídal doméně, ze které si ho host stáhl. */
-const utc = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const utc = (d: Date) =>
+  d
+    .toISOString()
+    .replaceAll(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 // čárky, středníky a nové řádky mají v iCalendar zvláštní význam
-const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/[,;]/g, (z) => `\\${z}`).replace(/\n/g, "\\n");
+const esc = (s: string) =>
+  s
+    .replaceAll("\\", String.raw`\\`)
+    .replaceAll(/[,;]/g, (z) => `\\${z}`)
+    .replaceAll("\n", String.raw`\n`);
 
 export function GET(req: Request) {
   const web = new URL(req.url).origin;

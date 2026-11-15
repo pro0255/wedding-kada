@@ -45,24 +45,13 @@ const elipsa = (cx: number, cy: number, rx: number, ry: number) =>
 /* Silueta prstenu i s bokem — horní obruč, boky a spodní obruč jako jeden
    uzavřený tvar. Používají ji masky u obřadu, aby se za prstýnkem schovalo
    všechno, ne jen jeho čáry. */
-const PRSTEN_SILUETA =
-  "M -28 0 A 28 15 0 0 1 28 0 L 28 11 A 28 15 0 0 1 -28 11 Z";
+const PRSTEN_SILUETA = "M -28 0 A 28 15 0 0 1 28 0 L 28 11 A 28 15 0 0 1 -28 11 Z";
 
 const srdce = (x: number, y: number, s = 1) =>
   `M ${x} ${y} c ${-1.5 * s} ${-4 * s} ${-8 * s} ${-4 * s} ${-8 * s} ${s} c 0 ${4 * s} ${5 * s} ${7 * s} ${8 * s} ${10 * s} c ${3 * s} ${-3 * s} ${8 * s} ${-6 * s} ${8 * s} ${-10 * s} c 0 ${-5 * s} ${-6.5 * s} ${-5 * s} ${-8 * s} ${-s} Z`;
 
 /* bublinka v nápoji — plná tečka, proto se nedokresluje, jen probublá */
-function Bublina({
-  cx,
-  cy,
-  r,
-  cls = "",
-}: {
-  cx: number;
-  cy: number;
-  r: number;
-  cls?: string;
-}) {
+function Bublina({ cx, cy, r, cls = "" }: { cx: number; cy: number; r: number; cls?: string }) {
   return (
     <circle
       className={`pi-bublina ${cls}`}
@@ -95,14 +84,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
          by mu zadní obruč prosvítala skrz. Tah kolem siluety drží mezeru,
          aby se čáry nedotýkaly. */}
       <defs>
-        <mask
-          id="pi-snidane-talir"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width="220"
-          height="110"
-        >
+        <mask id="pi-snidane-talir" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="110">
           <rect x="0" y="0" width="220" height="110" fill="#fff" />
           <path
             fill="#000"
@@ -110,12 +92,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
             strokeWidth="5"
             d="M 86 46 L 91 80 q .8 6 6.8 6 h 24.4 q 6 0 6.8 -6 L 134 46 Z"
           />
-          <path
-            fill="#000"
-            stroke="#000"
-            strokeWidth="5"
-            d={elipsa(110, 46, 24, 5)}
-          />
+          <path fill="#000" stroke="#000" strokeWidth="5" d={elipsa(110, 46, 24, 5)} />
           <path
             fill="none"
             stroke="#000"
@@ -130,23 +107,12 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
 
       {/* Hrnek. Tělo je otevřená cesta — Z by přes ústí šálku dokreslilo
          příčku a ta vypadala jako čára uvnitř hrnku; obruč dělá elipsa. */}
-      <path
-        {...T}
-        d="M 86 46 L 91 80 q .8 6 6.8 6 h 24.4 q 6 0 6.8 -6 L 134 46"
-      />
+      <path {...T} d="M 86 46 L 91 80 q .8 6 6.8 6 h 24.4 q 6 0 6.8 -6 L 134 46" />
       <path {...T} d={elipsa(110, 46, 24, 5)} />
       <path {...T} d="M 134 55 q 14 -1 13 10 q -1 10 -13 9" />
       <path {...T} className="pi-para" d="M 98 38 q 5 -6 0 -12 q -5 -6 0 -12" />
-      <path
-        {...T}
-        className="pi-para pi-cek-1"
-        d="M 110 34 q 5 -6 0 -12 q -5 -6 0 -12"
-      />
-      <path
-        {...T}
-        className="pi-para pi-cek-2"
-        d="M 122 38 q 5 -6 0 -12 q -5 -6 0 -12"
-      />
+      <path {...T} className="pi-para pi-cek-1" d="M 110 34 q 5 -6 0 -12 q -5 -6 0 -12" />
+      <path {...T} className="pi-para pi-cek-2" d="M 122 38 q 5 -6 0 -12 q -5 -6 0 -12" />
     </>
   ),
 
@@ -174,57 +140,23 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
         <clipPath id="pi-obrad-okno">
           <circle cx="102" cy="73" r="11" />
         </clipPath>
-        <mask
-          id="pi-obrad-zadni"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width="220"
-          height="110"
-        >
+        <mask id="pi-obrad-zadni" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="110">
           <rect x="0" y="0" width="220" height="110" fill="#fff" />
           <g transform="translate(126 66) rotate(-12)">
-            <path
-              fill="#000"
-              stroke="#000"
-              strokeWidth="6"
-              d={PRSTEN_SILUETA}
-            />
+            <path fill="#000" stroke="#000" strokeWidth="6" d={PRSTEN_SILUETA} />
             <path fill="#fff" stroke="none" d={elipsa(0, 0, 20, 10.7)} />
-            <path
-              fill="none"
-              stroke="#000"
-              strokeWidth="6"
-              d={elipsa(0, 0, 20, 10.7)}
-            />
+            <path fill="none" stroke="#000" strokeWidth="6" d={elipsa(0, 0, 20, 10.7)} />
           </g>
           {/* v okénku se role obrací — tam jde levý prstýnek navrch */}
           <circle cx="102" cy="73" r="11" fill="#fff" />
         </mask>
-        <mask
-          id="pi-obrad-predni"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width="220"
-          height="110"
-        >
+        <mask id="pi-obrad-predni" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="110">
           <rect x="0" y="0" width="220" height="110" fill="#fff" />
           <g clipPath="url(#pi-obrad-okno)">
             <g transform="translate(88 56) rotate(-20)">
-              <path
-                fill="#000"
-                stroke="#000"
-                strokeWidth="6"
-                d={PRSTEN_SILUETA}
-              />
+              <path fill="#000" stroke="#000" strokeWidth="6" d={PRSTEN_SILUETA} />
               <path fill="#fff" stroke="none" d={elipsa(0, 0, 20, 10.7)} />
-              <path
-                fill="none"
-                stroke="#000"
-                strokeWidth="6"
-                d={elipsa(0, 0, 20, 10.7)}
-              />
+              <path fill="none" stroke="#000" strokeWidth="6" d={elipsa(0, 0, 20, 10.7)} />
             </g>
           </g>
         </mask>
@@ -315,14 +247,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
   dort: (
     <g transform="translate(-48 10)">
       <defs>
-        <mask
-          id="pi-dort-maska"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width="220"
-          height="110"
-        >
+        <mask id="pi-dort-maska" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="110">
           <rect x="0" y="0" width="220" height="110" fill="#fff" />
           <g className="pi-nuz">
             {/* Obrys celé čepele, ne jen proužek podél břicha — s proužkem
@@ -370,10 +295,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
            čepele (170,40)–(175,45), takže na sebe nasedají; dřív tam byla
            mezera, která měla dělat objímku, ale v téhle velikosti vypadala
            jako přeražený nůž. */}
-        <path
-          {...T}
-          d="M 170 40 L 178.5 31.5 C 180.8 29.2, 184.4 34.4, 182.8 37.2 L 175 45 Z"
-        />
+        <path {...T} d="M 170 40 L 178.5 31.5 C 180.8 29.2, 184.4 34.4, 182.8 37.2 L 175 45 Z" />
       </g>
     </g>
   ),
@@ -438,38 +360,10 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
           <path {...T} d="M 123 33 c 4 5 4 11 0 16" />
         </g>
 
-        <circle
-          className="pi-oci"
-          cx="84"
-          cy="21"
-          r="1.6"
-          fill="currentColor"
-          stroke="none"
-        />
-        <circle
-          className="pi-oci"
-          cx="92"
-          cy="21"
-          r="1.6"
-          fill="currentColor"
-          stroke="none"
-        />
-        <circle
-          className="pi-oci"
-          cx="54"
-          cy="28"
-          r="1.6"
-          fill="currentColor"
-          stroke="none"
-        />
-        <circle
-          className="pi-oci"
-          cx="62"
-          cy="28"
-          r="1.6"
-          fill="currentColor"
-          stroke="none"
-        />
+        <circle className="pi-oci" cx="84" cy="21" r="1.6" fill="currentColor" stroke="none" />
+        <circle className="pi-oci" cx="92" cy="21" r="1.6" fill="currentColor" stroke="none" />
+        <circle className="pi-oci" cx="54" cy="28" r="1.6" fill="currentColor" stroke="none" />
+        <circle className="pi-oci" cx="62" cy="28" r="1.6" fill="currentColor" stroke="none" />
       </g>
     </g>
   ),
@@ -481,10 +375,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
          výš, aby spolu nestály v jedné řadě. Posuny jsou na obalových
          skupinách — na .pi-slunce nesmí být, tam by je přepsala rotace. */}
       <g transform="translate(-102 0)">
-        <path
-          {...T}
-          d="M 134 44 L 138 84 q .5 4 4.5 4 h 20 q 4 0 4.5 -4 L 171 44 Z"
-        />
+        <path {...T} d="M 134 44 L 138 84 q .5 4 4.5 4 h 20 q 4 0 4.5 -4 L 171 44 Z" />
         <path {...T} d={elipsa(152.5, 44, 18.5, 4)} />
         <path {...T} d="M 141 63 L 150 61 L 152 70 L 143 72 Z" />
         <path {...T} d="M 153 68 L 162 66 L 164 75 L 155 77 Z" />
@@ -523,11 +414,7 @@ const IKONY: Record<IkonaTyp, React.ReactNode> = {
         <path {...T} d={elipsa(110, 48, 8, 24)} />
       </g>
       <path {...T} className="pi-trpyt" d="M 80 26 v -7 M 76.5 22.5 h 7" />
-      <path
-        {...T}
-        className="pi-trpyt pi-cek-2"
-        d="M 141 32 v -7 M 137.5 28.5 h 7"
-      />
+      <path {...T} className="pi-trpyt pi-cek-2" d="M 141 32 v -7 M 137.5 28.5 h 7" />
       <g className="pi-konfeta">
         <path {...T} d="M 64 32 l 7 -4" />
       </g>
@@ -565,7 +452,7 @@ function viditelnyBBox(kresba: SVGGElement) {
   kresba.querySelectorAll<SVGGraphicsElement>("path,circle,rect,polygon,ellipse").forEach((el) => {
     if (el.closest("defs")) return;
     for (let uzel: Element | null = el; uzel && uzel !== kresba; uzel = uzel.parentElement) {
-      if (parseFloat(getComputedStyle(uzel).opacity) === 0) return;
+      if (Number.parseFloat(getComputedStyle(uzel).opacity) === 0) return;
     }
     const ctm = el.getScreenCTM();
     if (!ctm) return;
@@ -632,8 +519,7 @@ export default function Ikona({ typ }: { typ: IkonaTyp }) {
       const bb = viditelnyBBox(kresba);
       if (!bb || !bb.width || !bb.height) return;
       const d = DOLADENI[typ] ?? {};
-      const k =
-        Math.min(CIL_S / bb.width, CIL_V / bb.height, MAX_ZVETSENI) * (d.meritko ?? 1);
+      const k = Math.min(CIL_S / bb.width, CIL_V / bb.height, MAX_ZVETSENI) * (d.meritko ?? 1);
       const px = SIRKA - OKRAJ + (d.posun ?? 0) - k * (bb.x + bb.width);
       const py = VYSKA / 2 - k * (bb.y + bb.height / 2);
       kresba.setAttribute(
@@ -677,11 +563,7 @@ export default function Ikona({ typ }: { typ: IkonaTyp }) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={`program-ikona${hraje ? " hraje" : ""}`}
-      aria-hidden="true"
-    >
+    <div ref={ref} className={`program-ikona${hraje ? " hraje" : ""}`} aria-hidden="true">
       <svg viewBox="0 0 220 110">
         <g className="pi-kresba">{IKONY[typ]}</g>
       </svg>

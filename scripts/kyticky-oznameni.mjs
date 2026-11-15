@@ -36,8 +36,8 @@
  * Vedle toho vzniká přehledový arch nahled.png se všemi snítkami, aby se dalo
  * vybrat okem, co půjde na kartu. */
 
-import sharp from "sharp";
 import { mkdir, rm } from "node:fs/promises";
+import sharp from "sharp";
 
 const PREDLOHA = "predlohy/fotky/oznámení/kytičky.jpg";
 const KAM = "predlohy/oznameni/kyticky";
@@ -76,8 +76,11 @@ const NEJMENE_STRANA = 24;
 const OKRAJ = 4;
 
 function naHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   const d = max - min;
   if (d === 0) return [0, 0, l];
@@ -90,7 +93,10 @@ function naHsl(r, g, b) {
 }
 
 function naRgb(h, s, l) {
-  if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
   const slozka = (t) => {
@@ -104,11 +110,13 @@ function naRgb(h, s, l) {
   return [slozka(h + 1 / 3), slozka(h), slozka(h - 1 / 3)].map((v) => Math.round(v * 255));
 }
 
-const paletaHsl = PALETA.map((hex) => naHsl(
-  parseInt(hex.slice(1, 3), 16),
-  parseInt(hex.slice(3, 5), 16),
-  parseInt(hex.slice(5, 7), 16),
-));
+const paletaHsl = PALETA.map((hex) =>
+  naHsl(
+    Number.parseInt(hex.slice(1, 3), 16),
+    Number.parseInt(hex.slice(3, 5), 16),
+    Number.parseInt(hex.slice(5, 7), 16),
+  ),
+);
 
 /** Odstín na nejbližší paletový, sytost a světlost přitáhnout. */
 function doPalety(r, g, b) {
@@ -125,7 +133,10 @@ function doPalety(r, g, b) {
     for (const c of paletaHsl) {
       const d = Math.abs(h - c[0]);
       const vzdalenost = Math.min(d, 1 - d); // odstín je kruh, 0 a 1 jsou vedle sebe
-      if (vzdalenost < nejmensi) { nejmensi = vzdalenost; nejlepsi = c; }
+      if (vzdalenost < nejmensi) {
+        nejmensi = vzdalenost;
+        nejlepsi = c;
+      }
     }
   }
 
@@ -178,7 +189,10 @@ for (let start = 0; start < W * H; start++) {
   zasobnik[vrchol++] = start;
   stitek[start] = id;
   let pocet = 0;
-  let x1 = W, y1 = H, x2 = 0, y2 = 0;
+  let x1 = W,
+    y1 = H,
+    x2 = 0,
+    y2 = 0;
 
   while (vrchol > 0) {
     const p = zasobnik[--vrchol];
@@ -206,9 +220,10 @@ for (let start = 0; start < W * H; start++) {
 }
 
 const vybrane = plochy
-  .filter((p) => p.pocet >= NEJMENE_PIXELU
-    && p.x2 - p.x1 >= NEJMENE_STRANA
-    && p.y2 - p.y1 >= NEJMENE_STRANA)
+  .filter(
+    (p) =>
+      p.pocet >= NEJMENE_PIXELU && p.x2 - p.x1 >= NEJMENE_STRANA && p.y2 - p.y1 >= NEJMENE_STRANA,
+  )
   .sort((a, b) => b.pocet - a.pocet);
 
 await rm(KAM, { recursive: true, force: true });
@@ -240,33 +255,43 @@ for (let i = 0; i < vybrane.length; i++) {
 
   const jmeno = `${String(i + 1).padStart(2, "0")}.png`;
   const vyrez = await sharp(surovy, { raw: { width, height, channels: 4 } })
-    .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
+    .png({ compressionLevel: 9, palette: true, quality: 90 })
+    .toBuffer();
   await sharp(vyrez).toFile(`${KAM}/${jmeno}`);
 
   nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet });
-  console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
+  console.log(
+    `${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`,
+  );
 }
 
 /* Přehledový arch, ať se dá vybírat okem a ne podle čísel. */
 const SLOUPCU = 6;
 const BUNKA = 180;
 const radku = Math.ceil(nahledy.length / SLOUPCU);
-const vrstvy = await Promise.all(nahledy.map(async (n, i) => {
-  const meritko = Math.min((BUNKA - 20) / n.width, (BUNKA - 20) / n.height, 1.6);
-  const w = Math.max(1, Math.round(n.width * meritko));
-  const h = Math.max(1, Math.round(n.height * meritko));
-  return {
-    input: await sharp(n.vyrez).resize(w, h).png().toBuffer(),
-    left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
-    top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
-  };
-}));
+const vrstvy = await Promise.all(
+  nahledy.map(async (n, i) => {
+    const meritko = Math.min((BUNKA - 20) / n.width, (BUNKA - 20) / n.height, 1.6);
+    const w = Math.max(1, Math.round(n.width * meritko));
+    const h = Math.max(1, Math.round(n.height * meritko));
+    return {
+      input: await sharp(n.vyrez).resize(w, h).png().toBuffer(),
+      left: (i % SLOUPCU) * BUNKA + Math.round((BUNKA - w) / 2),
+      top: Math.floor(i / SLOUPCU) * BUNKA + Math.round((BUNKA - h) / 2),
+    };
+  }),
+);
 
 await sharp({
   create: {
-    width: SLOUPCU * BUNKA, height: radku * BUNKA,
-    channels: 4, background: "#ffffff",
+    width: SLOUPCU * BUNKA,
+    height: radku * BUNKA,
+    channels: 4,
+    background: "#ffffff",
   },
-}).composite(vrstvy).png().toFile(`${KAM}/nahled.png`);
+})
+  .composite(vrstvy)
+  .png()
+  .toFile(`${KAM}/nahled.png`);
 
 console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${KAM}/nahled.png`);

@@ -7,7 +7,7 @@
 import { Redis } from "@upstash/redis";
 
 const BASE_ID = "appw1s9BtzlKCPous";
-const HRY = ["zenich", "husky", "prsten"];
+const HRY = new Set(["zenich", "husky", "prsten"]);
 
 const redis = new Redis({
   url: process.env.SVATBA_KV_REST_API_URL,
@@ -21,7 +21,9 @@ async function tabulka(nazev) {
     const url = new URL(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(nazev)}`);
     url.searchParams.set("pageSize", "100");
     if (offset) url.searchParams.set("offset", offset);
-    const r = await fetch(url, { headers: { Authorization: `Bearer ${process.env.AIRTABLE_KEY}` } });
+    const r = await fetch(url, {
+      headers: { Authorization: `Bearer ${process.env.AIRTABLE_KEY}` },
+    });
     if (!r.ok) throw new Error(`${nazev}: Airtable vrátil ${r.status}: ${await r.text()}`);
     const data = await r.json();
     zaznamy.push(...data.records);
@@ -54,14 +56,15 @@ const lajkyClenove = lajky
 if (lajkyClenove.length) p.sadd("svatba:lajky", ...lajkyClenove);
 
 const jmena = {};
-for (const h of hoste) if (h.fields.DeviceId && h.fields["Jméno"]) jmena[h.fields.DeviceId] = h.fields["Jméno"];
+for (const h of hoste)
+  if (h.fields.DeviceId && h.fields["Jméno"]) jmena[h.fields.DeviceId] = h.fields["Jméno"];
 if (Object.keys(jmena).length) p.hset("svatba:hoste", jmena);
 
 let pocetSkore = 0;
 for (const s of skore) {
   const { Hra, DeviceId } = s.fields;
   const b = s.fields["Skóre"];
-  if (!HRY.includes(Hra) || !DeviceId || typeof b !== "number") continue;
+  if (!HRY.has(Hra) || !DeviceId || typeof b !== "number") continue;
   p.zadd(`svatba:skore:${Hra}`, { gt: true }, { score: b, member: DeviceId });
   pocetSkore++;
 }

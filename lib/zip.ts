@@ -28,7 +28,7 @@ export function crc32(data: Uint8Array): number {
 export type SouborZipu = { nazev: string; data: Uint8Array; datum?: Date };
 
 const MAX_32 = 0xffffffff;
-const UTF8 = 0x0800; // příznak: jména souborů jsou v UTF-8 (diakritika)
+const UTF8 = 0x08_00; // příznak: jména souborů jsou v UTF-8 (diakritika)
 
 /** Datum a čas ve formátu MS-DOS, jak ho ZIP čeká (po 2 s, od roku 1980). */
 function dosCas(d: Date): { cas: number; datum: number } {

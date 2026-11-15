@@ -27,11 +27,21 @@ const KROKU = VETY.length + 1; // + podpis
 /* Kam fotka na stole dopadne: posun v % plochy stolu a natočení. Ručně
    rozházené, ať hromádka nevypadá jako mřížka; novější leží navrch. */
 const POLOHY = [
-  { x: -6, y: 4, r: -7 }, { x: 8, y: -4, r: 5 }, { x: -2, y: 10, r: 2 },
-  { x: 12, y: 6, r: -4 }, { x: -10, y: -6, r: 8 }, { x: 4, y: 2, r: -2 },
-  { x: -8, y: 12, r: 4 }, { x: 10, y: -8, r: -6 }, { x: 0, y: -2, r: 3 },
-  { x: -12, y: 2, r: -3 }, { x: 6, y: 12, r: 6 }, { x: 14, y: -2, r: -8 },
-  { x: -4, y: -10, r: 2 }, { x: 2, y: 8, r: -5 }, { x: -1, y: 0, r: 1 },
+  { x: -6, y: 4, r: -7 },
+  { x: 8, y: -4, r: 5 },
+  { x: -2, y: 10, r: 2 },
+  { x: 12, y: 6, r: -4 },
+  { x: -10, y: -6, r: 8 },
+  { x: 4, y: 2, r: -2 },
+  { x: -8, y: 12, r: 4 },
+  { x: 10, y: -8, r: -6 },
+  { x: 0, y: -2, r: 3 },
+  { x: -12, y: 2, r: -3 },
+  { x: 6, y: 12, r: 6 },
+  { x: 14, y: -2, r: -8 },
+  { x: -4, y: -10, r: 2 },
+  { x: 2, y: 8, r: -5 },
+  { x: -1, y: 0, r: 1 },
 ];
 
 // pořadí pokládání: fotky seřazené podle kroku, ve kterém přijdou na stůl
@@ -71,7 +81,7 @@ export default function Pribeh() {
     const io = new IntersectionObserver(
       (zaznamy) => {
         const zasah = zaznamy.filter((z) => z.isIntersecting);
-        if (!zasah.length) return;
+        if (zasah.length === 0) return;
         nastav(Math.max(...zasah.map((z) => Number((z.target as HTMLElement).dataset.znacka))));
       },
       { rootMargin: "-50% 0px -50% 0px" },
@@ -89,7 +99,12 @@ export default function Pribeh() {
           {/* Celý dopis je v DOM od začátku — čtečky ho přečtou celý. */}
           <p className={s.dopis}>
             {VETY.map((v, i) => (
-              <span key={i} className={s.veta} data-veta={i} data-stav={i === 0 ? "ted" : "budouci"}>
+              <span
+                key={i}
+                className={s.veta}
+                data-veta={i}
+                data-stav={i === 0 ? "ted" : "budouci"}
+              >
                 {v}{" "}
               </span>
             ))}
@@ -110,9 +125,22 @@ export default function Pribeh() {
                 data-fotka
                 data-krok={krok}
                 data-stav={krok === 0 ? "polozena" : "budouci"}
-                style={{ "--x": `${p.x}%`, "--y": `${p.y}%`, "--r": `${p.r}deg`, zIndex: poradi + 1 } as React.CSSProperties}
+                style={
+                  {
+                    "--x": `${p.x}%`,
+                    "--y": `${p.y}%`,
+                    "--r": `${p.r}deg`,
+                    zIndex: poradi + 1,
+                  } as React.CSSProperties
+                }
               >
-                <img src={FOTKY[f].src} alt={FOTKY[f].popis} loading="lazy" decoding="async" draggable={false} />
+                <img
+                  src={FOTKY[f].src}
+                  alt={FOTKY[f].popis}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
                 <figcaption>{FOTKY[f].popis}</figcaption>
               </figure>
             );

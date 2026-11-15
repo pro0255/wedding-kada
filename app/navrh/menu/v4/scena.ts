@@ -3,7 +3,14 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { KVETINY } from "./kvetiny";
-import { kresliObalku, kresliOrizku, kresliSkvrnu, kresliStinKvetu, kresliStranu, nactiPisma } from "./textury";
+import {
+  kresliObalku,
+  kresliOrizku,
+  kresliSkvrnu,
+  kresliStinKvetu,
+  kresliStranu,
+  nactiPisma,
+} from "./textury";
 
 /* 3D kniha menu — three.js bez frameworku, stejně jako prsten v úvodu
    (Ring3D.tsx): RoomEnvironment přes PMREM dává zlatu co odrážet, takže
@@ -74,14 +81,18 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   };
 
   /* ---------- renderer, světlo, okolí ---------- */
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    powerPreference: "high-performance",
+  });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   // Neutral (Khronos PBR Neutral) drží barvu papíru i květin, ACES by je zašpinil.
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.setClearColor(0x000000, 0);
+  renderer.setClearColor(0x00_00_00, 0);
   const platno = renderer.domElement;
   platno.setAttribute("aria-hidden", "true");
   platno.style.cssText =
@@ -126,7 +137,9 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   // Květiny se začnou stahovat hned, souběžně s písmy a kreslením stran.
   const nacitac = new THREE.TextureLoader();
   const kvetinyNacteni = Promise.all(
-    KVETINY.map((k) => nacitac.loadAsync(`/kytky/${encodeURIComponent(k.soubor)}`).catch(() => null)),
+    KVETINY.map((k) =>
+      nacitac.loadAsync(`/kytky/${encodeURIComponent(k.soubor)}`).catch(() => null),
+    ),
   );
 
   /* ---------- stav, smyčka, úklid (definované dřív než první await) ---------- */
@@ -146,13 +159,17 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
 
   // Podle průběhu, ne isActive(): čerstvě založená osa je „neaktivní“, dokud
   // ji GSAP poprvé nevykreslí — a smyčka by se pak vůbec nerozběhla.
-  const bezi1 = (a: gsap.core.Animation | null) => !!a && (a.reversed() ? a.progress() > 0 : a.progress() < 1);
+  const bezi1 = (a: gsap.core.Animation | null) =>
+    !!a && (a.reversed() ? a.progress() > 0 : a.progress() < 1);
   // Předehra: smyčka se rozběhne už při stisku prstu, ne až při puštění.
   // Probuzení kreslení z klidu tak proběhne dřív, než se deska pohne.
   let predehraDo = 0;
   const animuje = () => bezi1(tl) || bezi1(tlStrany) || performance.now() < predehraDo;
   const usazeno = () =>
-    !kurzor.nad && Math.abs(kurzor.cx) < 0.002 && Math.abs(kurzor.cy) < 0.002 && kurzor.sila < 0.004;
+    !kurzor.nad &&
+    Math.abs(kurzor.cx) < 0.002 &&
+    Math.abs(kurzor.cy) < 0.002 &&
+    kurzor.sila < 0.004;
 
   /* Kreslí se jen tehdy, když se něco hýbe: běží časová osa, nebo se kniha
      naklání za myší či se po ní teprve usazuje. Jinak GPU i baterie spí. */
@@ -224,7 +241,15 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   let pLeva = pZavreno;
   let pPrava = pZavreno;
 
-  function zaramuj(x: number, y: number, z: number, sirka: number, hloubka: number, el: number, aspect: number): Pohled {
+  function zaramuj(
+    x: number,
+    y: number,
+    z: number,
+    sirka: number,
+    hloubka: number,
+    el: number,
+    aspect: number,
+  ): Pohled {
     const tan = Math.tan(rad(FOV) / 2);
     const vyska = hloubka * Math.sin(el) + 0.12 * Math.cos(el);
     const d = Math.max(vyska / (2 * tan), sirka / (2 * tan * aspect));
@@ -336,7 +361,14 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
 
   // Skupiny BoxGeometry: +x ořízka, −x u hřbetu, +y horní strana, −y spodek, +z, −z.
   const blok = stin(
-    new THREE.Mesh(new THREE.BoxGeometry(W - O, S, H - 2 * O), [orizka, orizka, deti, orizka, orizka, orizka]),
+    new THREE.Mesh(new THREE.BoxGeometry(W - O, S, H - 2 * O), [
+      orizka,
+      orizka,
+      deti,
+      orizka,
+      orizka,
+      orizka,
+    ]),
   );
   blok.position.set((W - O) / 2, T + S / 2, 0);
 
@@ -369,7 +401,13 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   const skvrnaGeo = new THREE.PlaneGeometry((W + 0.03) / 0.6875, (H + 0.03) / 0.6875);
   skvrnaGeo.rotateX(-Math.PI / 2);
   const skvrnaMat = (opacity: number) =>
-    new THREE.MeshBasicMaterial({ map: texSkvrna, transparent: true, opacity, depthWrite: false, toneMapped: false });
+    new THREE.MeshBasicMaterial({
+      map: texSkvrna,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+      toneMapped: false,
+    });
   const skvrnaKnihy = new THREE.Mesh(skvrnaGeo, skvrnaMat(0.4));
   skvrnaKnihy.position.set(W / 2 + 0.02, 0.0006, 0.02);
   skvrnaKnihy.renderOrder = -2;
@@ -408,14 +446,22 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
     geo.rotateX(-Math.PI / 2);
     const kvet = new THREE.Mesh(
       geo,
-      new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, toneMapped: false }),
+      new THREE.MeshBasicMaterial({
+        map: t,
+        transparent: true,
+        depthWrite: false,
+        toneMapped: false,
+      }),
     );
     kvet.position.set(k.x, 0.002 + k.vrstva * 0.001, k.z);
     kvet.rotation.y = k.uhel;
     kvet.renderOrder = 10 + k.vrstva;
 
     const { platno: cvStin, presah } = kresliStinKvetu(obr);
-    const stinGeo = new THREE.PlaneGeometry(k.sirka * presah, (k.sirka * presah * cvStin.height) / cvStin.width);
+    const stinGeo = new THREE.PlaneGeometry(
+      k.sirka * presah,
+      (k.sirka * presah * cvStin.height) / cvStin.width,
+    );
     stinGeo.rotateX(-Math.PI / 2);
     const stinKvetu = new THREE.Mesh(
       stinGeo,
@@ -472,18 +518,20 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   // Otevření: deska se odlepí, zvedne přes hřbet (nahoře se na okamžik
   // zastaví, jak ji pustí ruka), padá se zrychlením a dvakrát dosedne.
   function osaOtevreni() {
-    return gsap
-      .timeline()
-      .to(st, { uhel: 0.16, zdvih: 0.012, duration: 0.34, ease: "power2.out" }, 0)
-      .to(st, { uhel: 1.74, duration: 0.62, ease: "sine.inOut" }, 0.34)
-      .to(st, { zdvih: 0, duration: 0.8, ease: "power1.inOut" }, 0.5)
-      .to(st, { uhel: Math.PI, duration: 0.42, ease: "power2.in" }, 0.96)
-      .to(st, { uhel: Math.PI - 0.05, duration: 0.13, ease: "power2.out" }, 1.38)
-      .to(st, { uhel: Math.PI, duration: 0.16, ease: "power2.in" }, 1.51)
-      .to(st, { uhel: Math.PI - 0.012, duration: 0.07, ease: "power1.out" }, 1.67)
-      .to(st, { uhel: Math.PI, duration: 0.09, ease: "power1.in" }, 1.74)
-      // Kamera se začne zvedat hned, ať se zvednutá deska vejde do záběru.
-      .to(st, { kamera: 1, duration: 2, ease: "power2.out" }, 0);
+    return (
+      gsap
+        .timeline()
+        .to(st, { uhel: 0.16, zdvih: 0.012, duration: 0.34, ease: "power2.out" }, 0)
+        .to(st, { uhel: 1.74, duration: 0.62, ease: "sine.inOut" }, 0.34)
+        .to(st, { zdvih: 0, duration: 0.8, ease: "power1.inOut" }, 0.5)
+        .to(st, { uhel: Math.PI, duration: 0.42, ease: "power2.in" }, 0.96)
+        .to(st, { uhel: Math.PI - 0.05, duration: 0.13, ease: "power2.out" }, 1.38)
+        .to(st, { uhel: Math.PI, duration: 0.16, ease: "power2.in" }, 1.51)
+        .to(st, { uhel: Math.PI - 0.012, duration: 0.07, ease: "power1.out" }, 1.67)
+        .to(st, { uhel: Math.PI, duration: 0.09, ease: "power1.in" }, 1.74)
+        // Kamera se začne zvedat hned, ať se zvednutá deska vejde do záběru.
+        .to(st, { kamera: 1, duration: 2, ease: "power2.out" }, 0)
+    );
   }
 
   function osaZavreni() {
@@ -582,7 +630,7 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   vykresli();
   Object.assign(st, { uhel: 0, zdvih: 0, kamera: 0, strana: 0 });
   vykresli();
-  kontejner.appendChild(platno);
+  kontejner.append(platno);
   await zahrat();
   zrusit();
   requestAnimationFrame(() => (platno.style.opacity = "1"));

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import gsap from "gsap";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import gsap from "gsap";
-import { PRIBEH } from "../_spolecne/pribeh";
 import { pripojOvladani, type Pripravenost } from "../_spolecne/plynulost";
+import { PRIBEH } from "../_spolecne/pribeh";
 import s from "./obalka3d.module.css";
 
 /* V1 — three.js se skutečným 3D modelem obálky.
@@ -34,7 +34,7 @@ const H = 5.04;
 const LW = W * 0.88; // dopis
 const LH = H * 0.86; // výška jedné půlky přeloženého dopisu
 // kolik světa ukazuje plátno (musí sedět s CSS: left -16 %, šířka 132 %, top -128.57 %, výška 261.9 %)
-const SVET = { x0: -0.66 * W, x1: 0.66 * W, y0: -4.2, y1: 9.0 };
+const SVET = { x0: -0.66 * W, x1: 0.66 * W, y0: -4.2, y1: 9 };
 
 const MODRA = new THREE.Color("#c2d3e4");
 const PAPIR = new THREE.Color("#fbf9f4");
@@ -55,7 +55,7 @@ async function texturaDopisu(px: number, velke: boolean) {
     document.fonts.load(`400 40px ${serif}`, "Pět"),
     document.fonts.load(`400 40px ${sans}`, "NÁŠ"),
     document.fonts.load(`400 40px ${ruka}`, "Kačka"),
-  ]).catch(() => undefined);
+  ]).catch(() => {});
 
   const c = document.createElement("canvas");
   c.width = px;
@@ -150,7 +150,10 @@ function rozriznout(geo: THREE.BufferGeometry, pantY: number) {
   const src = geo.index ? geo.toNonIndexed() : geo;
   const pos = src.attributes.position;
   const col = src.attributes.color;
-  const telo: number[] = [], teloC: number[] = [], chl: number[] = [], chlC: number[] = [];
+  const telo: number[] = [],
+    teloC: number[] = [],
+    chl: number[] = [],
+    chlC: number[] = [];
   for (let t = 0; t < pos.count; t += 3) {
     let cy = 0;
     for (let v = 0; v < 3; v++) cy += pos.getY(t + v) / 3;
@@ -163,7 +166,7 @@ function rozriznout(geo: THREE.BufferGeometry, pantY: number) {
   const udelej = (P: number[], C: number[]) => {
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
-    if (C.length) g.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
+    if (C.length > 0) g.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
     g.computeVertexNormals();
     rovinneUV(g, 2.2);
     return g;
@@ -173,24 +176,36 @@ function rozriznout(geo: THREE.BufferGeometry, pantY: number) {
 
 const POPIS = { zavreno: "Otevřít obálku s naším příběhem", otevreno: "Zavřít dopis" };
 // plátno nemá CSS vrstvy na předehřívání — pojistky will-change tu nejsou potřeba
-const BEZ_PRIPRAVY: Pripravenost = { zamer: () => {}, animace: () => {}, konec: () => {}, zrus: () => {} };
+const BEZ_PRIPRAVY: Pripravenost = {
+  zamer: () => {},
+  animace: () => {},
+  konec: () => {},
+  zrus: () => {},
+};
 
 export default function Obalka3D() {
   const [pripraveno, setPripraveno] = useState(false);
   const rawId = useId();
-  const idDopisu = "d" + rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const idDopisu = "d" + rawId.replaceAll(/[^a-zA-Z0-9]/g, "");
   const slotRef = useRef<HTMLDivElement>(null);
   const platnoRef = useRef<HTMLDivElement>(null);
   const tlacitkoRef = useRef<HTMLButtonElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const host = platnoRef.current, slot = slotRef.current, tlacitko = tlacitkoRef.current, text = textRef.current;
+    const host = platnoRef.current,
+      slot = slotRef.current,
+      tlacitko = tlacitkoRef.current,
+      text = textRef.current;
     if (!host || !slot || !tlacitko || !text) return;
     let zruseno = false;
     const uklid: (() => void)[] = [];
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: "low-power",
+    });
     const uzke = window.matchMedia("(max-width: 700px)").matches;
     // ≤ 2: text dopisu je textura a na telefonu by při 1.5 byl rozmazaný;
     // kreslí se jen při animaci, takže větší plocha nevadí
@@ -198,7 +213,7 @@ export default function Obalka3D() {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap; // radius = měkký okraj
-    host.appendChild(renderer.domElement);
+    host.append(renderer.domElement);
     uklid.push(() => {
       renderer.dispose();
       renderer.domElement.remove();
@@ -220,11 +235,21 @@ export default function Obalka3D() {
     slunce.shadow.mapSize.set(1024, 1024);
     slunce.shadow.radius = 6;
     slunce.shadow.bias = -0.0005;
-    Object.assign(slunce.shadow.camera, { left: -8, right: 8, top: 11, bottom: -6, near: 1, far: 40 });
+    Object.assign(slunce.shadow.camera, {
+      left: -8,
+      right: 8,
+      top: 11,
+      bottom: -6,
+      near: 1,
+      far: 40,
+    });
     scena.add(slunce, slunce.target);
 
     // podložka jen pro stín (průhledná, stín padá na fotky pod plátnem)
-    const podlozka = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.16 }));
+    const podlozka = new THREE.Mesh(
+      new THREE.PlaneGeometry(40, 40),
+      new THREE.ShadowMaterial({ opacity: 0.16 }),
+    );
     podlozka.position.z = -0.2;
     podlozka.receiveShadow = true;
     scena.add(podlozka);
@@ -256,7 +281,8 @@ export default function Obalka3D() {
     uklid.push(() => io.disconnect());
 
     const velikost = () => {
-      const w = host.clientWidth, h = host.clientHeight;
+      const w = host.clientWidth,
+        h = host.clientHeight;
       if (!w || !h) return;
       renderer.setSize(w, h, false);
       kamera.aspect = w / h;
@@ -334,7 +360,13 @@ export default function Obalka3D() {
 
       // --- dopis: kořen v přehybu, horní půlka nahoru, spodní na pivotu ---
       const matPapir = (t?: THREE.Texture) =>
-        new THREE.MeshStandardMaterial({ color: t ? 0xffffff : PAPIR, map: t ?? null, roughness: 0.95, bumpMap: zrno, bumpScale: 0.25 });
+        new THREE.MeshStandardMaterial({
+          color: t ? 0xffffff : PAPIR,
+          map: t ?? null,
+          roughness: 0.95,
+          bumpMap: zrno,
+          bumpScale: 0.25,
+        });
       const horniUV = new THREE.PlaneGeometry(LW, LH);
       const dolniUV = new THREE.PlaneGeometry(LW, LH);
       const preUV = (g: THREE.PlaneGeometry, v0: number) => {
@@ -371,61 +403,102 @@ export default function Obalka3D() {
         for (let i = 0; i < uv.count; i++) uv.setX(i, strana * 0.5 + uv.getX(i) * 0.5);
         const m = new THREE.Mesh(
           g,
-          new THREE.MeshStandardMaterial({ map: vosk, transparent: true, alphaTest: 0.02, roughness: 0.35, metalness: 0.35 }),
+          new THREE.MeshStandardMaterial({
+            map: vosk,
+            transparent: true,
+            alphaTest: 0.02,
+            roughness: 0.35,
+            metalness: 0.35,
+          }),
         );
         m.position.x = (strana ? 1 : -1) * (VEL / 4);
         m.castShadow = true;
         return m;
       };
-      const pecetL = pul(0), pecetP = pul(1);
+      const pecetL = pul(0),
+        pecetP = pul(1);
       pecet.add(pecetL, pecetP);
       // špička zavřené chlopně
       obalka.updateMatrixWorld(true);
       chlopen.computeBoundingBox();
       const delka = chlopen.boundingBox!.max.y - chlopen.boundingBox!.min.y;
-      pecet.position.set(0, horniHrana - delka * Math.cos(Math.PI - ZAVRENO) + 0.35, PANT_NAD + delka * Math.sin(Math.PI - ZAVRENO) + 0.05);
+      pecet.position.set(
+        0,
+        horniHrana - delka * Math.cos(Math.PI - ZAVRENO) + 0.35,
+        PANT_NAD + delka * Math.sin(Math.PI - ZAVRENO) + 0.05,
+      );
       obalka.add(pecet);
 
       // --- snítka v rohu obálky: skutečné svatební květiny (výřezy s průhledností).
       // MeshBasicMaterial = přesné barvy fotky bez vlivu světel; stín ale vrhají
       // (alphaTest → stínová mapa respektuje průhlednost), takže leží NA obálce.
-      const kvetina = (src: string, sirka: number, pomer: number, x: number, y: number, z: number, rot: number) => {
+      const kvetina = (
+        src: string,
+        sirka: number,
+        pomer: number,
+        x: number,
+        y: number,
+        z: number,
+        rot: number,
+      ) => {
         const t = nacitac.load(src, render);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = 4;
         const m = new THREE.Mesh(
           new THREE.PlaneGeometry(sirka, sirka / pomer),
-          new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.35, toneMapped: false }),
+          new THREE.MeshBasicMaterial({
+            map: t,
+            transparent: true,
+            alphaTest: 0.35,
+            toneMapped: false,
+          }),
         );
         m.position.set(x, y, z);
         m.rotation.z = rot;
         m.castShadow = true;
         obalka.add(m);
       };
-      kvetina("/kytky/07_hermanek.webp", 1.9, 442 / 560, 3.79, -2.18, 0.55, THREE.MathUtils.degToRad(-22));
+      kvetina(
+        "/kytky/07_hermanek.webp",
+        1.9,
+        442 / 560,
+        3.79,
+        -2.18,
+        0.55,
+        THREE.MathUtils.degToRad(-22),
+      );
       kvetina("/kytky/3_krasenka_modra.webp", 1.03, 443 / 448, 2.8, -2.6, 0.62, 0);
 
       // shadery předem (paralelně, mimo hlavní vlákno, kde to GPU umí)
-      await renderer.compileAsync(scena, kamera).catch(() => undefined);
+      await renderer.compileAsync(scena, kamera).catch(() => {});
       if (zruseno) return;
       setPripraveno(true);
       render();
 
       // --- timeline ---
-      const tl = gsap.timeline({ paused: true, onUpdate: render, onComplete: render, onReverseComplete: render });
+      const tl = gsap.timeline({
+        paused: true,
+        onUpdate: render,
+        onComplete: render,
+        onReverseComplete: render,
+      });
       const mL = pecetL.material as THREE.MeshStandardMaterial;
       const mP = pecetP.material as THREE.MeshStandardMaterial;
       tl.to(pecetL.position, { x: -1.1, y: -0.9, z: 0.6, duration: 0.6, ease: "power2.out" }, 0)
         .to(pecetL.rotation, { z: 0.55, y: -0.6, duration: 0.6, ease: "power2.out" }, 0)
-        .to(pecetP.position, { x: 1.0, y: -1.2, z: 0.5, duration: 0.6, ease: "power2.out" }, 0.03)
+        .to(pecetP.position, { x: 1, y: -1.2, z: 0.5, duration: 0.6, ease: "power2.out" }, 0.03)
         .to(pecetP.rotation, { z: -0.45, y: 0.5, duration: 0.6, ease: "power2.out" }, 0.03)
         .to([mL, mP], { opacity: 0, duration: 0.3 }, 0.28)
         .to(pivot.rotation, { x: OTEVRENO, duration: 0.85, ease: "power2.inOut" }, 0.25)
         // pant sjede z „nad kapsou“ k zadní stěně, ať je otevřená chlopeň celá za dopisem
         .to(pivot.position, { z: -0.03, duration: 0.85, ease: "power2.inOut" }, 0.25)
-        .to(dopis.position, { y: H / 2 + 0.25, duration: 0.7, ease: "power3.out" }, 1.0)
+        .to(dopis.position, { y: H / 2 + 0.25, duration: 0.7, ease: "power3.out" }, 1)
         .to(dopis.position, { z: 0.9, y: 4.25, duration: 0.75, ease: "back.out(1.4)" }, 1.62)
-        .to(dopis.rotation, { z: THREE.MathUtils.degToRad(4), duration: 0.75, ease: "power2.out" }, 1.62)
+        .to(
+          dopis.rotation,
+          { z: THREE.MathUtils.degToRad(4), duration: 0.75, ease: "power2.out" },
+          1.62,
+        )
         .to(dopis.scale, { x: 1.03, y: 1.03, duration: 0.75, ease: "power2.out" }, 1.62)
         .to(dolniPivot.rotation, { x: 0, duration: 0.9, ease: "power3.out" }, 1.95);
       // předehřátí: tweeny si načtou výchozí hodnoty a GPU jednou vykreslí i
@@ -434,8 +507,16 @@ export default function Obalka3D() {
       tl.progress(1).progress(0);
 
       // naklánění (jen myš, zavřená obálka)
-      const qx = gsap.quickTo(svet.rotation, "y", { duration: 0.6, ease: "power3.out", onUpdate: render });
-      const qy = gsap.quickTo(svet.rotation, "x", { duration: 0.6, ease: "power3.out", onUpdate: render });
+      const qx = gsap.quickTo(svet.rotation, "y", {
+        duration: 0.6,
+        ease: "power3.out",
+        onUpdate: render,
+      });
+      const qy = gsap.quickTo(svet.rotation, "x", {
+        duration: 0.6,
+        ease: "power3.out",
+        onUpdate: render,
+      });
 
       // adaptivní kvalita: první sekunda animace rozhodne, jestli to GPU zvládá
       let snizeno = false;

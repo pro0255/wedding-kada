@@ -19,13 +19,17 @@ export default function Ramec({
   return (
     <main className={s.stranka}>
       <header className={s.hlava}>
-        <Link href="/navrh#pribeh" className={s.zpet}>← Návrhy</Link>
+        <Link href="/navrh#pribeh" className={s.zpet}>
+          ← Návrhy
+        </Link>
         <h1 className={s.nazev}>
           <span className={s.kod}>{kod}</span> {nazev}
         </h1>
       </header>
       <div className={s.pruh} aria-hidden="true" />
-      <section className={s.sekce} id="story">{children}</section>
+      <section className={s.sekce} id="story">
+        {children}
+      </section>
       <div className={s.pruh} aria-hidden="true" />
       <p className={s.popis}>{popis}</p>
     </main>

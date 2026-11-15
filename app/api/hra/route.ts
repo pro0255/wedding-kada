@@ -1,6 +1,6 @@
+import { chybaOdpoved } from "@/lib/chyby";
 import { ulozSkore, zebricek } from "@/lib/hra";
 import { SkorePostSchema, ZebricekDotazSchema } from "@/lib/schemata";
-import { chybaOdpoved } from "@/lib/chyby";
 
 /** Žebříček jedné hry; `device` jen kvůli zvýraznění mého řádku. */
 export async function GET(request: Request) {
@@ -12,8 +12,8 @@ export async function GET(request: Request) {
   if (!dotaz.success) return chybaOdpoved("neznama-hra");
   try {
     return Response.json(await zebricek(dotaz.data.hra, dotaz.data.device ?? ""));
-  } catch (chyba) {
-    console.error("[hra] Žebříček se nepodařilo načíst:", chyba);
+  } catch (error) {
+    console.error("[hra] Žebříček se nepodařilo načíst:", error);
     return chybaOdpoved("zebricek-nenacten");
   }
 }
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
   try {
     await ulozSkore(hra, deviceId, skore);
     return Response.json({ ok: true });
-  } catch (chyba) {
-    console.error("[hra] Skóre se nepodařilo uložit:", chyba);
+  } catch (error) {
+    console.error("[hra] Skóre se nepodařilo uložit:", error);
     return chybaOdpoved("skore-neulozeno");
   }
 }

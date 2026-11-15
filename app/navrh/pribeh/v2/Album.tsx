@@ -106,7 +106,11 @@ const odebirej = (zmena: () => void) => {
 };
 
 export default function Album() {
-  const uzky = useSyncExternalStore(odebirej, () => window.matchMedia(uzkyDotaz).matches, () => false);
+  const uzky = useSyncExternalStore(
+    odebirej,
+    () => window.matchMedia(uzkyDotaz).matches,
+    () => false,
+  );
   // na počítači číslo dvoustrany, na telefonu číslo strany
   const [poloha, setPoloha] = useState(0);
   const [otaci, setOtaci] = useState<number | null>(null);
@@ -151,13 +155,21 @@ export default function Album() {
         aria-label="Naše fotoalbum"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === "ArrowRight") { e.preventDefault(); jdi(1); }
-          else if (e.key === "ArrowLeft") { e.preventDefault(); jdi(-1); }
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            jdi(1);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            jdi(-1);
+          }
         }}
       >
         <div
           className={s.blok}
-          onPointerDown={(e) => { tah.current = { x: e.clientX, y: e.clientY }; tahlo.current = false; }}
+          onPointerDown={(e) => {
+            tah.current = { x: e.clientX, y: e.clientY };
+            tahlo.current = false;
+          }}
           onPointerUp={(e) => {
             const z = tah.current;
             tah.current = null;
@@ -170,7 +182,10 @@ export default function Album() {
           }}
           onPointerCancel={() => (tah.current = null)}
           onClick={(e) => {
-            if (tahlo.current) { tahlo.current = false; return; }
+            if (tahlo.current) {
+              tahlo.current = false;
+              return;
+            }
             const r = e.currentTarget.getBoundingClientRect();
             // na telefonu: levá třetina zpět; na počítači: levá strana zpět
             const hranice = uzky ? r.width * 0.33 : r.width / 2;
@@ -179,8 +194,12 @@ export default function Album() {
         >
           {!uzky && (
             <>
-              <div className={`${s.strana} ${s.leva} ${s.pevna}`}><Obsah n={0} /></div>
-              <div className={`${s.strana} ${s.prava} ${s.pevna}`}><Obsah n={POCET_STRAN - 1} /></div>
+              <div className={`${s.strana} ${s.leva} ${s.pevna}`}>
+                <Obsah n={0} />
+              </div>
+              <div className={`${s.strana} ${s.prava} ${s.pevna}`}>
+                <Obsah n={POCET_STRAN - 1} />
+              </div>
             </>
           )}
           {listy.map((l, k) => {
@@ -194,8 +213,14 @@ export default function Album() {
                 style={{ zIndex: z }}
                 aria-hidden={uzky ? k !== poloha : !(k === poloha || k === poloha - 1)}
               >
-                <div className={`${s.strana} ${s.prava} ${s.lic}`}><Obsah n={l.lic} /></div>
-                {l.rub >= 0 && <div className={`${s.strana} ${s.leva} ${s.rub}`}><Obsah n={l.rub} /></div>}
+                <div className={`${s.strana} ${s.prava} ${s.lic}`}>
+                  <Obsah n={l.lic} />
+                </div>
+                {l.rub >= 0 && (
+                  <div className={`${s.strana} ${s.leva} ${s.rub}`}>
+                    <Obsah n={l.rub} />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -204,7 +229,15 @@ export default function Album() {
       </div>
 
       <div className={s.ovladani}>
-        <button type="button" className={s.sipka} onClick={() => jdi(-1)} disabled={poloha === 0} aria-label="Předchozí strana">‹</button>
+        <button
+          type="button"
+          className={s.sipka}
+          onClick={() => jdi(-1)}
+          disabled={poloha === 0}
+          aria-label="Předchozí strana"
+        >
+          ‹
+        </button>
         <span className={s.pocet} aria-live="polite">
           <span className="jen-pro-odecitace">{uzky ? "Strana " : "Dvoustrana "}</span>
           {poloha + 1}
@@ -212,7 +245,15 @@ export default function Album() {
           <span className="jen-pro-odecitace"> z </span>
           {max + 1}
         </span>
-        <button type="button" className={s.sipka} onClick={() => jdi(1)} disabled={poloha === max} aria-label="Další strana">›</button>
+        <button
+          type="button"
+          className={s.sipka}
+          onClick={() => jdi(1)}
+          disabled={poloha === max}
+          aria-label="Další strana"
+        >
+          ›
+        </button>
       </div>
     </div>
   );
