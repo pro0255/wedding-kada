@@ -41,7 +41,7 @@ function stejne(a: string, b: string): boolean {
    nebo ho vůbec nepošle. Na svatební wifi i u mobilních operátorů sdílí
    jednu IP desítky lidí, proto je limit IP vysoký — pár překlepů hostů
    nesmí zamknout ostatní. Obojí za minutu. */
-export const LIMIT_POKUSU = { zarizeni: 2, ip: 30 } as const;
+const LIMIT_POKUSU = { zarizeni: 2, ip: 30 } as const;
 export const OKNO_POKUSU_S = 60;
 
 export function mocPokusu(spatne: { zarizeni: number; ip: number }): boolean {

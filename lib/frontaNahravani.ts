@@ -40,8 +40,9 @@ export type CekajiciPolozka = { id: string; pridano: number; dalsiPokus: number 
 /** Kterou položku nahrávat teď: nejstarší z těch, na které už došla řada. */
 export function vyberDalsi<T extends CekajiciPolozka>(polozky: T[], ted: number): T | null {
   const pripravene = polozky.filter((p) => p.dalsiPokus <= ted);
-  if (pripravene.length === 0) return null;
-  return pripravene.reduce((a, b) => (b.pridano < a.pridano ? b : a));
+  let nejstarsi: T | null = null;
+  for (const p of pripravene) if (!nejstarsi || p.pridano < nejstarsi.pridano) nejstarsi = p;
+  return nejstarsi;
 }
 
 /** Za jak dlouho má smysl se znovu podívat, když teď na nic nedošla řada. */

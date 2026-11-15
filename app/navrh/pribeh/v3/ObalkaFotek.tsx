@@ -100,6 +100,8 @@ const veVejiri = (g: Geo, i: number, vybrana: number) => {
   };
 };
 
+const tlumeno = () => globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export default function ObalkaFotek() {
   const p = "f" + useId().replaceAll(/[^a-zA-Z0-9]/g, "");
   const [otevreno, setOtevreno] = useState(false);
@@ -126,8 +128,6 @@ export default function ObalkaFotek() {
     return geo(el.clientWidth, k.offsetHeight);
   }, []);
 
-  const tlumeno = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   // výchozí stav a přepočet při změně šířky
   useEffect(() => {
     const el = scena.current;
@@ -138,15 +138,14 @@ export default function ObalkaFotek() {
       const ks = karty.current.filter(Boolean) as HTMLElement[];
       gsap.set(ks, { xPercent: -50, yPercent: -50 });
       if (st.current.otevreno) {
-        ks.forEach((k, i) =>
+        for (const [i, k] of ks.entries())
           gsap.set(k, {
             ...veVejiri(g, i, st.current.vybrana),
             zIndex: i === st.current.vybrana ? 100 : i + 1,
-          }),
-        );
+          });
         gsap.set(svet.current, { y: 0, scale: 1 });
       } else {
-        ks.forEach((k, i) => gsap.set(k, { ...uvnitr(g, i), zIndex: i + 1 }));
+        for (const [i, k] of ks.entries()) gsap.set(k, { ...uvnitr(g, i), zIndex: i + 1 });
         gsap.set(svet.current, { y: g.svetY, scale: g.svetScale });
       }
     };

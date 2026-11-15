@@ -61,7 +61,7 @@ async function posun(zdroj, jmeno) {
     while (zasobnik.length > 0) {
       const q = zasobnik.pop();
       const qx = q % W,
-        qy = (q / W) | 0;
+        qy = Math.trunc(q / W);
       sx += qx;
       sy += qy;
       pocet++;
@@ -102,7 +102,7 @@ async function posun(zdroj, jmeno) {
     for (let p = 0; p < W * H; p++) {
       if (cislo[p] !== id) continue;
       const x = (p % W) + posunX,
-        y = ((p / W) | 0) + posunY;
+        y = Math.trunc(p / W) + posunY;
       if (x < 0 || y < 0 || x >= W || y >= H) continue;
       ven.set(data.subarray(p * 4, p * 4 + 4), (y * W + x) * 4);
     }
@@ -119,9 +119,8 @@ for (const { zdroj, cil } of VRSTVY) {
   }
   rozmer = popis;
 
-  const vysledek = await (
-    await posun(zdroj, zdroj.split("/").pop())
-  )
+  const posunuty = await posun(zdroj, zdroj.split("/").pop());
+  const vysledek = await posunuty
     .resize({ width: SIRKA, withoutEnlargement: true })
     .webp({ quality: 95, alphaQuality: 100 })
     .toFile(`${CIL}/${cil}.webp`);

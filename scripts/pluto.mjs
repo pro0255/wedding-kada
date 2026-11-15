@@ -2,7 +2,7 @@ import fs from "node:fs";
 /* Pluto s kyticí pro odpověď „Co si přejete za dar?".
    Spouští se ručně:  node scripts/pluto.mjs
    Vstup:  public/fotky/pluto 1.png   (kresba na plné šedé 148,148,148)
-   Výstup: public/fotky/pluto-kytice.png
+   Výstup: public/fotky/pes-s-kytici.png
 
    Tři věci, které předloha potřebuje:
    1. Pryč šedé pozadí — není to průhlednost, je to plná barva přes 94 % plochy.
@@ -12,7 +12,7 @@ import fs from "node:fs";
 import sharp from "sharp";
 
 const ZDROJ = "predlohy/fotky/pluto 1.png";
-const CIL = "public/fotky/pluto-kytice.png";
+const CIL = "public/fotky/pes-s-kytici.png";
 const SEDA = 148; // barva pozadí předlohy
 const TOL = 16; // co ještě považovat za pozadí
 const OKRAJ = 10; // vzduch kolem psa v px
@@ -49,7 +49,9 @@ const rgb2hsl = (r, g, b) => {
   if (mx !== mn) {
     const d = mx - mn;
     s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
-    h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    if (mx === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (mx === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
     h *= 60;
   }
   return [h, s, l];
@@ -115,7 +117,7 @@ for (let y = 0; y < h; y++)
     const odSede = Math.max(Math.abs(r - SEDA), Math.abs(g - SEDA), Math.abs(b - SEDA));
     let a = Math.min(255, Math.round((odSede * 255) / 26));
 
-    const [hh, ss, ll] = rgb2hsl(r, g, b);
+    const [, ss, ll] = rgb2hsl(r, g, b);
     /* Bílý flek za kyticí. Není to pozadí předlohy, takže by na béžové stránce
      zůstal svítit jako záplata — proto se z bílé stává průhledno. Světlá srst
      psa má vždycky aspoň trochu barvy, ta projde. */
@@ -147,7 +149,7 @@ for (let k = 0; k < EROZE; k++) {
   for (let p = 0; p < w * h; p++) {
     if (!kop[p]) continue;
     const x = p % w,
-      y = (p / w) | 0;
+      y = Math.trunc(p / w);
     if (
       x === 0 ||
       y === 0 ||
@@ -174,7 +176,7 @@ for (let p = 0; p < w * h; p++) {
   while (q.length > 0) {
     const c = q.pop(),
       x = c % w,
-      y = (c / w) | 0;
+      y = Math.trunc(c / w);
     body.push(c);
     sx += x;
     sy += y;
@@ -201,7 +203,7 @@ while (fronta.length > 0) {
   const dalsi = [];
   for (const c of fronta) {
     const x = c % w,
-      y = (c / w) | 0,
+      y = Math.trunc(c / w),
       id = stitek[c];
     for (const [dx, dy] of [
       [1, 0],
@@ -224,8 +226,8 @@ while (fronta.length > 0) {
 }
 
 const vyber = (cx, cy) => {
-  let v = (cx * 7919 + cy * 104_729) % 100,
-    a = 0;
+  const v = (cx * 7919 + cy * 104_729) % 100;
+  let a = 0;
   for (const c of PALETA) {
     a += c.vaha;
     if (v < a) return c;
@@ -284,7 +286,7 @@ for (let i = 0; i < kon.data.length; i += 4) {
 console.log(
   `ořez ${w}x${h} (z ${W}x${H}) | poměr v/š ${(h / w).toFixed(3)} | ${Math.round(fs.statSync(CIL).size / 1024)} kB`,
 );
-Object.entries(pocet).forEach(([k, v]) => console.log(`  ${k}: ${v} px`));
+for (const [k, v] of Object.entries(pocet)) console.log(`  ${k}: ${v} px`);
 console.log(
   `krycích pixelů ${kryci} | zbytek šedé ${sede} | nepřebarvená purpurová/fialová ${mimo}`,
 );

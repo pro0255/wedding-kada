@@ -92,6 +92,11 @@ function AutoNaLince() {
   );
 }
 
+function popisekTlacitka(plno: boolean, odesila: boolean): string {
+  if (plno) return "Obsazeno";
+  return odesila ? "Odesílám…" : "Rezervovat";
+}
+
 export default function Ubytovani() {
   const [stav, setStav] = useState<Stav | null>(null);
   const [jmeno, setJmeno] = useState("");
@@ -195,7 +200,7 @@ export default function Ubytovani() {
             přidělujeme postupně podle toho, jak se hlásíte. Dejte nám vědět, kdo má zájem.
           </p>
           <p className="ubytovani-hotel">
-            <a href={VENUE_WEB_URL} target="_blank" rel="noopener">
+            <a href={VENUE_WEB_URL} target="_blank" rel="noopener noreferrer">
               Web hotelu Rekovice
             </a>
           </p>
@@ -280,7 +285,7 @@ export default function Ubytovani() {
               />
 
               <button className="btn" type="submit" disabled={odesila || plno}>
-                {plno ? "Obsazeno" : odesila ? "Odesílám…" : "Rezervovat"}
+                {popisekTlacitka(plno, odesila)}
               </button>
             </form>
           )}

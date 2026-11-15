@@ -20,6 +20,7 @@ export default function Chyba({ error, retry }: { error: unknown; retry: () => v
           Zkusit znovu
         </button>
         {/* celé načtení, ne <Link> — po pádu chceme čistý start */}
+        {/* oxlint-disable-next-line nextjs/no-html-link-for-pages -- záměrně celé načtení (viz výš) */}
         <a href="/" className={s.tlacitko}>
           Zpátky na svatbu
         </a>

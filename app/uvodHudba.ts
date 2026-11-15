@@ -40,26 +40,34 @@ export function spustUvodniHudbu(): UvodniHudba {
     .then(() => {
       hralaSama = true;
     })
-    .catch(() => {});
+    .catch(() => {
+      /* prohlížeč zvuk bez gesta nepustil — začne až klepnutím */
+    });
 
   // schovaná záložka nemá hrát; po návratu pokračuje, pokud ještě nedozněla
   const viditelnost = () => {
     if (konec) return;
     if (document.hidden) audio.pause();
-    else if (hralaSama || utichla) audio.play().catch(() => {});
+    else if (hralaSama || utichla) {
+      audio.play().catch(() => {
+        /* nepustil-li prohlížeč zvuk, zůstane ticho */
+      });
+    }
   };
   document.addEventListener("visibilitychange", viditelnost);
 
   const zrus = () => {
     if (konec) return;
     konec = true;
-    casovace.forEach(clearTimeout);
+    for (const c of casovace) clearTimeout(c);
     clearInterval(krokovac);
     document.removeEventListener("visibilitychange", viditelnost);
     audio.pause();
     audio.removeAttribute("src");
     audio.load();
-    ctx?.close().catch(() => {});
+    ctx?.close().catch(() => {
+      /* kontext už je zavřený */
+    });
   };
 
   const doznivej = () => {

@@ -4,8 +4,7 @@ export const VENUE_COORDS: [number, number] = [49.5381611, 18.1934009];
 export const VENUE_MAP_URL =
   "https://mapy.com/zakladni?x=18.1934009&y=49.5381611&z=17&source=coor&id=18.1934009%2C49.5381611";
 // „jak se tam dostanu" — navigace z aktuální polohy (na mobilu otevře nativní aplikaci)
-export const VENUE_NAV_URL =
-  "https://www.google.com/maps/dir/?api=1&destination=49.5381611,18.1934009";
+const VENUE_NAV_URL = "https://www.google.com/maps/dir/?api=1&destination=49.5381611,18.1934009";
 
 // web hotelu — ověřeno 2. 9. 2026 (titulek „Hotel Rekovice | Nová cesta k tradici“)
 export const VENUE_WEB_URL = "https://www.rekovice.cz";

@@ -1,7 +1,7 @@
 /* Pixel-art sprity společné pro všechny hry. '#' inkoust, 'o' zlatá, '.' nic.
    Jeden znak = S×S px na logickém plátně. */
 
-export const S = 3;
+const S = 3;
 
 export type Sprite = string[];
 

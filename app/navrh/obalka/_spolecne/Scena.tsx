@@ -39,7 +39,6 @@ const PRED_FOTKAMI = [{ src: "/kytky/11_ruze.webp", w: 451, h: 560, c: s.kvRuze 
 
 function Kvetina({ src, w, h, c }: { src: string; w: number; h: number; c: string }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       className={`${s.kv} ${c}`}
       src={encodeURI(src)}
@@ -91,7 +90,6 @@ export default function Scena({
                 zIndex: i,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.src} width={f.w} height={f.h} alt="" loading="lazy" decoding="async" />
             </figure>
           ))}

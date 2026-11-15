@@ -53,7 +53,7 @@ for (let p = 0; p < W * H; p++) {
   alfa[p] = a;
   if (a > 0.4) {
     const x = p % W,
-      y = (p / W) | 0;
+      y = Math.trunc(p / W);
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;

@@ -9,7 +9,7 @@ import { VENUE_MAP_URL } from "./venue";
 export function VenueAkce() {
   return (
     <div className="venue-map-actions">
-      <a href={VENUE_MAP_URL} target="_blank" rel="noopener">
+      <a href={VENUE_MAP_URL} target="_blank" rel="noopener noreferrer">
         Zobrazit v mapách
       </a>
       <Navigace />

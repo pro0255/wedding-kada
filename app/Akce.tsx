@@ -12,7 +12,7 @@ type Polozka = { nazev: string; href: string; download?: boolean };
 /* Tlačítko, které rozbalí seznam odkazů. Zavře se klepnutím mimo, Escapem
    i vybráním položky. Menu je pod tlačítkem, na úzkém displeji se vejde,
    protože má max-width dané rodičem. */
-export function VyberMenu({
+function VyberMenu({
   popisek,
   polozky,
   primary,

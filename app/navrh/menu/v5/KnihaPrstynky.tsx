@@ -67,7 +67,6 @@ export default function KnihaPrstynky() {
       {/* Květiny leží pod knihou (jsou v DOM dřív), kniha je překryje. */}
       <div className={s.kvetiny} aria-hidden="true">
         {KVETINY.map((k) => (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={k.soubor}
             className={s.kvet + " " + s[k.trida]}

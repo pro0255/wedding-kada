@@ -58,7 +58,7 @@ export async function seznamFotek(deviceId: string): Promise<FotkaVypis[]> {
       lajklJsem: lajky.has(lajkKlic(id, deviceId)),
       moje: f.deviceId === deviceId,
     }))
-    .sort((a, b) => b.nahrano.localeCompare(a.nahrano));
+    .toSorted((a, b) => b.nahrano.localeCompare(a.nahrano));
 }
 
 /** Pozvánka do WhatsApp skupiny — záloha, když nahrávání nejde. Jen z prostředí:
@@ -149,7 +149,8 @@ export async function smazFotku(
   }
 
   // sirotčí lajky smazané fotky
-  const sirotci = (await redis().smembers(KLIC.lajky)).filter((l) => l.startsWith(`${id}:`));
+  const vsechnyLajky = await redis().smembers(KLIC.lajky);
+  const sirotci = vsechnyLajky.filter((l) => l.startsWith(`${id}:`));
   if (sirotci.length > 0) await redis().srem(KLIC.lajky, ...sirotci);
 
   return { ok: true };

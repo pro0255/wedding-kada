@@ -58,7 +58,7 @@ export default function FotoHromadka({
       new Promise<void>((r) =>
         typeof requestIdleCallback === "function"
           ? requestIdleCallback(() => r(), { timeout: 500 })
-          : window.setTimeout(r, 50),
+          : globalThis.setTimeout(r, 50),
       );
     const io = new IntersectionObserver(
       async (zaznamy) => {
@@ -67,7 +67,9 @@ export default function FotoHromadka({
         for (const img of el.querySelectorAll<HTMLImageElement>("img.foto-list")) {
           await klid();
           if (zruseno) return;
-          await img.decode().catch(() => {});
+          await img.decode().catch(() => {
+            /* nepovedené dekódování nevadí — fotka se dekóduje až při listování */
+          });
         }
       },
       { rootMargin: "300px" },

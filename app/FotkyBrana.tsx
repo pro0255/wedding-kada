@@ -87,8 +87,8 @@ export default function FotkyBrana() {
 
   useEffect(() => {
     if (stav !== "vrti") return;
-    const id = window.setTimeout(() => setStav("otevreno"), VRTENI_MS);
-    return () => window.clearTimeout(id);
+    const id = globalThis.setTimeout(() => setStav("otevreno"), VRTENI_MS);
+    return () => globalThis.clearTimeout(id);
   }, [stav]);
 
   const odeslat = async (e: React.FormEvent) => {
@@ -140,20 +140,15 @@ export default function FotkyBrana() {
   if (stav === "zjistuji") return <div className={s.cekani} aria-hidden="true" />;
 
   const vrti = stav === "vrti";
-  const hlaska = chyba
-    ? chyba.kod === "moc-pokusu"
-      ? chyba.hlaska
-      : `Haf… ${chyba.hlaska}`
-    : null;
-  const bublina =
-    hlaska ??
-    (vrti
-      ? spravce
-        ? PANICKA
-        : DOBRE
-      : pokusy === 0
-        ? VITANI
-        : SPATNE[(pokusy - 1) % SPATNE.length]);
+  let hlaska: string | null = null;
+  if (chyba) hlaska = chyba.kod === "moc-pokusu" ? chyba.hlaska : `Haf… ${chyba.hlaska}`;
+  let bezChyby: string;
+  if (vrti) bezChyby = spravce ? PANICKA : DOBRE;
+  else bezChyby = pokusy === 0 ? VITANI : SPATNE[(pokusy - 1) % SPATNE.length];
+  const bublina = hlaska ?? bezChyby;
+  let tridaPsa = "";
+  if (vrti) tridaPsa = s.vrti;
+  else if (pokusy > 0) tridaPsa = s.nakloni;
 
   return (
     <div className={s.brana}>
@@ -163,7 +158,7 @@ export default function FotkyBrana() {
         </p>
         <img
           key={vrti ? "vrti" : `n${pokusy}`}
-          className={`${s.pes} ${vrti ? s.vrti : pokusy > 0 ? s.nakloni : ""}`}
+          className={`${s.pes} ${tridaPsa}`}
           src="/fotky/pes-s-kytici.png"
           alt="Náš pes s kyticí v tlamě hlídá vstup do galerie"
           width={320}

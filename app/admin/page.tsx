@@ -221,8 +221,15 @@ const nebo = <T,>(slib: Promise<T>): Promise<T | null> =>
     return null;
   });
 
-const sklonuj = (n: number, jedna: string, dve: string, pet: string) =>
-  `${n} ${n === 1 ? jedna : n >= 2 && n <= 4 ? dve : pet}`;
+const sklonuj = (n: number, jedna: string, dve: string, pet: string) => {
+  let tvar = pet;
+  if (n === 1) tvar = jedna;
+  else if (n >= 2 && n <= 4) tvar = dve;
+  return `${n} ${tvar}`;
+};
+
+const jeVideo = (url: string) => url.includes("/video/upload/");
+const polozka = ({ url, nahrano }: Polozka): Polozka => ({ url, nahrano });
 
 function Prihlaseni({ dal, zFiltru }: { dal: string; zFiltru: boolean }) {
   return (
@@ -247,7 +254,8 @@ export default async function Admin({
   searchParams: Promise<{ dal?: string | string[] }>;
 }) {
   if (!(await jeSpravce())) {
-    const dal = AdminDalSchema.safeParse((await searchParams).dal);
+    const { dal: surove } = await searchParams;
+    const dal = AdminDalSchema.safeParse(surove);
     return <Prihlaseni dal={dal.success ? dal.data : "/admin"} zFiltru={dal.success} />;
   }
 
@@ -256,8 +264,6 @@ export default async function Admin({
     nebo(seznamFotek("")),
     nebo(prehledHer()),
   ]);
-  const jeVideo = (url: string) => url.includes("/video/upload/");
-  const polozka = ({ url, nahrano }: Polozka): Polozka => ({ url, nahrano });
   const fotky = (galerie ?? []).filter((f) => !jeVideo(f.url)).map(polozka);
   const videa = (galerie ?? []).filter((f) => jeVideo(f.url)).map(polozka);
   const srdicek = (galerie ?? []).reduce((n, f) => n + f.lajky, 0);

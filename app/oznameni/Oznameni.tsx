@@ -118,6 +118,12 @@ function sum(a: number, b: number) {
 type Zona = { x1: number; y1: number; x2: number; y2: number };
 type Kytka = { snitka: string; x: number; y: number; v: number; uhel: number };
 
+/* Zaokrouhleno na setiny milimetru. Nezaokrouhlené číslo jde do inline
+   stylu s patnácti ciframi, server a klient ho vypíšou každý jinak
+   a React na tom ohlásí neshodu hydratace — a tiskárna z desetitisícin
+   milimetru stejně nic nemá. */
+const nadva = (n: number) => Math.round(n * 100) / 100;
+
 /* Rozsyp snítek po kartě.
 
    Karta se rozdělí na stejně velké buňky a do každé padne jedna kytka,
@@ -171,11 +177,6 @@ function rozsyp(
 
       /* Krok místo pořadí: sousední buňky tak nedostanou sousední snítky
          a stejná kytka se nesejde sama se sebou. */
-      /* Zaokrouhleno na setiny milimetru. Nezaokrouhlené číslo jde do inline
-         stylu s patnácti ciframi, server a klient ho vypíšou každý jinak
-         a React na tom ohlásí neshodu hydratace — a tiskárna z desetitisícin
-         milimetru stejně nic nemá. */
-      const nadva = (n: number) => Math.round(n * 100) / 100;
       kytky.push({
         snitka: String(
           vyber.length > 0 ? vyber[(poradi * krok) % vyber.length] : ((poradi * krok) % snitek) + 1,
@@ -363,6 +364,12 @@ const T = {
   },
 };
 
+function kytkyKarty(klic: string): Kytka[] {
+  if (klic === "hlavni") return KYTKY;
+  if (klic === "obrad" || klic === "vizitka") return KYTKY_MALE;
+  return [];
+}
+
 export default function Oznameni() {
   const obal = useRef<HTMLDivElement>(null);
   const [skala, setSkala] = useState(1);
@@ -429,7 +436,7 @@ export default function Oznameni() {
           Vodítka řezu
         </label>
 
-        <button type="button" className={s.tlacitko} onClick={() => window.print()}>
+        <button type="button" className={s.tlacitko} onClick={() => globalThis.print()}>
           Exportovat do PDF
         </button>
       </div>
@@ -450,12 +457,7 @@ export default function Oznameni() {
         <section className={`${s.karta} ${s[`k-${klic}`]}`} aria-label={`Karta: ${karta.nazev}`}>
           {/* Kytky leží pod textem a smí zasahovat až do spadu — po ořezu se
               některé nakousnou, přesně jak to má předloha. */}
-          {(klic === "hlavni"
-            ? KYTKY
-            : klic === "obrad" || klic === "vizitka"
-              ? KYTKY_MALE
-              : []
-          ).map((k, i) => (
+          {kytkyKarty(klic).map((k, i) => (
             <img
               key={i}
               className={s.kytka}

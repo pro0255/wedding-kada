@@ -22,6 +22,7 @@ export default function GlobalniChyba({ error, retry }: { error: unknown; retry:
             <button type="button" className={s.tlacitko} onClick={() => retry()}>
               Zkusit znovu
             </button>
+            {/* oxlint-disable-next-line nextjs/no-html-link-for-pages -- po pádu kořenového layoutu chceme celé načtení, ne klientskou navigaci */}
             <a href="/" className={s.tlacitko}>
               Zpátky na svatbu
             </a>

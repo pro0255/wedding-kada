@@ -73,7 +73,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
   // jakmile host sám klepne, ukázka se už nespouští ani nedokončuje
   const zasahHosta = useRef(false);
   useEffect(() => {
-    const mq = window.matchMedia("(hover: none)");
+    const mq = globalThis.matchMedia("(hover: none)");
     const nastav = () => setDotyk(mq.matches);
     nastav();
     mq.addEventListener("change", nastav);
@@ -91,22 +91,22 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
      otočila zpátky pod kurzorem, který ji zrovna drží otočenou. */
   useEffect(() => {
     if (dotyk) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = scenaRef.current;
     if (!el) return;
 
-    const casovace: number[] = [];
+    const casovace: ReturnType<typeof setTimeout>[] = [];
     const io = new IntersectionObserver(
       (zaznamy) => {
         if (!zaznamy.some((z) => z.isIntersecting)) return;
         io.disconnect();
         casovace.push(
-          window.setTimeout(() => {
+          globalThis.setTimeout(() => {
             if (!zasahHosta.current) setOtoceno(true);
           }, 900),
         );
         casovace.push(
-          window.setTimeout(() => {
+          globalThis.setTimeout(() => {
             if (!zasahHosta.current) setOtoceno(false);
           }, 3000),
         );
@@ -116,7 +116,7 @@ export default function VenueMap({ onFlipChange }: { onFlipChange?: (otoceno: bo
     io.observe(el);
     return () => {
       io.disconnect();
-      casovace.forEach((t) => clearTimeout(t));
+      for (const t of casovace) clearTimeout(t);
     };
   }, [dotyk]);
 

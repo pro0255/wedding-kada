@@ -116,6 +116,24 @@ function rozeber(soubor) {
   return { poradi: Number(m[1]), klic };
 }
 
+/* Rozmáznutí o pixel: bez něj má maska schodovitý okraj a ztenčený tah
+ * vypadá vyřezaný nůžkami. */
+function rozmaz(zdroj, cil, delka, pocet, krok) {
+  for (let i = 0; i < pocet; i++) {
+    for (let j = 0; j < delka; j++) {
+      let s = 0,
+        n = 0;
+      for (let d = -1; d <= 1; d++) {
+        const k = j + d;
+        if (k < 0 || k >= delka) continue;
+        s += zdroj[i * krok.i + k * krok.j];
+        n++;
+      }
+      cil[i * krok.i + j * krok.j] = s / n;
+    }
+  }
+}
+
 /** Ztenčení tahu.
  *
  *  Erodovat přímo alfu nejde: minimum z okolí sebere krytí i jádru tahu, a
@@ -148,23 +166,6 @@ function ztencit(alfa, W, H, r) {
   const erodovany = new Float32Array(W * H);
   min1D(mez, erodovany, H, W, { i: 1, j: W });
 
-  /* Rozmáznutí o pixel: bez něj má maska schodovitý okraj a ztenčený tah
-   * vypadá vyřezaný nůžkami. */
-  const rozmaz = (zdroj, cil, delka, pocet, krok) => {
-    for (let i = 0; i < pocet; i++) {
-      for (let j = 0; j < delka; j++) {
-        let s = 0,
-          n = 0;
-        for (let d = -1; d <= 1; d++) {
-          const k = j + d;
-          if (k < 0 || k >= delka) continue;
-          s += zdroj[i * krok.i + k * krok.j];
-          n++;
-        }
-        cil[i * krok.i + j * krok.j] = s / n;
-      }
-    }
-  };
   rozmaz(erodovany, mez, W, H, { i: W, j: 1 });
   rozmaz(mez, erodovany, H, W, { i: 1, j: W });
 
@@ -221,7 +222,7 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
     alfa[p] = a;
     if (a > 0.35) {
       const x = p % W,
-        y = (p / W) | 0;
+        y = Math.trunc(p / W);
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -266,12 +267,13 @@ for (const v of VYREZY) {
 }
 
 /* --- samostatné kresby --- */
-const soubory = (await readdir(SLOZKA)).filter((f) => rozeber(f));
+const obsahSlozky = await readdir(SLOZKA);
+const soubory = obsahSlozky.filter((f) => rozeber(f));
 if (soubory.length === 0) {
   console.log(`v ${SLOZKA} nejsou žádné kresby ve tvaru „1. nazev.jpg“`);
 }
 
-for (const soubor of soubory.sort()) {
+for (const soubor of soubory.toSorted()) {
   const { poradi, klic } = rozeber(soubor);
   const { data, W, H } = await nacti(soubor);
   const r = await ikonka(data, W, H, klic, PAPIR, ZTENCENI_KRESEB[klic] ?? 0);

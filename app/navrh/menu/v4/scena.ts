@@ -70,6 +70,23 @@ const mezi = (a: Pohled, b: Pohled, t: number, cil: Pohled): Pohled => {
   cil.el = a.el + (b.el - a.el) * t;
   return cil;
 };
+// Podle průběhu, ne isActive(): čerstvě založená osa je „neaktivní“, dokud
+// ji GSAP poprvé nevykreslí — a smyčka by se pak vůbec nerozběhla.
+const bezi1 = (a: gsap.core.Animation | null) =>
+  !!a && (a.reversed() ? a.progress() > 0 : a.progress() < 1);
+const stin = (m: THREE.Mesh, vrha = true) => {
+  m.castShadow = vrha;
+  m.receiveShadow = true;
+  return m;
+};
+const vymen = (tex: THREE.CanvasTexture, cv: HTMLCanvasElement) => {
+  tex.image = cv;
+  tex.dispose();
+  tex.needsUpdate = true;
+};
+const nic = () => {
+  // zástupné kreslení, než se scéna poskládá (vykresli se přiřadí níž)
+};
 
 export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise<Scena> {
   const { signal } = volby;
@@ -154,13 +171,10 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   let tl: gsap.core.Timeline | null = null;
   let tlStrany: gsap.core.Tween | null = null;
   let cilOtevreno = false;
-  let ro: ResizeObserver | undefined;
-  let vykresli = () => {};
+  // Založený hned (dispose ho může potřebovat dřív), sledovat začne až na konci.
+  const ro = new ResizeObserver(() => zmerit());
+  let vykresli: () => void = nic;
 
-  // Podle průběhu, ne isActive(): čerstvě založená osa je „neaktivní“, dokud
-  // ji GSAP poprvé nevykreslí — a smyčka by se pak vůbec nerozběhla.
-  const bezi1 = (a: gsap.core.Animation | null) =>
-    !!a && (a.reversed() ? a.progress() > 0 : a.progress() < 1);
   // Předehra: smyčka se rozběhne už při stisku prstu, ne až při puštění.
   // Probuzení kreslení z klidu tak proběhne dřív, než se deska pohne.
   let predehraDo = 0;
@@ -220,13 +234,13 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
     gsap.ticker.remove(snimek);
     kontejner.removeEventListener("pointermove", naPohyb);
     kontejner.removeEventListener("pointerleave", naOdchod);
-    ro?.disconnect();
+    ro.disconnect();
     scene.traverse((o) => {
       if (!(o instanceof THREE.Mesh)) return;
       o.geometry.dispose();
       for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose();
     });
-    textury.forEach((t) => t.dispose());
+    for (const t of textury) t.dispose();
     okoli.dispose();
     pmrem.dispose();
     renderer.dispose();
@@ -350,12 +364,6 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   vznos.add(kniha);
   scene.add(vznos);
 
-  const stin = (m: THREE.Mesh, vrha = true) => {
-    m.castShadow = vrha;
-    m.receiveShadow = true;
-    return m;
-  };
-
   const zadni = stin(new THREE.Mesh(new RoundedBoxGeometry(W, T, H, 2, ZAOBLENI), papirDesky));
   zadni.position.set(W / 2, T / 2, 0);
 
@@ -432,9 +440,9 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   /* ---------- květiny ---------- */
   const kvetinyTex = await kvetinyNacteni;
   zrusit();
-  KVETINY.forEach((k, i) => {
+  for (const [i, k] of KVETINY.entries()) {
     const t = kvetinyTex[i];
-    if (!t) return;
+    if (!t) continue;
     textury.push(t);
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = maxAniso;
@@ -478,7 +486,7 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
     stinKvetu.rotation.y = k.uhel;
     stinKvetu.renderOrder = 5;
     scene.add(stinKvetu, kvet);
-  });
+  }
 
   vykresli = () => {
     // náklon a vznášení: za kurzorem, při otevření slábne, ať se dobře čte
@@ -505,11 +513,6 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
 
   function prekresliStrany(sirka: number) {
     sirkaStrany = sirka;
-    const vymen = (tex: THREE.CanvasTexture, cv: HTMLCanvasElement) => {
-      tex.image = cv;
-      tex.dispose();
-      tex.needsUpdate = true;
-    };
     vymen(texDeti, kresliStranu("deti", pisma, sirka, POMER_STRANY));
     vymen(texDospeli, kresliStranu("dospeli", pisma, sirka, POMER_STRANY));
   }
@@ -610,7 +613,7 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
     if (median > 20 && renderer.getPixelRatio() > 1) {
       renderer.setPixelRatio(1);
       zmerit();
-      textury.forEach((t) => renderer.initTexture(t));
+      for (const t of textury) renderer.initTexture(t);
       vykresli();
     }
   }
@@ -624,7 +627,7 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   nastavKameru();
   await renderer.compileAsync(scene, camera);
   zrusit();
-  textury.forEach((t) => renderer.initTexture(t));
+  for (const t of textury) renderer.initTexture(t);
   for (const nanecisto of [osaOtevreni(), osaZavreni()]) nanecisto.progress(1).progress(0).kill();
   Object.assign(st, { uhel: Math.PI, kamera: 1, strana: 1 });
   vykresli();
@@ -635,7 +638,6 @@ export async function vytvorScenu(kontejner: HTMLElement, volby: Volby): Promise
   zrusit();
   requestAnimationFrame(() => (platno.style.opacity = "1"));
 
-  ro = new ResizeObserver(zmerit);
   ro.observe(kontejner);
   kontejner.addEventListener("pointermove", naPohyb, { passive: true });
   kontejner.addEventListener("pointerleave", naOdchod, { passive: true });

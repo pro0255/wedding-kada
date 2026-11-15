@@ -129,7 +129,7 @@ export default function FotoGalerie({
       });
 
     const ovladac = new AbortController();
-    const casovac = window.setTimeout(() => ovladac.abort(), NACTENI_MS);
+    const casovac = globalThis.setTimeout(() => ovladac.abort(), NACTENI_MS);
     try {
       const odpoved = await fetch(`/api/fotky?device=${device.current}`, {
         signal: ovladac.signal,
@@ -163,7 +163,7 @@ export default function FotoGalerie({
     } catch {
       bezOdpovedi();
     } finally {
-      window.clearTimeout(casovac);
+      globalThis.clearTimeout(casovac);
     }
   }, [zamceno]);
 
@@ -215,7 +215,6 @@ export default function FotoGalerie({
     setHlaska(Math.floor(Math.random() * HLASKY.length));
     const id = setInterval(() => setHlaska((h) => (h + 1) % HLASKY.length), 2600);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nahrava]);
 
   async function lajkni(fotka: Fotka) {
@@ -250,7 +249,7 @@ export default function FotoGalerie({
     const vrat = (hlaska: string) => {
       setFotky((f) =>
         f && !f.some((x) => x.id === fotka.id)
-          ? [fotka, ...f].sort((a, b) => b.nahrano.localeCompare(a.nahrano))
+          ? [fotka, ...f].toSorted((a, b) => b.nahrano.localeCompare(a.nahrano))
           : f,
       );
       setChyba(hlaska);
@@ -262,7 +261,10 @@ export default function FotoGalerie({
         body: JSON.stringify({ id: fotka.id, deviceId: device.current }),
       });
       if (odpoved.status === 401) return zamceno?.();
-      if (!odpoved.ok) vrat((await prectiChybu(odpoved)).hlaska);
+      if (!odpoved.ok) {
+        const duvod = await prectiChybu(odpoved);
+        vrat(duvod.hlaska);
+      }
     } catch (error) {
       vrat(chybaZVyjimky(error).hlaska);
     }
@@ -310,15 +312,51 @@ export default function FotoGalerie({
       if (e.key === "ArrowLeft") posun(-1);
       if (e.key === "ArrowRight") posun(1);
     };
-    window.addEventListener("keydown", naKlavesu);
+    globalThis.addEventListener("keydown", naKlavesu);
     const puvodni = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener("keydown", naKlavesu);
+      globalThis.removeEventListener("keydown", naKlavesu);
       document.body.style.overflow = puvodni;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailId, detailIndex, viditelne.length]);
+
+  // co se ukáže místo mřížky: nenačteno / načítá se / prázdno
+  let misto: React.ReactNode = null;
+  if (fotky === null && nacteniSelhalo) {
+    misto = (
+      <div className="galerie-nenacteno">
+        <p>Galerie se teď nenačetla — nejspíš slabý signál.</p>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setNacteniSelhalo(false);
+            nacti();
+          }}
+        >
+          Zkusit znovu
+        </button>
+      </div>
+    );
+  } else if (fotky === null) {
+    misto = (
+      <div className="galerie-mrizka" aria-hidden="true">
+        {Array.from({ length: 8 }, (_, i) => (
+          <span key={i} className="galerie-skeleton" style={{ animationDelay: `${i * 0.12}s` }} />
+        ))}
+      </div>
+    );
+  } else if (viditelne.length === 0) {
+    misto = (
+      <p className="galerie-prazdna">
+        {jenMoje
+          ? "Zatím jste nic nenahráli."
+          : "Zatím tu nic není — buďte první, kdo něco nahraje!"}
+      </p>
+    );
+  }
 
   return (
     <div className="galerie-telo">
@@ -375,33 +413,7 @@ export default function FotoGalerie({
         </div>
       )}
 
-      {fotky === null && nacteniSelhalo ? (
-        <div className="galerie-nenacteno">
-          <p>Galerie se teď nenačetla — nejspíš slabý signál.</p>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              setNacteniSelhalo(false);
-              nacti();
-            }}
-          >
-            Zkusit znovu
-          </button>
-        </div>
-      ) : fotky === null ? (
-        <div className="galerie-mrizka" aria-hidden="true">
-          {Array.from({ length: 8 }, (_, i) => (
-            <span key={i} className="galerie-skeleton" style={{ animationDelay: `${i * 0.12}s` }} />
-          ))}
-        </div>
-      ) : viditelne.length === 0 ? (
-        <p className="galerie-prazdna">
-          {jenMoje
-            ? "Zatím jste nic nenahráli."
-            : "Zatím tu nic není — buďte první, kdo něco nahraje!"}
-        </p>
-      ) : (
+      {misto ?? (
         <>
           <div className="galerie-mrizka">
             {zobrazene.map((f) => (

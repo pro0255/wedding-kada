@@ -22,14 +22,18 @@ export class Zvuky {
   constructor() {
     try {
       this.ztlumeno = localStorage.getItem(KLIC) === "0";
-    } catch {}
+    } catch {
+      /* úložiště nedostupné — zvuk zůstane zapnutý */
+    }
   }
 
   prepni(): boolean {
     this.ztlumeno = !this.ztlumeno;
     try {
       localStorage.setItem(KLIC, this.ztlumeno ? "0" : "1");
-    } catch {}
+    } catch {
+      /* úložiště nedostupné — volba platí jen do zavření stránky */
+    }
     return this.ztlumeno;
   }
 
@@ -43,7 +47,11 @@ export class Zvuky {
         return;
       }
     }
-    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+    if (this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {
+        /* bez gesta se kontext neodemkne — zkusí se to při dalším */
+      });
+    }
   }
 
   prehraj(z: Zvuk) {
@@ -52,7 +60,9 @@ export class Zvuky {
     if (v !== undefined) {
       try {
         navigator.vibrate?.(v);
-      } catch {}
+      } catch {
+        /* vibrace nejsou povolené — zvuk hraje dál */
+      }
     }
     if (!this.ctx) return;
     const t = this.ctx.currentTime;

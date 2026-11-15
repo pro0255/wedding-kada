@@ -11,13 +11,15 @@ export function hesloFotek(): string {
 
 /** Zná tenhle prohlížeč odpověď? (platná cookie z /api/fotky/vstup) */
 export async function maPristupKFotkam(): Promise<boolean> {
-  const token = (await cookies()).get(COOKIE_FOTKY)?.value;
+  const susenky = await cookies();
+  const token = susenky.get(COOKIE_FOTKY)?.value;
   return platnyToken(token, hesloFotek());
 }
 
 /** Je tenhle prohlížeč přihlášený jako správce (galerie i /admin)? */
 export async function jeSpravce(): Promise<boolean> {
-  return jeSpravcovskyToken((await cookies()).get(COOKIE_SPRAVCE)?.value);
+  const susenky = await cookies();
+  return jeSpravcovskyToken(susenky.get(COOKIE_SPRAVCE)?.value);
 }
 
 export const BEZ_PRISTUPU = () => chybaOdpoved("bez-pristupu");

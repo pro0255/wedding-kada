@@ -73,14 +73,16 @@ export default function Kapitoly() {
   // fotky další kapitoly se dekódují dopředu, ať prolnutí nečeká na obrázek
   useEffect(() => {
     const dalsi = KAPITOLY[(k + 1) % pocet];
-    const id = window.setTimeout(() => {
+    const id = globalThis.setTimeout(() => {
       for (const f of dalsi.fotky) {
         const img = new Image();
         img.src = f.src;
-        img.decode?.().catch(() => {});
+        img.decode?.().catch(() => {
+          // nepovedené dekódování nevadí — obrázek se načte až při prolnutí
+        });
       }
     }, 400);
-    return () => window.clearTimeout(id);
+    return () => globalThis.clearTimeout(id);
   }, [k, pocet]);
 
   return (

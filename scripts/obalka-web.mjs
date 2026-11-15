@@ -67,7 +67,7 @@ async function syrove(soubor) {
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
       const x = p % w,
-        y = (p / w) | 0;
+        y = Math.trunc(p / w);
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -110,7 +110,7 @@ async function syrove(soubor) {
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
       const x = p % w,
-        y = (p / w) | 0;
+        y = Math.trunc(p / w);
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -261,7 +261,7 @@ async function syrove(soubor) {
     data[p * 4 + 3] = Math.round(255 * a);
     if (a > 0.5) {
       const x = p % w,
-        y = (p / w) | 0;
+        y = Math.trunc(p / w);
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;

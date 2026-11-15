@@ -55,7 +55,7 @@ export const KODY_CHYB = [
   "lidri-nenacteni",
 ] as const;
 
-export const KodChybySchema = z.enum(KODY_CHYB);
+const KodChybySchema = z.enum(KODY_CHYB);
 export type KodChyby = z.infer<typeof KodChybySchema>;
 
 type Popis = {
@@ -237,7 +237,7 @@ export const CHYBY = {
 
 /** Tělo chybové odpovědi API. `chyba` je hláška pro hosta, `kod` pro kód. */
 export const ChybaOdpovedSchema = z.object({ kod: KodChybySchema, chyba: z.string() });
-export type ChybaOdpoved = z.infer<typeof ChybaOdpovedSchema>;
+type ChybaOdpoved = z.infer<typeof ChybaOdpovedSchema>;
 
 /** Chyba, jak s ní pracuje rozhraní. */
 export type Chyba = { kod: KodChyby; hlaska: string; znovu: boolean; kontakt: boolean };

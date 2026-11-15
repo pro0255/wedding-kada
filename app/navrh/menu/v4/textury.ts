@@ -10,8 +10,8 @@ import { ALERGENY, DETI, DOSPELI, UVOD } from "../obsah";
 
 export type Pisma = { serif: string; sans: string };
 
-export const PAPIR = "#fdfbf7";
-export const OBALKA = "#fbf8f2";
+const PAPIR = "#fdfbf7";
+const OBALKA = "#fbf8f2";
 /* O stupeň tmavší než v DOM (#6b5340, #a8874a): strana je ve scéně
    nasvícená a textura se filtruje, takže by tenké tahy písma zesvětlely. */
 const INKOUST = "#5d4633";
@@ -19,6 +19,7 @@ const ZLATO = "#977639";
 /** Teplá hnědá místo černé — na krémovém stole by černý stín zšedl. */
 const STIN = "rgb(70, 50, 32)";
 const DIAKRITIKA = "ěščřžýáíéůúťďňó ĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ & · — Menu";
+const nacti = (font: string) => document.fonts.load(font, DIAKRITIKA).catch(() => []);
 
 export async function nactiPisma(): Promise<Pisma> {
   const zkouska = document.createElement("span");
@@ -28,7 +29,6 @@ export async function nactiPisma(): Promise<Pisma> {
   zkouska.style.fontFamily = "var(--sans)";
   const sans = getComputedStyle(zkouska).fontFamily;
   zkouska.remove();
-  const nacti = (font: string) => document.fonts.load(font, DIAKRITIKA).catch(() => []);
   await Promise.all([
     nacti(`500 40px ${serif}`),
     nacti(`italic 400 40px ${serif}`),
@@ -108,7 +108,7 @@ class Sazba {
     const asc = m.fontBoundingBoxAscent || o.px * 0.92;
     const desc = m.fontBoundingBoxDescent || o.px * 0.28;
     const lh = o.px * o.lh;
-    radky.forEach((r, i) => {
+    for (const [i, r] of radky.entries()) {
       this.radky.push({
         pred: i === 0 ? (o.pred ?? 0) : 0,
         vyska: lh,
@@ -127,7 +127,7 @@ class Sazba {
           }
         },
       });
-    });
+    }
     return this;
   }
 
@@ -154,7 +154,13 @@ class Sazba {
   }
 
   mezera(h: number) {
-    this.radky.push({ pred: 0, vyska: h, kresli: () => {} });
+    this.radky.push({
+      pred: 0,
+      vyska: h,
+      kresli: () => {
+        /* mezera nic nekreslí */
+      },
+    });
     return this;
   }
 
@@ -256,7 +262,7 @@ export function kresliStranu(druh: "dospeli" | "deti", p: Pisma, sirkaPx: number
     });
     s.mezera(5.5 * c);
   }
-  (druh === "dospeli" ? DOSPELI : DETI).forEach((ch, i) => {
+  for (const [i, ch] of (druh === "dospeli" ? DOSPELI : DETI).entries()) {
     s.text(ch.kurz, {
       font: sans("400", 2.6 * c),
       px: 2.6 * c,
@@ -282,7 +288,7 @@ export function kresliStranu(druh: "dospeli" | "deti", p: Pisma, sirkaPx: number
       max: obsah,
       pred: 1.2 * c,
     });
-  });
+  }
   if (druh === "dospeli") {
     s.text(ALERGENY, {
       font: sans("300", 2.9 * c),

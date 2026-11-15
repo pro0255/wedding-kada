@@ -12,7 +12,7 @@ export default function Odhlasit() {
     try {
       await fetch("/api/fotky/vstup", { method: "DELETE" });
     } finally {
-      window.location.reload();
+      globalThis.location.reload();
     }
   }
 

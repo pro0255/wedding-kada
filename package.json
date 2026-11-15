@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test lib/*.test.ts",
-    "check": "oxfmt --check && oxlint -c .oxlintrc.json && npm test && next build",
+    "check": "npm run ci && next build",
     "postinstall": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/",
     "lint": "oxlint -c .oxlintrc.json",
     "lint:fix": "oxlint --fix -c .oxlintrc.json",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "knip": "node --env-file-if-exists=.env.local node_modules/knip/bin/knip.js"
+    "knip": "node --env-file-if-exists=.env.local node_modules/knip/bin/knip.js",
+    "ci": "oxfmt --check && oxlint -c .oxlintrc.json && npm test"
   },
   "dependencies": {
     "@upstash/redis": "^1.41.0",

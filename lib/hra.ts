@@ -9,9 +9,9 @@ export { HRY, type HraSlug };
  * svůj nejlepší výsledek (ZADD GT). Žebříček se skládá tady, jména z hostů.
  */
 
-export const NEZNAMY = "Neznámý host";
+const NEZNAMY = "Neznámý host";
 
-export type Radek = { poradi: number; jmeno: string; skore: number; moje: boolean };
+type Radek = { poradi: number; jmeno: string; skore: number; moje: boolean };
 export type Zebricek = { radky: Radek[]; moje?: { poradi: number; skore: number } };
 
 export function sestavZebricek(
@@ -25,12 +25,12 @@ export function sestavZebricek(
     const max = nejlepsi.get(s.deviceId);
     if (max === undefined || s.skore > max) nejlepsi.set(s.deviceId, s.skore);
   }
-  const serazene = [...nejlepsi.entries()].sort((a, b) => b[1] - a[1]);
+  const serazene = [...nejlepsi.entries()].toSorted((a, b) => b[1] - a[1]);
 
   // stejné skóre = stejné pořadí (1, 1, 3), jako ve sportu
   const radkyVse: Radek[] = [];
   let poradi = 0;
-  serazene.forEach(([deviceId, s], i) => {
+  for (const [i, [deviceId, s]] of serazene.entries()) {
     if (i === 0 || s !== serazene[i - 1][1]) poradi = i + 1;
     radkyVse.push({
       poradi,
@@ -38,7 +38,7 @@ export function sestavZebricek(
       skore: s,
       moje: deviceId === mojeDevice,
     });
-  });
+  }
 
   const muj = radkyVse.find((r) => r.moje);
   return {

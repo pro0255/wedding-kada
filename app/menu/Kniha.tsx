@@ -52,15 +52,19 @@ export default function Kniha() {
 
     const bezi = animace.current.filter((a) => a.playState === "running");
     if (bezi.length > 0) {
-      bezi.forEach((a) => a.reverse());
+      for (const a of bezi) a.reverse();
       return;
     }
     if (matchMedia(KLID).matches) return;
     const seznam = vytvorAnimace(nove);
     animace.current = seznam;
     Promise.all(seznam.map((a) => a.finished))
-      .then(() => seznam.forEach((a) => a.cancel()))
-      .catch(() => {});
+      .then(() => {
+        for (const a of seznam) a.cancel();
+      })
+      .catch(() => {
+        /* animaci někdo zrušil dřív (další přepnutí) — není co uklízet */
+      });
   }
 
   function vytvorAnimace(nove: boolean): Animation[] {
@@ -175,7 +179,6 @@ export default function Kniha() {
       }
     }, 400);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function naStranu(i: number) {

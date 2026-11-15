@@ -13,6 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # formát (oxfmt) + lint (oxlint) + testy — když neprojde, nenasadí se
+      - name: Check
+        run: npm run ci
+
       # Hobby plan blocks deploys whose commit author isn't the Vercel
       # account owner — strip git metadata so the check never applies.
       - name: Remove git metadata

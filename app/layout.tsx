@@ -42,11 +42,11 @@ const dopisRuka = Italianno({
 
 /* Absolutní adresa pro OG obrázek a odkazy ve sdílení. Na Vercelu se bere
    produkční doména z prostředí; lokálně localhost. */
-const web = process.env.NEXT_PUBLIC_WEB_URL
-  ? process.env.NEXT_PUBLIC_WEB_URL
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+const web =
+  process.env.NEXT_PUBLIC_WEB_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000";
+    : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(web),

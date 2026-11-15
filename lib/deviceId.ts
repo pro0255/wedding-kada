@@ -3,7 +3,7 @@
  * localStorage — přes něj se párují fotky, lajky, skóre ve hrách i jméno.
  * Volat jen na klientovi (useEffect / handler).
  */
-export const DEVICE_KEY = "kj-device-id";
+const DEVICE_KEY = "kj-device-id";
 
 export function deviceId(): string {
   try {

@@ -15,7 +15,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ hra: string }>;
 }): Promise<Metadata> {
-  const hra = HraSchema.safeParse((await params).hra);
+  const { hra: surova } = await params;
+  const hra = HraSchema.safeParse(surova);
   if (!hra.success) return {};
   return {
     title: `${HRY_REGISTR[hra.data].nazev} · Hry · Kateřina & Jakub`,
@@ -24,7 +25,8 @@ export async function generateMetadata({
 }
 
 export default async function HraStranka({ params }: { params: Promise<{ hra: string }> }) {
-  const slug = HraSchema.safeParse((await params).hra);
+  const { hra: surova } = await params;
+  const slug = HraSchema.safeParse(surova);
   if (!slug.success) notFound();
   const hra = slug.data;
   const def = HRY_REGISTR[hra];

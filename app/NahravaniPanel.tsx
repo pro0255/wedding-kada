@@ -8,8 +8,10 @@ import s from "./nahravani.module.css";
    souhrn celé várky. Na slabém signálu je to jediné, co hosta uklidní,
    že se fotky neztratily. */
 
-const pluralSouboru = (n: number, jedna: string, dve: string, pet: string) =>
-  n === 1 ? jedna : n >= 2 && n <= 4 ? dve : pet;
+const pluralSouboru = (n: number, jedna: string, dve: string, pet: string) => {
+  if (n === 1) return jedna;
+  return n >= 2 && n <= 4 ? dve : pet;
+};
 
 function Odznak({ stav }: { stav: "ceka" | "nahrava" | "hotovo" | "znovu" }) {
   if (stav === "hotovo")
@@ -122,7 +124,6 @@ export default function NahravaniPanel({
             {f.video ? (
               <video src={`${f.nahled}#t=0.1`} muted playsInline preload="metadata" />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={f.nahled} alt="" />
             )}
             {f.video && (

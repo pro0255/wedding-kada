@@ -7,6 +7,7 @@ import { test } from "node:test";
 import { crc32 as zlibCrc32 } from "node:zlib";
 import { crc32, zabal } from "./zip.ts";
 
+const sha = (d: Uint8Array) => execFileSync("shasum", { input: d, encoding: "utf8" }).split(" ")[0];
 const spoj = (casti: Uint8Array[]) => Buffer.concat(casti.map((c) => Buffer.from(c)));
 
 test("crc32 sedí se zlib", () => {
@@ -61,8 +62,6 @@ print(json.dumps([[i.filename,i.file_size,list(i.date_time),hashlib.sha1(z.read(
       soubory.map((s) => s.data.length),
     );
     assert.deepEqual(precteno[0][2], [2027, 9, 18, 14, 32, 10]);
-    const sha = (d: Uint8Array) =>
-      execFileSync("shasum", { input: d, encoding: "utf8" }).split(" ")[0];
     assert.equal(precteno[1][3], sha(soubory[1].data));
   } finally {
     rmSync(slozka, { recursive: true, force: true });

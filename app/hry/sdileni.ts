@@ -19,7 +19,7 @@ export type Sdileni = {
 const W = 1080;
 const H = 1350;
 
-export async function vytvorObrazek(d: Sdileni): Promise<Blob> {
+async function vytvorObrazek(d: Sdileni): Promise<Blob> {
   const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
@@ -107,7 +107,9 @@ export async function sdilejSkore(d: Sdileni): Promise<VysledekSdileni> {
   // fallback: obrázek do nového tabu (dlouhý stisk / uložit jako) + odkaz do schránky
   try {
     await navigator.clipboard?.writeText(d.url);
-  } catch {}
+  } catch {
+    /* schránka je jen přídavek — obrázek se otevře i bez ní */
+  }
   const objektUrl = URL.createObjectURL(blob);
   window.open(objektUrl, "_blank", "noopener");
   setTimeout(() => URL.revokeObjectURL(objektUrl), 60_000);

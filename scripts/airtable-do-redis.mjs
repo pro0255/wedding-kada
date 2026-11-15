@@ -48,17 +48,17 @@ for (const f of fotky) {
     nahrano: f.fields["Nahráno"] ?? "",
   };
 }
-if (Object.keys(fotkyHash).length) p.hset("svatba:fotky", fotkyHash);
+if (Object.keys(fotkyHash).length > 0) p.hset("svatba:fotky", fotkyHash);
 
 const lajkyClenove = lajky
   .filter((l) => l.fields.FotkaId && l.fields.DeviceId && fotkyHash[l.fields.FotkaId])
   .map((l) => `${l.fields.FotkaId}:${l.fields.DeviceId}`);
-if (lajkyClenove.length) p.sadd("svatba:lajky", ...lajkyClenove);
+if (lajkyClenove.length > 0) p.sadd("svatba:lajky", ...lajkyClenove);
 
 const jmena = {};
 for (const h of hoste)
   if (h.fields.DeviceId && h.fields["Jméno"]) jmena[h.fields.DeviceId] = h.fields["Jméno"];
-if (Object.keys(jmena).length) p.hset("svatba:hoste", jmena);
+if (Object.keys(jmena).length > 0) p.hset("svatba:hoste", jmena);
 
 let pocetSkore = 0;
 for (const s of skore) {

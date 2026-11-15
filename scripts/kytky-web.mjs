@@ -46,7 +46,8 @@ const PRAH_ALFY = 12;
 
 await mkdir(CIL, { recursive: true });
 
-const soubory = (await readdir(ZDROJ)).filter((f) => /\.png$/i.test(f)).sort();
+const obsahZdroje = await readdir(ZDROJ);
+const soubory = obsahZdroje.filter((f) => /\.png$/i.test(f)).toSorted();
 if (soubory.length === 0) console.log(`v ${ZDROJ} nejsou žádné png`);
 
 for (const soubor of soubory) {
@@ -64,7 +65,7 @@ for (const soubor of soubory) {
   for (let p = 0; p < W * H; p++) {
     if (data[p * 4 + 3] < PRAH_ALFY) continue;
     const x = p % W,
-      y = (p / W) | 0;
+      y = Math.trunc(p / W);
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;

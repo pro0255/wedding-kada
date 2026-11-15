@@ -26,7 +26,9 @@ export default function Jmeno({
     let cache = "";
     try {
       cache = localStorage.getItem(KLIC) ?? "";
-    } catch {}
+    } catch {
+      /* úložiště nedostupné (soukromé okno) — jméno přijde ze serveru */
+    }
     if (cache) {
       setJmeno(cache);
       setUlozene(cache);
@@ -39,10 +41,14 @@ export default function Jmeno({
           setUlozene(d.jmeno);
           try {
             localStorage.setItem(KLIC, d.jmeno);
-          } catch {}
+          } catch {
+            /* úložiště nedostupné — jméno drží server */
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        /* bez signálu zůstane jméno z telefonu */
+      });
   }, []);
 
   async function uloz(e: React.FormEvent) {
@@ -66,7 +72,9 @@ export default function Jmeno({
       setStav("ok");
       try {
         localStorage.setItem(KLIC, t);
-      } catch {}
+      } catch {
+        /* úložiště nedostupné — jméno drží server */
+      }
       onZmena?.(t);
     } catch (error) {
       setChyba(chybaZVyjimky(error));
@@ -74,14 +82,10 @@ export default function Jmeno({
     }
   }
 
-  const zprava =
-    stav === "ok"
-      ? "Uloženo."
-      : stav === "chyba"
-        ? (chyba?.hlaska ?? "Nepovedlo se.")
-        : stav === "ukladam"
-          ? "Ukládám…"
-          : "Platí pro tohle zařízení, účet netřeba.";
+  let zprava = "Platí pro tohle zařízení, účet netřeba.";
+  if (stav === "ok") zprava = "Uloženo.";
+  else if (stav === "chyba") zprava = chyba?.hlaska ?? "Nepovedlo se.";
+  else if (stav === "ukladam") zprava = "Ukládám…";
 
   return (
     <form className={s.jmenoForm} onSubmit={uloz}>

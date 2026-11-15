@@ -52,11 +52,12 @@ test("SkorePostSchema odmítne cizí deviceId", () => {
   );
 });
 
+const hlaska = (telo: unknown) => RezervacePostSchema.safeParse(telo).error?.issues[0].message;
+
 test("RezervacePostSchema: očistí jméno, hlásí první chybu hostovi", () => {
   const ok = RezervacePostSchema.safeParse({ jmeno: "  Jan   Novák ", pocet: "2", web: "" });
   assert.deepEqual(ok.data, { jmeno: "Jan Novák", pocet: 2, web: "" });
 
-  const hlaska = (telo: unknown) => RezervacePostSchema.safeParse(telo).error?.issues[0].message;
   assert.equal(hlaska(null), "Neplatný požadavek.");
   assert.equal(hlaska({ jmeno: "Jan Novák", pocet: 2, web: "spam" }), "Neplatný požadavek.");
   // past na roboty má přednost i před špatným jménem

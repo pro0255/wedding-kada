@@ -26,12 +26,12 @@ import {
  * zámek (Web Locks), kde ho prohlížeč má.
  */
 
-export const MAX_STRANA = 2000;
+const MAX_STRANA = 2000;
 const KVALITA = 0.85;
 /* Cloudinary free pustí video až do 100 MB, ale kredity (25 za 30 dní)
    nejrychleji pálí právě přehrávání videí. 50 MB je zhruba půlminutové
    video z telefonu — na svatební chvilku stačí. */
-export const MAX_VIDEO_B = 50 * 1024 * 1024;
+const MAX_VIDEO_B = 50 * 1024 * 1024;
 
 type Polozka = {
   id: string;
@@ -55,9 +55,11 @@ function db(): Promise<IDBDatabase | null> {
   dbSlib ??= new Promise((vyres) => {
     try {
       const r = indexedDB.open(DB, 1);
-      r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: "id" });
-      r.onsuccess = () => vyres(r.result);
-      r.onerror = () => vyres(null);
+      r.addEventListener("upgradeneeded", () =>
+        r.result.createObjectStore(STORE, { keyPath: "id" }),
+      );
+      r.addEventListener("success", () => vyres(r.result));
+      r.addEventListener("error", () => vyres(null));
     } catch {
       vyres(null);
     }
@@ -74,9 +76,9 @@ async function transakce<T>(
   return new Promise((vyres, zamitni) => {
     const t = d.transaction(STORE, rezim);
     const r = prace(t.objectStore(STORE));
-    t.oncomplete = () => vyres(r.result);
-    t.onerror = () => zamitni(t.error);
-    t.onabort = () => zamitni(t.error);
+    t.addEventListener("complete", () => vyres(r.result));
+    t.addEventListener("error", () => zamitni(t.error));
+    t.addEventListener("abort", () => zamitni(t.error));
   });
 }
 
@@ -149,19 +151,19 @@ function doCloudinary(
   return new Promise((vyres, zamitni) => {
     if (!cloud || !preset) return zamitni(new ChybaNahrani(400));
     const xhr = new XMLHttpRequest();
-    let hlidac = 0;
+    let hlidac: ReturnType<typeof setTimeout> | undefined;
     const hlidej = (ms: number) => {
-      window.clearTimeout(hlidac);
-      hlidac = window.setTimeout(() => xhr.abort(), ms);
+      globalThis.clearTimeout(hlidac);
+      hlidac = globalThis.setTimeout(() => xhr.abort(), ms);
     };
     xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloud}/auto/upload`);
-    xhr.upload.onprogress = (e) => {
+    xhr.upload.addEventListener("progress", (e) => {
       if (!e.lengthComputable) return hlidej(ZASEKNUTI_MS);
       naPokrok(e.loaded / e.total);
       hlidej(e.loaded >= e.total ? CEKANI_NA_ODPOVED_MS : ZASEKNUTI_MS);
-    };
-    xhr.onload = () => {
-      window.clearTimeout(hlidac);
+    });
+    xhr.addEventListener("load", () => {
+      globalThis.clearTimeout(hlidac);
       if (xhr.status >= 300) return zamitni(new ChybaNahrani(xhr.status));
       try {
         const d = JSON.parse(xhr.responseText) as { secure_url: string; public_id: string };
@@ -169,14 +171,14 @@ function doCloudinary(
       } catch {
         zamitni(new ChybaNahrani(0));
       }
+    });
+    const selhalo = () => {
+      globalThis.clearTimeout(hlidac);
+      zamitni(new ChybaNahrani(0));
     };
-    xhr.onerror =
-      xhr.onabort =
-      xhr.ontimeout =
-        () => {
-          window.clearTimeout(hlidac);
-          zamitni(new ChybaNahrani(0));
-        };
+    xhr.addEventListener("error", selhalo);
+    xhr.addEventListener("abort", selhalo);
+    xhr.addEventListener("timeout", selhalo);
     const data = new FormData();
     data.append("file", soubor);
     data.append("upload_preset", preset);
@@ -187,7 +189,7 @@ function doCloudinary(
 
 async function registruj(p: Polozka): Promise<void> {
   const ovladac = new AbortController();
-  const casovac = window.setTimeout(() => ovladac.abort(), REGISTRACE_MS);
+  const casovac = globalThis.setTimeout(() => ovladac.abort(), REGISTRACE_MS);
   try {
     const r = await fetch("/api/fotky", {
       method: "POST",
@@ -203,7 +205,7 @@ async function registruj(p: Polozka): Promise<void> {
   } catch (error) {
     throw error instanceof ChybaNahrani ? error : new ChybaNahrani(0);
   } finally {
-    window.clearTimeout(casovac);
+    globalThis.clearTimeout(casovac);
   }
 }
 
@@ -211,12 +213,12 @@ async function registruj(p: Polozka): Promise<void> {
 function pockej(ms: number, probud: { fn: () => void }): Promise<void> {
   return new Promise((vyres) => {
     const hotovo = () => {
-      window.clearTimeout(t);
-      window.removeEventListener("online", hotovo);
+      globalThis.clearTimeout(t);
+      globalThis.removeEventListener("online", hotovo);
       vyres();
     };
-    const t = window.setTimeout(hotovo, ms);
-    window.addEventListener("online", hotovo);
+    const t = globalThis.setTimeout(hotovo, ms);
+    globalThis.addEventListener("online", hotovo);
     probud.fn = hotovo;
   });
 }
@@ -266,21 +268,25 @@ export function useNahravani({
 }) {
   const [stav, setStav] = useState<StavNahravani>(KLID);
   const bezi = useRef(false);
-  const probud = useRef({ fn: () => {} });
+  const probud = useRef({
+    fn: () => {
+      /* nikdo nečeká — není koho budit */
+    },
+  });
   const zpetne = useRef({ poNahrani, zamceno, naChybu });
   zpetne.current = { poNahrani, zamceno, naChybu };
 
   /* Panel: id → soubor. Hotové v něm zůstávají až do konce várky, ať host
      vidí, co už prošlo. Náhledy jsou object URL — uvolní se s várkou. */
   const ui = useRef(new Map<string, SouborUI & { pridano: number }>());
-  const uklid = useRef(0);
+  const uklid = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const vykresli = useCallback((zmena: Partial<Omit<StavNahravani, "soubory">> = {}) => {
-    const soubory = [...ui.current.values()].sort((a, b) => a.pridano - b.pridano);
+    const soubory = [...ui.current.values()].toSorted((a, b) => a.pridano - b.pridano);
     setStav((s) => ({ ...s, ...zmena, soubory }));
   }, []);
 
   const zaradDoPanelu = useCallback((polozky: Polozka[]) => {
-    window.clearTimeout(uklid.current);
+    globalThis.clearTimeout(uklid.current);
     const ted = Date.now();
     for (const p of polozky) {
       const v = ui.current.get(p.id);
@@ -303,7 +309,7 @@ export function useNahravani({
   const dokonciVarku = useCallback(() => {
     if (ui.current.size === 0) return setStav(KLID);
     vykresli({ ceka: null, hotovo: true, problem: false });
-    uklid.current = window.setTimeout(() => {
+    uklid.current = globalThis.setTimeout(() => {
       for (const v of ui.current.values()) URL.revokeObjectURL(v.nahled);
       ui.current.clear();
       setStav(KLID);
@@ -386,11 +392,15 @@ export function useNahravani({
         .request("kj-nahravani", { ifAvailable: true }, async (zamek) => {
           if (zamek) await smycka();
         })
-        .catch(() => {})
+        .catch(() => {
+          /* chyby řeší smyčka sama; tady jen ať nezůstane nezachycený slib */
+        })
         .finally(hotovo);
     } else {
       smycka()
-        .catch(() => {})
+        .catch(() => {
+          /* chyby řeší smyčka sama; tady jen ať nezůstane nezachycený slib */
+        })
         .finally(hotovo);
     }
   }, [smycka]);
@@ -400,10 +410,10 @@ export function useNahravani({
     if (!aktivni) return;
     spust();
     const znovu = () => document.visibilityState === "visible" && spust();
-    window.addEventListener("online", spust);
+    globalThis.addEventListener("online", spust);
     document.addEventListener("visibilitychange", znovu);
     return () => {
-      window.removeEventListener("online", spust);
+      globalThis.removeEventListener("online", spust);
       document.removeEventListener("visibilitychange", znovu);
     };
   }, [aktivni, spust]);
@@ -434,13 +444,13 @@ export function useNahravani({
         spust();
       }
       if (prilisVelke > 0) {
-        zpetne.current.naChybu(
-          prilisVelke === 1
-            ? "Jedno video je příliš velké (max. 50 MB, zhruba půl minuty)."
-            : prilisVelke < 5
-              ? `${prilisVelke} videa jsou příliš velká (max. 50 MB, zhruba půl minuty).`
-              : `${prilisVelke} videí je příliš velkých (max. 50 MB, zhruba půl minuty).`,
-        );
+        let zprava = `${prilisVelke} videí je příliš velkých (max. 50 MB, zhruba půl minuty).`;
+        if (prilisVelke === 1) {
+          zprava = "Jedno video je příliš velké (max. 50 MB, zhruba půl minuty).";
+        } else if (prilisVelke < 5) {
+          zprava = `${prilisVelke} videa jsou příliš velká (max. 50 MB, zhruba půl minuty).`;
+        }
+        zpetne.current.naChybu(zprava);
       }
     },
     [deviceId, spust, vykresli, zaradDoPanelu],

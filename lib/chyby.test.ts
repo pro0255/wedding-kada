@@ -17,7 +17,7 @@ test("každý kód má hlášku a rozumný stavový kód", () => {
     assert.ok(p.hlaska.trim().length > 0, kod);
     assert.ok(p.status === 0 || (p.status >= 400 && p.status < 600), kod);
   }
-  assert.deepEqual(Object.keys(CHYBY).sort(), [...KODY_CHYB].sort());
+  assert.deepEqual(Object.keys(CHYBY).toSorted(), [...KODY_CHYB].toSorted());
 });
 
 test("chybaOdpoved pošle kód, hlášku a stav z katalogu", async () => {
@@ -58,7 +58,8 @@ test("neznámé tělo se odhadne ze stavového kódu", async () => {
   assert.equal(chybaZOdpovedi(400, { kod: "vymysleny", chyba: "x" }).kod, "neplatny-pozadavek");
   // stránka Vercelu místo JSON
   const html = new Response("<html>504</html>", { status: 504 });
-  assert.equal((await prectiChybu(html)).kod, "server");
+  const chyba = await prectiChybu(html);
+  assert.equal(chyba.kod, "server");
 });
 
 test("výpadek sítě se pozná podle TypeError z fetch", () => {

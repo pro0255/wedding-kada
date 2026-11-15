@@ -155,7 +155,9 @@ export const zenich: Hra<Stav> = {
       const sp = def.snimky[snimek % def.snimky.length];
       kresli(ctx, sp, p.x, s.zem - vyska(sp), b.ink, b.zlata);
     }
-    const sp = s.konec ? ZENICH_BEH[0] : s.y < s.zem || !bezi ? ZENICH_SKOK : ZENICH_BEH[snimek];
+    let sp = ZENICH_BEH[snimek];
+    if (s.konec) sp = ZENICH_BEH[0];
+    else if (s.y < s.zem || !bezi) sp = ZENICH_SKOK;
     kresli(ctx, sp, s.zenichX, s.y - ZENICH_H, b.ink, b.zlata);
   },
 };

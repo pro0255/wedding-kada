@@ -61,8 +61,8 @@ export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     /* Na telefonu strop 1.5, ne 2. Prsten je vykreslený na 170 px, takže vyšší
        hustota nic nepřidá, ale plocha k vykreslení roste s druhou mocninou. */
-    const uzke = window.matchMedia("(max-width: 700px)").matches;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, uzke ? 1.5 : 2));
+    const uzke = globalThis.matchMedia("(max-width: 700px)").matches;
+    renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio, uzke ? 1.5 : 2));
     renderer.setSize(size, size);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -81,10 +81,10 @@ export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
     // hladký band jako Jeden prsten
     const inscription = makeInscriptionTexture();
     const gold = new THREE.MeshStandardMaterial({
-      color: 0xd8b26e,
+      color: 0xd8_b2_6e,
       metalness: 1,
       roughness: 0.1,
-      emissive: 0xff5a1a, // ohnivý žár nápisu
+      emissive: 0xff_5a_1a, // ohnivý žár nápisu
       emissiveMap: inscription,
       emissiveIntensity: 0.9,
     });
@@ -146,7 +146,7 @@ export default function Ring3D({ zastaveno = false }: { zastaveno?: boolean }) {
       cancelAnimationFrame(raf);
       pmrem.dispose();
       renderer.dispose();
-      el.removeChild(renderer.domElement);
+      renderer.domElement.remove();
     };
   }, []);
 

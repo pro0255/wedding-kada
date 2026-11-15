@@ -37,9 +37,6 @@ const SEMENO = { x: 576, y: 1800 };
 /* Řádky, na kterých je v obraze jenom stůl (pod linkou rámečku). Z nich se
  * měří, jak je stůl široký. */
 const CISTE_RADKY = { od: 1700, do: 2040 };
-/* Řádek těsně pod linkou rámečku. Nad ním už stůl nikde není širší, takže se
- * podle něj dá useknout to, co z linky trčí po stranách. */
-const RADEK_POD_LINKOU = 1660;
 
 const prah = (v, od, do_) => {
   const t = Math.min(1, Math.max(0, (v - od) / (do_ - od)));
@@ -189,7 +186,7 @@ stul[zasobnik[0]] = 1;
 while (zasobnik.length > 0) {
   const p = zasobnik.pop();
   const x = p % W,
-    y = (p / W) | 0;
+    y = Math.trunc(p / W);
   for (const [dx, dy] of [
     [1, 0],
     [-1, 0],
@@ -214,7 +211,7 @@ let minX = W,
 for (let p = 0; p < W * H; p++) {
   if (!stul[p]) continue;
   const x = p % W,
-    y = (p / W) | 0;
+    y = Math.trunc(p / W);
   if (x < minX) minX = x;
   if (x > maxX) maxX = x;
   if (y < minY) minY = y;
@@ -229,7 +226,7 @@ for (let y = 0; y < vyska; y++) {
     const p = (y + minY) * W + (x + minX);
     const q = (y * sirka + x) * 4;
     if (!stul[p]) continue;
-    const [h, s, l] = naHsl(data[p * 4], data[p * 4 + 1], data[p * 4 + 2]);
+    const [, s, l] = naHsl(data[p * 4], data[p * 4 + 1], data[p * 4 + 2]);
     const [r, g, b] = naRgb(ODSTIN, Math.min(s, STROP_SYTOSTI), SVETLOST(l));
     ven[q] = r;
     ven[q + 1] = g;

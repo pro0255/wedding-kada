@@ -4,7 +4,7 @@
  *
  * Předloha je arch, který dodala Kačka: čtrnáct lisovaných akvarelových
  * květin na krémovém papíře. Oddělení pozadí je stejné jako u obou starších
- * skriptů (kyticky-oznameni.mjs, kyticky2-oznameni.mjs): papír archu se po
+ * skriptů (kyticky-oznameni.mjs): papír archu se po
  * kanálech přepočítá na papír karty, průhlednost se vezme z odchylky od té
  * barvy měkkým prahem a maska se rozdělí na souvislé plochy.
  *
@@ -213,7 +213,7 @@ for (let start = 0; start < W * H; start++) {
   while (vrchol > 0) {
     const p = zasobnik[--vrchol];
     const x = p % W;
-    const y = (p / W) | 0;
+    const y = Math.trunc(p / W);
     pocet++;
     if (x < x1) x1 = x;
     if (x > x2) x2 = x;
@@ -240,7 +240,7 @@ const vybrane = plochy
     (p) =>
       p.pocet >= NEJMENE_PIXELU && p.x2 - p.x1 >= NEJMENE_STRANA && p.y2 - p.y1 >= NEJMENE_STRANA,
   )
-  .sort((a, b) => b.pocet - a.pocet);
+  .toSorted((a, b) => b.pocet - a.pocet);
 
 await rm(KAM, { recursive: true, force: true });
 await mkdir(KAM, { recursive: true });

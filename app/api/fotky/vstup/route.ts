@@ -26,7 +26,8 @@ export async function GET() {
 
 /** Konec správcovství — host zůstane hostem. */
 export async function DELETE() {
-  (await cookies()).delete(COOKIE_SPRAVCE);
+  const uloziste = await cookies();
+  uloziste.delete(COOKIE_SPRAVCE);
   return Response.json({ ok: true });
 }
 

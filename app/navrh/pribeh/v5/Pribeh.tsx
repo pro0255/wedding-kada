@@ -63,13 +63,14 @@ export default function Pribeh() {
       aktualni = krok;
       // v posledním kroku (podpis) zůstává poslední věta rozsvícená
       const veta = Math.min(krok, VETY.length - 1);
-      vety.forEach((v) => {
+      for (const v of vety) {
         const i = Number(v.dataset.veta);
-        v.dataset.stav = i < veta ? "minula" : i === veta ? "ted" : "budouci";
-      });
-      fotky.forEach((f) => {
+        if (i < veta) v.dataset.stav = "minula";
+        else v.dataset.stav = i === veta ? "ted" : "budouci";
+      }
+      for (const f of fotky) {
         f.dataset.stav = Number(f.dataset.krok) <= krok ? "polozena" : "budouci";
-      });
+      }
       if (podpis) podpis.dataset.stav = krok >= KROKU - 1 ? "ted" : "budouci";
       // u podpisu se na počítači rozsvítí celý dopis (viz CSS)
       el.toggleAttribute("data-konec", krok >= KROKU - 1);
@@ -86,7 +87,7 @@ export default function Pribeh() {
       },
       { rootMargin: "-50% 0px -50% 0px" },
     );
-    el.querySelectorAll("[data-znacka]").forEach((z) => io.observe(z));
+    for (const z of el.querySelectorAll("[data-znacka]")) io.observe(z);
     return () => io.disconnect();
   }, []);
 

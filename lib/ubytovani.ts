@@ -40,7 +40,7 @@ function normalizujJmeno(jmeno: string): string {
     .replaceAll(/[^a-z0-9 ]/g, " ")
     .split(/\s+/)
     .filter(Boolean)
-    .sort()
+    .toSorted()
     .join(" ");
 }
 

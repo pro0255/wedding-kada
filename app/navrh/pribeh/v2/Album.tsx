@@ -100,7 +100,7 @@ function Obsah({ n }: { n: number }) {
 
 const uzkyDotaz = "(max-width: 760px)";
 const odebirej = (zmena: () => void) => {
-  const m = window.matchMedia(uzkyDotaz);
+  const m = globalThis.matchMedia(uzkyDotaz);
   m.addEventListener("change", zmena);
   return () => m.removeEventListener("change", zmena);
 };
@@ -108,32 +108,32 @@ const odebirej = (zmena: () => void) => {
 export default function Album() {
   const uzky = useSyncExternalStore(
     odebirej,
-    () => window.matchMedia(uzkyDotaz).matches,
+    () => globalThis.matchMedia(uzkyDotaz).matches,
     () => false,
   );
   // na počítači číslo dvoustrany, na telefonu číslo strany
   const [poloha, setPoloha] = useState(0);
   const [otaci, setOtaci] = useState<number | null>(null);
-  const casovac = useRef<number | undefined>(undefined);
+  const casovac = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const tah = useRef<{ x: number; y: number } | null>(null);
   const tahlo = useRef(false);
 
   const max = uzky ? POCET_STRAN - 1 : DVOUSTRAN - 1;
   // při přepnutí mezi telefonem a počítačem začít od začátku
   useEffect(() => setPoloha(0), [uzky]);
-  useEffect(() => () => window.clearTimeout(casovac.current), []);
+  useEffect(() => () => globalThis.clearTimeout(casovac.current), []);
 
   const jdi = (smer: 1 | -1) => {
     const cil = poloha + smer;
     if (cil < 0 || cil > max) return;
     // list, který se teď otáčí: vpřed ten na pravé straně, zpět ten vlevo
     const list = smer === 1 ? poloha : cil;
-    window.clearTimeout(casovac.current);
+    globalThis.clearTimeout(casovac.current);
     startTransition(() => {
       setOtaci(list);
       setPoloha(cil);
     });
-    casovac.current = window.setTimeout(() => setOtaci(null), OTOCKA_MS);
+    casovac.current = globalThis.setTimeout(() => setOtaci(null), OTOCKA_MS);
   };
 
   const listy = uzky
@@ -204,7 +204,8 @@ export default function Album() {
           )}
           {listy.map((l, k) => {
             const otoceny = k < poloha;
-            const z = otaci === k ? 50 : otoceny ? k + 1 : pocetListu - k + 1;
+            let z = otoceny ? k + 1 : pocetListu - k + 1;
+            if (otaci === k) z = 50;
             return (
               <div
                 key={k}

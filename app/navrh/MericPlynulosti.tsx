@@ -31,9 +31,7 @@ const CUKNUTI_MS = 25;
 const VYRAZNE_MS = 50;
 
 declare global {
-  interface Window {
-    __plynulost?: Vysledek[];
-  }
+  var __plynulost: Vysledek[] | undefined;
 }
 
 type LoafSkript = { invoker?: string; duration: number; sourceFunctionName?: string };
@@ -49,7 +47,7 @@ export default function MericPlynulosti() {
   const bezi = useRef(false);
 
   useEffect(() => {
-    if (window.top !== window.self) return; // v iframu rozcestníku ne
+    if (globalThis.top !== globalThis.self) return; // v iframu rozcestníku ne
     if (/^\/navrh\/?$/.test(location.pathname)) return; // rozcestník sám nic neanimuje
     setVidim(true);
 
@@ -62,7 +60,7 @@ export default function MericPlynulosti() {
       posledni = ted;
       if (klid.length < 60) requestAnimationFrame(kalibrace);
       else {
-        const serazene = [...klid].sort((a, b) => a - b);
+        const serazene = klid.toSorted((a, b) => a - b);
         hz = Math.round(1000 / serazene[Math.floor(serazene.length / 2)]);
       }
     };
@@ -95,7 +93,7 @@ export default function MericPlynulosti() {
             .slice(0, 3)
             .map((e) => {
               const styl = Math.round(e.startTime + e.duration - e.styleAndLayoutStart);
-              const skript = [...e.scripts].sort((a, b) => b.duration - a.duration)[0];
+              const skript = e.scripts.toSorted((a, b) => b.duration - a.duration)[0];
               const kdo = skript
                 ? `${skript.sourceFunctionName || skript.invoker || "skript"} ${Math.round(skript.duration)} ms`
                 : "bez skriptu";
@@ -109,7 +107,7 @@ export default function MericPlynulosti() {
             hz,
             pricina,
           };
-          (window.__plynulost ??= []).push(v);
+          (globalThis.__plynulost ??= []).push(v);
           setVysledek(v);
           bezi.current = false;
         }
@@ -118,23 +116,21 @@ export default function MericPlynulosti() {
     };
 
     // capture: měří se i klepnutí, která stránka sama zastaví
-    window.addEventListener("pointerdown", zmer, true);
-    window.addEventListener("keydown", zmer, true);
+    globalThis.addEventListener("pointerdown", zmer, true);
+    globalThis.addEventListener("keydown", zmer, true);
     return () => {
-      window.removeEventListener("pointerdown", zmer, true);
-      window.removeEventListener("keydown", zmer, true);
+      globalThis.removeEventListener("pointerdown", zmer, true);
+      globalThis.removeEventListener("keydown", zmer, true);
     };
   }, []);
 
   if (!vidim) return null;
 
-  const stav = vysledek
-    ? vysledek.vyrazna > 0
-      ? "spatne"
-      : vysledek.cuknuti > 0
-        ? "hrana"
-        : "dobre"
-    : "nic";
+  let stav = "nic";
+  if (vysledek) {
+    if (vysledek.vyrazna > 0) stav = "spatne";
+    else stav = vysledek.cuknuti > 0 ? "hrana" : "dobre";
+  }
   return (
     <div className={s.meric} data-stav={stav} data-meric aria-live="polite">
       <button
@@ -166,7 +162,7 @@ export default function MericPlynulosti() {
           )}
           <p className={s.nadpis}>Historie</p>
           <ol>
-            {(window.__plynulost ?? []).slice(-6).map((h, i) => (
+            {(globalThis.__plynulost ?? []).slice(-6).map((h, i) => (
               <li key={i}>
                 max {h.max} ms · cuknutí {h.cuknuti}
               </li>

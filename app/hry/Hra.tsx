@@ -35,7 +35,9 @@ export default function Hra({
   const onKonecRef = useRef(onKonec);
   onKonecRef.current = onKonec;
   const zvukyRef = useRef<Zvuky | null>(null);
-  const znovuRef = useRef<() => void>(() => {});
+  const znovuRef = useRef<() => void>(() => {
+    /* nastaví se, až hra naběhne */
+  });
   const [faze, setFaze] = useState<Faze>("start");
   const [vysledek, setVysledek] = useState({ skore: 0, novy: false });
   const [dotyk, setDotyk] = useState(false);
@@ -55,8 +57,8 @@ export default function Hra({
   useEffect(() => {
     void dorucCekajici();
     const naSignal = () => void dorucCekajici();
-    window.addEventListener("online", naSignal);
-    return () => window.removeEventListener("online", naSignal);
+    globalThis.addEventListener("online", naSignal);
+    return () => globalThis.removeEventListener("online", naSignal);
   }, []);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function Hra({
     const konfety = new Konfety();
 
     // výzva z odkazu: /hry/<hra>?od=Karel&skore=131
-    const q = new URLSearchParams(window.location.search);
+    const q = new URLSearchParams(globalThis.location.search);
     const od = q.get("od");
     const vyzvaSkore = Number(q.get("skore"));
     if (od && Number.isInteger(vyzvaSkore) && vyzvaSkore > 0 && od.length <= 30) {
@@ -91,7 +93,9 @@ export default function Hra({
     let rekord = 0;
     try {
       rekord = Number(localStorage.getItem(KLIC)) || 0;
-    } catch {}
+    } catch {
+      /* úložiště nedostupné — rekord začíná od nuly */
+    }
     if (rekordRef.current) rekordRef.current.textContent = String(rekord);
 
     let W = 0;
@@ -135,7 +139,9 @@ export default function Hra({
         rekord = skore;
         try {
           localStorage.setItem(KLIC, String(rekord));
-        } catch {}
+        } catch {
+          /* úložiště nedostupné — rekord platí jen do zavření stránky */
+        }
         if (rekordRef.current) rekordRef.current.textContent = String(rekord);
       }
       setVysledek({ skore, novy });
@@ -146,13 +152,13 @@ export default function Hra({
       odesliSkore(def.slug, deviceId(), skore).finally(() => onKonecRef.current?.(skore));
     }
 
-    function znovu(v: Vstup = { typ: "tap" }) {
+    function znovu(v?: Vstup) {
       stav = def.start({ W, H });
       skore = 0;
       if (skoreRef.current) skoreRef.current.textContent = "0";
       fazeHry = "hra";
       setFaze("hra");
-      def.vstup(stav, v);
+      def.vstup(stav, v ?? { typ: "tap" });
     }
     znovuRef.current = () => {
       zvuky.odemkni();
@@ -185,7 +191,7 @@ export default function Hra({
         const k = def.krok(stav, dt);
         skore = k.skore;
         if (skoreRef.current) skoreRef.current.textContent = String(skore);
-        k.zvuky?.forEach((z) => zvuky.prehraj(z));
+        if (k.zvuky) for (const z of k.zvuky) zvuky.prehraj(z);
         if (k.konec) konec();
       }
       def.vykresli(ctx, stav, barvy, cas, fazeHry === "hra");
@@ -240,15 +246,15 @@ export default function Hra({
     const naPohyb = (e: PointerEvent) => {
       if (e.pressure > 0 || e.buttons) posli({ typ: "pohyb", x: logX(e) });
     };
-    window.addEventListener("keydown", naKlavesu);
-    window.addEventListener("keyup", naPusteni);
+    globalThis.addEventListener("keydown", naKlavesu);
+    globalThis.addEventListener("keyup", naPusteni);
     platno.addEventListener("pointerdown", naDolu);
     platno.addEventListener("pointermove", naPohyb);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      window.removeEventListener("keydown", naKlavesu);
-      window.removeEventListener("keyup", naPusteni);
+      globalThis.removeEventListener("keydown", naKlavesu);
+      globalThis.removeEventListener("keyup", naPusteni);
       platno.removeEventListener("pointerdown", naDolu);
       platno.removeEventListener("pointermove", naPohyb);
     };
@@ -259,8 +265,10 @@ export default function Hra({
     let jmeno = "";
     try {
       jmeno = localStorage.getItem("kj-jmeno") ?? "";
-    } catch {}
-    const url = new URL(`/hry/${def.slug}`, window.location.origin);
+    } catch {
+      /* úložiště nedostupné — sdílí se bez jména */
+    }
+    const url = new URL(`/hry/${def.slug}`, globalThis.location.origin);
     url.searchParams.set("od", jmeno || "Někdo ze svatby");
     url.searchParams.set("skore", String(vysledek.skore));
     const v = await sdilejSkore({

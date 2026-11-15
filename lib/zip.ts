@@ -13,21 +13,22 @@ const CRC_TABULKA = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xed_b8_83_20 ^ (c >>> 1) : c >>> 1;
     t[n] = c >>> 0;
   }
   return t;
 })();
 
 export function crc32(data: Uint8Array): number {
-  let c = 0xffffffff;
+  let c = 0xff_ff_ff_ff;
+  // oxlint-disable-next-line typescript/prefer-for-of -- horká smyčka přes stovky MB fotek, index je rychlejší než iterátor
   for (let i = 0; i < data.length; i++) c = CRC_TABULKA[(c ^ data[i]) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
+  return (c ^ 0xff_ff_ff_ff) >>> 0;
 }
 
 export type SouborZipu = { nazev: string; data: Uint8Array; datum?: Date };
 
-const MAX_32 = 0xffffffff;
+const MAX_32 = 0xff_ff_ff_ff;
 const UTF8 = 0x08_00; // příznak: jména souborů jsou v UTF-8 (diakritika)
 
 /** Datum a čas ve formátu MS-DOS, jak ho ZIP čeká (po 2 s, od roku 1980). */
@@ -41,7 +42,7 @@ function dosCas(d: Date): { cas: number; datum: number } {
 
 /** Části archivu v pořadí — pro `new Blob(casti)`, bez kopírování dat fotek. */
 export function zabal(soubory: SouborZipu[]): Uint8Array[] {
-  if (soubory.length >= 0xffff) throw new Error("Moc souborů na jeden ZIP.");
+  if (soubory.length >= 0xff_ff) throw new Error("Moc souborů na jeden ZIP.");
   const kodovac = new TextEncoder();
   const casti: Uint8Array[] = [];
   const adresar: Uint8Array[] = [];
@@ -56,7 +57,7 @@ export function zabal(soubory: SouborZipu[]): Uint8Array[] {
 
     const hlava = new Uint8Array(30 + jmeno.length);
     const h = new DataView(hlava.buffer);
-    h.setUint32(0, 0x04034b50, true); // local file header
+    h.setUint32(0, 0x04_03_4b_50, true); // local file header
     h.setUint16(4, 20, true); // potřebná verze 2.0
     h.setUint16(6, UTF8, true);
     h.setUint16(8, 0, true); // STORE
@@ -71,7 +72,7 @@ export function zabal(soubory: SouborZipu[]): Uint8Array[] {
 
     const zaznam = new Uint8Array(46 + jmeno.length);
     const z = new DataView(zaznam.buffer);
-    z.setUint32(0, 0x02014b50, true); // central directory header
+    z.setUint32(0, 0x02_01_4b_50, true); // central directory header
     z.setUint16(4, 20, true);
     z.setUint16(6, 20, true);
     z.setUint16(8, UTF8, true);
@@ -94,7 +95,7 @@ export function zabal(soubory: SouborZipu[]): Uint8Array[] {
   const velikostAdresare = adresar.reduce((n, a) => n + a.length, 0);
   const konec = new Uint8Array(22);
   const k = new DataView(konec.buffer);
-  k.setUint32(0, 0x06054b50, true); // end of central directory
+  k.setUint32(0, 0x06_05_4b_50, true); // end of central directory
   k.setUint16(8, soubory.length, true);
   k.setUint16(10, soubory.length, true);
   k.setUint32(12, velikostAdresare, true);

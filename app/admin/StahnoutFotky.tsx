@@ -13,10 +13,11 @@ export type Polozka = { url: string; nahrano: string };
 
 const NARAZ = 4; // souběžná stahování — rychle, ale bez zahlcení mobilní sítě
 
+const dvojciferne = (n: number) => String(n).padStart(2, "0");
+
 function nazevSouboru(p: Polozka, i: number): string {
   const pripona = p.url.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() ?? "jpg";
   const d = new Date(p.nahrano);
-  const dvojciferne = (n: number) => String(n).padStart(2, "0");
   const kdy = `${d.getFullYear()}-${dvojciferne(d.getMonth() + 1)}-${dvojciferne(d.getDate())}_${dvojciferne(d.getHours())}-${dvojciferne(d.getMinutes())}`;
   return `${String(i + 1).padStart(3, "0")}_${kdy}.${pripona}`;
 }
@@ -36,8 +37,8 @@ function Tlacitko({
   async function stahni() {
     setHlaska(null);
     // chronologicky, ať zip čte jako průběh dne
-    const serazene = [...polozky].sort((a, b) => a.nahrano.localeCompare(b.nahrano));
-    const vysledky: (SouborZipu | null)[] = new Array(serazene.length).fill(null);
+    const serazene = polozky.toSorted((a, b) => a.nahrano.localeCompare(b.nahrano));
+    const vysledky: (SouborZipu | null)[] = Array.from({ length: serazene.length }, () => null);
     let dalsi = 0;
     let hotovo = 0;
     setStav({ hotovo });

@@ -31,6 +31,7 @@ export default async function Image() {
       {/* fotka 1536×1024 zvětšená na 1200×800, posunutá o kus výš — zvonička
             i kaplička zůstanou, odřízne se jen kus trávy dole */}
       <img
+        alt=""
         src={fotkaSrc}
         width={1200}
         height={800}

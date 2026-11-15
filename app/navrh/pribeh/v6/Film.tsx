@@ -16,6 +16,11 @@ import s from "./film.module.css";
 const cislo = (i: number) => `${i + 1}`;
 // tah myší kratší než tohle je klepnutí, ne posun pásu
 const TAH_PX = 6;
+// click po tažení: zahodit, ať se nebere jako klepnutí na políčko
+const zrusKlik = (ev: Event) => {
+  ev.stopPropagation();
+  ev.preventDefault();
+};
 
 export default function Film() {
   const pas = useRef<HTMLDivElement>(null);
@@ -43,8 +48,8 @@ export default function Film() {
       else if (e.key === "ArrowRight") dalsi(1);
       else if (e.key === "ArrowLeft") dalsi(-1);
     };
-    window.addEventListener("keydown", klavesa);
-    return () => window.removeEventListener("keydown", klavesa);
+    globalThis.addEventListener("keydown", klavesa);
+    return () => globalThis.removeEventListener("keydown", klavesa);
   }, [lupa, dalsi]);
 
   return (
@@ -97,13 +102,9 @@ export default function Film() {
               if (pas.current) delete pas.current.dataset.tazeno;
               // click po tažení se nemá brát jako klepnutí na políčko
               if (t?.posunuto) {
-                const zrus = (ev: Event) => {
-                  ev.stopPropagation();
-                  ev.preventDefault();
-                };
-                pas.current?.addEventListener("click", zrus, { capture: true, once: true });
+                pas.current?.addEventListener("click", zrusKlik, { capture: true, once: true });
                 setTimeout(
-                  () => pas.current?.removeEventListener("click", zrus, { capture: true }),
+                  () => pas.current?.removeEventListener("click", zrusKlik, { capture: true }),
                   0,
                 );
               }

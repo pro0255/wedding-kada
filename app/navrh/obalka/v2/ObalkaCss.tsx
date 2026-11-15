@@ -101,7 +101,9 @@ export default function ObalkaCss() {
       dopis: d,
       popis: POPIS,
       pripravenost: pr,
-      spust: () => {},
+      spust: () => {
+        // nic: přechody spouští CSS samo (viz výš)
+      },
       delka: (otevrit) => (otevrit ? DELKA_OTEVRENI_MS : DELKA_ZAVRENI_MS),
     });
     return () => {

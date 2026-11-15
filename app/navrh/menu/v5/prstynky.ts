@@ -63,13 +63,17 @@ export async function vytvorPrstynky(
   camera.position.set(0.05, 2.25, 2.75);
   camera.lookAt(0.02, 0.16, 0);
 
-  const zlato = new THREE.MeshStandardMaterial({ color: 0xd8b26e, metalness: 1, roughness: 0.12 });
-  const napis = texturaNapisu();
-  const zlatoNapis = new THREE.MeshStandardMaterial({
-    color: 0xd8b26e,
+  const zlato = new THREE.MeshStandardMaterial({
+    color: 0xd8_b2_6e,
     metalness: 1,
     roughness: 0.12,
-    emissive: 0xff5a1a,
+  });
+  const napis = texturaNapisu();
+  const zlatoNapis = new THREE.MeshStandardMaterial({
+    color: 0xd8_b2_6e,
+    metalness: 1,
+    roughness: 0.12,
+    emissive: 0xff_5a_1a,
     emissiveMap: napis,
     emissiveIntensity: 0.35,
   });
@@ -86,7 +90,7 @@ export async function vytvorPrstynky(
   velky.castShadow = maly.castShadow = true;
   scene.add(velky, maly);
 
-  const slunce = new THREE.DirectionalLight(0xffffff, 1.3);
+  const slunce = new THREE.DirectionalLight(0xff_ff_ff, 1.3);
   slunce.position.set(-1.4, 3, 1.2);
   slunce.castShadow = true;
   slunce.shadow.mapSize.set(1024, 1024);

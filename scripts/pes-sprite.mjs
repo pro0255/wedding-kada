@@ -9,7 +9,7 @@
    opravdu ten poslaný pes, ne jeho nápodoba. */
 import sharp from "sharp";
 
-const [, , ZDROJ = "public/fotky/pes.png", SIRKA_ARG] = process.argv;
+const [ZDROJ = "public/fotky/pes.png", SIRKA_ARG] = process.argv.slice(2);
 const SIRKA = Number(SIRKA_ARG) || 26;
 /* Kolik obrazu je ještě „pes". Silueta bývá tmavá na světlém, takže se bere
    práh podle jasu; 50 % je bezpečný střed pro černobílý obrázek. */
@@ -96,4 +96,4 @@ await sharp(buf, { raw: { width: SIRKA * M, height: VYSKA * M, channels: 3 } })
 
 console.log(`předloha ${W}x${H}, pes v ní zabírá ${sw}x${sh} (poměr ${(sw / sh).toFixed(2)})`);
 console.log(`sprite ${SIRKA}x${VYSKA} znaků — náhled v _pes-nahled.png\n`);
-radky.forEach((r) => console.log(`    "${r}",`));
+for (const r of radky) console.log(`    "${r}",`);

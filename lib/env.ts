@@ -71,5 +71,6 @@ export function zkontrolujEnv(env: Record<string, string | undefined> = process.
       "",
     ].join("\n"),
   );
+  // oxlint-disable-next-line unicorn/no-process-exit -- bez platného prostředí se web nesmí spustit; výpis výše je čitelnější než stack
   process.exit(1);
 }

@@ -113,7 +113,7 @@ export default function Snura() {
     if (!el) return;
     const fotka = el.querySelector("li");
     const krok = fotka ? fotka.getBoundingClientRect().width * 2 : el.clientWidth / 2;
-    const plynule = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const plynule = !globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollBy({ left: smer * krok, behavior: plynule ? "smooth" : "auto" });
   };
 

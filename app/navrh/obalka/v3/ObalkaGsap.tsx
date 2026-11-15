@@ -179,7 +179,7 @@ export default function ObalkaGsap() {
         spust: (otevrit) => {
           naklonX?.(0);
           naklonY?.(0);
-          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             t.pause().progress(otevrit ? 1 : 0);
             pr.konec();
           } else if (otevrit) t.timeScale(1).play();
@@ -192,7 +192,7 @@ export default function ObalkaGsap() {
     const pohyb = (e: PointerEvent) => {
       if (el.dataset.otevreno === "true" || e.pointerType !== "mouse" || !naklonX || !naklonY)
         return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const r = el.getBoundingClientRect();
       naklonX(((e.clientX - r.left) / r.width - 0.5) * 12);
       naklonY(-((e.clientY - r.top) / r.height - 0.5) * 10);
@@ -232,7 +232,6 @@ export default function ObalkaGsap() {
                 <Zrno p={p + "l"} d="M0,0 H160 V100 H0 Z" />
               </svg>
               <span className={s.znamka}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/fotky/web/1.webp"
                   width={675}

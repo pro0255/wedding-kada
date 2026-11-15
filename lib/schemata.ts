@@ -38,7 +38,7 @@ export const ZebricekDotazSchema = z.object({
 });
 
 /** Id fotky — tvar z dob Airtable (rec + 14 znaků), nové se generují stejně. */
-export const FotkaIdSchema = z.string().regex(/^rec[A-Za-z0-9]{14}$/);
+const FotkaIdSchema = z.string().regex(/^rec[A-Za-z0-9]{14}$/);
 
 /** Bereme jen URL z našeho Cloudinary účtu — ať nám do galerie nikdo nepodstrčí cizí obsah. */
 const CloudinaryUrlSchema = z.string().refine((url) => {
@@ -71,7 +71,7 @@ export const VstupPostSchema = z.object({
  *  „//jiny.web“ nebo „https://…“ by z přihlášení udělalo přesměrování ven. */
 export const AdminDalSchema = z.string().regex(/^\/(?![/\\])/);
 
-export const MAX_OSOB_UBYTOVANI = 10;
+const MAX_OSOB_UBYTOVANI = 10;
 const NEPLATNY = "Neplatný požadavek.";
 const BEZ_JMENA = "Vyplňte prosím jméno a příjmení.";
 const SPATNY_POCET = `Zadejte počet osob od 1 do ${MAX_OSOB_UBYTOVANI}.`;

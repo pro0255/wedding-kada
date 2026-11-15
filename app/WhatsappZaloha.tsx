@@ -16,7 +16,7 @@ export default function WhatsappZaloha({ odkaz }: { odkaz: string }) {
   const [qr, setQr] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!window.matchMedia("(min-width: 700px) and (pointer: fine)").matches) return;
+    if (!globalThis.matchMedia("(min-width: 700px) and (pointer: fine)").matches) return;
     let zivy = true;
     import("qrcode")
       .then((QRCode) =>

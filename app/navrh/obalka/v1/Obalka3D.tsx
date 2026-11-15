@@ -55,7 +55,9 @@ async function texturaDopisu(px: number, velke: boolean) {
     document.fonts.load(`400 40px ${serif}`, "Pět"),
     document.fonts.load(`400 40px ${sans}`, "NÁŠ"),
     document.fonts.load(`400 40px ${ruka}`, "Kačka"),
-  ]).catch(() => {});
+  ]).catch(() => {
+    // písmo se nenačetlo — kreslí se záložním
+  });
 
   const c = document.createElement("canvas");
   c.width = px;
@@ -145,6 +147,15 @@ function rovinneUV(geo: THREE.BufferGeometry, meritko: number) {
   geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
 }
 
+function udelej(P: number[], C: number[]) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+  if (C.length > 0) g.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
+  g.computeVertexNormals();
+  rovinneUV(g, 2.2);
+  return g;
+}
+
 /* Rozřízne geometrii modelu na tělo a chlopeň podle pantu (y > pant). */
 function rozriznout(geo: THREE.BufferGeometry, pantY: number) {
   const src = geo.index ? geo.toNonIndexed() : geo;
@@ -163,24 +174,20 @@ function rozriznout(geo: THREE.BufferGeometry, pantY: number) {
       if (col) C.push(col.getX(t + v), col.getY(t + v), col.getZ(t + v));
     }
   }
-  const udelej = (P: number[], C: number[]) => {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
-    if (C.length > 0) g.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
-    g.computeVertexNormals();
-    rovinneUV(g, 2.2);
-    return g;
-  };
   return { telo: udelej(telo, teloC), chlopen: udelej(chl, chlC) };
 }
 
 const POPIS = { zavreno: "Otevřít obálku s naším příběhem", otevreno: "Zavřít dopis" };
 // plátno nemá CSS vrstvy na předehřívání — pojistky will-change tu nejsou potřeba
-const BEZ_PRIPRAVY: Pripravenost = {
-  zamer: () => {},
-  animace: () => {},
-  konec: () => {},
-  zrus: () => {},
+const nic = () => {
+  // záměrně prázdné (viz výš)
+};
+const BEZ_PRIPRAVY: Pripravenost = { zamer: nic, animace: nic, konec: nic, zrus: nic };
+
+/* Půlka listu bere jen svou polovinu textury dopisu (v od v0, výška 0,5). */
+const preUV = (g: THREE.PlaneGeometry, v0: number) => {
+  const uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setY(i, v0 + uv.getY(i) * 0.5);
 };
 
 export default function Obalka3D() {
@@ -206,7 +213,7 @@ export default function Obalka3D() {
       alpha: true,
       powerPreference: "low-power",
     });
-    const uzke = window.matchMedia("(max-width: 700px)").matches;
+    const uzke = globalThis.matchMedia("(max-width: 700px)").matches;
     // ≤ 2: text dopisu je textura a na telefonu by při 1.5 byl rozmazaný;
     // kreslí se jen při animaci, takže větší plocha nevadí
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -300,6 +307,25 @@ export default function Obalka3D() {
     const vosk = nacitac.load("/obalka/vosk.webp", render);
     vosk.colorSpace = THREE.SRGBColorSpace;
 
+    const papirObalky = (barva: THREE.Color) =>
+      new THREE.MeshStandardMaterial({
+        color: barva,
+        vertexColors: true,
+        roughness: 0.92,
+        metalness: 0,
+        bumpMap: zrno,
+        bumpScale: 0.22,
+        side: THREE.DoubleSide,
+      });
+    const matPapir = (t?: THREE.Texture) =>
+      new THREE.MeshStandardMaterial({
+        color: t ? 0xff_ff_ff : PAPIR,
+        map: t ?? null,
+        roughness: 0.95,
+        bumpMap: zrno,
+        bumpScale: 0.25,
+      });
+
     (async () => {
       const [gltf, textDopisu] = await Promise.all([
         new GLTFLoader().loadAsync("/navrh/obalka/obalka-reyshapes-cc0.glb"),
@@ -326,17 +352,6 @@ export default function Obalka3D() {
       telo.translate(0, posun, 0);
       const horniHrana = pantY + posun;
 
-      const papirObalky = (barva: THREE.Color) =>
-        new THREE.MeshStandardMaterial({
-          color: barva,
-          vertexColors: true,
-          roughness: 0.92,
-          metalness: 0,
-          bumpMap: zrno,
-          bumpScale: 0.22,
-          side: THREE.DoubleSide,
-        });
-
       const teloMesh = new THREE.Mesh(telo, papirObalky(MODRA));
       teloMesh.castShadow = teloMesh.receiveShadow = true;
       obalka.add(teloMesh);
@@ -359,20 +374,8 @@ export default function Obalka3D() {
       pivot.rotation.x = ZAVRENO;
 
       // --- dopis: kořen v přehybu, horní půlka nahoru, spodní na pivotu ---
-      const matPapir = (t?: THREE.Texture) =>
-        new THREE.MeshStandardMaterial({
-          color: t ? 0xffffff : PAPIR,
-          map: t ?? null,
-          roughness: 0.95,
-          bumpMap: zrno,
-          bumpScale: 0.25,
-        });
       const horniUV = new THREE.PlaneGeometry(LW, LH);
       const dolniUV = new THREE.PlaneGeometry(LW, LH);
-      const preUV = (g: THREE.PlaneGeometry, v0: number) => {
-        const uv = g.attributes.uv;
-        for (let i = 0; i < uv.count; i++) uv.setY(i, v0 + uv.getY(i) * 0.5);
-      };
       preUV(horniUV, 0.5);
       preUV(dolniUV, 0);
       const dopis = new THREE.Group();
@@ -470,7 +473,9 @@ export default function Obalka3D() {
       kvetina("/kytky/3_krasenka_modra.webp", 1.03, 443 / 448, 2.8, -2.6, 0.62, 0);
 
       // shadery předem (paralelně, mimo hlavní vlákno, kde to GPU umí)
-      await renderer.compileAsync(scena, kamera).catch(() => {});
+      await renderer.compileAsync(scena, kamera).catch(() => {
+        // bez předkompilace se shadery přeloží při prvním vykreslení
+      });
       if (zruseno) return;
       setPripraveno(true);
       render();
@@ -554,7 +559,7 @@ export default function Obalka3D() {
         spust: (otevrit) => {
           qx(0);
           qy(0);
-          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             tl.pause().progress(otevrit ? 1 : 0);
             render();
             return;
@@ -570,7 +575,7 @@ export default function Obalka3D() {
       };
       const pohyb = (e: PointerEvent) => {
         if (slot.dataset.otevreno === "true" || e.pointerType !== "mouse") return;
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const r = tlacitko.getBoundingClientRect();
         qx(((e.clientX - r.left) / r.width - 0.5) * 0.25);
         qy(((e.clientY - r.top) / r.height - 0.5) * 0.2);
@@ -593,7 +598,7 @@ export default function Obalka3D() {
 
     return () => {
       zruseno = true;
-      uklid.forEach((f) => f());
+      for (const f of uklid) f();
     };
   }, []);
 

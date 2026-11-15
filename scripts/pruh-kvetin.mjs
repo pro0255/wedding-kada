@@ -81,7 +81,9 @@ const rgb2hsl = (r, g, b) => {
   if (mx !== mn) {
     const d = mx - mn;
     s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
-    h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    if (mx === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (mx === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
     h *= 60;
   }
   return [h, s, l];
@@ -113,7 +115,7 @@ const dilatace = (body, k) => {
     for (let p = 0; p < W * H; p++) {
       if (kop[p]) continue;
       const x = p % W,
-        y = (p / W) | 0;
+        y = Math.trunc(p / W);
       if (
         (x > 0 && kop[p - 1]) ||
         (x < W - 1 && kop[p + 1]) ||
@@ -143,7 +145,7 @@ const souvisle = (maska, min) => {
     while (q.length > 0) {
       const c = q.pop(),
         x = c % W,
-        y = (c / W) | 0;
+        y = Math.trunc(c / W);
       body.push(c);
       sx += x;
       sy += y;
@@ -182,8 +184,8 @@ const pasmo = (h) =>
   PASMA.find((p) => (p.od > p.do ? h >= p.od || h < p.do : h >= p.od && h < p.do));
 /* výběr podle souřadnic, ne náhodně — barvy se nekupí a přegenerování dá totéž */
 const vyber = (cx, cy, cile) => {
-  let v = (cx * 7919 + cy * 104_729) % 100,
-    a = 0;
+  const v = (cx * 7919 + cy * 104_729) % 100;
+  let a = 0;
   for (const c of cile) {
     a += c.vaha;
     if (v < a) return c;
@@ -207,13 +209,13 @@ for (let p = 0; p < W * H; p++) {
 /* 1. Motýli ven. Poznají se tak, že jsou to malé souvislé skvrny stojící
       samotné v prázdné ploše vpravo od hlavního pásu větví. Vyříznou se do
       vlastních PNG s průhledností a z pruhu se vymažou — nad pruhem pak
-      poletují jako samostatné obrázky, viz app/Motyli.tsx. */
+      poletovali jako samostatné obrázky (app/Motyli.tsx, už smazaná). */
 const kresba = new Uint8Array(W * H);
 for (let p = 0; p < W * H; p++)
   if (Math.min(im[p * 3], im[p * 3 + 1], im[p * 3 + 2]) < 247) kresba[p] = 1;
 const motyli = souvisle(kresba, 120)
   .filter((b) => b.cnt <= 6000 && b.w <= 110 && b.h <= 110 && b.x1 > 150)
-  .sort((a, b) => a.y1 - b.y1);
+  .toSorted((a, b) => a.y1 - b.y1);
 
 /* Ze šesti nalezených se použijí jen modří — poznají se podle odstínu kolem
    219°. Z každého se pak vyrobí všechny barvy z MOTYL_BARVY. */

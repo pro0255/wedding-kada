@@ -29,20 +29,17 @@ export default function AdminVstup({ dal }: { dal: string }) {
         /* Dřív každé odmítnutí hlásilo „není správcovské heslo“ — i výpadek
            serveru, takže správné heslo vypadalo jako špatné. */
         const duvod = await prectiChybu(r);
-        setHlaska(
-          duvod.kod === "spatna-odpoved"
-            ? "Tohle není správcovské heslo."
-            : duvod.kod === "moc-pokusu"
-              ? "Moc pokusů. Zkuste to za minutu."
-              : duvod.hlaska,
-        );
+        let zprava = duvod.hlaska;
+        if (duvod.kod === "spatna-odpoved") zprava = "Tohle není správcovské heslo.";
+        else if (duvod.kod === "moc-pokusu") zprava = "Moc pokusů. Zkuste to za minutu.";
+        setHlaska(zprava);
         if (duvod.kod === "spatna-odpoved" || duvod.kod === "moc-pokusu") setHeslo("");
         return;
       }
       const d: { spravce?: boolean } = await r.json().catch(() => ({}));
       if (d.spravce) {
         // celé načtení, ať proxy uvidí novou cookie
-        window.location.assign(dal);
+        globalThis.location.assign(dal);
         return;
       }
       setHlaska("Tohle není správcovské heslo.");

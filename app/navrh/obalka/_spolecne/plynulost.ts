@@ -16,6 +16,8 @@
 
 const DOZVUK_MS = 1500; // jak dlouho po animaci ještě držet vrstvy
 
+type Casovac = ReturnType<typeof setTimeout> | undefined;
+
 export type Pripravenost = {
   /* najetí/odjetí myší, fokus/blur, dotyk */
   zamer: (ano: boolean) => void;
@@ -29,16 +31,16 @@ export function vytvorPripravenost(el: HTMLElement): Pripravenost {
   let animuje = false;
   let zamer = false;
   let vOkne = false;
-  let vypnuti = 0;
-  let dobeh = 0;
+  let vypnuti: Casovac;
+  let dobeh: Casovac;
 
   const zapni = () => {
-    window.clearTimeout(vypnuti);
+    globalThis.clearTimeout(vypnuti);
     if (el.dataset.pripraveno !== "true") el.dataset.pripraveno = "true";
   };
   const odloz = () => {
-    window.clearTimeout(vypnuti);
-    vypnuti = window.setTimeout(() => {
+    globalThis.clearTimeout(vypnuti);
+    vypnuti = globalThis.setTimeout(() => {
       if (!animuje && !zamer && !vOkne) delete el.dataset.pripraveno;
     }, DOZVUK_MS);
   };
@@ -52,7 +54,7 @@ export function vytvorPripravenost(el: HTMLElement): Pripravenost {
   );
   io.observe(el);
   const konec = () => {
-    window.clearTimeout(dobeh);
+    globalThis.clearTimeout(dobeh);
     animuje = false;
     odloz();
   };
@@ -66,14 +68,14 @@ export function vytvorPripravenost(el: HTMLElement): Pripravenost {
     animace(ms) {
       animuje = true;
       zapni();
-      window.clearTimeout(dobeh);
-      if (ms) dobeh = window.setTimeout(konec, ms);
+      globalThis.clearTimeout(dobeh);
+      if (ms) dobeh = globalThis.setTimeout(konec, ms);
     },
     konec,
     zrus() {
       io.disconnect();
-      window.clearTimeout(vypnuti);
-      window.clearTimeout(dobeh);
+      globalThis.clearTimeout(vypnuti);
+      globalThis.clearTimeout(dobeh);
     },
   };
 }
@@ -96,7 +98,9 @@ export function predehrat(
         ...obrazky.map((src) => {
           const img = new Image();
           img.src = src;
-          return img.decode().catch(() => {});
+          return img.decode().catch(() => {
+            // nepovedené dekódování nevadí — předehřeje se bez obrázku
+          });
         }),
       ]);
       // uživatel mezitím mohl obálku otevřít — pak už není co předehřívat
@@ -137,7 +141,7 @@ export function pripojOvladani(o: {
   const { koren, tlacitko, dopis, popis, pripravenost } = o;
   let otevreno = koren.dataset.otevreno === "true";
   let snimek = 0;
-  let aria = 0;
+  let aria: Casovac;
 
   const prepni = (nove: boolean) => {
     if (nove === otevreno) return;
@@ -153,8 +157,8 @@ export function pripojOvladani(o: {
         o.spust(nove);
       });
     });
-    window.clearTimeout(aria);
-    aria = window.setTimeout(() => {
+    globalThis.clearTimeout(aria);
+    aria = globalThis.setTimeout(() => {
       dopis.setAttribute("aria-hidden", String(!nove));
       dopis.inert = !nove;
     }, 300);
@@ -174,7 +178,7 @@ export function pripojOvladani(o: {
   koren.addEventListener("pointerdown", zamerAno);
   return () => {
     cancelAnimationFrame(snimek);
-    window.clearTimeout(aria);
+    globalThis.clearTimeout(aria);
     tlacitko.removeEventListener("click", naTlacitko);
     tlacitko.removeEventListener("focus", zamerAno);
     tlacitko.removeEventListener("blur", zamerNe);

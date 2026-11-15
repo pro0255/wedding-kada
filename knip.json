@@ -6,7 +6,13 @@
     "lib/**/*.test.ts",
     "*.config.{js,mjs,ts}"
   ],
-  "project": ["**/*.{js,mjs,ts,tsx}", "!.agents/**", "!.claude/**", "!public/**"],
-  "ignoreDependencies": ["oxfmt", "oxlint"],
-  "ignoreBinaries": ["shasum"]
+  "project": [
+    "**/*.{js,mjs,ts,tsx}",
+    "!.agents/**",
+    "!.claude/**",
+    "!public/**"
+  ],
+  "ignoreBinaries": [
+    "shasum"
+  ]
 }

@@ -98,7 +98,8 @@ function MapaNaDohled() {
         odlozeno =
           typeof requestIdleCallback === "function"
             ? requestIdleCallback(spust, { timeout: 1500 })
-            : window.setTimeout(spust, 300);
+            : // oxlint-disable-next-line unicorn/prefer-global-this -- window.setTimeout vrací number (globalThis ho typuje jako Timeout z Node) a `odlozeno` sdílí typ s requestIdleCallback
+              window.setTimeout(spust, 300);
       },
       { rootMargin: "1200px 0px" },
     );
@@ -106,7 +107,7 @@ function MapaNaDohled() {
     return () => {
       io.disconnect();
       if (typeof cancelIdleCallback === "function") cancelIdleCallback(odlozeno);
-      window.clearTimeout(odlozeno);
+      globalThis.clearTimeout(odlozeno);
     };
   }, []);
   if (blizko) return <VenueMap />;
@@ -222,13 +223,14 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
     }
 
     const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
+      (entries) => {
+        for (const e of entries) {
           if (e.isIntersecting) {
             e.target.classList.add("in");
             io.unobserve(e.target);
           }
-        }),
+        }
+      },
       { threshold: 0.1, rootMargin: "0px 0px -8% 0px" },
     );
     io.observe(el);
@@ -248,17 +250,18 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
 function useZaostreniSekci() {
   useEffect(() => {
     // s vypnutými animacemi ať web zůstane celý ostrý
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const sekce = document.querySelectorAll<HTMLElement>(".obsah-ramec > section");
     if (sekce.length === 0) return;
 
     const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => e.target.classList.toggle("sekce-mimo", !e.isIntersecting)),
+      (entries) => {
+        for (const e of entries) e.target.classList.toggle("sekce-mimo", !e.isIntersecting);
+      },
       // úzký pás uprostřed okna — sekce je ostrá, dokud jím prochází
       { rootMargin: "-42% 0px -42% 0px" },
     );
-    sekce.forEach((s) => io.observe(s));
+    for (const s of sekce) io.observe(s);
     return () => io.disconnect();
   }, []);
 }
@@ -1115,8 +1118,8 @@ export default function Home() {
         {/* Boční květinové pruhy, motýli i světlý pruh středem tu byli do doby,
             než se pozadí změnilo na bílé. Středový pruh byl vidět jen proto, že
             okolí bylo ztmavené na béžovou — na bílém podkladu nemá co odlišovat,
-            a květiny bez něj lezly do textu. Komponenta app/Motyli.tsx i všechny
-            styly zůstávají, jen se nevykreslují. */}
+            a květiny bez něj lezly do textu. Komponenta app/Motyli.tsx i její styly
+            jsou smazané, zůstávají v historii gitu. */}
       </div>
     </>
   );
