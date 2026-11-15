@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { chybaZVyjimky, prectiChybu } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
 import { useNahravani } from "./nahravani";
+import NahravaniPanel from "./NahravaniPanel";
 import WhatsappZaloha from "./WhatsappZaloha";
 
 /**
@@ -169,7 +170,7 @@ export default function FotoGalerie({
     return () => clearInterval(id);
   }, [nacti]);
 
-  const { stav: nahravani, pridej } = useNahravani({
+  const { stav: nahravani, pridej, odeber } = useNahravani({
     deviceId: () => device.current || deviceId(),
     aktivni: true,
     poNahrani: () => void nacti(),
@@ -179,7 +180,7 @@ export default function FotoGalerie({
       setZaloha(true);
     },
   });
-  const nahrava = nahravani.zbyva > 0;
+  const nahrava = nahravani.soubory.length > 0 && !nahravani.hotovo;
 
   function nahraj(vybrane: FileList | null) {
     // FileList je živý — vyčištěním inputu by zmizel, tak si soubory zkopírujeme
@@ -317,33 +318,7 @@ export default function FotoGalerie({
         />
       </label>
 
-      {nahrava && (
-        <div className="galerie-prubeh" role="status">
-          {nahravani.ceka === null ? (
-            <>
-              <div className="galerie-prubeh-bar">
-                <span style={{ width: `${nahravani.procento}%` }} />
-              </div>
-              <p className="galerie-prubeh-text">
-                {nahravani.poradi} / {nahravani.celkem} · {nahravani.procento} %
-              </p>
-              <p className="galerie-hlaska">{HLASKY[hlaska]}</p>
-            </>
-          ) : (
-            <p className="galerie-cekani">
-              {nahravani.ceka === "signal"
-                ? `Čekám na signál — ${
-                    nahravani.zbyva === 1
-                      ? "soubor se nahraje sám"
-                      : nahravani.zbyva < 5
-                        ? `${nahravani.zbyva} soubory se nahrají samy`
-                        : `${nahravani.zbyva} souborů se nahraje samo`
-                  }, jakmile bude připojení. Stránku můžete i zavřít, příště se pokračuje.`
-                : "Spojení vypadlo, za chvilku to zkusím znovu…"}
-            </p>
-          )}
-        </div>
-      )}
+      <NahravaniPanel stav={nahravani} hlaska={HLASKY[hlaska]} odeber={(id) => void odeber(id)} />
 
       {chyba && <p className="galerie-chyba">{chyba}</p>}
       {(zaloha || nahravani.problem) && whatsapp && <WhatsappZaloha odkaz={whatsapp} />}

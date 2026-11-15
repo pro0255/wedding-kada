@@ -210,21 +210,31 @@ function pockej(ms: number, probud: { fn: () => void }): Promise<void> {
 
 /* ---------- hook pro galerii ---------- */
 
-export type StavNahravani = {
-  /** souborů ve frontě (včetně právě nahrávaného) */
-  zbyva: number;
-  /** pořadí a celkem v téhle várce — pro „2 / 5“ */
-  poradi: number;
-  celkem: number;
-  /** průběh právě nahrávaného souboru 0–100 */
+/** Jeden soubor tak, jak ho host vidí v panelu nahrávání. */
+export type SouborUI = {
+  id: string;
+  /** object URL na soubor v telefonu — náhled ještě před nahráním */
+  nahled: string;
+  video: boolean;
+  stav: "ceka" | "nahrava" | "hotovo" | "znovu";
+  /** průběh nahrávání 0–100 (jen u stavu „nahrava“) */
   procento: number;
+};
+
+export type StavNahravani = {
+  /** soubory téhle várky v pořadí výběru, včetně hotových */
+  soubory: SouborUI[];
   /** null = jede; jinak proč fronta stojí */
   ceka: null | "signal" | "znovu";
   /** nahrávání opakovaně selhává — nabídnout zálohu (WhatsApp) */
   problem: boolean;
+  /** celá várka je v galerii — panel ještě chvíli ukáže „Hotovo“ */
+  hotovo: boolean;
 };
 
-const KLID: StavNahravani = { zbyva: 0, poradi: 0, celkem: 0, procento: 0, ceka: null, problem: false };
+const KLID: StavNahravani = { soubory: [], ceka: null, problem: false, hotovo: false };
+/** jak dlouho po dokončení várky zůstane vidět „Hotovo“ */
+const HOTOVO_MS = 5000;
 
 export function useNahravani({
   deviceId,
@@ -244,65 +254,109 @@ export function useNahravani({
   const [stav, setStav] = useState<StavNahravani>(KLID);
   const bezi = useRef(false);
   const probud = useRef({ fn: () => {} });
-  const davka = useRef({ hotovo: 0 });
   const zpetne = useRef({ poNahrani, zamceno, naChybu });
   zpetne.current = { poNahrani, zamceno, naChybu };
+
+  /* Panel: id → soubor. Hotové v něm zůstávají až do konce várky, ať host
+     vidí, co už prošlo. Náhledy jsou object URL — uvolní se s várkou. */
+  const ui = useRef(new Map<string, SouborUI & { pridano: number }>());
+  const uklid = useRef(0);
+  const vykresli = useCallback((zmena: Partial<Omit<StavNahravani, "soubory">> = {}) => {
+    const soubory = [...ui.current.values()].sort((a, b) => a.pridano - b.pridano);
+    setStav((s) => ({ ...s, ...zmena, soubory }));
+  }, []);
+
+  const zaradDoPanelu = useCallback((polozky: Polozka[]) => {
+    window.clearTimeout(uklid.current);
+    const ted = Date.now();
+    for (const p of polozky) {
+      const v = ui.current.get(p.id);
+      const stav = p.dalsiPokus > ted ? "znovu" : "ceka";
+      if (!v) {
+        ui.current.set(p.id, {
+          id: p.id,
+          nahled: URL.createObjectURL(p.soubor),
+          video: p.soubor.type.startsWith("video/"),
+          stav,
+          procento: 0,
+          pridano: p.pridano,
+        });
+      } else if (v.stav !== "nahrava") {
+        v.stav = stav;
+      }
+    }
+  }, []);
+
+  const dokonciVarku = useCallback(() => {
+    if (ui.current.size === 0) return setStav(KLID);
+    vykresli({ ceka: null, hotovo: true, problem: false });
+    uklid.current = window.setTimeout(() => {
+      for (const v of ui.current.values()) URL.revokeObjectURL(v.nahled);
+      ui.current.clear();
+      setStav(KLID);
+    }, HOTOVO_MS);
+  }, [vykresli]);
 
   const smycka = useCallback(async () => {
     for (;;) {
       const polozky = await vsechny();
-      if (polozky.length === 0) {
-        davka.current.hotovo = 0;
-        setStav(KLID);
-        return;
-      }
-      const celkem = davka.current.hotovo + polozky.length;
-      const poradi = davka.current.hotovo + 1;
+      if (polozky.length === 0) return dokonciVarku();
+      zaradDoPanelu(polozky);
       const problem = polozky.some((p) => p.pokusy >= ZALOHA_PO_POKUSECH);
 
       if (!navigator.onLine) {
-        setStav({ zbyva: polozky.length, poradi, celkem, procento: 0, ceka: "signal", problem });
+        vykresli({ ceka: "signal", problem, hotovo: false });
         await pockej(20_000, probud.current);
         continue;
       }
       const p = vyberDalsi(polozky, Date.now());
       if (!p) {
-        setStav({ zbyva: polozky.length, poradi, celkem, procento: 0, ceka: "znovu", problem });
+        vykresli({ ceka: "znovu", problem, hotovo: false });
         await pockej(cekatDo(polozky, Date.now()), probud.current);
         continue;
       }
 
-      setStav({ zbyva: polozky.length, poradi, celkem, procento: 0, ceka: null, problem });
+      const radek = ui.current.get(p.id)!;
+      radek.stav = "nahrava";
+      radek.procento = p.nahrano ? 99 : 0;
+      vykresli({ ceka: null, problem, hotovo: false });
       try {
         if (!p.nahrano) {
-          p.nahrano = await doCloudinary(p.soubor, (podil) =>
-            setStav((s) => ({ ...s, procento: Math.min(99, Math.round(podil * 100)) })),
-          );
+          p.nahrano = await doCloudinary(p.soubor, (podil) => {
+            radek.procento = Math.min(99, Math.round(podil * 100));
+            vykresli();
+          });
           await uloz(p); // příště už jen registrace, soubor znovu neposílat
         }
         await registruj(p);
         await smaz(p.id);
-        davka.current.hotovo++;
+        radek.stav = "hotovo";
+        radek.procento = 100;
+        vykresli();
         zpetne.current.poNahrani();
       } catch (chyba) {
         const status = chyba instanceof ChybaNahrani ? chyba.status : 0;
         const verdikt = posudChybu(status);
         if (verdikt === "zamceno") {
           zpetne.current.zamceno?.();
-          setStav((s) => ({ ...s, ceka: "znovu" }));
+          radek.stav = "znovu";
+          vykresli({ ceka: "znovu" });
           return; // soubory zůstávají ve frontě, pokračuje se po novém vstupu
         }
         if (verdikt === "vzdat") {
           await smaz(p.id);
+          URL.revokeObjectURL(radek.nahled);
+          ui.current.delete(p.id);
           zpetne.current.naChybu("Jeden soubor se nahrát nepodařilo — zkuste ho prosím poslat jinak.");
           continue;
         }
+        radek.stav = "znovu";
         p.pokusy++;
         p.dalsiPokus = Date.now() + pauzaPredPokusem(p.pokusy);
         await uloz(p);
       }
     }
-  }, []);
+  }, [dokonciVarku, vykresli, zaradDoPanelu]);
 
   const spust = useCallback(() => {
     if (bezi.current) return probud.current.fn();
@@ -348,14 +402,18 @@ export function useNahravani({
           prilisVelke++;
           continue;
         }
-        await uloz({
+        const p: Polozka = {
           id: crypto.randomUUID(),
           soubor: video ? soubor : await zmensi(soubor),
           deviceId: deviceId(),
           pridano: Date.now() + poradi++, // pořadí výběru i při stejné milisekundě
           pokusy: 0,
           dalsiPokus: 0,
-        });
+        };
+        await uloz(p);
+        // do panelu hned, ať host vidí výběr ještě před prvním bajtem
+        zaradDoPanelu([p]);
+        vykresli({ hotovo: false });
         spust();
       }
       if (prilisVelke > 0) {
@@ -368,8 +426,22 @@ export function useNahravani({
         );
       }
     },
-    [deviceId, spust],
+    [deviceId, spust, vykresli, zaradDoPanelu],
   );
 
-  return { stav, pridej };
+  /** Odebere soubor, který ještě nezačal nahrávat (host si to rozmyslel). */
+  const odeber = useCallback(
+    async (id: string) => {
+      const v = ui.current.get(id);
+      if (!v || v.stav === "nahrava" || v.stav === "hotovo") return;
+      await smaz(id);
+      URL.revokeObjectURL(v.nahled);
+      ui.current.delete(id);
+      if ([...ui.current.values()].every((x) => x.stav === "hotovo")) dokonciVarku();
+      else vykresli();
+    },
+    [dokonciVarku, vykresli],
+  );
+
+  return { stav, pridej, odeber };
 }
