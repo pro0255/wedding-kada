@@ -11,6 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Pravidla projektu
 
 - Hotovou práci rovnou commitni a pushni na `main` — žádné branche ani PR, nečekej na pokyn. Deploy na Vercel jde automaticky z `main` (GitHub Actions).
+- Každý commit pouští `.husky/pre-commit` → `node scripts/check.mjs` (formát oxfmt, lint oxlint, typy, testy, knip) a vypíše report; když neprojde, commit se neudělá (`npm run check:fix` opraví formát a lint). Totéž bez knipu běží v GitHub Actions před nasazením (`npm run ci`). Hook neobcházej (`--no-verify`).
 - Před každým `git push` spusť `npm run check` (testy + build; typy kontroluje `next build`, samostatné `tsc` by je dělalo podruhé). Když neprojde, nepushuj.
 - Do klientských komponent neimportuj hodnoty z `lib/schemata.ts` (přitáhne celý zod, ~85 kB gz) — jen `import type`. Schémata pro prohlížeč patří do `lib/schemataKlient.ts` (`zod/mini`), konstanty her do `lib/hry.ts`.
 - Všechno, co přichází z klienta (route handlery, server actions, query parametry), validuj přes zod schémata v `lib/schemata.ts`. Žádné ruční `typeof` kontroly.

@@ -7,14 +7,16 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test lib/*.test.ts",
-    "check": "npm run ci && next build",
+    "check": "node scripts/check.mjs && next build",
     "postinstall": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/",
     "lint": "oxlint -c .oxlintrc.json",
     "lint:fix": "oxlint --fix -c .oxlintrc.json",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "knip": "node --env-file-if-exists=.env.local node_modules/knip/bin/knip.js",
-    "ci": "oxfmt --check && oxlint -c .oxlintrc.json && npm test"
+    "ci": "node scripts/check.mjs format lint type test",
+    "check:fix": "node scripts/check.mjs --fix",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@upstash/redis": "^1.41.0",
@@ -34,6 +36,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.187.0",
+    "husky": "^9.1.7",
     "knip": "^6.45.1",
     "oxfmt": "^0.78.0",
     "oxlint": "^1.93.0",

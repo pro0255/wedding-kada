@@ -6,13 +6,6 @@
     "lib/**/*.test.ts",
     "*.config.{js,mjs,ts}"
   ],
-  "project": [
-    "**/*.{js,mjs,ts,tsx}",
-    "!.agents/**",
-    "!.claude/**",
-    "!public/**"
-  ],
-  "ignoreBinaries": [
-    "shasum"
-  ]
+  "project": ["**/*.{js,mjs,ts,tsx}", "!.agents/**", "!.claude/**", "!public/**"],
+  "ignoreBinaries": ["shasum"]
 }

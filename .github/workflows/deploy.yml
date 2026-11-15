@@ -18,8 +18,10 @@ jobs:
           node-version: 24
           cache: npm
 
+      # ne `npm ci`: npm na Macu vynechává v package-lock.json volitelné wasm balíčky
+      # (@emnapi/*) a `npm ci` na Linuxu pak lockfile odmítne
       - name: Install
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       # formát (oxfmt) + lint (oxlint) + testy — když neprojde, nenasadí se
       - name: Check
