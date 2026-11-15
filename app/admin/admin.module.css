@@ -1,0 +1,60 @@
+/* Rozcestník správy — stejná paleta jako /navrh. */
+.stranka {
+  --bg: #f5f2ec;
+  --papir: #fbf9f4;
+  --ink: #3f342b;
+  --muted: #74685c;
+  --linka: #d8cfc1;
+  --chyba: #9a4a3c;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans), "Helvetica Neue", Arial, sans-serif;
+  padding: 3rem 16px 6rem;
+}
+
+.hlava { max-width: 640px; margin: 0 auto 2.5rem; text-align: center; display: grid; gap: .8rem; }
+.stitek { margin: 0; font-size: .72rem; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); }
+.nadpis {
+  margin: 0; font-family: var(--serif), Georgia, serif; font-weight: 500;
+  font-size: clamp(2.2rem, 6vw, 3.2rem); letter-spacing: .08em; text-transform: uppercase;
+}
+.uvod { margin: 0; line-height: 1.7; color: var(--muted); }
+
+.skupina { max-width: 960px; margin: 0 auto 3rem; display: grid; gap: 1.2rem; }
+.skupinaHlava { border-bottom: 1px solid var(--linka); padding-bottom: .8rem; }
+.skupinaHlava h2 { margin: 0; font-family: var(--serif), Georgia, serif; font-weight: 500; font-size: 1.8rem; letter-spacing: .04em; }
+.skupinaHlava p { margin: .25rem 0 0; color: var(--muted); }
+
+.karty { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 1rem; }
+.karta {
+  display: grid; gap: .4rem; align-content: start;
+  padding: 1.2rem 1.3rem; border: 1px solid var(--linka); border-radius: 8px;
+  background: var(--papir); color: var(--ink); text-decoration: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.karta:hover, .karta:focus-visible { border-color: var(--muted); box-shadow: 0 8px 24px rgba(63, 52, 43, .08); }
+.kartaNazev { font-family: var(--serif), Georgia, serif; font-size: 1.35rem; font-weight: 600; }
+.kartaPopis { color: var(--muted); line-height: 1.55; font-size: .95rem; }
+.kartaAdresa { margin-top: .3rem; font-size: .8rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
+
+.vstup { max-width: 340px; margin: 0 auto; display: grid; gap: .6rem; }
+.vstupPopisek { font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.vstupPole {
+  font: inherit; font-size: 1.05rem; padding: .75rem 1rem; color: var(--ink);
+  border: 1px solid var(--linka); border-radius: 6px; background: var(--papir);
+}
+.vstupPole:focus { outline: 2px solid var(--muted); outline-offset: 1px; }
+.tlacitko {
+  font: inherit; padding: .75rem 1rem; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--ink); color: var(--papir); letter-spacing: .06em;
+}
+.tlacitko:disabled { opacity: .5; cursor: default; }
+.hlaska { margin: 0; min-height: 1.5em; color: var(--chyba); text-align: center; font-size: .95rem; }
+
+.odhlasit { max-width: 960px; margin: 0 auto; text-align: center; }
+.odkazTlacitko {
+  font: inherit; background: none; border: 0; padding: .4rem; cursor: pointer;
+  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+}
+.odkazTlacitko:hover { color: var(--ink); }

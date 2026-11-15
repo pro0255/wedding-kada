@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
-import { hesloFotek, hesloSpravce, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
+import { hesloFotek, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import {
   COOKIE_FOTKY,
   COOKIE_FOTKY_MAX_AGE,
   COOKIE_SPRAVCE,
+  hesloSpravce,
   jeSpravnaOdpoved,
   mocPokusu,
   OKNO_POKUSU_S,
@@ -12,9 +13,9 @@ import {
 import { KLIC, maRedis, redis } from "@/lib/redis";
 import { VstupPostSchema } from "@/lib/schemata";
 
-/* Vstup do galerie fotek. Odpověď na otázku zná jen server (FOTKY_HESLO),
-   prohlížeč po správné odpovědi dostane httpOnly cookie a ostatní API fotek
-   ji kontroluje. Hádání brzdí limit špatných pokusů na zařízení a na IP
+/* Vstup do galerie fotek a zároveň přihlášení správce (/admin). Odpověď
+   na otázku zná jen server (FOTKY_HESLO), prohlížeč po správné odpovědi
+   dostane httpOnly cookie a ostatní API fotek ji kontroluje. Hádání brzdí limit špatných pokusů na zařízení a na IP
    (lib/pristup.ts, LIMIT_POKUSU). */
 
 /** Pustí pes hosta rovnou? Cookie je httpOnly, prohlížeč se musí zeptat. */

@@ -67,6 +67,10 @@ export const VstupPostSchema = z.object({
   deviceId: DeviceIdSchema.optional(),
 });
 
+/** Kam se po přihlášení v /admin vrátit. Jen cesta na tomhle webu —
+ *  „//jiny.web“ nebo „https://…“ by z přihlášení udělalo přesměrování ven. */
+export const AdminDalSchema = z.string().regex(/^\/(?![\/\\])/);
+
 export const MAX_OSOB_UBYTOVANI = 10;
 const NEPLATNY = "Neplatný požadavek.";
 const BEZ_JMENA = "Vyplňte prosím jméno a příjmení.";

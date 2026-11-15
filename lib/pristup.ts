@@ -54,6 +54,17 @@ export function tokenPristupu(heslo: string, role: Role = "host"): string {
   return createHmac("sha256", normalizuj(heslo)).update(ZPRAVA[role]).digest("base64url");
 }
 
+/** Správcovské heslo z prostředí. Otevírá správu galerie (mazání cizích
+ *  fotek) i stránky jen pro snoubence za /admin (oznámení, návrhy). */
+export function hesloSpravce(): string {
+  return process.env.FOTKY_SPRAVCE?.trim() ?? "";
+}
+
+/** Je tohle platná správcovská cookie? Volá ji proxy i stránky. */
+export function jeSpravcovskyToken(token: string | undefined): boolean {
+  return platnyToken(token, hesloSpravce(), "spravce");
+}
+
 export function platnyToken(
   token: string | undefined,
   heslo: string,
