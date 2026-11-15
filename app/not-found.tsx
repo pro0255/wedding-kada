@@ -4,7 +4,7 @@ import Hra404 from "./Hra404";
 import s from "./not-found.module.css";
 
 export const metadata: Metadata = {
-  title: "404 — Tady se nikdo nebere",
+  title: "404 - Tady se nikdo nebere",
   robots: { index: false },
 };
 

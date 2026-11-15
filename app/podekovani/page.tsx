@@ -5,7 +5,7 @@ import VyberHry from "../hry/VyberHry";
 import s from "./podekovani.module.css";
 
 export const metadata: Metadata = {
-  title: "Děkujeme — Kateřina & Jakub",
+  title: "Děkujeme - Kateřina & Jakub",
   description: "Bylo to krásné. Díky, že jste byli u toho.",
 };
 

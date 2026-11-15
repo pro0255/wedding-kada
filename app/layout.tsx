@@ -50,14 +50,14 @@ const web =
 
 export const metadata: Metadata = {
   metadataBase: new URL(web),
-  title: "Kateřina & Jakub — Svatba",
+  title: "Kateřina & Jakub - Svatba",
   description: "Bereme se — a chceme vás u toho. 18. 9. 2027 u zvoničky v Rekovicích.",
   /* náhled při sdílení do Messengeru, WhatsAppu…; obrázek dodá app/opengraph-image.tsx */
   openGraph: {
     type: "website",
     locale: "cs_CZ",
     siteName: "Svatba Kateřina & Jakub",
-    title: "Kateřina & Jakub — Svatba",
+    title: "Kateřina & Jakub - Svatba",
     description: "Bereme se — a chceme vás u toho. 18. 9. 2027 u zvoničky v Rekovicích.",
   },
   twitter: { card: "summary_large_image" },
