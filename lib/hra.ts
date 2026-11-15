@@ -89,3 +89,12 @@ export async function lidri(): Promise<Record<HraSlug, Lidr>> {
   }
   return out;
 }
+
+/** Pro přehled v /admin: kolik zařízení hrálo (celkem a v každé hře)
+ *  a kolik hostů vyplnilo jméno. */
+export async function prehledHer(): Promise<{ celkem: number; hraci: Record<HraSlug, number>; jmen: number }> {
+  const { skore, jmena } = await vse.get();
+  const hraci = Object.fromEntries(HRY.map((h) => [h, skore[h].length])) as Record<HraSlug, number>;
+  const celkem = new Set(HRY.flatMap((h) => skore[h].map((s) => s.deviceId))).size;
+  return { celkem, hraci, jmen: jmena.size };
+}
