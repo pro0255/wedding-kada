@@ -67,6 +67,31 @@ export const VstupPostSchema = z.object({
   deviceId: DeviceIdSchema.optional(),
 });
 
+export const MAX_OSOB_UBYTOVANI = 10;
+const NEPLATNY = "Neplatný požadavek.";
+const BEZ_JMENA = "Vyplňte prosím jméno a příjmení.";
+const SPATNY_POCET = `Zadejte počet osob od 1 do ${MAX_OSOB_UBYTOVANI}.`;
+
+/** Rezervace ubytování z formuláře. Hláška první chyby jde rovnou hostovi,
+ *  pořadí klíčů proto určuje, co uvidí: nejdřív past na roboty, pak jméno, pak počet. */
+export const RezervacePostSchema = z.object(
+  {
+    // skrytá past na roboty — člověk toto pole nevyplní
+    web: z.string({ error: NEPLATNY }).trim().max(0, NEPLATNY).optional(),
+    jmeno: z
+      .string({ error: BEZ_JMENA })
+      .transform((t) => t.trim().replace(/\s+/g, " "))
+      .pipe(z.string().min(3, BEZ_JMENA).max(80, BEZ_JMENA)),
+    // formulář posílá číslo, starší klient mohl poslat text
+    pocet: z.coerce
+      .number({ error: SPATNY_POCET })
+      .int(SPATNY_POCET)
+      .min(1, SPATNY_POCET)
+      .max(MAX_OSOB_UBYTOVANI, SPATNY_POCET),
+  },
+  { error: NEPLATNY },
+);
+
 /* Stav kapacity ubytování, jak ho vrací /api/ubytovani. Klient si odpověď
    ověřuje: když API selže, vrací chybový objekt se stejným stavovým kódem,
    a bez kontroly se z něj v rozhraní stalo „volných míst: undefined“. */

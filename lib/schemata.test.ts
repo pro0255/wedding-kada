@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { HraSchema, JmenoSchema, SkorePostSchema, SkoreSchema } from "./schemata.ts";
+import { HraSchema, JmenoSchema, RezervacePostSchema, SkorePostSchema, SkoreSchema } from "./schemata.ts";
 
 test("SkoreSchema bere jen celá čísla 0–100000", () => {
   assert.equal(SkoreSchema.safeParse(12).success, true);
@@ -43,4 +43,20 @@ test("SkorePostSchema odmítne cizí deviceId", () => {
     }).success,
     true,
   );
+});
+
+test("RezervacePostSchema: očistí jméno, hlásí první chybu hostovi", () => {
+  const ok = RezervacePostSchema.safeParse({ jmeno: "  Jan   Novák ", pocet: "2", web: "" });
+  assert.deepEqual(ok.data, { jmeno: "Jan Novák", pocet: 2, web: "" });
+
+  const hlaska = (telo: unknown) => RezervacePostSchema.safeParse(telo).error?.issues[0].message;
+  assert.equal(hlaska(null), "Neplatný požadavek.");
+  assert.equal(hlaska({ jmeno: "Jan Novák", pocet: 2, web: "spam" }), "Neplatný požadavek.");
+  // past na roboty má přednost i před špatným jménem
+  assert.equal(hlaska({ jmeno: "", pocet: 2, web: "spam" }), "Neplatný požadavek.");
+  assert.equal(hlaska({ jmeno: "Jo", pocet: 2 }), "Vyplňte prosím jméno a příjmení.");
+  assert.equal(hlaska({ pocet: 2 }), "Vyplňte prosím jméno a příjmení.");
+  assert.equal(hlaska({ jmeno: "Jan Novák", pocet: 11 }), "Zadejte počet osob od 1 do 10.");
+  assert.equal(hlaska({ jmeno: "Jan Novák", pocet: 1.5 }), "Zadejte počet osob od 1 do 10.");
+  assert.equal(hlaska({ jmeno: "Jan Novák" }), "Zadejte počet osob od 1 do 10.");
 });

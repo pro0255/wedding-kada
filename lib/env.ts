@@ -29,9 +29,6 @@ export const EnvSchema = z.object({
 
   AIRTABLE_KEY: povinna("Airtable — kapacita a rezervace ubytování"),
 
-  RESEND_API_KEY: nepovinna("Resend — mail o nové rezervaci ubytování; bez něj se mail neposílá"),
-  NOTIFY_EMAIL: nepovinna("komu chodí mail o rezervaci ubytování"),
-  MAIL_FROM: nepovinna("odesílatel mailu; bez něj onboarding@resend.dev"),
   NEXT_PUBLIC_WEB_URL: nepovinna("adresa webu pro OG obrázek; bez ní produkční doména z Vercelu"),
 });
 
