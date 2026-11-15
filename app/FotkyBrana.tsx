@@ -31,6 +31,26 @@ const VRTENI_MS = 1300;
 
 type Stav = "zjistuji" | "zavreno" | "vrti" | "otevreno";
 
+/* Značka „tenhle prohlížeč už vstupem prošel“. Nic neodemyká — fotky dál
+   hlídá httpOnly cookie na serveru. Slouží jen offline: když se server
+   nedá zeptat, galerie se otevře a ukáže kopii uloženou v telefonu. */
+const ZNACKA = "kj-fotky-pristup";
+function zapamatujVstup(prosel: boolean) {
+  try {
+    if (prosel) localStorage.setItem(ZNACKA, "1");
+    else localStorage.removeItem(ZNACKA);
+  } catch {
+    /* soukromé okno — offline se pak prostě zeptá pes */
+  }
+}
+function proselMinule(): boolean {
+  try {
+    return localStorage.getItem(ZNACKA) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export default function FotkyBrana() {
   const [stav, setStav] = useState<Stav>("zjistuji");
   const [hodnota, setHodnota] = useState("");
@@ -39,19 +59,27 @@ export default function FotkyBrana() {
   const [chyba, setChyba] = useState<Chyba | null>(null);
   const [spravce, setSpravce] = useState(false);
   // stabilní identita — galerie ji má v závislostech načítání
-  const zamknout = useCallback(() => setStav("zavreno"), []);
+  const zamknout = useCallback(() => {
+    zapamatujVstup(false); // server řekl 401
+    setStav("zavreno");
+  }, []);
 
   // pustí nás pes rovnou? (cookie je httpOnly, musí se zeptat server)
   useEffect(() => {
     let zruseno = false;
     fetch("/api/fotky/vstup")
-      .then((r) => (r.ok ? r.json() : { pristup: false }))
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
       .then((d: { pristup?: boolean; spravce?: boolean }) => {
         if (zruseno) return;
+        zapamatujVstup(!!d.pristup);
         setSpravce(!!d.spravce);
         setStav(d.pristup ? "otevreno" : "zavreno");
       })
-      .catch(() => !zruseno && setStav("zavreno"));
+      // bez signálu / výpadek serveru: kdo už jednou prošel, jde dál
+      .catch(() => !zruseno && setStav(proselMinule() ? "otevreno" : "zavreno"));
     return () => {
       zruseno = true;
     };
@@ -78,6 +106,7 @@ export default function FotkyBrana() {
         const d: { spravce?: boolean } = await r.json().catch(() => ({}));
         setSpravce(!!d.spravce);
         setChyba(null);
+        zapamatujVstup(true);
         setStav("vrti");
         return;
       }
