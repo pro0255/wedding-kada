@@ -120,6 +120,8 @@ h3,
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  /* prolínání chvilku počká, ať je vidět odezva klepnutí na prsten */
+  transition-delay: 0.3s;
 }
 /* Vrstva je připravená předem, takže prolínání běží na kompozitoru od prvního
    snímku a nečeká na hlavní vlákno. Při odchodu se zastaví i nekonečné
@@ -360,6 +362,41 @@ h3,
 .loader-vstup:hover {
   transform: scale(1.06);
 }
+/* Odezva klepnutí: prsten se nadechne a rozběhnou se od něj dvě zlaté vlny.
+   Jen transform a opacity — běží na kompozitoru, prolínání necuká. */
+.loader-vstup {
+  position: relative;
+}
+.loader-vstup::before,
+.loader-vstup::after {
+  content: "";
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201, 160, 90, 0.8);
+  opacity: 0;
+  pointer-events: none;
+}
+.loader-hide .loader-vstup {
+  transform: scale(1.1);
+}
+.loader-hide .loader-vstup::before,
+.loader-hide .loader-vstup::after {
+  animation: loaderVlna 1s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+}
+.loader-hide .loader-vstup::after {
+  animation-delay: 0.16s;
+}
+@keyframes loaderVlna {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
 .loader-vstup:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 8px;
@@ -385,6 +422,10 @@ h3,
 @media (prefers-reduced-motion: reduce) {
   .loader-vstup {
     transition: none;
+  }
+  .loader-hide .loader-vstup::before,
+  .loader-hide .loader-vstup::after {
+    animation: none;
   }
   .loader-vyzva {
     animation: none;

@@ -769,7 +769,8 @@ function UvodniObrazovka() {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
-  // hudba k úvodní obrazovce; po klepnutí postupně utichne (viz uvodHudba.ts)
+  // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí cinkne a postupně
+  // utichne (viz uvodHudba.ts)
   const hudba = useRef<UvodniHudba | null>(null);
   useEffect(() => {
     const h = spustUvodniHudbu();
@@ -783,9 +784,9 @@ function UvodniObrazovka() {
     if (stage !== "loading") return;
     setStage("done");
     hudba.current?.utichni();
-    // 1s = rezerva na .9s opacity transition loaderu; teprve pak obsah
-    // odmountujeme
-    setTimeout(() => setLoaderGone(true), 1000);
+    // 1,3 s = .3s zdržení (vlny od prstenu) + .9s opacity transition loaderu
+    // + rezerva; teprve pak obsah odmountujeme
+    setTimeout(() => setLoaderGone(true), 1300);
   };
 
   // dokud je na obrazovce loader, stránka pod ním nescrolluje
