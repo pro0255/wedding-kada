@@ -14,7 +14,7 @@ import { VstupPostSchema } from "@/lib/schemata";
    prohlížeč po správné odpovědi dostane httpOnly cookie a ostatní API fotek
    ji kontroluje. Hádání brzdí limit špatných pokusů na IP. */
 
-const MAX_POKUSU = 8; // špatných odpovědí za minutu z jedné adresy
+const MAX_POKUSU = 2; // špatných odpovědí za minutu z jedné adresy
 const OKNO_S = 60;
 
 /** Pustí pes hosta rovnou? Cookie je httpOnly, prohlížeč se musí zeptat. */
