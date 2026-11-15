@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import { zkontrolujEnv } from "./lib/env.ts";
+
+// bez povinných proměnných prostředí se web nespustí (dev, build i start)
+zkontrolujEnv();
 
 const nextConfig: NextConfig = {
   async headers() {
