@@ -1,4 +1,5 @@
 import { lidri } from "@/lib/hra";
+import { chybaOdpoved } from "@/lib/chyby";
 
 /** Lídr každé hry pro karty ve výběru her. */
 export async function GET() {
@@ -6,6 +7,6 @@ export async function GET() {
     return Response.json(await lidri());
   } catch (chyba) {
     console.error("[hra] Lídry se nepodařilo načíst:", chyba);
-    return Response.json({ chyba: "Lídry se nepodařilo načíst." }, { status: 502 });
+    return chybaOdpoved("lidri-nenacteni");
   }
 }

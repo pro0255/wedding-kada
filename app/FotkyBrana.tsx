@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { chybaZVyjimky, prectiChybu, type Chyba } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
+import { Svedci } from "./ChybaHlaska";
 import FotoGalerie from "./FotoGalerie";
 import s from "./brana.module.css";
 
@@ -34,7 +36,7 @@ export default function FotkyBrana() {
   const [hodnota, setHodnota] = useState("");
   const [pokusy, setPokusy] = useState(0);
   const [odesila, setOdesila] = useState(false);
-  const [hlaska, setHlaska] = useState<string | null>(null);
+  const [chyba, setChyba] = useState<Chyba | null>(null);
   const [spravce, setSpravce] = useState(false);
   // stabilní identita — galerie ji má v závislostech načítání
   const zamknout = useCallback(() => setStav("zavreno"), []);
@@ -75,15 +77,25 @@ export default function FotkyBrana() {
       if (r.ok) {
         const d: { spravce?: boolean } = await r.json().catch(() => ({}));
         setSpravce(!!d.spravce);
-        setHlaska(null);
+        setChyba(null);
         setStav("vrti");
         return;
       }
-      setHlaska(r.status === 429 ? "Uf, to bylo hodně pokusů. Chvilku si odpočinu, zkuste to za minutu." : null);
-      if (r.status !== 429) setPokusy((p) => p + 1);
-      setHodnota("");
-    } catch {
-      setHlaska("Haf… něco se pokazilo. Zkuste to prosím znovu.");
+      /* Špatné jméno je jen jeden z důvodů, proč server odmítne. Dřív se
+         jako špatný pokus počítal i výpadek serveru — pes pak tvrdil
+         „to nejsem já“ i na správné jméno. */
+      const duvod = await prectiChybu(r);
+      if (duvod.kod === "spatna-odpoved") {
+        setChyba(null);
+        setPokusy((p) => p + 1);
+        setHodnota("");
+      } else {
+        setChyba(duvod);
+        // jméno necháme v poli — až to půjde, stačí klepnout znovu
+        if (duvod.kod === "moc-pokusu") setHodnota("");
+      }
+    } catch (vyjimka) {
+      setChyba(chybaZVyjimky(vyjimka));
     } finally {
       setOdesila(false);
     }
@@ -97,6 +109,7 @@ export default function FotkyBrana() {
   if (stav === "zjistuji") return <div className={s.cekani} aria-hidden="true" />;
 
   const vrti = stav === "vrti";
+  const hlaska = chyba ? (chyba.kod === "moc-pokusu" ? chyba.hlaska : `Haf… ${chyba.hlaska}`) : null;
   const bublina =
     hlaska ??
     (vrti
@@ -142,6 +155,7 @@ export default function FotkyBrana() {
           </button>
         </form>
       )}
+      {!vrti && chyba?.kontakt && <Svedci />}
     </div>
   );
 }

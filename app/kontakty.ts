@@ -9,3 +9,6 @@ export const KONTAKTY: Kontakt[] = [
 
 export const formatTel = (tel: string) =>
   tel.replace(/^\+420(\d{3})(\d{3})(\d{3})$/, "+420 $1 $2 $3");
+
+/** Dokud je v seznamu jen zástupné číslo, odkaz tel:/WhatsApp se neukazuje. */
+export const maTelefon = (k: Kontakt) => !/^\+4200+$/.test(k.tel);

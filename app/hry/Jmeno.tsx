@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { chybaZVyjimky, prectiChybu, type Chyba } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
 import s from "./hra.module.css";
 
@@ -18,6 +19,7 @@ export default function Jmeno({
   const [jmeno, setJmeno] = useState("");
   const [ulozene, setUlozene] = useState("");
   const [stav, setStav] = useState<"klid" | "ukladam" | "ok" | "chyba">("klid");
+  const [chyba, setChyba] = useState<Chyba | null>(null);
   const id = kompaktni ? "jmeno-hosta-panel" : "jmeno-hosta";
 
   useEffect(() => {
@@ -54,14 +56,20 @@ export default function Jmeno({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ deviceId: deviceId(), jmeno: t }),
       });
-      if (!r.ok) throw new Error(String(r.status));
+      if (!r.ok) {
+        // server ví proč (jméno s nepovolenými znaky × výpadek) — řekneme to hostovi
+        setChyba(await prectiChybu(r));
+        setStav("chyba");
+        return;
+      }
       setUlozene(t);
       setStav("ok");
       try {
         localStorage.setItem(KLIC, t);
       } catch {}
       onZmena?.(t);
-    } catch {
+    } catch (vyjimka) {
+      setChyba(chybaZVyjimky(vyjimka));
       setStav("chyba");
     }
   }
@@ -70,7 +78,7 @@ export default function Jmeno({
     stav === "ok"
       ? "Uloženo."
       : stav === "chyba"
-        ? "Nepovedlo se, zkus to znovu."
+        ? (chyba?.hlaska ?? "Nepovedlo se.")
         : stav === "ukladam"
           ? "Ukládám…"
           : "Platí pro tohle zařízení, účet netřeba.";

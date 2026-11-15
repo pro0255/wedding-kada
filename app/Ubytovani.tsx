@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { VENUE_WEB_URL } from "./venue";
 import { UbytovaniStavSchema } from "../lib/schemataKlient";
+import { chybaZOdpovedi, chybaZVyjimky, type Chyba } from "../lib/chyby";
+import ChybaHlaska from "./ChybaHlaska";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 
 /* Fotky pokojů a snídaní. Bez popisků — na fotce pokoje je vidět, co na ní je,
@@ -98,7 +100,7 @@ export default function Ubytovani() {
   const [web, setWeb] = useState(""); // past na roboty, zůstává prázdné
   const [odesila, setOdesila] = useState(false);
   const [hotovo, setHotovo] = useState(false);
-  const [chyba, setChyba] = useState<string | null>(null);
+  const [chyba, setChyba] = useState<Chyba | null>(null);
 
   // host už jednou rezervoval (přežije obnovení stránky)
   useEffect(() => {
@@ -141,15 +143,17 @@ export default function Ubytovani() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jmeno, pocet: Number(pocet), web }),
       });
-      const data = await odpoved.json();
+      /* Tělo nemusí být JSON (pád funkce, timeout) — dřív tu .json() hodilo
+         výjimku a host viděl radu „zkontrolujte připojení“, i když měl signál. */
+      const data: { stav?: unknown } | null = await odpoved.json().catch(() => null);
+      const novyStav = UbytovaniStavSchema.safeParse(data?.stav);
+      if (novyStav.success) setStav(novyStav.data);
 
       if (!odpoved.ok) {
-        if (data.stav) setStav(data.stav);
-        setChyba(data.chyba ?? "Něco se pokazilo, zkuste to prosím znovu.");
+        setChyba(chybaZOdpovedi(odpoved.status, data));
         return;
       }
 
-      setStav(data.stav);
       setHotovo(true);
       setJmeno("");
       setPocet("1");
@@ -158,8 +162,8 @@ export default function Ubytovani() {
       } catch {
         /* nevadí */
       }
-    } catch {
-      setChyba("Odeslání se nezdařilo. Zkontrolujte připojení a zkuste to znovu.");
+    } catch (vyjimka) {
+      setChyba(chybaZVyjimky(vyjimka));
     } finally {
       setOdesila(false);
     }
@@ -281,11 +285,7 @@ export default function Ubytovani() {
         </form>
       )}
 
-      {chyba && (
-        <p className="ubytovani-chyba" role="alert">
-          {chyba}
-        </p>
-      )}
+      <ChybaHlaska chyba={chyba} className="ubytovani-chyba" />
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { chybaZVyjimky, prectiChybu } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
 import s from "./admin.module.css";
 
@@ -24,18 +25,30 @@ export default function AdminVstup({ dal }: { dal: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ odpoved, deviceId: deviceId() }),
       });
-      const d: { spravce?: boolean } = r.ok ? await r.json().catch(() => ({})) : {};
+      if (!r.ok) {
+        /* Dřív každé odmítnutí hlásilo „není správcovské heslo“ — i výpadek
+           serveru, takže správné heslo vypadalo jako špatné. */
+        const duvod = await prectiChybu(r);
+        setHlaska(
+          duvod.kod === "spatna-odpoved"
+            ? "Tohle není správcovské heslo."
+            : duvod.kod === "moc-pokusu"
+              ? "Moc pokusů. Zkuste to za minutu."
+              : duvod.hlaska,
+        );
+        if (duvod.kod === "spatna-odpoved" || duvod.kod === "moc-pokusu") setHeslo("");
+        return;
+      }
+      const d: { spravce?: boolean } = await r.json().catch(() => ({}));
       if (d.spravce) {
         // celé načtení, ať proxy uvidí novou cookie
         window.location.assign(dal);
         return;
       }
-      setHlaska(
-        r.status === 429 ? "Moc pokusů. Zkuste to za minutu." : "Tohle není správcovské heslo.",
-      );
+      setHlaska("Tohle není správcovské heslo.");
       setHeslo("");
-    } catch {
-      setHlaska("Něco se pokazilo. Zkuste to prosím znovu.");
+    } catch (vyjimka) {
+      setHlaska(chybaZVyjimky(vyjimka).hlaska);
     } finally {
       setOdesila(false);
     }

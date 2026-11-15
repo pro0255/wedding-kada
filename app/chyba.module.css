@@ -1,0 +1,79 @@
+/* Chybová hláška s radou, co dál (app/ChybaHlaska.tsx). Barvy mají záložní
+   hodnoty — global-error.tsx se kreslí bez globals.css. */
+
+.chyba {
+  margin-top: 1.1rem;
+  font-size: .88rem;
+  line-height: 1.55;
+  color: var(--palette-rose-text, #9e4750);
+}
+.chyba > p { margin: 0; }
+
+.znovu {
+  margin-top: .7rem;
+  padding: .45rem 1.1rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: .8rem;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+.znovu:hover { background: var(--palette-rose-text, #9e4750); color: #fff; }
+
+.svedci {
+  margin-top: .8rem;
+  font-size: .84rem;
+  line-height: 1.55;
+  color: var(--ink-soft, #635d55);
+}
+.svedci > p { margin: 0; }
+.svedci ul { list-style: none; margin: .35rem 0 0; padding: 0; display: grid; gap: .25rem; }
+.svedci li { display: flex; flex-wrap: wrap; gap: .2rem .8rem; justify-content: inherit; }
+.svedci a {
+  color: var(--palette-rose-text, #9e4750);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  white-space: nowrap;
+}
+
+/* celostránková chyba (app/error.tsx, app/global-error.tsx) */
+.stranka {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 16px 56px;
+  text-align: center;
+  background: var(--bg, #f5f2ec);
+  color: var(--ink, #2b2925);
+  font-family: var(--sans, system-ui), system-ui, sans-serif;
+}
+.stranka h1 {
+  font-family: var(--serif, Georgia), Georgia, serif;
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.15;
+  font-weight: 500;
+  margin: 0;
+}
+.stranka > p { max-width: 44ch; margin: 0; color: var(--ink-soft, #635d55); font-size: 15px; }
+.stranka .svedci li { justify-content: center; }
+.akce { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 10px; }
+.tlacitko {
+  padding: 12px 28px;
+  border: 1px solid var(--ink, #2b2925);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink, #2b2925);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tlacitko:hover { background: var(--ink, #2b2925); color: var(--bg, #f5f2ec); }

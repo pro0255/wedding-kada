@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { chybaOdpoved } from "./chyby";
 import { COOKIE_FOTKY, COOKIE_SPRAVCE, jeSpravcovskyToken, platnyToken } from "./pristup";
 
 /** Heslo ke galerii z prostředí. Chybí-li, galerie zůstane zamčená pro všechny. */
@@ -19,6 +20,4 @@ export async function jeSpravce(): Promise<boolean> {
   return jeSpravcovskyToken((await cookies()).get(COOKIE_SPRAVCE)?.value);
 }
 
-export const BEZ_PRISTUPU = () =>
-  // bez jména psa — tuhle odpověď vidí i cizí
-  Response.json({ chyba: "Nejdřív odpovězte na otázku u vstupu." }, { status: 401 });
+export const BEZ_PRISTUPU = () => chybaOdpoved("bez-pristupu");

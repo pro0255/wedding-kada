@@ -12,6 +12,7 @@ import {
 } from "@/lib/pristup";
 import { KLIC, maRedis, redis } from "@/lib/redis";
 import { VstupPostSchema } from "@/lib/schemata";
+import { chybaOdpoved } from "@/lib/chyby";
 
 /* Vstup do galerie fotek a zároveň přihlášení správce (/admin). Odpověď
    na otázku zná jen server (FOTKY_HESLO), prohlížeč po správné odpovědi
@@ -64,7 +65,7 @@ async function zapocitejPokus(k: Klice): Promise<void> {
 
 export async function POST(request: Request) {
   const telo = VstupPostSchema.safeParse(await request.json().catch(() => null));
-  if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
+  if (!telo.success) return chybaOdpoved("neplatny-pozadavek");
 
   const ip = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "neznama";
   const klice: Klice = {
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
     zarizeni: telo.data.deviceId ? KLIC.vstupPokusyZarizeni(telo.data.deviceId) : null,
   };
   if (mocPokusu(await spatnePokusy(klice))) {
-    return Response.json({ ok: false, chyba: "moc-pokusu" }, { status: 429 });
+    return chybaOdpoved("moc-pokusu");
   }
 
   /* U dveří stojí jedno pole, ale hesla jsou dvě. Jméno psa pustí hosta,
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
 
   if (!jakoSpravce && !jeSpravnaOdpoved(telo.data.odpoved, heslo)) {
     await zapocitejPokus(klice);
-    return Response.json({ ok: false }, { status: 401 });
+    return chybaOdpoved("spatna-odpoved");
   }
 
   const nastaveni = {

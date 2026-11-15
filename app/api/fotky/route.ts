@@ -1,6 +1,7 @@
 import { odkazWhatsapp, pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
 import { BEZ_PRISTUPU, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import { DeviceIdSchema, FotkaDeleteSchema, FotkaPostSchema } from "@/lib/schemata";
+import { chybaOdpoved } from "@/lib/chyby";
 
 /** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup).
  *  Přibaluje i odkaz na WhatsApp skupinu (záloha k nahrávání) — ať ho vidí jen hosté. */
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
     });
   } catch (chyba) {
     console.error("[fotky] Galerii se nepodařilo načíst:", chyba);
-    return Response.json({ chyba: "Galerii se nepodařilo načíst." }, { status: 502 });
+    return chybaOdpoved("galerie-nenactena");
   }
 }
 
@@ -22,14 +23,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const telo = FotkaPostSchema.safeParse(await request.json().catch(() => null));
-  if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
+  if (!telo.success) return chybaOdpoved("neplatny-pozadavek");
 
   try {
     const id = await pridejFotku(telo.data.url, telo.data.publicId, telo.data.deviceId);
     return Response.json({ ok: true, id });
   } catch (chyba) {
     console.error("[fotky] Fotku se nepodařilo uložit:", chyba);
-    return Response.json({ chyba: "Fotku se nepodařilo uložit." }, { status: 502 });
+    return chybaOdpoved("fotka-neulozena");
   }
 }
 
@@ -37,19 +38,16 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const telo = FotkaDeleteSchema.safeParse(await request.json().catch(() => null));
-  if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
+  if (!telo.success) return chybaOdpoved("neplatny-pozadavek");
 
   try {
     const vysledek = await smazFotku(telo.data.id, telo.data.deviceId, await jeSpravce());
     if (!vysledek.ok) {
-      return Response.json(
-        { chyba: "Tuhle fotku smazat nemůžete." },
-        { status: vysledek.duvod === "neexistuje" ? 404 : 403 }
-      );
+      return chybaOdpoved(vysledek.duvod === "neexistuje" ? "fotka-neexistuje" : "fotka-cizi");
     }
     return Response.json({ ok: true });
   } catch (chyba) {
     console.error("[fotky] Fotku se nepodařilo smazat:", chyba);
-    return Response.json({ chyba: "Fotku se nepodařilo smazat." }, { status: 502 });
+    return chybaOdpoved("fotka-nesmazana");
   }
 }
