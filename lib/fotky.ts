@@ -68,8 +68,13 @@ export function odkazWhatsapp(): string | null {
   return process.env.WHATSAPP_SKUPINA?.trim() || null;
 }
 
-/** Zapíše nahranou fotku. */
+/** Zapíše nahranou fotku. Stejnou fotku (publicId) podruhé nezapíše —
+ *  fronta v telefonu registraci zopakuje, když se na slabém signálu ztratí
+ *  odpověď, a bez téhle kontroly by v galerii byla dvakrát. */
 export async function pridejFotku(url: string, publicId: string, deviceId: string): Promise<string> {
+  const vsechny = (await redis().hgetall<Record<string, Fotka>>(KLIC.fotky)) ?? {};
+  const uz = Object.entries(vsechny).find(([, f]) => f.publicId === publicId);
+  if (uz) return uz[0];
   const id = noveId();
   const fotka: Fotka = { url, publicId, deviceId, nahrano: new Date().toISOString() };
   await redis().hset(KLIC.fotky, { [id]: fotka });

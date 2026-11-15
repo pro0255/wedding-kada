@@ -10,6 +10,7 @@ import Jmeno from "./Jmeno";
 import { Konfety } from "./konfety";
 import { sdilejSkore, type VysledekSdileni } from "./sdileni";
 import { IKONY } from "./IkonaHry";
+import { dorucCekajici, odesliSkore } from "./skoreFronta";
 import s from "./hra.module.css";
 
 type Faze = "start" | "hra" | "konec";
@@ -43,6 +44,14 @@ export default function Hra({
   const [sdileni, setSdileni] = useState<"klid" | "pracuji" | VysledekSdileni>("klid");
   const [vyzva, setVyzva] = useState<{ od: string; skore: number } | null>(null);
   const barvyRef = useRef({ ink: "#2b2925", inkJemny: "#635d55", zlata: "#9a8158", pozadi: "#ece7de", bg: "#f5f2ec" });
+
+  // skóre, která minule neodešla (slabý signál), pošli teď a pak při každém návratu signálu
+  useEffect(() => {
+    void dorucCekajici();
+    const naSignal = () => void dorucCekajici();
+    window.addEventListener("online", naSignal);
+    return () => window.removeEventListener("online", naSignal);
+  }, []);
 
   useEffect(() => {
     setDotyk(matchMedia("(pointer: coarse)").matches);
@@ -127,13 +136,8 @@ export default function Hra({
       setJmenoOtevrene(false);
       setSdileni("klid");
       setFaze("konec");
-      fetch("/api/hra", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ hra: def.slug, deviceId: deviceId(), skore }),
-      })
-        .catch(() => {})
-        .finally(() => onKonecRef.current?.(skore));
+      // při výpadku signálu skóre počká v telefonu a odejde později
+      odesliSkore(def.slug, deviceId(), skore).finally(() => onKonecRef.current?.(skore));
     }
 
     function znovu(v: Vstup = { typ: "tap" }) {

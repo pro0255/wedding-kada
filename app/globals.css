@@ -1562,6 +1562,10 @@ footer {
 .galerie-upload-bezi { opacity: .55; pointer-events: none; }
 .galerie-chyba { margin-top: 1.1rem; font-size: .85rem; color: var(--palette-rose-text); }
 
+/* fronta stojí (bez signálu / pauza před dalším pokusem) — věta, ne počítadlo */
+.galerie-cekani { margin: 0 auto; max-width: 30rem; font-size: .9rem; line-height: 1.55; color: var(--ink-soft); }
+.galerie-ulozena { margin: 1rem auto 0; max-width: 32rem; font-size: .85rem; color: var(--ink-soft); }
+
 /* záloha při neúspěšném nahrání — WhatsApp skupina (app/WhatsappZaloha.tsx) */
 .whatsapp-zaloha {
   max-width: 30rem; margin: 1rem auto 0; padding: 1.1rem 1.2rem;

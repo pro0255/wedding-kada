@@ -52,7 +52,7 @@ const CloudinaryUrlSchema = z.string().refine((url) => {
 
 export const FotkaPostSchema = z.object({
   url: CloudinaryUrlSchema,
-  publicId: z.string().max(300),
+  publicId: z.string().min(1).max(300),
   deviceId: DeviceIdSchema,
 });
 

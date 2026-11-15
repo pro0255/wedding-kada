@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { chybaZVyjimky, prectiChybu } from "@/lib/chyby";
 import { deviceId } from "@/lib/deviceId";
+import { useNahravani } from "./nahravani";
 import WhatsappZaloha from "./WhatsappZaloha";
 
 /**
@@ -10,17 +12,15 @@ import WhatsappZaloha from "./WhatsappZaloha";
  * a mazání vlastních fotek.
  *
  * Upload jde z mobilu přímo do Cloudinary (unsigned preset), přes náš
- * server letí jen malá registrace do Redisu. Před uploadem se fotka
- * zmenší na canvasu — šetří data hostů i free tier.
+ * server letí jen malá registrace do Redisu. Nahrávání drží fronta
+ * v telefonu (app/nahravani.ts) — na slabém signálu se nic neztratí,
+ * zkouší se znovu a pokračuje i po zavření stránky.
  */
-const MAX_STRANA = 2000;
-const KVALITA = 0.85;
 const OBNOVA_MS = 20_000;
-/* Cloudinary free pustí video až do 100 MB, ale kredity (25 za 30 dní)
-   nejrychleji pálí právě přehrávání videí. 50 MB je zhruba půlminutové
-   video z telefonu — na svatební chvilku stačí. */
-const MAX_VIDEO_B = 50 * 1024 * 1024;
-
+// na slabém signálu nečekat na galerii donekonečna — radši ukázat uloženou
+const NACTENI_MS = 12_000;
+// poslední načtená galerie v telefonu, ať je bez signálu co ukázat
+const ULOZENA = "kj-galerie";
 /* hlášky k nahrávání */
 const HLASKY = [
   "Nahráváme vaše vzpomínky…",
@@ -42,6 +42,10 @@ function jeVideo(url: string): boolean {
   return url.includes("/video/upload/");
 }
 
+/* Náhledy mají crossOrigin="anonymous": Cloudinary posílá CORS hlavičky
+   a service worker si pak náhled může uložit (offline galerie, méně
+   kreditů). Bez něj by dostal neprůhlednou odpověď, kterou ukládat nejde. */
+
 /** Cloudinary umí zmenšeniny přímo v URL — vložením transformace za /upload/.
  *  U videa vrací JPEG s prvním políčkem (so_0) jako náhled. */
 function nahledUrl(url: string, sirka: number): string {
@@ -57,58 +61,6 @@ function nahledUrl(url: string, sirka: number): string {
  *  Telefonní 4K by jinak při každém přehrání stahovalo desítky MB z kreditů. */
 function videoUrl(url: string): string {
   return url.replace("/video/upload/", "/video/upload/c_limit,w_1280,h_1280,q_auto/");
-}
-
-/** Upload přes XHR — fetch neumí hlásit průběh odesílání. */
-function nahrajDoCloudinary(
-  soubor: Blob,
-  cloud: string,
-  preset: string,
-  naPokrok: (podil: number) => void
-): Promise<{ secure_url: string; public_id: string }> {
-  return new Promise((vyres, zamitni) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloud}/auto/upload`);
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) naPokrok(e.loaded / e.total);
-    };
-    xhr.onload = () =>
-      xhr.status < 300
-        ? vyres(JSON.parse(xhr.responseText))
-        : zamitni(new Error(xhr.responseText));
-    xhr.onerror = () => zamitni(new Error("síť"));
-    const data = new FormData();
-    data.append("file", soubor);
-    data.append("upload_preset", preset);
-    xhr.send(data);
-  });
-}
-
-/** Zmenší fotku na canvasu; když to nejde (např. exotický formát), pošle originál. */
-async function zmensi(soubor: File): Promise<Blob> {
-  const objektUrl = URL.createObjectURL(soubor);
-  try {
-    const img = new Image();
-    img.src = objektUrl;
-    await img.decode();
-
-    const pomer = Math.min(1, MAX_STRANA / Math.max(img.naturalWidth, img.naturalHeight));
-    if (pomer === 1 && soubor.type === "image/jpeg") return soubor;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.naturalWidth * pomer);
-    canvas.height = Math.round(img.naturalHeight * pomer);
-    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const blob = await new Promise<Blob | null>((res) =>
-      canvas.toBlob(res, "image/jpeg", KVALITA)
-    );
-    return blob ?? soubor;
-  } catch {
-    return soubor;
-  } finally {
-    URL.revokeObjectURL(objektUrl);
-  }
 }
 
 /** `zamceno` zavolá, když server odmítne přístup (cookie ze vstupu vypršela
@@ -129,7 +81,6 @@ export default function FotoGalerie({
   const [fotky, setFotky] = useState<Fotka[] | null>(null);
   const [ukazVse, setUkazVse] = useState(false);
   const [jenMoje, setJenMoje] = useState(false);
-  const [prubeh, setPrubeh] = useState<{ hotovo: number; celkem: number; procento: number } | null>(null);
   const [hlaska, setHlaska] = useState(0);
   const [chyba, setChyba] = useState<string | null>(null);
   // po neúspěšném nahrání nabídne WhatsApp skupinu (odkaz posílá server s galerií)
@@ -140,6 +91,8 @@ export default function FotoGalerie({
      mlčky a zobrazené fotky zůstanou. Bez tohohle stavu zůstalo fotky = null
      napořád a host koukal na donekonečna pulzující skeletony. */
   const [nacteniSelhalo, setNacteniSelhalo] = useState(false);
+  // zobrazená galerie je uložená z minula (bez signálu), ne čerstvá
+  const [zUlozene, setZUlozene] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [nacitaVelkou, setNacitaVelkou] = useState(false);
   const device = useRef<string>("");
@@ -152,16 +105,42 @@ export default function FotoGalerie({
   }, []);
 
   const nacti = useCallback(async () => {
+    /* Bez odpovědi: když už galerie něco ukazuje, nechá to být; jinak zkusí
+       uloženou z minula, a až když není ani ta, ohlásí chybu s tlačítkem. */
+    const bezOdpovedi = () =>
+      setFotky((f) => {
+        if (f !== null) return f;
+        try {
+          const ulozena = JSON.parse(localStorage.getItem(ULOZENA) ?? "null") as
+            | { fotky: Fotka[]; whatsapp: string | null }
+            | null;
+          if (ulozena?.fotky) {
+            setZUlozene(true);
+            setWhatsapp(ulozena.whatsapp);
+            return ulozena.fotky;
+          }
+        } catch {
+          /* nic uloženého */
+        }
+        setNacteniSelhalo(true);
+        return f;
+      });
+
+    const ovladac = new AbortController();
+    const casovac = window.setTimeout(() => ovladac.abort(), NACTENI_MS);
     try {
-      const odpoved = await fetch(`/api/fotky?device=${device.current}`);
+      const odpoved = await fetch(`/api/fotky?device=${device.current}`, { signal: ovladac.signal });
       if (odpoved.status === 401) return zamceno?.();
-      if (!odpoved.ok) {
-        setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
-        return;
-      }
+      if (!odpoved.ok) return bezOdpovedi();
       setNacteniSelhalo(false);
+      setZUlozene(false);
       const data = (await odpoved.json()) as { fotky: Fotka[]; whatsapp?: string | null };
       setWhatsapp(data.whatsapp ?? null);
+      try {
+        localStorage.setItem(ULOZENA, JSON.stringify({ fotky: data.fotky, whatsapp: data.whatsapp ?? null }));
+      } catch {
+        /* plné úložiště / soukromé okno — příště jen bez zálohy */
+      }
       // server nese pravdu o lajcích ostatních; vlastní rozjednané se přes ni přeloží
       setFotky(
         data.fotky.map((f) => {
@@ -175,8 +154,9 @@ export default function FotoGalerie({
         })
       );
     } catch {
-      /* galerie zůstane, jak byla; hlásíme jen když ještě nic nemáme */
-      setFotky((f) => (f === null ? (setNacteniSelhalo(true), f) : f));
+      bezOdpovedi();
+    } finally {
+      window.clearTimeout(casovac);
     }
   }, [zamceno]);
 
@@ -189,95 +169,40 @@ export default function FotoGalerie({
     return () => clearInterval(id);
   }, [nacti]);
 
-  async function nahraj(vybrane: FileList | null) {
+  const { stav: nahravani, pridej } = useNahravani({
+    deviceId: () => device.current || deviceId(),
+    aktivni: true,
+    poNahrani: () => void nacti(),
+    zamceno,
+    naChybu: (zprava) => {
+      setChyba(zprava);
+      setZaloha(true);
+    },
+  });
+  const nahrava = nahravani.zbyva > 0;
+
+  function nahraj(vybrane: FileList | null) {
     // FileList je živý — vyčištěním inputu by zmizel, tak si soubory zkopírujeme
     const soubory = Array.from(vybrane ?? []);
-    if (!soubory.length || prubeh) return;
-    const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const preset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET;
-    if (!cloud || !preset) {
+    if (!soubory.length) return;
+    if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || !process.env.NEXT_PUBLIC_CLOUDINARY_PRESET) {
       setChyba("Nahrávání zatím není nastavené.");
       setZaloha(true);
       return;
     }
-
     setChyba(null);
     setZaloha(false);
-    const celkem = soubory.length;
-    let selhalo = 0;
-    let prilisVelke = 0;
-
-    for (let i = 0; i < celkem; i++) {
-      const naPokrok = (podil: number) =>
-        setPrubeh({
-          hotovo: i,
-          celkem,
-          procento: Math.min(99, Math.round(((i + podil) / celkem) * 100)),
-        });
-      naPokrok(0);
-      try {
-        const soubor = soubory[i];
-        let telo: Blob;
-        if (soubor.type.startsWith("video/")) {
-          if (soubor.size > MAX_VIDEO_B) {
-            prilisVelke++;
-            continue;
-          }
-          telo = soubor; // video se nahrává tak, jak je
-        } else {
-          telo = await zmensi(soubor);
-        }
-
-        const { secure_url, public_id } = await nahrajDoCloudinary(
-          telo,
-          cloud,
-          preset,
-          naPokrok
-        );
-
-        const registrace = await fetch("/api/fotky", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: secure_url, publicId: public_id, deviceId: device.current }),
-        });
-        if (registrace.status === 401) zamceno?.();
-        if (!registrace.ok) throw new Error(String(registrace.status));
-      } catch {
-        selhalo++;
-      }
-    }
-
-    setPrubeh(null);
-    const zpravy: string[] = [];
-    if (prilisVelke > 0) {
-      zpravy.push(
-        prilisVelke === 1
-          ? "Jedno video je příliš velké (max. 50 MB, zhruba půl minuty)."
-          : prilisVelke < 5
-            ? `${prilisVelke} videa jsou příliš velká (max. 50 MB, zhruba půl minuty).`
-            : `${prilisVelke} videí je příliš velkých (max. 50 MB, zhruba půl minuty).`
-      );
-    }
-    if (selhalo > 0) {
-      zpravy.push(
-        selhalo + prilisVelke === celkem
-          ? "Nahrání se nezdařilo. Zkontrolujte prosím připojení a zkuste to znovu."
-          : `Nahrálo se ${celkem - selhalo - prilisVelke} z ${celkem} souborů, zbytek zkuste prosím znovu.`
-      );
-    }
-    if (zpravy.length) setChyba(zpravy.join(" "));
-    setZaloha(selhalo > 0 || prilisVelke > 0);
-    nacti();
+    void pridej(soubory);
   }
 
   // rotace hlášek během nahrávání
   useEffect(() => {
-    if (!prubeh) return;
+    if (!nahrava) return;
     setHlaska(Math.floor(Math.random() * HLASKY.length));
     const id = setInterval(() => setHlaska((h) => (h + 1) % HLASKY.length), 2600);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!prubeh]);
+  }, [nahrava]);
 
   async function lajkni(fotka: Fotka) {
     const chteny = !fotka.lajklJsem;
@@ -306,16 +231,25 @@ export default function FotoGalerie({
   async function smaz(fotka: Fotka) {
     setFotky((f) => f?.filter((x) => x.id !== fotka.id) ?? null);
     setDetailId(null);
+    /* Optimisticky pryč; když server smazání odmítne nebo nedojde, fotka se
+       vrátí a host se dozví proč — dřív zmizela a po obnově se tiše vrátila. */
+    const vrat = (hlaska: string) => {
+      setFotky((f) => (f && !f.some((x) => x.id === fotka.id) ? [fotka, ...f].sort((a, b) => b.nahrano.localeCompare(a.nahrano)) : f));
+      setChyba(hlaska);
+    };
     try {
-      await fetch("/api/fotky", {
+      const odpoved = await fetch("/api/fotky", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: fotka.id, deviceId: device.current }),
       });
-    } catch {
-      /* při obnově se případně vrátí */
+      if (odpoved.status === 401) return zamceno?.();
+      if (!odpoved.ok) vrat((await prectiChybu(odpoved)).hlaska);
+    } catch (vyjimka) {
+      vrat(chybaZVyjimky(vyjimka).hlaska);
     }
   }
+
 
   /* Konec správcovství: cookie zruší server, tady se jen přepne režim.
      Host tím o přístup do galerie nepřijde, ta cookie je druhá. */
@@ -369,13 +303,13 @@ export default function FotoGalerie({
 
   return (
     <div className="galerie-telo">
-      <label className={`btn galerie-upload ${prubeh ? "galerie-upload-bezi" : ""}`}>
-        {prubeh ? "Nahrává se…" : "Nahrát fotky a videa"}
+      {/* během nahrávání jde přidávat další — fronta je vezme za sebou */}
+      <label className="btn galerie-upload">
+        {nahrava ? "Přidat další" : "Nahrát fotky a videa"}
         <input
           type="file"
           accept="image/*,video/*"
           multiple
-          disabled={!!prubeh}
           onChange={(e) => {
             nahraj(e.target.files);
             e.target.value = "";
@@ -383,20 +317,42 @@ export default function FotoGalerie({
         />
       </label>
 
-      {prubeh && (
+      {nahrava && (
         <div className="galerie-prubeh" role="status">
-          <div className="galerie-prubeh-bar">
-            <span style={{ width: `${prubeh.procento}%` }} />
-          </div>
-          <p className="galerie-prubeh-text">
-            {prubeh.hotovo + 1} / {prubeh.celkem} · {prubeh.procento} %
-          </p>
-          <p className="galerie-hlaska">{HLASKY[hlaska]}</p>
+          {nahravani.ceka === null ? (
+            <>
+              <div className="galerie-prubeh-bar">
+                <span style={{ width: `${nahravani.procento}%` }} />
+              </div>
+              <p className="galerie-prubeh-text">
+                {nahravani.poradi} / {nahravani.celkem} · {nahravani.procento} %
+              </p>
+              <p className="galerie-hlaska">{HLASKY[hlaska]}</p>
+            </>
+          ) : (
+            <p className="galerie-cekani">
+              {nahravani.ceka === "signal"
+                ? `Čekám na signál — ${
+                    nahravani.zbyva === 1
+                      ? "soubor se nahraje sám"
+                      : nahravani.zbyva < 5
+                        ? `${nahravani.zbyva} soubory se nahrají samy`
+                        : `${nahravani.zbyva} souborů se nahraje samo`
+                  }, jakmile bude připojení. Stránku můžete i zavřít, příště se pokračuje.`
+                : "Spojení vypadlo, za chvilku to zkusím znovu…"}
+            </p>
+          )}
         </div>
       )}
 
       {chyba && <p className="galerie-chyba">{chyba}</p>}
-      {zaloha && whatsapp && <WhatsappZaloha odkaz={whatsapp} />}
+      {(zaloha || nahravani.problem) && whatsapp && <WhatsappZaloha odkaz={whatsapp} />}
+
+      {zUlozene && (
+        <p className="galerie-ulozena" role="status">
+          Bez signálu — ukazuju fotky z posledního načtení. Nové se objeví, až se spojení vrátí.
+        </p>
+      )}
 
       {spravce && (
         <p className="galerie-spravce" role="status">
@@ -463,7 +419,7 @@ export default function FotoGalerie({
                   onClick={() => otevri(f.id)}
                   aria-label="Zobrazit fotku"
                 >
-                  <img src={nahledUrl(f.url, 600)} alt="Fotka od hosta" loading="lazy" />
+                  <img src={nahledUrl(f.url, 600)} alt="Fotka od hosta" loading="lazy" crossOrigin="anonymous" />
                   {jeVideo(f.url) && (
                     <span className="galerie-play" aria-hidden="true">
                       <svg viewBox="0 0 24 24">
@@ -536,6 +492,7 @@ export default function FotoGalerie({
               key={detail.id}
               src={nahledUrl(detail.url, 1600)}
               alt="Fotka od hosta"
+              crossOrigin="anonymous"
               className={nacitaVelkou ? "nacita" : ""}
               onLoad={() => setNacitaVelkou(false)}
             />
@@ -543,10 +500,10 @@ export default function FotoGalerie({
           {nacitaVelkou && !jeVideo(detail.url) && <span className="galerie-nacitani" aria-hidden="true" />}
           {/* sousední fotky se stáhnou dopředu — listování je pak okamžité */}
           {predchozi && predchozi.id !== detail.id && !jeVideo(predchozi.url) && (
-            <link rel="preload" as="image" href={nahledUrl(predchozi.url, 1600)} />
+            <link rel="preload" as="image" href={nahledUrl(predchozi.url, 1600)} crossOrigin="anonymous" />
           )}
           {nasledujici && nasledujici.id !== detail.id && !jeVideo(nasledujici.url) && (
-            <link rel="preload" as="image" href={nahledUrl(nasledujici.url, 1600)} />
+            <link rel="preload" as="image" href={nahledUrl(nasledujici.url, 1600)} crossOrigin="anonymous" />
           )}
           {viditelne.length > 1 && (
             <>
