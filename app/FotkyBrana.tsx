@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { deviceId } from "@/lib/deviceId";
 import FotoGalerie from "./FotoGalerie";
 import s from "./brana.module.css";
 
@@ -69,7 +70,7 @@ export default function FotkyBrana() {
       const r = await fetch("/api/fotky/vstup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ odpoved }),
+        body: JSON.stringify({ odpoved, deviceId: deviceId() }),
       });
       if (r.ok) {
         const d: { spravce?: boolean } = await r.json().catch(() => ({}));

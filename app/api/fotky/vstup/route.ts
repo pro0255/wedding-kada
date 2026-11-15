@@ -5,6 +5,8 @@ import {
   COOKIE_FOTKY_MAX_AGE,
   COOKIE_SPRAVCE,
   jeSpravnaOdpoved,
+  mocPokusu,
+  OKNO_POKUSU_S,
   tokenPristupu,
 } from "@/lib/pristup";
 import { KLIC, maRedis, redis } from "@/lib/redis";
@@ -12,10 +14,8 @@ import { VstupPostSchema } from "@/lib/schemata";
 
 /* Vstup do galerie fotek. Odpověď na otázku zná jen server (FOTKY_HESLO),
    prohlížeč po správné odpovědi dostane httpOnly cookie a ostatní API fotek
-   ji kontroluje. Hádání brzdí limit špatných pokusů na IP. */
-
-const MAX_POKUSU = 2; // špatných odpovědí za minutu z jedné adresy
-const OKNO_S = 60;
+   ji kontroluje. Hádání brzdí limit špatných pokusů na zařízení a na IP
+   (lib/pristup.ts, LIMIT_POKUSU). */
 
 /** Pustí pes hosta rovnou? Cookie je httpOnly, prohlížeč se musí zeptat. */
 export async function GET() {
@@ -33,20 +33,29 @@ export async function DELETE() {
    Dřív se o něj route opřela hned prvním příkazem: redis() hodí výjimku
    ještě před vznikem slibu, takže ji .catch() nechytil a vstup vracel 500.
    Galerii drží odpověď, ne tohle — výpadek počítadla ji nesmí zamknout. */
-async function spatnePokusy(klic: string): Promise<number> {
-  if (!maRedis()) return 0;
+type Klice = { zarizeni: string | null; ip: string };
+
+async function spatnePokusy(k: Klice): Promise<{ zarizeni: number; ip: number }> {
+  const nic = { zarizeni: 0, ip: 0 };
+  if (!maRedis()) return nic;
   try {
-    return (await redis().get<number>(klic)) ?? 0;
+    const klice = k.zarizeni ? [k.ip, k.zarizeni] : [k.ip];
+    const [ip, zarizeni] = await redis().mget<(number | null)[]>(...klice);
+    return { ip: ip ?? 0, zarizeni: zarizeni ?? 0 };
   } catch (chyba) {
     console.warn("[fotky] počítadlo pokusů je nedostupné, limit se nepočítá", chyba);
-    return 0;
+    return nic;
   }
 }
 
-async function zapocitejPokus(klic: string): Promise<void> {
+async function zapocitejPokus(k: Klice): Promise<void> {
   if (!maRedis()) return;
   try {
-    await redis().multi().incr(klic).expire(klic, OKNO_S).exec();
+    const tx = redis().multi();
+    for (const klic of [k.ip, k.zarizeni]) {
+      if (klic) tx.incr(klic).expire(klic, OKNO_POKUSU_S);
+    }
+    await tx.exec();
   } catch (chyba) {
     console.error("[fotky] Pokus se nepodařilo započítat:", chyba);
   }
@@ -57,9 +66,11 @@ export async function POST(request: Request) {
   if (!telo.success) return Response.json({ chyba: "Neplatný požadavek." }, { status: 400 });
 
   const ip = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "neznama";
-  const klic = KLIC.vstupPokusy(ip);
-  const pokusy = await spatnePokusy(klic);
-  if (pokusy >= MAX_POKUSU) {
+  const klice: Klice = {
+    ip: KLIC.vstupPokusyIp(ip),
+    zarizeni: telo.data.deviceId ? KLIC.vstupPokusyZarizeni(telo.data.deviceId) : null,
+  };
+  if (mocPokusu(await spatnePokusy(klice))) {
     return Response.json({ ok: false, chyba: "moc-pokusu" }, { status: 429 });
   }
 
@@ -71,7 +82,7 @@ export async function POST(request: Request) {
   const jakoSpravce = jeSpravnaOdpoved(telo.data.odpoved, spravcovske);
 
   if (!jakoSpravce && !jeSpravnaOdpoved(telo.data.odpoved, heslo)) {
-    await zapocitejPokus(klic);
+    await zapocitejPokus(klice);
     return Response.json({ ok: false }, { status: 401 });
   }
 

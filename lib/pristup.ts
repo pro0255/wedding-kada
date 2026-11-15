@@ -32,6 +32,18 @@ function stejne(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
+/* Brzda na hádání u vstupu, dvě úrovně. Zařízení = host, který se spletl
+   (deviceId z localStorage). IP = skript, který si deviceId pokaždé změní
+   nebo ho vůbec nepošle. Na svatební wifi i u mobilních operátorů sdílí
+   jednu IP desítky lidí, proto je limit IP vysoký — pár překlepů hostů
+   nesmí zamknout ostatní. Obojí za minutu. */
+export const LIMIT_POKUSU = { zarizeni: 2, ip: 30 } as const;
+export const OKNO_POKUSU_S = 60;
+
+export function mocPokusu(spatne: { zarizeni: number; ip: number }): boolean {
+  return spatne.zarizeni >= LIMIT_POKUSU.zarizeni || spatne.ip >= LIMIT_POKUSU.ip;
+}
+
 export function jeSpravnaOdpoved(odpoved: string, heslo: string): boolean {
   const h = normalizuj(heslo);
   return h.length > 0 && stejne(normalizuj(odpoved), h);

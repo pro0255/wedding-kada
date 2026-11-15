@@ -60,8 +60,12 @@ export const FotkaDeleteSchema = z.object({ id: FotkaIdSchema, deviceId: DeviceI
 
 export const LajkPostSchema = z.object({ fotkaId: FotkaIdSchema, deviceId: DeviceIdSchema });
 
-/** Odpověď na otázku u vstupu do galerie fotek. */
-export const VstupPostSchema = z.object({ odpoved: z.string().trim().min(1).max(60) });
+/** Odpověď na otázku u vstupu do galerie fotek. deviceId je jen pro limit
+ *  pokusů na zařízení — starší klient ho neposílá, pak platí jen limit IP. */
+export const VstupPostSchema = z.object({
+  odpoved: z.string().trim().min(1).max(60),
+  deviceId: DeviceIdSchema.optional(),
+});
 
 /* Stav kapacity ubytování, jak ho vrací /api/ubytovani. Klient si odpověď
    ověřuje: když API selže, vrací chybový objekt se stejným stavovým kódem,

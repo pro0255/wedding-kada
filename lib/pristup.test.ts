@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { jeSpravnaOdpoved, normalizuj, platnyToken, tokenPristupu } from "./pristup.ts";
+import { jeSpravnaOdpoved, mocPokusu, normalizuj, platnyToken, tokenPristupu } from "./pristup.ts";
 
 // heslo v testu je vymyšlené — skutečné je jen v proměnné prostředí
 const HESLO = "Bára";
@@ -36,4 +36,14 @@ test("token platí jen pro své heslo", () => {
   assert.ok(!platnyToken(t, "Jiné"));
   assert.ok(!platnyToken(undefined, HESLO));
   assert.ok(!platnyToken(t.slice(1), HESLO));
+});
+
+test("limit pokusů: 2 na zařízení, 30 na IP", () => {
+  assert.ok(!mocPokusu({ zarizeni: 0, ip: 0 }));
+  assert.ok(!mocPokusu({ zarizeni: 1, ip: 29 }));
+  assert.ok(mocPokusu({ zarizeni: 2, ip: 2 }));
+  // jiný host na stejné wifi projde, i když se spletli ostatní
+  assert.ok(!mocPokusu({ zarizeni: 0, ip: 20 }));
+  // skript, který mění deviceId, zastaví IP
+  assert.ok(mocPokusu({ zarizeni: 0, ip: 30 }));
 });
