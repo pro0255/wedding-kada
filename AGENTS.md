@@ -11,7 +11,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Pravidla projektu
 
 - Hotovou práci rovnou commitni a pushni na `main` — žádné branche ani PR, nečekej na pokyn. Deploy na Vercel jde automaticky z `main` (GitHub Actions).
-- Před každým `git push` spusť `npm run check` (tsc + testy + build). Když neprojde, nepushuj.
+- Před každým `git push` spusť `npm run check` (testy + build; typy kontroluje `next build`, samostatné `tsc` by je dělalo podruhé). Když neprojde, nepushuj.
+- Do klientských komponent neimportuj hodnoty z `lib/schemata.ts` (přitáhne celý zod, ~85 kB gz) — jen `import type`. Schémata pro prohlížeč patří do `lib/schemataKlient.ts` (`zod/mini`), konstanty her do `lib/hry.ts`.
 - Všechno, co přichází z klienta (route handlery, server actions, query parametry), validuj přes zod schémata v `lib/schemata.ts`. Žádné ruční `typeof` kontroly.
 - Jednotkové testy: `lib/*.test.ts`, `node --test` (Node stripuje typy nativně, relativní importy v `lib/` proto mají příponu `.ts`).
 - Jména snoubenců: nahoře a formálně (titulek stránky, hero, metadata, OG obrázek, oznámení, kalendář) „Kateřina & Jakub“; dál na stránce, v podpisech a osobních vzkazech „Kačka & Kuba“. Iniciály „K & J“ se nepoužívají — i úvodní obrazovka a desky menu mají celá jména. Dvojice jmen s ampersandem „&“ (ve větě, jako na oznámení „Kateřina a Jakub si řeknou…“, zůstává „a“).

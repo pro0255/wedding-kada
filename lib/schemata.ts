@@ -1,12 +1,12 @@
 import { z } from "zod";
+import { HRY, type HraSlug } from "./hry.ts";
 
 /**
  * Zod schémata pro všechno, co přichází z klienta. Route handlery parsují
  * jen přes ně — ručně psané `typeof` kontroly sem nepatří.
  */
-export const HRY = ["zenich", "husky", "prsten"] as const;
+export { HRY, type HraSlug };
 export const HraSchema = z.enum(HRY);
-export type HraSlug = z.infer<typeof HraSchema>;
 
 /** Náš vygenerovaný uuid z localStorage — nic jiného nepouštíme dál. */
 export const DeviceIdSchema = z.string().regex(/^[a-f0-9-]{16,64}$/i);
@@ -95,12 +95,3 @@ export const RezervacePostSchema = z.object(
   },
   { error: NEPLATNY },
 );
-
-/* Stav kapacity ubytování, jak ho vrací /api/ubytovani. Klient si odpověď
-   ověřuje: když API selže, vrací chybový objekt se stejným stavovým kódem,
-   a bez kontroly se z něj v rozhraní stalo „volných míst: undefined“. */
-export const UbytovaniStavSchema = z.object({
-  obsazeno: z.number().int().min(0),
-  celkem: z.number().int().min(0),
-  volno: z.number().int().min(0),
-});

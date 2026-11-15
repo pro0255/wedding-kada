@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { VENUE_WEB_URL } from "./venue";
-import { UbytovaniStavSchema } from "../lib/schemata";
+import { UbytovaniStavSchema } from "../lib/schemataKlient";
 import FotoHromadka, { type FotkaNaHromadce } from "./FotoHromadka";
 
 /* Fotky pokojů a snídaní. Bez popisků — na fotce pokoje je vidět, co na ní je,

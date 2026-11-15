@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Map as MaplibreMap, Marker, setWorkerUrl } from "maplibre-gl";
+import { Map as MaplibreMap, Marker, getVersion, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { VENUE_COORDS as VENUE } from "./venue";
 
 // Turbopack rozbije cestu k maplibre workeru (import.meta.url míří do chunku),
 // worker se tiše nespustí a mapa zůstane prázdná. Proto kopie workeru
-// v /public — při upgradu maplibre-gl je nutné zkopírovat znovu:
-// cp node_modules/maplibre-gl/dist/maplibre-gl-{worker,shared}.mjs public/
-setWorkerUrl("/maplibre-gl-worker.mjs");
+// v /public — kopíruje ji `postinstall` v package.json, takže po upgradu
+// maplibre-gl sedí sama. Worker jiné verze než knihovna mapu shodí
+// („can't deserialize unregistered class“), proto je verze i v adrese:
+// service worker tak hostům nevrátí starou uloženou kopii.
+setWorkerUrl(`/maplibre-gl-worker.mjs?v=${getVersion()}`);
 
 /* Vychází z barev výchozích Google Maps, se dvěma odchylkami: zeleň je
    posunutá k naší šalvějové (--zelena #b7d3ab zesvětlená), ať mapa ladí se

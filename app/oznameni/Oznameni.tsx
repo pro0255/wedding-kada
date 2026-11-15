@@ -27,6 +27,8 @@ const kaligrafie = Parisienne({
   subsets: ["latin", "latin-ext"],
   weight: "400",
   variable: "--kaligrafie",
+  // na úvodní stránce je oznámení schované v obálce — preload by soupeřil s hero
+  preload: false,
 });
 
 const SPAD = 3;   // přesah přes ořez na každou stranu, v mm

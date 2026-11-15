@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { HRY, type HraSlug } from "@/lib/schemata";
+import { HRY, type HraSlug } from "@/lib/hry";
 import type { Lidr } from "@/lib/hra";
 import { HRY_REGISTR } from "./hry";
 import IkonaHry from "./IkonaHry";
