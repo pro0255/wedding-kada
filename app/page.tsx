@@ -857,6 +857,42 @@ function UvodniObrazovka() {
             />
           </g>
         ))}
+        {/* Snoubenci jdou po hlavním hřebeni od druhého majáku ke zvoničce
+           a za chvíli je doběhne pes. Polohu nese CSS (cesta-par, cesta-pes
+           v globals.css) — body jsou odečtené z polyline hory.svg, stejně
+           jako majáky. Kreslí se od paty (y = 0), ať stojí na hřebeni. */}
+        <g
+          className="poutnici"
+          fill="none"
+          stroke="#7d6742"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <g className="poutnik-par">
+            {/* nevěsta: šaty, závoj, ruka k ženichovi */}
+            <g className="poutnik-nevesta" transform="translate(-4 0)">
+              <circle cy="-12.7" r="1.9" />
+              <path d="M 0 -10.8 L -3.2 0 H 3.2 Z" />
+              <path d="M -1.6 -13.8 C -4 -12.6, -4.6 -9.5, -4.3 -7" />
+              <path d="M 0.6 -9.6 L 4 -7" />
+            </g>
+            <g transform="translate(4 0)">
+              <circle cy="-13.3" r="2" />
+              <path d="M 0 -11.3 V -5.5 M -0.6 -10 L -4 -7" />
+              <path className="poutnik-noha" d="M 0 -5.5 V 0" />
+              <path className="poutnik-noha poutnik-noha-b" d="M 0 -5.5 V 0" />
+            </g>
+          </g>
+          <g className="poutnik-pes">
+            <g className="poutnik-pes-skok">
+              <path d="M -4 -4.2 H 3 L 5 -6.6 L 7.6 -5.8 M 4.9 -6.7 L 4.1 -8.4" />
+              <path className="poutnik-ocas" d="M -4 -4.2 L -6.2 -7.4" />
+              <path className="poutnik-tlapa" d="M -3.2 -4.2 V 0" />
+              <path className="poutnik-tlapa poutnik-tlapa-b" d="M 2.4 -4.2 V 0" />
+            </g>
+          </g>
+        </g>
       </svg>
       <div className="loader-brand">
         Kateřina &amp; Jakub
