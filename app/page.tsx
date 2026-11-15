@@ -769,8 +769,8 @@ function UvodniObrazovka() {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
-  // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí cinkne a postupně
-  // utichne (viz uvodHudba.ts)
+  // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí postupně utichne
+  // (viz uvodHudba.ts)
   const hudba = useRef<UvodniHudba | null>(null);
   useEffect(() => {
     const h = spustUvodniHudbu();

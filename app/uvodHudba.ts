@@ -1,5 +1,6 @@
 /* Hudba na úvodní obrazovce: z ticha pomalu zesílí, po klepnutí na prsten
-   cinkne, krátce se vzedme a pak pod stránkou postupně utichne.
+   se krátce vzedme a pak pod stránkou postupně utichne. Žádný zvuk klepnutí
+   navíc — cinknutí tu bylo a rušilo.
 
    Prohlížeče zvuk bez gesta většinou nepustí (iPhone nikdy, Chrome jen na
    webu, kde už host něco pouštěl). Proto dvě cesty:
@@ -30,31 +31,6 @@ const HRAJ_MS = 9000;
 const KROK_MS = 50;
 // při doznívání se filtr přivře až sem — zůstanou jen hloubky
 const FILTR_DOLE_HZ = 600;
-/* Cinknutí prstenu: [kmitočet, síla, zpoždění v s]. Nahrávka je v a moll,
-   proto prázdná kvinta e–a — sedí k ní, ať zrovna hraje cokoli. */
-const CINK: [number, number, number][] = [
-  [1318.51, 0.05, 0],
-  [2637.02, 0.02, 0],
-  [1760, 0.035, 0.09],
-];
-const CINK_S = 1.8;
-
-function cinkni(ctx: AudioContext) {
-  const t = ctx.currentTime;
-  for (const [kmitocet, sila, zpozdeni] of CINK) {
-    const od = t + zpozdeni;
-    const osc = ctx.createOscillator();
-    const obalka = ctx.createGain();
-    osc.frequency.value = kmitocet;
-    obalka.gain.setValueAtTime(0, od);
-    obalka.gain.linearRampToValueAtTime(sila, od + 0.008);
-    obalka.gain.exponentialRampToValueAtTime(0.0001, od + CINK_S);
-    osc.connect(obalka).connect(ctx.destination);
-    osc.start(od);
-    osc.stop(od + CINK_S + 0.05);
-  }
-}
-
 export type UvodniHudba = { utichni: () => void; zrus: () => void };
 
 export function spustUvodniHudbu(): UvodniHudba {
@@ -163,9 +139,8 @@ export function spustUvodniHudbu(): UvodniHudba {
       // hlasitost odteď drží zesilovač; nejdřív on, pak <audio> naplno,
       // ať přepojení na okamžik nezesílí
       if (hlasitostJde) audio.volume = 1;
-      cinkni(ctx);
     } catch {
-      // bez kontextu zůstane řízení na <audio> (a klepnutí bez cinknutí)
+      // bez kontextu zůstane řízení na <audio>
       ctx = null;
       zesilovac = null;
       filtr = null;
