@@ -857,10 +857,12 @@ function UvodniObrazovka() {
             />
           </g>
         ))}
-        {/* Snoubenci jdou po hlavním hřebeni od druhého majáku ke zvoničce
-           a za chvíli je doběhne pes. Polohu nese CSS (cesta-par, cesta-pes
-           v globals.css) — body jsou odečtené z polyline hory.svg, stejně
-           jako majáky. Kreslí se od paty (y = 0), ať stojí na hřebeni. */}
+        {/* Po hlavním hřebeni jde od druhého majáku ke zvoničce celá rodina:
+           snoubenci a za nimi postupně vyběhne dítě, pes a kočka. Polohu
+           i časování nese CSS (cesta-* v globals.css) — body jsou odečtené
+           z polyline hory.svg, stejně jako majáky. Kreslí se od paty
+           (y = 0), ať stojí na hřebeni. V DOM jsou odzadu, ať pár překryje
+           ty, kdo ho na startu dobíhají. */}
         <g
           className="poutnici"
           fill="none"
@@ -869,7 +871,66 @@ function UvodniObrazovka() {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <g className="poutnik-par">
+          {/* kočka: menší než pes, kulatá hlava s oušky a vysoko nesený ocas */}
+          <g className="poutnik poutnik-kocka" strokeWidth="1">
+            <path d="M -3 -3 H 2.2" />
+            <circle cx="3.5" cy="-3.9" r="1.3" />
+            <path d="M 2.7 -5 L 2.8 -6.2 M 4.3 -5 L 4.5 -6.2" />
+            <path
+              className="poutnik-ocas"
+              style={{ transformOrigin: "-3px -3px" }}
+              d="M -3 -3 C -4.6 -4.4, -4 -6.8, -5.2 -7.6"
+            />
+            <path
+              className="poutnik-noha"
+              style={{ transformOrigin: "-2.4px -3px" }}
+              d="M -2.4 -3 V 0"
+            />
+            <path
+              className="poutnik-noha poutnik-noha-b"
+              style={{ transformOrigin: "1.6px -3px" }}
+              d="M 1.6 -3 V 0"
+            />
+          </g>
+          {/* pes: retrívr se svěšeným uchem */}
+          <g className="poutnik poutnik-pes">
+            <g className="poutnik-skok">
+              <path d="M -4 -4.2 H 3 L 5 -6.6 L 7.6 -5.8 M 4.7 -6.5 L 3.9 -4.9" />
+              <path
+                className="poutnik-ocas"
+                style={{ transformOrigin: "-4px -4.2px" }}
+                d="M -4 -4.2 L -6.2 -7.4"
+              />
+              <path
+                className="poutnik-noha"
+                style={{ transformOrigin: "-3.2px -4.2px" }}
+                d="M -3.2 -4.2 V 0"
+              />
+              <path
+                className="poutnik-noha poutnik-noha-b"
+                style={{ transformOrigin: "2.4px -4.2px" }}
+                d="M 2.4 -4.2 V 0"
+              />
+            </g>
+          </g>
+          {/* dítě: ruka nahoru k mámě */}
+          <g className="poutnik poutnik-dite">
+            <g className="poutnik-skok">
+              <circle cy="-8" r="1.6" />
+              <path d="M 0 -6.4 V -3.4 M 0 -5.6 L -2 -4.2 M 0 -5.6 L 2.4 -7" />
+              <path
+                className="poutnik-noha"
+                style={{ transformOrigin: "0 -3.4px" }}
+                d="M 0 -3.4 V 0"
+              />
+              <path
+                className="poutnik-noha poutnik-noha-b"
+                style={{ transformOrigin: "0 -3.4px" }}
+                d="M 0 -3.4 V 0"
+              />
+            </g>
+          </g>
+          <g className="poutnik poutnik-par">
             {/* nevěsta: šaty, závoj, ruka k ženichovi */}
             <g className="poutnik-nevesta" transform="translate(-4 0)">
               <circle cy="-12.7" r="1.9" />
@@ -880,16 +941,16 @@ function UvodniObrazovka() {
             <g transform="translate(4 0)">
               <circle cy="-13.3" r="2" />
               <path d="M 0 -11.3 V -5.5 M -0.6 -10 L -4 -7" />
-              <path className="poutnik-noha" d="M 0 -5.5 V 0" />
-              <path className="poutnik-noha poutnik-noha-b" d="M 0 -5.5 V 0" />
-            </g>
-          </g>
-          <g className="poutnik-pes">
-            <g className="poutnik-pes-skok">
-              <path d="M -4 -4.2 H 3 L 5 -6.6 L 7.6 -5.8 M 4.9 -6.7 L 4.1 -8.4" />
-              <path className="poutnik-ocas" d="M -4 -4.2 L -6.2 -7.4" />
-              <path className="poutnik-tlapa" d="M -3.2 -4.2 V 0" />
-              <path className="poutnik-tlapa poutnik-tlapa-b" d="M 2.4 -4.2 V 0" />
+              <path
+                className="poutnik-noha"
+                style={{ transformOrigin: "0 -5.5px" }}
+                d="M 0 -5.5 V 0"
+              />
+              <path
+                className="poutnik-noha poutnik-noha-b"
+                style={{ transformOrigin: "0 -5.5px" }}
+                d="M 0 -5.5 V 0"
+              />
             </g>
           </g>
         </g>

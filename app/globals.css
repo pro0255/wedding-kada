@@ -262,22 +262,48 @@ h3,
     transform: scaleY(0.92) scaleX(1.06);
   }
 }
-/* Snoubenci na hřebeni: objeví se u druhého majáku stejným zážehem jako
-   majáky, dojdou ke zvoničce a zůstanou stát. Pes přibude později a doběhne
-   je. Zpoždění a délky drží pohromadě: nohy kmitají přesně po dobu chůze
-   (počet kroků × délka kroku = délka cesty), pak se zastaví samy. Pes dobíhá
-   až po páru, jinak by jím cestou proběhl. */
-.poutnik-par {
+/* Na hřebeni jde celá rodina. Snoubenci se objeví u druhého majáku stejným
+   zážehem jako majáky a jdou ke zvoničce; postupně za nimi vyběhne dítě, pes
+   a kočka a nahoře se seřadí vedle nich. Každý další vybíhá později a běží
+   rychleji, ale dobíhá až po tom před sebou — jinak by jím cestou proběhl.
+
+   --start, --krok a --kroku drží pohromadě chůzi a kyv nohou: nohy kmitají
+   přesně po dobu cesty (krok × kroků = délka cesty) a pak se zastaví samy.
+   Počet kroků je sudý, ať poskok skončí na zemi. */
+.poutnik {
   opacity: 0;
+}
+.poutnik-par {
+  --start: 1.6s;
+  --krok: 0.5s;
+  --kroku: 20;
   animation:
     majak-zazeh 1.1s ease-out 1.4s both,
-    cesta-par 10s linear 1.6s both;
+    cesta-par 10s linear var(--start) both;
+}
+.poutnik-dite {
+  --start: 5s;
+  --krok: 0.29s;
+  --kroku: 24;
+  animation:
+    majak-zazeh 1.1s ease-out 4.6s both,
+    cesta-dite 6.96s linear var(--start) both;
 }
 .poutnik-pes {
-  opacity: 0;
+  --start: 7.6s;
+  --krok: 0.21s;
+  --kroku: 24;
   animation:
-    majak-zazeh 1.1s ease-out 7.4s both,
-    cesta-pes 4.4s linear 7.8s both;
+    majak-zazeh 1.1s ease-out 7.2s both,
+    cesta-pes 5.04s linear var(--start) both;
+}
+.poutnik-kocka {
+  --start: 10s;
+  --krok: 0.21s;
+  --kroku: 22;
+  animation:
+    majak-zazeh 1.1s ease-out 9.6s both,
+    cesta-kocka 4.62s linear var(--start) both;
 }
 /* body hlavního hřebene z hory.svg (polyline se stroke-width 1.5) */
 @keyframes cesta-par {
@@ -315,57 +341,118 @@ h3,
     transform: translate(720px, 118.4px);
   }
 }
+@keyframes cesta-dite {
+  0% {
+    transform: translate(548px, 164.9px);
+  }
+  10% {
+    transform: translate(563.9px, 167.4px);
+  }
+  20% {
+    transform: translate(579.7px, 168.4px);
+  }
+  30% {
+    transform: translate(595.5px, 167.6px);
+  }
+  40% {
+    transform: translate(611.4px, 164.9px);
+  }
+  50% {
+    transform: translate(627.2px, 160.2px);
+  }
+  60% {
+    transform: translate(643.1px, 153.8px);
+  }
+  70% {
+    transform: translate(659px, 146.4px);
+  }
+  80% {
+    transform: translate(674.8px, 138.4px);
+  }
+  90% {
+    transform: translate(690.6px, 130.6px);
+  }
+  100% {
+    transform: translate(706.5px, 123.5px);
+  }
+}
 @keyframes cesta-pes {
   0% {
     transform: translate(548px, 164.9px);
   }
   10% {
-    transform: translate(563.1px, 167.3px);
+    transform: translate(562.5px, 167.2px);
   }
   20% {
-    transform: translate(578.2px, 168.4px);
+    transform: translate(577px, 168.3px);
   }
   30% {
-    transform: translate(593.3px, 167.9px);
+    transform: translate(591.5px, 168px);
   }
   40% {
-    transform: translate(608.4px, 165.5px);
+    transform: translate(606px, 166px);
   }
   50% {
-    transform: translate(623.5px, 161.5px);
+    transform: translate(620.5px, 162.4px);
   }
   60% {
-    transform: translate(638.6px, 155.8px);
+    transform: translate(635px, 157.3px);
   }
   70% {
-    transform: translate(653.7px, 148.9px);
+    transform: translate(649.5px, 150.9px);
   }
   80% {
-    transform: translate(668.8px, 141.5px);
+    transform: translate(664px, 143.9px);
   }
   90% {
-    transform: translate(683.9px, 133.9px);
+    transform: translate(678.5px, 136.6px);
   }
   100% {
-    transform: translate(699px, 126.7px);
+    transform: translate(693px, 129.5px);
   }
 }
-/* Kyvy se točí kolem kyčle / kořene ocasu. Střed je v souřadnicích kresby
-   (px = jednotky viewBoxu), ne v procentech — ta by se brala z celého
-   panoramatu, viz poznámka u majáků. */
+@keyframes cesta-kocka {
+  0% {
+    transform: translate(548px, 164.9px);
+  }
+  10% {
+    transform: translate(561.1px, 167px);
+  }
+  20% {
+    transform: translate(574.3px, 168.3px);
+  }
+  30% {
+    transform: translate(587.5px, 168.3px);
+  }
+  40% {
+    transform: translate(600.6px, 167px);
+  }
+  50% {
+    transform: translate(613.8px, 164.3px);
+  }
+  60% {
+    transform: translate(626.9px, 160.3px);
+  }
+  70% {
+    transform: translate(640px, 155.2px);
+  }
+  80% {
+    transform: translate(653.2px, 149.2px);
+  }
+  90% {
+    transform: translate(666.4px, 142.7px);
+  }
+  100% {
+    transform: translate(679.5px, 136.1px);
+  }
+}
+/* Kyv nohou a tlap kolem kyčle. Střed otáčení má každá čára ve style
+   (souřadnice kresby, px = jednotky viewBoxu) — procenta by se brala
+   z celého panoramatu, viz poznámka u majáků. */
 .poutnik-noha {
-  transform-origin: 0 -5.5px;
-  animation: poutnik-kyv 0.5s ease-in-out 1.6s 20 alternate both;
+  animation: poutnik-kyv var(--krok) ease-in-out var(--start) var(--kroku) alternate both;
 }
-.poutnik-tlapa {
-  transform-origin: -3.2px -4.2px;
-  animation: poutnik-kyv 0.2s ease-in-out 7.8s 22 alternate both;
-}
-.poutnik-tlapa-b {
-  transform-origin: 2.4px -4.2px;
-}
-.poutnik-noha-b,
-.poutnik-tlapa-b {
+.poutnik-noha-b {
   animation-direction: alternate-reverse;
 }
 @keyframes poutnik-kyv {
@@ -379,7 +466,7 @@ h3,
 /* šaty nemají nohy — nevěsta se při chůzi jen lehce pohupuje */
 .poutnik-nevesta {
   transform-origin: 0 0;
-  animation: poutnik-houpani 0.5s ease-in-out 1.6s 20 alternate both;
+  animation: poutnik-houpani var(--krok) ease-in-out var(--start) var(--kroku) alternate both;
 }
 @keyframes poutnik-houpani {
   from {
@@ -389,9 +476,9 @@ h3,
     transform: translate(-4px, 0) rotate(2.5deg);
   }
 }
-/* pes běží poskoky a po doběhnutí už jen vrtí ocasem */
-.poutnik-pes-skok {
-  animation: poutnik-skok 0.4s ease-in-out 7.8s 11 both;
+/* dítě a pes běží poskoky: jeden poskok na dva kroky */
+.poutnik-skok {
+  animation: poutnik-skok calc(var(--krok) * 2) ease-in-out var(--start) calc(var(--kroku) / 2) both;
 }
 @keyframes poutnik-skok {
   0%,
@@ -402,32 +489,41 @@ h3,
     transform: translateY(-1.6px);
   }
 }
+/* po doběhnutí pes dál vrtí ocasem, kočka jím jen líně pohupuje */
 .poutnik-ocas {
-  transform-origin: -4px -4.2px;
-  animation: poutnik-ocas 0.32s ease-in-out 7.4s infinite alternate;
+  animation: poutnik-ocas 0.32s ease-in-out 7.2s infinite alternate;
+}
+.poutnik-kocka .poutnik-ocas {
+  animation-duration: 1.7s;
+  animation-delay: 9.6s;
 }
 @keyframes poutnik-ocas {
   from {
-    transform: rotate(-14deg);
+    transform: rotate(-12deg);
   }
   to {
-    transform: rotate(22deg);
+    transform: rotate(20deg);
   }
 }
-/* s vypnutými animacemi stojí všichni tři rovnou u zvoničky */
+/* s vypnutými animacemi stojí všichni rovnou u zvoničky */
 @media (prefers-reduced-motion: reduce) {
-  .poutnik-par {
+  .poutnik {
     opacity: 1;
-    animation: none;
-    transform: translate(720px, 118.4px);
-  }
-  .poutnik-pes {
-    opacity: 1;
-    animation: none;
-    transform: translate(699px, 126.7px);
   }
   .poutnici * {
     animation: none;
+  }
+  .poutnik-par {
+    transform: translate(720px, 118.4px);
+  }
+  .poutnik-dite {
+    transform: translate(706.5px, 123.5px);
+  }
+  .poutnik-pes {
+    transform: translate(693px, 129.5px);
+  }
+  .poutnik-kocka {
+    transform: translate(679.5px, 136.1px);
   }
 }
 /* s vypnutými animacemi majáky prostě tiše svítí */
