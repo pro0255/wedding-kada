@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Scena from "../_spolecne/Scena";
 import ObalkaCss from "./ObalkaCss";
 
-export const metadata: Metadata = { title: "Návrh obálky V2 — CSS 3D", robots: { index: false } };
+export const metadata: Metadata = { title: "Návrh obálky V2 - CSS 3D", robots: { index: false } };
 
 export default function Page() {
   return (

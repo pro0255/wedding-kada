@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import s from "./index.module.css";
 
-export const metadata: Metadata = { title: "Návrhy obálky — Náš příběh", robots: { index: false } };
+export const metadata: Metadata = { title: "Návrhy obálky - Náš příběh", robots: { index: false } };
 
 const VERZE = [
   {

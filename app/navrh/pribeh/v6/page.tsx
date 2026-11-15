@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import Film from "./Film";
 
 export const metadata: Metadata = {
-  title: "Příběh — S6: kontaktní arch",
+  title: "Příběh - S6: kontaktní arch",
   robots: { index: false, follow: false },
 };
 

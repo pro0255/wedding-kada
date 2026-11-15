@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import s from "./karta.module.css";
 
 export const metadata: Metadata = {
-  title: "Program — H1: tištěná karta",
+  title: "Program - H1: tištěná karta",
   robots: { index: false, follow: false },
 };
 

@@ -3,7 +3,7 @@ import Scena from "../_spolecne/Scena";
 import ObalkaGsap from "./ObalkaGsap";
 
 export const metadata: Metadata = {
-  title: "Návrh obálky V3 — GSAP, adresa a rub",
+  title: "Návrh obálky V3 - GSAP, adresa a rub",
   robots: { index: false },
 };
 

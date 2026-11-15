@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Kniha3D from "./Kniha3D";
 
 export const metadata: Metadata = {
-  title: "Menu — návrh 4: kniha ve WebGL",
+  title: "Menu - návrh 4: kniha ve WebGL",
   robots: { index: false, follow: false },
 };
 

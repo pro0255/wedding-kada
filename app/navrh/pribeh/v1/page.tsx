@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Snura from "./Snura";
 
 export const metadata: Metadata = {
-  title: "Příběh — S1: fotky na šňůře",
+  title: "Příběh - S1: fotky na šňůře",
   robots: { index: false, follow: false },
 };
 

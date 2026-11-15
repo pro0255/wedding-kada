@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Kapitoly from "./Kapitoly";
 
 export const metadata: Metadata = {
-  title: "Příběh — S4: kapitoly",
+  title: "Příběh - S4: kapitoly",
   robots: { index: false, follow: false },
 };
 

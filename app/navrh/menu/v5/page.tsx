@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import KnihaPrstynky from "./KnihaPrstynky";
 
 export const metadata: Metadata = {
-  title: "Menu — návrh 5: kniha a 3D prstýnky",
+  title: "Menu - návrh 5: kniha a 3D prstýnky",
   robots: { index: false, follow: false },
 };
 

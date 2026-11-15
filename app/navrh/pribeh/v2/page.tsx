@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Album from "./Album";
 
 export const metadata: Metadata = {
-  title: "Příběh — S2: fotoalbum",
+  title: "Příběh - S2: fotoalbum",
   robots: { index: false, follow: false },
 };
 

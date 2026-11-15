@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import s from "./pulky.module.css";
 
 export const metadata: Metadata = {
-  title: "Program — H3: dvě půlky dne",
+  title: "Program - H3: dvě půlky dne",
   robots: { index: false, follow: false },
 };
 

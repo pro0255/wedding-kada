@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Kniha from "./Kniha";
 
 export const metadata: Metadata = {
-  title: "Menu — návrh 1: kniha s tloušťkou",
+  title: "Menu - návrh 1: kniha s tloušťkou",
   robots: { index: false, follow: false },
 };
 

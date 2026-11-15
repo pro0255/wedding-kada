@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Kapsa from "./Kapsa";
 
 export const metadata: Metadata = {
-  title: "Menu — návrh 3: karty v kapse",
+  title: "Menu - návrh 3: karty v kapse",
   robots: { index: false, follow: false },
 };
 

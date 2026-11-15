@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import s from "./rada.module.css";
 
 export const metadata: Metadata = {
-  title: "Program — H4: řada jako odpočet",
+  title: "Program - H4: řada jako odpočet",
   robots: { index: false, follow: false },
 };
 

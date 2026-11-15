@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import s from "./osa.module.css";
 
 export const metadata: Metadata = {
-  title: "Program — H2: svislá osa",
+  title: "Program - H2: svislá osa",
   robots: { index: false, follow: false },
 };
 

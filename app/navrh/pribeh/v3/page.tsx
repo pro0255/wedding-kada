@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import ObalkaFotek from "./ObalkaFotek";
 
 export const metadata: Metadata = {
-  title: "Příběh — S3: obálka plná fotek",
+  title: "Příběh - S3: obálka plná fotek",
   robots: { index: false, follow: false },
 };
 

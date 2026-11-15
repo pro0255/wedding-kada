@@ -5,7 +5,7 @@ import { join } from "node:path";
 /* Náhled pro sdílení (Messenger, WhatsApp, iMessage…): zvonička z úvodní
    obrazovky pod jemným béžovým závojem a jména jako na heru. Generuje se
    při buildu, hosté dostávají hotové PNG. */
-export const alt = "Kateřina & Jakub — svatba 18. 9. 2027 u zvoničky v Rekovicích";
+export const alt = "Kateřina & Jakub - svatba 18. 9. 2027 u zvoničky v Rekovicích";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

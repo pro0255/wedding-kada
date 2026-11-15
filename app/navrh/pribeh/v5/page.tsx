@@ -4,7 +4,7 @@ import Ramec from "../Ramec";
 import Pribeh from "./Pribeh";
 
 export const metadata: Metadata = {
-  title: "Příběh — S5: příběh při scrollu",
+  title: "Příběh - S5: příběh při scrollu",
   robots: { index: false, follow: false },
 };
 

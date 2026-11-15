@@ -3,7 +3,7 @@ import Ramec from "../Ramec";
 import Skladacka from "./Skladacka";
 
 export const metadata: Metadata = {
-  title: "Menu — návrh 2: trojdílná skládačka",
+  title: "Menu - návrh 2: trojdílná skládačka",
   robots: { index: false, follow: false },
 };
 

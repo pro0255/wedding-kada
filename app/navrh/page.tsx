@@ -6,7 +6,7 @@ import Nahled from "./Nahled";
 import s from "./navrh.module.css";
 
 export const metadata: Metadata = {
-  title: "Návrhy — výběr",
+  title: "Návrhy - výběr",
   robots: { index: false, follow: false },
 };
 

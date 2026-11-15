@@ -14,7 +14,7 @@ export default function GlobalniChyba({ error, retry }: { error: unknown; retry:
   return (
     <html lang="cs">
       <body style={{ margin: 0 }}>
-        <title>Něco se pokazilo — Kateřina &amp; Jakub</title>
+        <title>Něco se pokazilo - Kateřina &amp; Jakub</title>
         <main className={s.stranka}>
           <h1>Tady se něco pokazilo</h1>
           <p>Omlouváme se — web se nepodařilo zobrazit. Většinou pomůže zkusit to znovu.</p>
