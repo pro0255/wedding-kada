@@ -14,6 +14,7 @@ const PLNE = {
   CLOUDINARY_API_KEY: "klic",
   CLOUDINARY_API_SECRET: "tajemstvi",
   AIRTABLE_KEY: "airtable",
+  WHATSAPP_SKUPINA: "https://chat.whatsapp.com/Vymyslena123",
 };
 
 test("se všemi povinnými projde, nepovinné chybět smí", () => {
@@ -27,6 +28,12 @@ test("chybějící nebo prázdná proměnná se ohlásí i s popisem", () => {
     ["FOTKY_SPRAVCE", "AIRTABLE_KEY"],
   );
   assert.ok(problemy.every((p) => p.popis.length > 0));
+});
+
+test("WhatsApp musí být pozvánka do skupiny", () => {
+  for (const spatne of ["https://zly.cz/x", "https://chat.whatsapp.com/Abc?s=qs", ""]) {
+    assert.deepEqual(problemyEnv({ ...PLNE, WHATSAPP_SKUPINA: spatne }).map((p) => p.nazev), ["WHATSAPP_SKUPINA"]);
+  }
 });
 
 test("adresa Redisu musí být URL", () => {

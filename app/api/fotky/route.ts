@@ -1,13 +1,17 @@
-import { pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
+import { odkazWhatsapp, pridejFotku, seznamFotek, smazFotku } from "@/lib/fotky";
 import { BEZ_PRISTUPU, jeSpravce, maPristupKFotkam } from "@/lib/fotkyPristup";
 import { DeviceIdSchema, FotkaDeleteSchema, FotkaPostSchema } from "@/lib/schemata";
 
-/** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup). */
+/** Galerie pro dané zařízení. Všechny metody jen pro toho, kdo prošel vstupem (/api/fotky/vstup).
+ *  Přibaluje i odkaz na WhatsApp skupinu (záloha k nahrávání) — ať ho vidí jen hosté. */
 export async function GET(request: Request) {
   if (!(await maPristupKFotkam())) return BEZ_PRISTUPU();
   const device = DeviceIdSchema.safeParse(new URL(request.url).searchParams.get("device"));
   try {
-    return Response.json({ fotky: await seznamFotek(device.success ? device.data : "") });
+    return Response.json({
+      fotky: await seznamFotek(device.success ? device.data : ""),
+      whatsapp: odkazWhatsapp(),
+    });
   } catch (chyba) {
     console.error("[fotky] Galerii se nepodařilo načíst:", chyba);
     return Response.json({ chyba: "Galerii se nepodařilo načíst." }, { status: 502 });

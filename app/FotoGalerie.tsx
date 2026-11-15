@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deviceId } from "@/lib/deviceId";
+import WhatsappZaloha from "./WhatsappZaloha";
 
 /**
  * Galerie fotek od hostů. Hosté nemají účty — prohlížeč se pozná podle
@@ -131,6 +132,9 @@ export default function FotoGalerie({
   const [prubeh, setPrubeh] = useState<{ hotovo: number; celkem: number; procento: number } | null>(null);
   const [hlaska, setHlaska] = useState(0);
   const [chyba, setChyba] = useState<string | null>(null);
+  // po neúspěšném nahrání nabídne WhatsApp skupinu (odkaz posílá server s galerií)
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
+  const [zaloha, setZaloha] = useState(false);
   /* Selhání PRVNÍHO načtení. Odděleně od chyby nahrávání a odděleně od
      selhání průběžné obnovy: když už galerie fotky má, výpadek se přejde
      mlčky a zobrazené fotky zůstanou. Bez tohohle stavu zůstalo fotky = null
@@ -156,7 +160,8 @@ export default function FotoGalerie({
         return;
       }
       setNacteniSelhalo(false);
-      const data = (await odpoved.json()) as { fotky: Fotka[] };
+      const data = (await odpoved.json()) as { fotky: Fotka[]; whatsapp?: string | null };
+      setWhatsapp(data.whatsapp ?? null);
       // server nese pravdu o lajcích ostatních; vlastní rozjednané se přes ni přeloží
       setFotky(
         data.fotky.map((f) => {
@@ -192,10 +197,12 @@ export default function FotoGalerie({
     const preset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET;
     if (!cloud || !preset) {
       setChyba("Nahrávání zatím není nastavené.");
+      setZaloha(true);
       return;
     }
 
     setChyba(null);
+    setZaloha(false);
     const celkem = soubory.length;
     let selhalo = 0;
     let prilisVelke = 0;
@@ -259,6 +266,7 @@ export default function FotoGalerie({
       );
     }
     if (zpravy.length) setChyba(zpravy.join(" "));
+    setZaloha(selhalo > 0 || prilisVelke > 0);
     nacti();
   }
 
@@ -388,6 +396,7 @@ export default function FotoGalerie({
       )}
 
       {chyba && <p className="galerie-chyba">{chyba}</p>}
+      {zaloha && whatsapp && <WhatsappZaloha odkaz={whatsapp} />}
 
       {spravce && (
         <p className="galerie-spravce" role="status">

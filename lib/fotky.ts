@@ -62,6 +62,12 @@ export async function seznamFotek(deviceId: string): Promise<FotkaVypis[]> {
     .sort((a, b) => b.nahrano.localeCompare(a.nahrano));
 }
 
+/** Pozvánka do WhatsApp skupiny — záloha, když nahrávání nejde. Jen z prostředí:
+ *  repozitář je veřejný a s odkazem by se do skupiny přidal kdokoli. */
+export function odkazWhatsapp(): string | null {
+  return process.env.WHATSAPP_SKUPINA?.trim() || null;
+}
+
 /** Zapíše nahranou fotku. */
 export async function pridejFotku(url: string, publicId: string, deviceId: string): Promise<string> {
   const id = noveId();

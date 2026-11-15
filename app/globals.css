@@ -1562,6 +1562,20 @@ footer {
 .galerie-upload-bezi { opacity: .55; pointer-events: none; }
 .galerie-chyba { margin-top: 1.1rem; font-size: .85rem; color: var(--palette-rose-text); }
 
+/* záloha při neúspěšném nahrání — WhatsApp skupina (app/WhatsappZaloha.tsx) */
+.whatsapp-zaloha {
+  max-width: 30rem; margin: 1rem auto 0; padding: 1.1rem 1.2rem;
+  border: 1px solid var(--bezova-linka); border-radius: 10px; background: rgba(255, 255, 255, .55);
+  display: grid; gap: .6rem; justify-items: center; text-align: center;
+  font-size: .92rem; line-height: 1.55; color: var(--ink-soft);
+}
+.whatsapp-zaloha p { margin: 0; }
+.whatsapp-zaloha-nadpis { font-family: var(--serif), Georgia, serif; font-size: 1.25rem; color: var(--ink); }
+.whatsapp-zaloha-btn { margin-top: .2rem; }
+.whatsapp-zaloha-qr { margin: .4rem 0 0; display: grid; gap: .3rem; justify-items: center; }
+.whatsapp-zaloha-qr img { width: 180px; height: 180px; border-radius: 6px; }
+.whatsapp-zaloha-qr figcaption { font-size: .78rem; }
+
 /* ---------- správcovský režim galerie ----------
    Pruh je drobný a nenápadný: je to pracovní režim pro nevěstu se ženichem,
    ne hlášení pro hosty. Odkaz ke dveřím pod galerií nic neprozrazuje — kdo

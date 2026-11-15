@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { jeSpravce } from "@/lib/fotkyPristup";
-import { seznamFotek } from "@/lib/fotky";
+import { odkazWhatsapp, seznamFotek } from "@/lib/fotky";
 import { HRY, prehledHer } from "@/lib/hra";
 import { AdminDalSchema } from "@/lib/schemata";
 import { BASE_ID as AIRTABLE_BASE, KAPACITA_CELKEM, stavKapacity } from "@/lib/ubytovani";
@@ -110,6 +110,20 @@ const ODKAZY = {
     },
   ],
 } satisfies Record<string, Odkaz[]>;
+
+/* Odkaz na skupinu je jen v prostředí (veřejný repozitář), proto se karta skládá až tady. */
+function whatsappKarta(): Odkaz[] {
+  const odkaz = odkazWhatsapp();
+  return odkaz
+    ? [
+        {
+          href: odkaz,
+          nazev: "WhatsApp skupina",
+          popis: "Záloha, když nahrávání na webu nejde — hosté ji uvidí jen po neúspěšném nahrání. Fotky odtud do galerie ani do ZIPu nepřejdou, stáhněte je po svatbě zvlášť.",
+        },
+      ]
+    : [];
+}
 
 const TEMATA = [
   { id: "fotky", nazev: "Fotky" },
@@ -259,7 +273,7 @@ export default async function Admin({
         }
       >
         {galerie && <StahnoutFotky fotky={fotky} videa={videa} />}
-        <Karty odkazy={ODKAZY.fotky} />
+        <Karty odkazy={[...ODKAZY.fotky, ...whatsappKarta()]} />
       </Tema>
 
       <Tema
