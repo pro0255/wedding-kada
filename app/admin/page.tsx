@@ -41,7 +41,7 @@ const ODKAZY = {
     {
       href: CLOUDINARY,
       nazev: "Cloudinary",
-      popis: "Úložiště souborů. Mazat raději v galerii — fotka smazaná jen tady v ní zůstane jako rozbitý obrázek.",
+      popis: "Úložiště souborů (free: 25 kreditů za 30 dní, nejvíc je žere přehrávání videí). Spotřebu ukáže sekce Usage. Mazat raději v galerii — fotka smazaná jen tady v ní zůstane jako rozbitý obrázek.",
     },
   ],
   ubytovani: [
@@ -248,7 +248,7 @@ export default async function Admin({
       <Tema
         id="fotky"
         nazev="Fotky od hostů"
-        popis="Co hosté nahráli, mazání a stažení všeho najednou."
+        popis="Co hosté nahráli, mazání a stažení všeho najednou. Hned po svatbě stáhněte fotky i videa a uložte je jinam (Google Fotky, Disk) — free Cloudinary po vyčerpání kreditů může přestat soubory doručovat."
         cislo={
           galerie
             ? {

@@ -15,7 +15,10 @@ import { deviceId } from "@/lib/deviceId";
 const MAX_STRANA = 2000;
 const KVALITA = 0.85;
 const OBNOVA_MS = 20_000;
-const MAX_VIDEO_B = 100 * 1024 * 1024; // limit Cloudinary free tieru
+/* Cloudinary free pustí video až do 100 MB, ale kredity (25 za 30 dní)
+   nejrychleji pálí právě přehrávání videí. 50 MB je zhruba půlminutové
+   video z telefonu — na svatební chvilku stačí. */
+const MAX_VIDEO_B = 50 * 1024 * 1024;
 
 /* hlášky k nahrávání */
 const HLASKY = [
@@ -47,6 +50,12 @@ function nahledUrl(url: string, sirka: number): string {
       .replace(/\.[a-z0-9]+$/i, ".jpg");
   }
   return url.replace("/image/upload/", `/image/upload/w_${sirka},c_limit,q_auto,f_auto/`);
+}
+
+/** Video k přehrání: Cloudinary ho převede na menší (max 1280 px, q_auto).
+ *  Telefonní 4K by jinak při každém přehrání stahovalo desítky MB z kreditů. */
+function videoUrl(url: string): string {
+  return url.replace("/video/upload/", "/video/upload/c_limit,w_1280,h_1280,q_auto/");
 }
 
 /** Upload přes XHR — fetch neumí hlásit průběh odesílání. */
@@ -236,10 +245,10 @@ export default function FotoGalerie({
     if (prilisVelke > 0) {
       zpravy.push(
         prilisVelke === 1
-          ? "Jedno video je příliš velké (max. 100 MB)."
+          ? "Jedno video je příliš velké (max. 50 MB, zhruba půl minuty)."
           : prilisVelke < 5
-            ? `${prilisVelke} videa jsou příliš velká (max. 100 MB).`
-            : `${prilisVelke} videí je příliš velkých (max. 100 MB).`
+            ? `${prilisVelke} videa jsou příliš velká (max. 50 MB, zhruba půl minuty).`
+            : `${prilisVelke} videí je příliš velkých (max. 50 MB, zhruba půl minuty).`
       );
     }
     if (selhalo > 0) {
@@ -501,14 +510,16 @@ export default function FotoGalerie({
           }}
         >
           {jeVideo(detail.url) ? (
+            /* Nic se nestahuje, dokud host neklepne na přehrát — listování
+               galerií jinak stáhlo každé video, přes které přejel. Do té doby
+               je vidět jen první snímek jako obrázek. */
             <video
               key={detail.id}
-              src={detail.url.replace("/video/upload/", "/video/upload/q_auto/")}
+              src={videoUrl(detail.url)}
+              poster={nahledUrl(detail.url, 1600)}
+              preload="none"
               controls
-              autoPlay
               playsInline
-              className={nacitaVelkou ? "nacita" : ""}
-              onLoadedData={() => setNacitaVelkou(false)}
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
@@ -520,7 +531,7 @@ export default function FotoGalerie({
               onLoad={() => setNacitaVelkou(false)}
             />
           )}
-          {nacitaVelkou && <span className="galerie-nacitani" aria-hidden="true" />}
+          {nacitaVelkou && !jeVideo(detail.url) && <span className="galerie-nacitani" aria-hidden="true" />}
           {/* sousední fotky se stáhnou dopředu — listování je pak okamžité */}
           {predchozi && predchozi.id !== detail.id && !jeVideo(predchozi.url) && (
             <link rel="preload" as="image" href={nahledUrl(predchozi.url, 1600)} />
