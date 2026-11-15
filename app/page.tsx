@@ -26,6 +26,7 @@ import Klikni from "./Klikni";
 import Kniha from "./menu/Kniha";
 import { IkonaKlik } from "./StoryDoodles";
 import { OznameniHlavni } from "./oznameni/Oznameni";
+import { spustUvodniHudbu, type UvodniHudba } from "./uvodHudba";
 
 
 // hlášky z Pána prstenů, lehce svatebně upravené
@@ -674,11 +675,20 @@ function UvodniObrazovka() {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
+  // hudba k úvodní obrazovce; po klepnutí postupně utichne (viz uvodHudba.ts)
+  const hudba = useRef<UvodniHudba | null>(null);
+  useEffect(() => {
+    const h = spustUvodniHudbu();
+    hudba.current = h;
+    return h.zrus;
+  }, []);
+
   /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
      tak počká, dokud host sám nechce dál. */
   const vstup = () => {
     if (stage !== "loading") return;
     setStage("done");
+    hudba.current?.utichni();
     // 1s = rezerva na .9s opacity transition loaderu; teprve pak obsah
     // odmountujeme
     setTimeout(() => setLoaderGone(true), 1000);

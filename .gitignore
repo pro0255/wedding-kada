@@ -56,3 +56,6 @@ predlohy/program/prstynkyy.png
 /.navrh-snimky/
 # prototypy vstupu do galerie obsahují jméno psa = odpověď (FOTKY_HESLO) — jen lokálně
 /app/navrh/fotky/
+
+# hudba k úvodní obrazovce — nahrávka není naše, do veřejného repozitáře nepatří
+/public/hudba/
