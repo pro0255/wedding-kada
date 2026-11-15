@@ -11,7 +11,7 @@
 import sharp from "sharp";
 import fs from "fs";
 
-const ZDROJ = "public/fotky/pluto 1.png";
+const ZDROJ = "predlohy/fotky/pluto 1.png";
 const CIL = "public/fotky/pluto-kytice.png";
 const SEDA = 148;          // barva pozadí předlohy
 const TOL = 16;            // co ještě považovat za pozadí

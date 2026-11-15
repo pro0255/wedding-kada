@@ -18,7 +18,7 @@
 import sharp from "sharp";
 import { readdir, mkdir } from "node:fs/promises";
 
-const ZDROJ = "public/cut outs/png";
+const ZDROJ = "predlohy/cut outs/png";
 const CIL = "public/kytky";
 
 /* Největší rozměr výstupu. Na webu jsou květiny široké nanejvýš kolem 260 px,

@@ -18,7 +18,7 @@ import { mkdir } from "node:fs/promises";
  * webu mají vypadat jako jedna ruka. */
 const BARVA = [0x6b, 0x53, 0x40];
 
-const SLOZKA = "public/ubytování";
+const SLOZKA = "predlohy/ubytování";
 const CIL = "public/ubytovani";
 
 const KRESBY = [

@@ -163,7 +163,7 @@ function rozsyp(
 const JINA_BARVA: Record<string, string> = { "07": "07-tepla" };
 
 function cestaKeSnitce(snitka: string): string {
-  return `/oznameni/kyticky3/${JINA_BARVA[snitka] ?? snitka}.png`;
+  return `/oznameni/kyticky3/${JINA_BARVA[snitka] ?? snitka}.webp`;
 }
 
 /* Místa, kam kytky nesmí. Odměřená z hotové karty a o 3 mm rozšířená, ať se

@@ -18,7 +18,7 @@
 
 import sharp from "sharp";
 
-const ZDROJ = "public/menu/pribor.jpg";
+const ZDROJ = "predlohy/menu/pribor.jpg";
 const CIL = "public/menu";
 
 /* Jak se výřezy jmenují, zleva doprava. */

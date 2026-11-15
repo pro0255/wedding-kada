@@ -8,7 +8,7 @@
 import sharp from "sharp";
 import fs from "fs";
 
-const ZDROJ = "public/fotky/kvetiny-motyl.png";
+const ZDROJ = "predlohy/fotky/kvetiny-motyl.png";
 const CIL = "public/fotky/kvetiny-motyl-bez.jpg";
 const W = 600, H = 2048;          // ořez: za 46 % šířky je podklad prázdný
 

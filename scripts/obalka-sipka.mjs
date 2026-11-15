@@ -15,7 +15,7 @@
 
 import sharp from "sharp";
 
-const ZDROJ = "public/obalka/šipka.jpg";
+const ZDROJ = "predlohy/obalka/šipka.jpg";
 const CIL = "public/obalka/sipka.webp";
 
 /* Barva tahu: teplá béžová z palety webu. */

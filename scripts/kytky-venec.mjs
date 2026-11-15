@@ -13,7 +13,7 @@
 
 import sharp from "sharp";
 
-const SLOZKA = "public/kytky u obalky";
+const SLOZKA = "predlohy/kytky u obalky";
 const CIL = "public/kytky";
 
 const VRSTVY = [

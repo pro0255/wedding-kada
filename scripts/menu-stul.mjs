@@ -23,7 +23,7 @@
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
-const ZDROJ = "public/menu/menu se stolem.png";
+const ZDROJ = "predlohy/menu/menu se stolem.png";
 const CIL = "public/menu";
 
 /* Odstín a strop sytosti béžové linky rámečku (#c2ad8e). */

@@ -26,7 +26,7 @@
 
 import sharp from "sharp";
 
-const ZDROJ = "public/menu/zavřené menu.jpg";
+const ZDROJ = "predlohy/menu/zavřené menu.jpg";
 const CIL = "public/menu/deska.webp";
 
 /* Deska na fotce, pár pixelů dovnitř od hrany — fotka je nepatrně

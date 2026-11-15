@@ -26,8 +26,8 @@
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
-const ZAVRENA = "public/fotky/obalka zavřená.jpg";
-const OTEVRENA = "public/fotky/obalka otevřená.jpg";
+const ZAVRENA = "predlohy/fotky/obalka zavřená.jpg";
+const OTEVRENA = "predlohy/fotky/obalka otevřená.jpg";
 const CIL = "public/obalka";
 
 /* Obě vrstvy otevřené obálky musí sedět pixel na pixel, proto se ořezávají
@@ -219,7 +219,7 @@ async function syrove(soubor) {
  * Ořez je na nejmenší obdélník kolem pečeti. Bez něj by kolem ní zůstal bílý
  * rám a v CSS by se musel dopočítávat — takhle se dá obrázek posadit rovnou. */
 {
-  const ZDROJ = "public/obalka/vosk na obalku.jpg";
+  const ZDROJ = "predlohy/obalka/vosk na obalku.jpg";
   const { data, w, h } = await syrove(ZDROJ);
   let minX = w, maxX = 0, minY = h, maxY = 0;
 

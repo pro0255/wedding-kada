@@ -39,8 +39,8 @@
 import sharp from "sharp";
 import { mkdir, rm } from "node:fs/promises";
 
-const PREDLOHA = "public/fotky/oznámení/kytičky.jpg";
-const KAM = "public/oznameni/kyticky";
+const PREDLOHA = "predlohy/fotky/oznámení/kytičky.jpg";
+const KAM = "predlohy/oznameni/kyticky";
 
 /* Paleta svatby — stejných sedm odstínů jako kuličky u dress code na webu. */
 const PALETA = ["#c3d7ec", "#f6c396", "#f5a3a8", "#f4d3d9", "#a8c8ec", "#f8e4a3", "#b7d3ab"];

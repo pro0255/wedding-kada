@@ -15,7 +15,7 @@
 
 import sharp from "sharp";
 
-const ZDROJ = "public/menu/haha.jpg";
+const ZDROJ = "predlohy/menu/haha.jpg";
 const CIL = "public/menu/prostreno.webp";
 
 /* Barva textu menu. */

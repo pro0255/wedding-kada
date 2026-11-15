@@ -15,7 +15,7 @@ const PRIBEH = [1, 2, 4, 6, 11, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28];
 await mkdir("public/fotky/web", { recursive: true });
 
 for (const n of PRIBEH) {
-  await sharp(`public/fotky/${n}.jpeg`)
+  await sharp(`predlohy/fotky/${n}.jpeg`)
     .rotate()
     .resize({ width: 900, height: 900, fit: "inside", withoutEnlargement: true })
     .webp({ quality: 78 })
@@ -23,4 +23,4 @@ for (const n of PRIBEH) {
 }
 
 // fotka hotelu na rubu mapy — PNG měl přes megabajt
-await sharp("public/fotky/rekovice.png").webp({ quality: 80 }).toFile("public/fotky/rekovice.webp");
+await sharp("predlohy/fotky/rekovice.png").webp({ quality: 80 }).toFile("public/fotky/rekovice.webp");

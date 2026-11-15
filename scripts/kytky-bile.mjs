@@ -20,7 +20,7 @@
 import sharp from "sharp";
 import { readdir, mkdir } from "node:fs/promises";
 
-const ZDROJ = "public/oznameni/kyticky";
+const ZDROJ = "predlohy/oznameni/kyticky";
 const CIL = "public/roh-kytky.png";
 
 const SIRKA = 520;

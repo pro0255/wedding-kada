@@ -31,7 +31,8 @@
 import sharp from "sharp";
 import { readdir } from "node:fs/promises";
 
-const SLOZKA = "public/program";
+const SLOZKA = "predlohy/program";
+const CIL = "public/program";
 
 /* Ikonky vyřezané z většího archu. `oblast` je hrubý obdélník v pixelech
  * zdroje, `papir` zvedá práh průhlednosti u archů s texturou papíru — na
@@ -218,7 +219,7 @@ async function ikonka(data, W, H, klic, papir, ztenceni = 0) {
   const vysledek = await sharp(ven, { raw: { width: sirka, height: vyska, channels: 4 } })
     .resize({ width: Math.min(sirka, SIRKA) })
     .webp({ quality: 92, alphaQuality: 100 })
-    .toFile(`${SLOZKA}/${klic}.webp`);
+    .toFile(`${CIL}/${klic}.webp`);
   return { sirka, vyska, vysledek };
 }
 

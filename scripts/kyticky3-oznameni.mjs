@@ -21,8 +21,10 @@
 import sharp from "sharp";
 import { mkdir, rm } from "node:fs/promises";
 
-const PREDLOHA = "public/oznameni/nove kyticky/98e52a5889af34b6fa2cf9a3d5ad1081.jpg";
+const PREDLOHA = "predlohy/oznameni/nove kyticky/98e52a5889af34b6fa2cf9a3d5ad1081.jpg";
 const KAM = "public/oznameni/kyticky3";
+/* Přehledový arch web nenačítá — patří k předlohám, ne do public. */
+const NAHLED = "predlohy/oznameni/kyticky3-nahled.png";
 
 const PAPIR_KARTY = [251, 250, 248];
 
@@ -230,6 +232,11 @@ await mkdir(KAM, { recursive: true });
 
 const nahledy = [];
 
+/* Na web jde bezeztrátový WebP: pixel po pixelu stejný jako PNG s paletou
+ * (tisk oznámení nic neztratí), jen zhruba o 40 % menší. */
+const ulozWebp = (png, jmeno) =>
+  sharp(png).webp({ lossless: true, effort: 6 }).toFile(`${KAM}/${jmeno.replace(/\.png$/, ".webp")}`);
+
 for (let i = 0; i < vybrane.length; i++) {
   const p = vybrane[i];
   const left = Math.max(0, p.x1 - OKRAJ);
@@ -255,7 +262,7 @@ for (let i = 0; i < vybrane.length; i++) {
   const jmeno = `${String(i + 1).padStart(2, "0")}.png`;
   const vyrez = await sharp(surovy, { raw: { width, height, channels: 4 } })
     .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
-  await sharp(vyrez).toFile(`${KAM}/${jmeno}`);
+  await ulozWebp(vyrez, jmeno);
 
   nahledy.push({ jmeno, vyrez, width, height, pocet: p.pocet });
   console.log(`${jmeno}  ${String(width).padStart(3)} x ${String(height).padStart(3)} px, ${p.pocet} pixelů barvy`);
@@ -265,7 +272,7 @@ for (let i = 0; i < vybrane.length; i++) {
     const jmenoV = `${String(i + 1).padStart(2, "0")}-${v.pripona}.png`;
     const vyrezV = await sharp(jinaBarva, { raw: { width, height, channels: 4 } })
       .png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
-    await sharp(vyrezV).toFile(`${KAM}/${jmenoV}`);
+    await ulozWebp(vyrezV, jmenoV);
     nahledy.push({ jmeno: jmenoV, vyrez: vyrezV, width, height, pocet: p.pocet });
     console.log(`${jmenoV}  varianta, odstín o ${v.posun}°`);
   }
@@ -291,6 +298,6 @@ await sharp({
     width: SLOUPCU * BUNKA, height: radku * BUNKA,
     channels: 4, background: "#ffffff",
   },
-}).composite(vrstvy).png().toFile(`${KAM}/nahled.png`);
+}).composite(vrstvy).png().toFile(NAHLED);
 
-console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${KAM}/nahled.png`);
+console.log(`\ncelkem ${nahledy.length} snítek, přehled v ${NAHLED}`);
