@@ -1,0 +1,19 @@
+# Konce řádků řeší jednou provždy tenhle soubor, ne nastavení gitu u každého
+# zvlášť. Bez něj měl repozitář windowsové konce, formátovač (oxfmt) čeká
+# unixové a kontrola padala — u někoho na všech souborech, na serveru při
+# nasazení.
+#
+# text=auto: git si sám pozná, co je text. eol=lf: do pracovní kopie se
+# vždycky zapíše unixový konec řádku, ať je to Windows nebo Mac.
+* text=auto eol=lf
+
+# Binární soubory se nesmí převádět vůbec.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.m4a binary
+*.mp3 binary
+*.woff binary
+*.woff2 binary
