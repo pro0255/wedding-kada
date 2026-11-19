@@ -31,7 +31,11 @@ const HRAJ_MS = 9000;
 const KROK_MS = 50;
 // při doznívání se filtr přivře až sem — zůstanou jen hloubky
 const FILTR_DOLE_HZ = 600;
-export type UvodniHudba = { utichni: () => void; zrus: () => void };
+export type UvodniHudba = {
+  utichni: () => void;
+  zrus: () => void;
+  ztlum: (ticho: boolean) => void;
+};
 
 export function spustUvodniHudbu(): UvodniHudba {
   const audio = new Audio();
@@ -44,6 +48,7 @@ export function spustUvodniHudbu(): UvodniHudba {
   audio.volume = 0;
 
   let uroven = 0;
+  let ticho = false;
   let hralaSama = false;
   let utichla = false;
   let konec = false;
@@ -55,9 +60,12 @@ export function spustUvodniHudbu(): UvodniHudba {
 
   const nastav = (u: number) => {
     uroven = u;
+    // ztlumení je hradlo navrch: nájezdy i doznívání běží dál, jen se nic
+    // neozve — po zrušení ticha hudba pokračuje tam, kde právě je
+    const hlasitost = ticho ? 0 : u ** 2;
     // krátké dotažení místo skoku — schody po 50 ms by jinak byly slyšet
-    if (zesilovac && ctx) zesilovac.gain.setTargetAtTime(u ** 2, ctx.currentTime, 0.03);
-    else audio.volume = u ** 2;
+    if (zesilovac && ctx) zesilovac.gain.setTargetAtTime(hlasitost, ctx.currentTime, 0.03);
+    else audio.volume = hlasitost;
   };
 
   /** Plynule z aktuální úrovně na cílovou; nový nájezd nahradí rozdělaný. */
@@ -159,5 +167,18 @@ export function spustUvodniHudbu(): UvodniHudba {
       .catch(zrus);
   };
 
-  return { utichni, zrus };
+  /** Tlačítko v rohu úvodní obrazovky. Zrušení ticha je gesto hosta, takže
+   *  se smí pustit i hudba, kterou prohlížeč sám nepustil. */
+  const ztlum = (nove: boolean) => {
+    if (konec) return;
+    ticho = nove;
+    nastav(uroven);
+    if (!nove && audio.paused) {
+      audio.play().catch(() => {
+        /* nepustil-li prohlížeč zvuk, zůstane ticho */
+      });
+    }
+  };
+
+  return { utichni, zrus, ztlum };
 }

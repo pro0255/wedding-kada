@@ -772,6 +772,7 @@ function UvodniObrazovka() {
   // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí postupně utichne
   // (viz uvodHudba.ts)
   const hudba = useRef<UvodniHudba | null>(null);
+  const [ticho, setTicho] = useState(false);
   useEffect(() => {
     const h = spustUvodniHudbu();
     hudba.current = h;
@@ -858,6 +859,35 @@ function UvodniObrazovka() {
           </g>
         ))}
       </svg>
+      {/* Ztišení hudby. V rohu a nenápadné — kdo si chce jen prohlédnout web
+         v tichu (v práci, vedle spícího dítěte), nemá jinou možnost než
+         ztlumit celý telefon. Hudba běží dál, jen není slyšet. */}
+      <button
+        type="button"
+        className="loader-zvuk"
+        aria-pressed={ticho}
+        aria-label={ticho ? "Zapnout hudbu" : "Ztlumit hudbu"}
+        onClick={(e) => {
+          // celá úvodní obrazovka je klikací a vede dovnitř — ztišení tam
+          // vést nesmí
+          e.stopPropagation();
+          const nove = !ticho;
+          setTicho(nove);
+          hudba.current?.ztlum(nove);
+        }}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 9.5h3.2L12 5.5v13L7.2 14.5H4z" />
+          {ticho ? (
+            <path className="loader-zvuk-krizek" d="M16 9.5l5 5M21 9.5l-5 5" />
+          ) : (
+            <>
+              <path d="M15.4 9.6a3.4 3.4 0 0 1 0 4.8" />
+              <path d="M18 7.3a6.8 6.8 0 0 1 0 9.4" />
+            </>
+          )}
+        </svg>
+      </button>
       <div className="loader-brand">
         Kateřina &amp; Jakub
         <span className="loader-date">18 · 09 · 2027</span>
