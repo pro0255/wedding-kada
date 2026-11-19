@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { execSync } from "node:child_process";
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { EnvSchema, problemyEnv } from "./env.ts";
 
 // vymyšlené hodnoty — skutečné jsou jen v .env.local a na Vercelu
@@ -48,19 +50,27 @@ test("adresa Redisu musí být URL", () => {
 
 test("každá proměnná, kterou kód čte, je ve schématu", () => {
   // VERCEL_* a NODE_ENV nastavuje platforma, ty se nekontrolují
-  const zdroje = execSync(
-    String.raw`git grep -hoE 'process\.env\.[A-Z_0-9]+' -- app lib proxy.ts`,
-    {
-      cwd: new URL("..", import.meta.url),
-      encoding: "utf8",
-    },
+  /* Dřív to hledal přes `git grep`, jenže execSync pouští na Windows
+     cmd.exe a vzor v apostrofech se tam nerozparsuje. Projít soubory
+     v Node je navíc rychlejší a nepotřebuje to git. */
+  const korenAdresare = fileURLToPath(new URL("..", import.meta.url));
+  const zdroje: string[] = [];
+  const projdi = (misto: string) => {
+    for (const polozka of readdirSync(misto, { withFileTypes: true })) {
+      const cesta = path.join(misto, polozka.name);
+      if (polozka.isDirectory()) projdi(cesta);
+      else if (/.(ts|tsx|mjs)$/.test(polozka.name)) {
+        zdroje.push(...(readFileSync(cesta, "utf8").match(/process.env.[A-Z_0-9]+/g) ?? []));
+      }
+    }
+  };
+  for (const kde of ["app", "lib"]) projdi(path.join(korenAdresare, kde));
+  zdroje.push(
+    ...(readFileSync(path.join(korenAdresare, "proxy.ts"), "utf8").match(
+      /process.env.[A-Z_0-9]+/g,
+    ) ?? []),
   );
-  const ctene = new Set(
-    zdroje
-      .split("\n")
-      .filter(Boolean)
-      .map((r) => r.slice("process.env.".length)),
-  );
+  const ctene = new Set(zdroje.map((r) => r.slice("process.env.".length)));
   const chybi = [...ctene].filter(
     (n) => !(n in EnvSchema.shape) && n !== "NODE_ENV" && !n.startsWith("VERCEL_"),
   );
