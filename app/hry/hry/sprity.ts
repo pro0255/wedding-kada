@@ -87,7 +87,7 @@ export const DORT: Sprite = [
   "..##########..",
 ];
 
-/* Pluto je zlatý retrívr, ne husky. Není překreslený od oka — je to převzatá
+/* Pes ve hře je zlatý retrívr, ne husky. Není překreslený od oka — je to převzatá
    silueta z public/fotky/pes.png, kterou převedl scripts/pes-sprite.mjs
    prahováním a převzorkováním. Ruční kreslení do mřížky znamená hádat, kde má
    být který pixel; předchozí tři pokusy vypadaly pokaždé jinak a ani jednou

@@ -1,7 +1,7 @@
 import fs from "node:fs";
-/* Pluto s kyticí pro odpověď „Co si přejete za dar?".
-   Spouští se ručně:  node scripts/pluto.mjs
-   Vstup:  public/fotky/pluto 1.png   (kresba na plné šedé 148,148,148)
+/* Pes s kyticí pro odpověď „Co si přejete za dar?".
+   Spouští se ručně:  node scripts/pes-s-kytici.mjs
+   Vstup:  predlohy/fotky/pes-s-kytici-predloha.png   (kresba na plné šedé 148,148,148)
    Výstup: public/fotky/pes-s-kytici.png
 
    Tři věci, které předloha potřebuje:
@@ -11,7 +11,7 @@ import fs from "node:fs";
       v :root není. */
 import sharp from "sharp";
 
-const ZDROJ = "predlohy/fotky/pluto 1.png";
+const ZDROJ = "predlohy/fotky/pes-s-kytici-predloha.png";
 const CIL = "public/fotky/pes-s-kytici.png";
 const SEDA = 148; // barva pozadí předlohy
 const TOL = 16; // co ještě považovat za pozadí

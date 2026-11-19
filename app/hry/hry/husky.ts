@@ -11,7 +11,7 @@ import {
   type Zvuk,
 } from "./typy";
 
-/* Pluto (husky) běhá po zemi, shora padají věci. Prstýnek +1, kytice +5,
+/* Pes běhá po zemi, shora padají věci. Prstýnek +1, kytice +5,
    tchýně bere život. Bez tří životů je konec. */
 
 const PES_W = sirka(HUSKY[0]);
@@ -58,7 +58,7 @@ type Stav = Rozmer & {
 
 export const husky: Hra<Stav> = {
   slug: "husky",
-  nazev: "Pluto chytá prstýnky",
+  nazev: "Pes chytá prstýnky",
   popis: "Prstýnek +1, kytice +5, tchýně bere život. Máš tři.",
   napoveda: { mys: "šipky ← → nebo tažení myší", dotyk: "táhni prstem po plátně" },
   jednotka: "bodů",

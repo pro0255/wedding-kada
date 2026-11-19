@@ -22,7 +22,7 @@ import {
   type Zvuk,
 } from "./typy";
 
-/* Dino klon: ženich běží k oltáři a skáče přes dort, Pluta, kytici a tchýni. */
+/* Dino klon: ženich běží k oltáři a skáče přes dort, psa, kytici a tchýni. */
 
 const GRAVITACE = 1500;
 const SKOK = -620;
@@ -58,7 +58,7 @@ type Stav = Rozmer & {
 export const zenich: Hra<Stav> = {
   slug: "zenich",
   nazev: "Ženich běží k oltáři",
-  popis: "Skákej přes dort, Pluta, kytici a tchýni. Čím dál doběhneš, tím líp.",
+  popis: "Skákej přes dort, psa, kytici a tchýni. Čím dál doběhneš, tím líp.",
   napoveda: { mys: "mezerník nebo klik = skok", dotyk: "klepnutí = skok" },
   jednotka: "m",
   start: (r) => {
