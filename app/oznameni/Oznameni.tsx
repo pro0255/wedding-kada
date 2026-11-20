@@ -340,7 +340,7 @@ const T = {
   },
   qr: {
     nadpis: "Pro více informací navštivte prosím náš svatební web",
-    navod: "Naskenujte QR kód mobilem, nebo zadejte adresu do prohlížeče:",
+    navod: "Naskenujte QR kód fotoaparátem mobilu, nebo zadejte adresu do prohlížeče:",
   },
   rub: {
     /* Spojka „a“ stojí zvlášť, protože ji rub sází kaligrafií a modře —
