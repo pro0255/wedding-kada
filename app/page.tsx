@@ -425,7 +425,7 @@ function Dotaz({
                 {/* Nápis v oblouku nad pejskem. Písmena naskakují po jednom,
                    jako by to doopravdy štěkal — proto každé vlastní zpoždění
                    a ne jedna animace na celý nápis. */}
-                <svg className="faq-haf" viewBox="0 0 340 86" focusable="false">
+                <svg className="faq-haf" viewBox="0 -26 340 112" focusable="false">
                   <path id="faq-haf-draha" d="M 4 76 C 70 2, 270 2, 336 52" fill="none" />
                   <text>
                     <textPath href="#faq-haf-draha" startOffset="50%" textAnchor="middle">

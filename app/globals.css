@@ -3166,7 +3166,7 @@ body,
   /* Místo pro nápis nad psem. Musí být UVNITŘ obalu: harmonika u otázek má
      overflow: hidden, takže cokoli vyčuhuje nad odpověď, ořízne — a na
      počítači stojí pes hned nahoře, takže z nápisu nezbylo nic. */
-  padding-top: 15%;
+  padding-top: 11%;
 }
 .faq-obrazek img {
   display: block;
@@ -3177,6 +3177,8 @@ body,
 /* „Haf Haf Děkujeme“ v oblouku nad pejskem. Leží přes horní část obrázku
    (pes má hlavu níž, nad hřbetem je místo) a smí kousek přetéct ven — proto
    overflow: visible na svg. */
+/* Kresba má nad obloukem rezervu: dotahy písmen sahají výš než samotná
+   dráha a bez té rezervy je ořezával okraj odpovědi. */
 .faq-haf {
   position: absolute;
   /* Širší než obrázek a kousek nad ním: pes má kytici až po hlavu a nápis
