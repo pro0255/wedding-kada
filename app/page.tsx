@@ -430,7 +430,7 @@ function Dotaz({
                   <path id="faq-haf-draha" d="M 4 76 C 70 2, 270 2, 336 52" fill="none" />
                   <text xmlSpace="preserve">
                     <textPath href="#faq-haf-draha" startOffset="50%" textAnchor="middle">
-                      {["Haf ", "Haf ", "Děkujeme"].map((slovo, i) => (
+                      {["Haf ", "Haf ", "Děkujeme!"].map((slovo, i) => (
                         <tspan key={slovo + i} style={{ animationDelay: `${0.25 + i * 0.45}s` }}>
                           {slovo}
                         </tspan>

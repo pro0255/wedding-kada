@@ -49,8 +49,11 @@
   stroke-width: 1;
   fill: var(--zlato);
   overflow: visible;
-  filter: drop-shadow(0 -1px 1px rgba(92, 70, 38, 0.4))
-    drop-shadow(0 1px 0 rgba(255, 253, 248, 0.8));
+  /* Vyrytí do desky: tmavý stín shora, světlá hrana zdola. Silnější než
+     u nápisu — kresba je z tenkých linek a na textuře potřebuje víc kontrastu
+     než plné písmo. */
+  filter: drop-shadow(0 -1px 1.5px rgba(92, 70, 38, 0.62))
+    drop-shadow(0 1px 0 rgba(255, 253, 248, 0.95));
 }
 .ornament line {
   stroke-width: 0.8;
@@ -190,9 +193,9 @@
      a plochu pod ní tvoří currentColor. Filtrem by se odstín jen přibližoval,
      takhle je to přesně táž zlatá a drží se jí i kdyby se změnila. */
   background: currentColor;
-  /* O kus zpět: v plné zlaté byla stejně silná jako nápis a oko nevědělo,
-     čeho se chytit dřív. */
-  opacity: 0.72;
+  /* Jen o chlup zpět za nápisem. Na 0,72 se kresba na žebrovaném papíře
+     ztrácela — textura má místy stejný jas jako ona. */
+  opacity: 0.94;
   -webkit-mask: url("/menu/prostreno.webp") center / contain no-repeat;
   mask: url("/menu/prostreno.webp") center / contain no-repeat;
   filter: drop-shadow(0 -1px 1px rgba(92, 70, 38, 0.4))

@@ -5,12 +5,12 @@
  * jednou by se změnila a podruhé ne — a na kartě by byl kód mířící jinam, než
  * co je pod ním napsané.
  *
- * Až bude vlastní doména, přepiš tenhle řádek a spusť:
+ * Po změně adresy přepiš tenhle řádek a spusť:
  *
  *   node scripts/qr-oznameni.mjs
  *
  * Adresa je bez „https://“ — na kartě se tiskne, jak ji člověk napíše do
  * prohlížeče. Protokol si k ní přidá WEB_URL pro QR kód. */
-export const WEB_ADRESA = "wedding-kada.vercel.app";
+export const WEB_ADRESA = "jislovicsvatba.cz";
 
 export const WEB_URL = `https://${WEB_ADRESA}`;
