@@ -3150,7 +3150,9 @@ body,
   flex: 0 0 auto;
   align-self: stretch;
   display: flex;
-  align-items: center;
+  /* Nahoru, ne na střed: u delší odpovědi je rámeček vyšší než obrázek a pes
+     se v něm propadal pod text. */
+  align-items: flex-start;
   justify-content: center;
   max-width: min(200px, 30%);
 }
@@ -3164,7 +3166,7 @@ body,
   /* Místo pro nápis nad psem. Musí být UVNITŘ obalu: harmonika u otázek má
      overflow: hidden, takže cokoli vyčuhuje nad odpověď, ořízne — a na
      počítači stojí pes hned nahoře, takže z nápisu nezbylo nic. */
-  padding-top: 22%;
+  padding-top: 15%;
 }
 .faq-obrazek img {
   display: block;
@@ -3180,17 +3182,18 @@ body,
   /* Širší než obrázek a kousek nad ním: pes má kytici až po hlavu a nápis
      se jí v užším oblouku pletl do květů. Po stranách je volno — na mobilu
      je pes vystředěný, na počítači stojí u kraje odpovědi. */
-  left: -9%;
+  left: -14%;
   top: 0;
-  width: 118%;
+  width: 128%;
   overflow: visible;
   pointer-events: none;
 }
 .faq-haf text {
-  font-family: var(--serif), Georgia, serif;
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  /* Rukopis, ne patkové písmo webu: je to štěknutí, ne nadpis. Stejné písmo
+     nesou ručně psané poznámky jinde na stránce („klikni“ u obálky). */
+  font-family: var(--rukopis), "Segoe Script", cursive;
+  font-size: 34px;
+  letter-spacing: 0.02em;
   fill: #8a6318;
 }
 /* Každé písmeno čeká na svou chvíli. Zpoždění nese inline styl, protože

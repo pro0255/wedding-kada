@@ -348,7 +348,14 @@ function Dotaz({
     if (!otevreno) return;
     // text se při změně šířky přelomí jinak, takže otevřenou odpověď přeměřujeme
     window.addEventListener("resize", zmer);
-    return () => window.removeEventListener("resize", zmer);
+    /* A hlídáme i samotný obsah: obrázek u odpovědi se načítá líně, takže
+       doroste až po prvním změření a odpověď by ho zespodu uřízla. */
+    const sleduj = new ResizeObserver(zmer);
+    if (obsah.current) sleduj.observe(obsah.current);
+    return () => {
+      window.removeEventListener("resize", zmer);
+      sleduj.disconnect();
+    };
   }, [otevreno]);
 
   return (
