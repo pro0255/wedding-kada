@@ -3166,7 +3166,7 @@ body,
   /* Místo pro nápis nad psem. Musí být UVNITŘ obalu: harmonika u otázek má
      overflow: hidden, takže cokoli vyčuhuje nad odpověď, ořízne — a na
      počítači stojí pes hned nahoře, takže z nápisu nezbylo nic. */
-  padding-top: 11%;
+  padding-top: 30%;
 }
 .faq-obrazek img {
   display: block;
