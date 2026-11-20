@@ -406,7 +406,26 @@ function Dotaz({
           {/* Obrázek leží uvnitř .faq-odpoved, takže se odkrývá tou samou
              animací výšky jako text — neobjeví se dřív ani zvlášť. */}
           {obrazek && (
-            <span className="faq-obrazek" aria-hidden="true">
+            <span
+              className={`faq-obrazek ${otevreno ? "faq-obrazek-videt" : ""}`}
+              aria-hidden="true"
+            >
+              {/* Nápis v oblouku nad pejskem. Písmena naskakují po jednom,
+                 jako by to doopravdy štěkal — proto každé vlastní zpoždění
+                 a ne jedna animace na celý nápis. Dráha je oblouk prohnutý
+                 nahoru, ať nápis kopíruje hřbet a hlavu. */}
+              <svg className="faq-haf" viewBox="0 0 340 86" focusable="false">
+                <path id="faq-haf-draha" d="M 4 76 C 70 2, 270 2, 336 52" fill="none" />
+                <text>
+                  <textPath href="#faq-haf-draha" startOffset="50%" textAnchor="middle">
+                    {[..."Haf Haf Děkujeme"].map((znak, i) => (
+                      <tspan key={i} style={{ animationDelay: `${0.3 + i * 0.075}s` }}>
+                        {znak}
+                      </tspan>
+                    ))}
+                  </textPath>
+                </text>
+              </svg>
               <img loading="lazy" decoding="async" src={obrazek} alt="" />
             </span>
           )}

@@ -3154,10 +3154,58 @@ body,
   justify-content: center;
   max-width: min(200px, 30%);
 }
+.faq-obrazek {
+  position: relative;
+}
 .faq-obrazek img {
   height: 100%;
   width: 100%;
   object-fit: contain;
+}
+
+/* „Haf Haf Děkujeme“ v oblouku nad pejskem. Leží přes horní část obrázku
+   (pes má hlavu níž, nad hřbetem je místo) a smí kousek přetéct ven — proto
+   overflow: visible na svg. */
+.faq-haf {
+  position: absolute;
+  /* Širší než obrázek a kousek nad ním: pes má kytici až po hlavu a nápis
+     se jí v užším oblouku pletl do květů. Po stranách je volno — na mobilu
+     je pes vystředěný, na počítači stojí u kraje odpovědi. */
+  left: -24%;
+  top: -10%;
+  width: 148%;
+  overflow: visible;
+  pointer-events: none;
+}
+.faq-haf text {
+  font-family: var(--serif), Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  fill: #8a6318;
+}
+/* Každé písmeno čeká na svou chvíli. Zpoždění nese inline styl, protože
+   každé je jiné. */
+.faq-haf tspan {
+  opacity: 0;
+}
+.faq-obrazek-videt .faq-haf tspan {
+  animation: haf-pismeno 0.4s ease-out both;
+}
+@keyframes haf-pismeno {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* S vypnutými animacemi je nápis rovnou celý. */
+@media (prefers-reduced-motion: reduce) {
+  .faq-obrazek-videt .faq-haf tspan {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* Na telefonu se dva sloupce nevejdou, pejsek jde pod text a dostane pevnou
