@@ -3198,15 +3198,15 @@ body,
   letter-spacing: 0.02em;
   fill: #8a6318;
 }
-/* Každé písmeno čeká na svou chvíli. Zpoždění nese inline styl, protože
+/* Každé slovo čeká na svou chvíli. Zpoždění nese inline styl, protože
    každé je jiné. */
 .faq-haf tspan {
   opacity: 0;
 }
 .faq-obrazek-videt .faq-haf tspan {
-  animation: haf-pismeno 0.4s ease-out both;
+  animation: haf-slovo 0.45s ease-out both;
 }
-@keyframes haf-pismeno {
+@keyframes haf-slovo {
   from {
     opacity: 0;
   }

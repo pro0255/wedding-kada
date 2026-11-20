@@ -422,16 +422,17 @@ function Dotaz({
                  .faq-obrazek, který se na počítači roztahuje do výšky textu,
                  odletí nad psa někam do prázdna. */}
               <span className="faq-pes">
-                {/* Nápis v oblouku nad pejskem. Písmena naskakují po jednom,
-                   jako by to doopravdy štěkal — proto každé vlastní zpoždění
-                   a ne jedna animace na celý nápis. */}
+                {/* Nápis v oblouku nad pejskem. Naskakuje po slovech, jako by to
+                   pes štěkal — proto má každé slovo vlastní zpoždění a ne celý
+                   nápis jednu animaci. Mezery drží xml:space, jinak by je SVG
+                   mezi slovy slouklo. */}
                 <svg className="faq-haf" viewBox="0 -26 340 112" focusable="false">
                   <path id="faq-haf-draha" d="M 4 76 C 70 2, 270 2, 336 52" fill="none" />
-                  <text>
+                  <text xmlSpace="preserve">
                     <textPath href="#faq-haf-draha" startOffset="50%" textAnchor="middle">
-                      {[..."Haf Haf Děkujeme"].map((znak, i) => (
-                        <tspan key={i} style={{ animationDelay: `${0.3 + i * 0.075}s` }}>
-                          {znak}
+                      {["Haf ", "Haf ", "Děkujeme"].map((slovo, i) => (
+                        <tspan key={slovo + i} style={{ animationDelay: `${0.25 + i * 0.45}s` }}>
+                          {slovo}
                         </tspan>
                       ))}
                     </textPath>
