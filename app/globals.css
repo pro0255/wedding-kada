@@ -3154,13 +3154,22 @@ body,
   justify-content: center;
   max-width: min(200px, 30%);
 }
-.faq-obrazek {
+/* Obal kolem obrázku je velký přesně jako on — na něm visí nápis v oblouku.
+   Dřív se obrázek roztahoval na výšku textu a nad psem zbývalo prázdno,
+   do kterého nápis odletěl. */
+.faq-pes {
   position: relative;
+  display: block;
+  width: 100%;
+  /* Místo pro nápis nad psem. Musí být UVNITŘ obalu: harmonika u otázek má
+     overflow: hidden, takže cokoli vyčuhuje nad odpověď, ořízne — a na
+     počítači stojí pes hned nahoře, takže z nápisu nezbylo nic. */
+  padding-top: 22%;
 }
 .faq-obrazek img {
-  height: 100%;
+  display: block;
   width: 100%;
-  object-fit: contain;
+  height: auto;
 }
 
 /* „Haf Haf Děkujeme“ v oblouku nad pejskem. Leží přes horní část obrázku
@@ -3171,9 +3180,9 @@ body,
   /* Širší než obrázek a kousek nad ním: pes má kytici až po hlavu a nápis
      se jí v užším oblouku pletl do květů. Po stranách je volno — na mobilu
      je pes vystředěný, na počítači stojí u kraje odpovědi. */
-  left: -24%;
-  top: -10%;
-  width: 148%;
+  left: -9%;
+  top: 0;
+  width: 118%;
   overflow: visible;
   pointer-events: none;
 }
@@ -3220,7 +3229,7 @@ body,
     max-width: 150px;
   }
   .faq-obrazek img {
-    height: 130px;
+    height: auto;
   }
 }
 
