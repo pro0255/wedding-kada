@@ -3206,12 +3206,12 @@ body,
 .faq-obrazek-videt .faq-haf tspan {
   animation: haf-slovo 0.45s ease-out both;
 }
-/* U posledního slova sebou pes cukne, jako by to doopravdy štěkl. Otáčí se
-   kolem tlapek, ne kolem středu — jinak to vypadá, že se houpe ve vzduchu.
-   Zpoždění sedí na „Děkujeme!“, dvě kmitnutí stačí. */
+/* Nejdřív sebou pes cukne, jako by se nadechl ke štěknutí, a teprve pak
+   naskakují slova. Otáčí se kolem tlapek, ne kolem středu — jinak to
+   vypadá, že se houpe ve vzduchu. */
 .faq-obrazek-videt img {
   transform-origin: 50% 92%;
-  animation: pes-stekne 0.5s ease-in-out 1.15s 2;
+  animation: pes-stekne 0.5s ease-in-out 0.12s 1;
 }
 @keyframes pes-stekne {
   0%,
