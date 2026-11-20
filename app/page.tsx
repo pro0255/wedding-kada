@@ -772,12 +772,18 @@ function UvodniObrazovka() {
   // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí postupně utichne
   // (viz uvodHudba.ts)
   const hudba = useRef<UvodniHudba | null>(null);
+  /* Co ukazuje tlačítko v rohu: ztlumil si host sám, nebo hudba nehraje
+     proto, že ji prohlížeč bez klepnutí nepustil? V obou případech je ticho
+     a tlačítko musí nabízet zapnutí — jinak tvrdí, že něco hraje, a host
+     nemá jak hudbu spustit. Na počítači je to běžný stav. */
   const [ticho, setTicho] = useState(false);
+  const [hraje, setHraje] = useState(false);
   useEffect(() => {
-    const h = spustUvodniHudbu();
+    const h = spustUvodniHudbu(setHraje);
     hudba.current = h;
     return h.zrus;
   }, []);
+  const potichu = ticho || !hraje;
 
   /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
      tak počká, dokud host sám nechce dál. */
@@ -865,20 +871,20 @@ function UvodniObrazovka() {
       <button
         type="button"
         className="loader-zvuk"
-        aria-pressed={ticho}
-        aria-label={ticho ? "Zapnout hudbu" : "Ztlumit hudbu"}
+        aria-pressed={potichu}
+        aria-label={potichu ? "Zapnout hudbu" : "Ztlumit hudbu"}
         onClick={(e) => {
           // celá úvodní obrazovka je klikací a vede dovnitř — ztišení tam
           // vést nesmí
           e.stopPropagation();
-          const nove = !ticho;
+          const nove = !potichu;
           setTicho(nove);
           hudba.current?.ztlum(nove);
         }}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M4 9.5h3.2L12 5.5v13L7.2 14.5H4z" />
-          {ticho ? (
+          {potichu ? (
             <path className="loader-zvuk-krizek" d="M16 9.5l5 5M21 9.5l-5 5" />
           ) : (
             <>

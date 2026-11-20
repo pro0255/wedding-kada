@@ -37,7 +37,10 @@ export type UvodniHudba = {
   ztlum: (ticho: boolean) => void;
 };
 
-export function spustUvodniHudbu(): UvodniHudba {
+/** `naStav` ohlásí, jestli hudba opravdu hraje. Prohlížeč ji bez klepnutí
+ *  většinou nepustí a tlačítko v rohu by jinak tvrdilo, že hraje, i když je
+ *  ticho — a host by neměl jak ji zapnout. */
+export function spustUvodniHudbu(naStav?: (hraje: boolean) => void): UvodniHudba {
   const audio = new Audio();
   audio.preload = "none";
   audio.loop = true;
@@ -87,10 +90,12 @@ export function spustUvodniHudbu(): UvodniHudba {
       // klepnutí bylo rychlejší než spuštění — hlasitost už řídí utichni()
       if (utichla || konec) return;
       hralaSama = true;
+      naStav?.(true);
       najed(UROVEN, NABEH_MS);
     })
     .catch(() => {
       /* prohlížeč zvuk bez gesta nepustil — začne až klepnutím */
+      naStav?.(false);
     });
 
   // schovaná záložka nemá hrát; po návratu pokračuje, pokud ještě nedozněla
@@ -174,9 +179,12 @@ export function spustUvodniHudbu(): UvodniHudba {
     ticho = nove;
     nastav(uroven);
     if (!nove && audio.paused) {
-      audio.play().catch(() => {
-        /* nepustil-li prohlížeč zvuk, zůstane ticho */
-      });
+      audio
+        .play()
+        .then(() => naStav?.(true))
+        .catch(() => {
+          /* nepustil-li prohlížeč zvuk, zůstane ticho */
+        });
     }
   };
 
