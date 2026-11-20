@@ -277,44 +277,6 @@ h3,
     animation: none;
   }
 }
-/* Ztišení hudby: drobné tlačítko v rohu úvodní obrazovky. Vědomě nenápadné —
-   prsten uprostřed má zůstat jediné, co o pozornost říká nahlas. Plocha pro
-   prst je ale plných 44 px, i když je ikona malá. */
-.loader-zvuk {
-  position: absolute;
-  top: max(1rem, env(safe-area-inset-top));
-  right: max(1rem, env(safe-area-inset-right));
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: color-mix(in srgb, var(--ink) 38%, transparent);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-.loader-zvuk:hover,
-.loader-zvuk:focus-visible {
-  color: color-mix(in srgb, var(--ink) 70%, transparent);
-}
-.loader-zvuk svg {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-/* Reproduktor je plný, vlnky a křížek jen obrysem — jinak by z ikony byla
-   změť čar. */
-.loader-zvuk svg > path:first-child {
-  fill: currentColor;
-}
-
 .loader-brand,
 .loader-vstup,
 .loader-quote,

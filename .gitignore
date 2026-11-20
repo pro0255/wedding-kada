@@ -42,6 +42,5 @@ predlohy/program/prstynkyy.png
 # prototypy vstupu do galerie obsahují jméno psa = odpověď (FOTKY_HESLO) — jen lokálně
 /app/navrh/fotky/
 
-# hudba k úvodní obrazovce: v repozitáři je jen 45s výřez (public/hudba/uvod.m4a),
-# celá nahrávka zůstává lokálně
+# hudba k úvodní obrazovce z webu zmizela; nahrávky zůstávají lokálně
 /predlohy/hudba/

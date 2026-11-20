@@ -24,7 +24,6 @@ import Kniha from "./menu/Kniha";
 import { OznameniHlavni } from "./oznameni/Oznameni";
 import { IkonaKlik } from "./StoryDoodles";
 import Ubytovani from "./Ubytovani";
-import { spustUvodniHudbu, type UvodniHudba } from "./uvodHudba";
 import { VENUE_ADDRESS } from "./venue";
 import { VenueAkce } from "./VenueAkce";
 
@@ -769,28 +768,11 @@ function UvodniObrazovka() {
     setQuote(LOTR_QUOTES[Math.floor(Math.random() * LOTR_QUOTES.length)]);
   }, []);
 
-  // hudba k úvodní obrazovce: nabíhá z ticha, po klepnutí postupně utichne
-  // (viz uvodHudba.ts)
-  const hudba = useRef<UvodniHudba | null>(null);
-  /* Co ukazuje tlačítko v rohu: ztlumil si host sám, nebo hudba nehraje
-     proto, že ji prohlížeč bez klepnutí nepustil? V obou případech je ticho
-     a tlačítko musí nabízet zapnutí — jinak tvrdí, že něco hraje, a host
-     nemá jak hudbu spustit. Na počítači je to běžný stav. */
-  const [ticho, setTicho] = useState(false);
-  const [hraje, setHraje] = useState(false);
-  useEffect(() => {
-    const h = spustUvodniHudbu(setHraje);
-    hudba.current = h;
-    return h.zrus;
-  }, []);
-  const potichu = ticho || !hraje;
-
   /* Dovnitř se jde klepnutím na prsten, ne po odpočtu — úvodní obrazovka
      tak počká, dokud host sám nechce dál. */
   const vstup = () => {
     if (stage !== "loading") return;
     setStage("done");
-    hudba.current?.utichni();
     // 1,3 s = .3s zdržení (vlny od prstenu) + .9s opacity transition loaderu
     // + rezerva; teprve pak obsah odmountujeme
     setTimeout(() => setLoaderGone(true), 1300);
@@ -865,35 +847,6 @@ function UvodniObrazovka() {
           </g>
         ))}
       </svg>
-      {/* Ztišení hudby. V rohu a nenápadné — kdo si chce jen prohlédnout web
-         v tichu (v práci, vedle spícího dítěte), nemá jinou možnost než
-         ztlumit celý telefon. Hudba běží dál, jen není slyšet. */}
-      <button
-        type="button"
-        className="loader-zvuk"
-        aria-pressed={potichu}
-        aria-label={potichu ? "Zapnout hudbu" : "Ztlumit hudbu"}
-        onClick={(e) => {
-          // celá úvodní obrazovka je klikací a vede dovnitř — ztišení tam
-          // vést nesmí
-          e.stopPropagation();
-          const nove = !potichu;
-          setTicho(nove);
-          hudba.current?.ztlum(nove);
-        }}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4 9.5h3.2L12 5.5v13L7.2 14.5H4z" />
-          {potichu ? (
-            <path className="loader-zvuk-krizek" d="M16 9.5l5 5M21 9.5l-5 5" />
-          ) : (
-            <>
-              <path d="M15.4 9.6a3.4 3.4 0 0 1 0 4.8" />
-              <path d="M18 7.3a6.8 6.8 0 0 1 0 9.4" />
-            </>
-          )}
-        </svg>
-      </button>
       <div className="loader-brand">
         Kateřina &amp; Jakub
         <span className="loader-date">18 · 09 · 2027</span>
