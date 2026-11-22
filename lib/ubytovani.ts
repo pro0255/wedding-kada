@@ -17,8 +17,11 @@ export const KAPACITA_CELKEM = 26;
  *   místo chyby a další pokus zkusí až za PAUZA_PO_CHYBE_S.
  * Ruční úpravy v tabulce se na webu projeví nejpozději do hodiny.
  * Rezervace z formuláře čte tabulku vždy čerstvě (duplicity, volná místa).
+ * Spolu se stavem se ukládá i seznam rezervací pro /admin — ten bere
+ * uložený seznam, jen když je mladší než ADMIN_MS.
  */
 const CERSTVY_MS = 60 * 60 * 1000;
+const ADMIN_MS = 5 * 60 * 1000;
 const ZAMEK_S = 30;
 const PAUZA_PO_CHYBE_S = 600;
 export const BASE_ID = "appw1s9BtzlKCPous";
@@ -31,9 +34,25 @@ export type Stav = {
   volno: number;
 };
 
+/** Jedna rezervace, jak ji ukazuje /admin. */
+export type Rezervace = {
+  id: string;
+  jmeno: string;
+  pocet: number;
+  status: string;
+  /** Kdy přišla — z formuláře „Datum rezervace“, u ručních řádků vznik řádku. */
+  kdy: string;
+};
+
 type AirtableZaznam = {
   id: string;
-  fields: { "Jméno hosta"?: string; "Počet osob"?: number; Status?: string };
+  createdTime: string;
+  fields: {
+    "Jméno hosta"?: string;
+    "Počet osob"?: number;
+    Status?: string;
+    "Datum rezervace"?: string;
+  };
 };
 
 /**
@@ -69,9 +88,9 @@ async function nactiZaznamy(): Promise<AirtableZaznam[]> {
   do {
     const url = new URL(API);
     url.searchParams.set("pageSize", "100");
-    url.searchParams.append("fields[]", "Jméno hosta");
-    url.searchParams.append("fields[]", "Počet osob");
-    url.searchParams.append("fields[]", "Status");
+    for (const pole of ["Jméno hosta", "Počet osob", "Status", "Datum rezervace"]) {
+      url.searchParams.append("fields[]", pole);
+    }
     if (offset) url.searchParams.set("offset", offset);
 
     const odpoved = await fetch(url, { headers: hlavicky(), cache: "no-store" });
@@ -89,9 +108,11 @@ async function nactiZaznamy(): Promise<AirtableZaznam[]> {
   return zaznamy;
 }
 
+const zrusena = (z: AirtableZaznam) => z.fields.Status === "Zrušeno";
+
 function spocitej(zaznamy: AirtableZaznam[]): Stav {
   const obsazeno = zaznamy
-    .filter((z) => z.fields.Status !== "Zrušeno")
+    .filter((z) => !zrusena(z))
     .reduce((soucet, z) => soucet + (z.fields["Počet osob"] ?? 0), 0);
   return {
     obsazeno,
@@ -100,11 +121,28 @@ function spocitej(zaznamy: AirtableZaznam[]): Stav {
   };
 }
 
-type Ulozeny = { stav: Stav; ulozeno: number };
+/** Rezervace pro /admin — nejnovější první. */
+function prevedRezervace(zaznamy: AirtableZaznam[]): Rezervace[] {
+  return zaznamy
+    .map((z) => ({
+      id: z.id,
+      jmeno: z.fields["Jméno hosta"]?.trim() || "(bez jména)",
+      pocet: z.fields["Počet osob"] ?? 0,
+      status: z.fields.Status ?? "",
+      kdy: z.fields["Datum rezervace"] ?? z.createdTime,
+    }))
+    .toSorted((a, b) => b.kdy.localeCompare(a.kdy));
+}
 
-/** Je uložený stav dost čerstvý, aby se Airtable nemusel ptát? */
-export function jeCerstvy(u: Ulozeny | null, ted: number = Date.now()): boolean {
-  return u !== null && ted - u.ulozeno < CERSTVY_MS;
+type Ulozeny = { stav: Stav; rezervace: Rezervace[]; ulozeno: number };
+
+/** Je uložený stav mladší než `maxStari`? Starý formát (bez seznamu) není nikdy. */
+export function jeCerstvy(
+  u: Ulozeny | null,
+  maxStari: number = CERSTVY_MS,
+  ted: number = Date.now(),
+): boolean {
+  return u !== null && Array.isArray(u.rezervace) && ted - u.ulozeno < maxStari;
 }
 
 /* Redis je tu jen paměť nad Airtable, ne zdroj pravdy. Když chybí
@@ -122,13 +160,20 @@ async function nactiUlozeny(): Promise<Ulozeny | null> {
 }
 
 /** Uloží stav (bez expirace — slouží i jako záloha, když Airtable nejde). */
-async function ulozStav(stav: Stav): Promise<void> {
-  if (!maRedis()) return;
-  try {
-    await redis().set<Ulozeny>(KLIC.ubytovani, { stav, ulozeno: Date.now() });
-  } catch (error) {
-    console.warn("[ubytovani] stav se nepodařilo uložit", error);
+async function uloz(zaznamy: AirtableZaznam[]): Promise<Ulozeny> {
+  const u: Ulozeny = {
+    stav: spocitej(zaznamy),
+    rezervace: prevedRezervace(zaznamy),
+    ulozeno: Date.now(),
+  };
+  if (maRedis()) {
+    try {
+      await redis().set<Ulozeny>(KLIC.ubytovani, u);
+    } catch (error) {
+      console.warn("[ubytovani] stav se nepodařilo uložit", error);
+    }
   }
+  return u;
 }
 
 /** Smí tenhle požadavek jít do Airtable? Jen jeden naráz; bez Redisu vždy. */
@@ -141,19 +186,19 @@ async function vezmiZamek(): Promise<boolean> {
   }
 }
 
-/** Aktuální stav kapacity (z Redisu, po hodině z Airtable, při chybě poslední známý). */
-export async function stavKapacity(): Promise<Stav> {
+/** Stav a seznam: z Redisu, je-li mladší než `maxStari`, jinak z Airtable,
+ *  při chybě Airtable poslední známý. */
+async function nacti(maxStari: number): Promise<Ulozeny> {
   const ulozeny = await nactiUlozeny();
-  if (ulozeny && jeCerstvy(ulozeny)) return ulozeny.stav;
+  const zaloha = ulozeny && { ...ulozeny, rezervace: ulozeny.rezervace ?? [] };
+  if (zaloha && jeCerstvy(ulozeny, maxStari)) return zaloha;
   // Airtable už čte jiný požadavek — tenhle vystačí s posledním stavem
-  if (ulozeny && !(await vezmiZamek())) return ulozeny.stav;
+  if (zaloha && !(await vezmiZamek())) return zaloha;
 
   try {
-    const stav = spocitej(await nactiZaznamy());
-    await ulozStav(stav);
-    return stav;
+    return await uloz(await nactiZaznamy());
   } catch (error) {
-    if (!ulozeny) throw error;
+    if (!zaloha) throw error;
     console.warn("[ubytovani] Airtable nejde, ukazuji poslední známý stav", error);
     // zámek prodloužit, ať se do nefunkčního Airtable nebuší každých 30 s
     if (maRedis()) {
@@ -163,8 +208,19 @@ export async function stavKapacity(): Promise<Stav> {
         /* bez pauzy to zkusí další požadavek — nevadí */
       }
     }
-    return ulozeny.stav;
+    return zaloha;
   }
+}
+
+/** Aktuální stav kapacity pro web (nejvýš hodinu starý). */
+export async function stavKapacity(): Promise<Stav> {
+  const { stav } = await nacti(CERSTVY_MS);
+  return stav;
+}
+
+/** Rezervace pro /admin (nejvýš ADMIN_MS staré; `ulozeno` = odkdy). */
+export function prehledRezervaci(): Promise<Ulozeny> {
+  return nacti(ADMIN_MS);
 }
 
 export type VysledekRezervace =
@@ -178,8 +234,7 @@ export async function pridejRezervaci(jmeno: string, pocet: number): Promise<Vys
 
   const hledane = normalizujJmeno(jmeno);
   const uzRezervoval = zaznamy.some(
-    (z) =>
-      z.fields.Status !== "Zrušeno" && normalizujJmeno(z.fields["Jméno hosta"] ?? "") === hledane,
+    (z) => !zrusena(z) && normalizujJmeno(z.fields["Jméno hosta"] ?? "") === hledane,
   );
   if (uzRezervoval) {
     return { ok: false, duvod: "duplicita", stav: pred };
@@ -210,12 +265,8 @@ export async function pridejRezervaci(jmeno: string, pocet: number): Promise<Vys
   if (!odpoved.ok) {
     throw new Error(`Airtable vrátil ${odpoved.status}: ${await odpoved.text()}`);
   }
-
-  const stav = {
-    ...pred,
-    obsazeno: pred.obsazeno + pocet,
-    volno: Math.max(0, pred.volno - pocet),
-  };
-  await ulozStav(stav);
+  // nový řádek rovnou do uloženého seznamu — další čtení z Airtable netřeba
+  const { records } = (await odpoved.json()) as { records: AirtableZaznam[] };
+  const { stav } = await uloz([...zaznamy, ...records]);
   return { ok: true, stav };
 }

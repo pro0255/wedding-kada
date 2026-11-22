@@ -67,6 +67,9 @@ export const VstupPostSchema = z.object({
   deviceId: DeviceIdSchema.optional(),
 });
 
+/** Úklid testovacích dat z /admin — správce znovu zadá své heslo. */
+export const UklidPostSchema = z.object({ heslo: z.string().trim().min(1).max(60) });
+
 /** Kam se po přihlášení v /admin vrátit. Jen cesta na tomhle webu —
  *  „//jiny.web“ nebo „https://…“ by z přihlášení udělalo přesměrování ven. */
 export const AdminDalSchema = z.string().regex(/^\/(?![/\\])/);

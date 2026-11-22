@@ -301,3 +301,99 @@
     width: 100%;
   }
 }
+
+/* rezervace ubytování — jen ke čtení */
+.rezervace {
+  display: grid;
+  gap: 0.5rem;
+}
+.tabulkaObal {
+  overflow-x: auto;
+  border: 1px solid var(--linka);
+  border-radius: 8px;
+  background: var(--papir);
+}
+.tabulka {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.tabulka th,
+.tabulka td {
+  padding: 0.65rem 1rem;
+  text-align: left;
+}
+.tabulka th {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 1px solid var(--linka);
+}
+.tabulka tbody tr + tr td {
+  border-top: 1px solid var(--linka);
+}
+.tabulkaCislo {
+  font-variant-numeric: tabular-nums;
+}
+.tabulkaKdy {
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.zruseno td {
+  color: var(--muted);
+}
+.zruseno td:first-child {
+  text-decoration: line-through;
+}
+.rezervacePrazdno,
+.rezervacePoznamka {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* úklid testovacích dat */
+.uklid {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+.uklid .seznam {
+  width: 100%;
+}
+.uklidForm {
+  display: grid;
+  gap: 0.6rem;
+  width: min(100%, 380px);
+}
+.uklidVaro {
+  margin: 0;
+  color: var(--chyba);
+  line-height: 1.5;
+}
+.uklidTlacitka {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.tlacitkoNebezpecne {
+  background: var(--chyba);
+}
+.uklidForm .hlaska {
+  text-align: left;
+}
+.uklidHotovo {
+  margin: 0;
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .tabulka th,
+  .tabulka td {
+    padding: 0.6rem 0.7rem;
+  }
+}

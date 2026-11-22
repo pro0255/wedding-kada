@@ -4,12 +4,15 @@ import { odkazWhatsapp, seznamFotek } from "@/lib/fotky";
 import { jeSpravce } from "@/lib/fotkyPristup";
 import { HRY, prehledHer } from "@/lib/hra";
 import { AdminDalSchema } from "@/lib/schemata";
-import { BASE_ID as AIRTABLE_BASE, KAPACITA_CELKEM, stavKapacity } from "@/lib/ubytovani";
+import { BASE_ID as AIRTABLE_BASE, KAPACITA_CELKEM, prehledRezervaci } from "@/lib/ubytovani";
+import { prehledUklidu } from "@/lib/uklid";
 import { HRY_REGISTR } from "../hry/hry";
 import s from "./admin.module.css";
 import AdminVstup from "./AdminVstup";
 import Odhlasit from "./Odhlasit";
+import Rezervace from "./Rezervace";
 import StahnoutFotky, { type Polozka } from "./StahnoutFotky";
+import Uklid from "./Uklid";
 
 export const metadata: Metadata = {
   title: "Správa · Kateřina & Jakub",
@@ -141,6 +144,7 @@ const TEMATA = [
   { id: "hry", nazev: "Hry" },
   { id: "tisk", nazev: "Oznámení" },
   { id: "web", nazev: "Web" },
+  { id: "uklid", nazev: "Úklid" },
   { id: "technika", nazev: "Technika" },
 ] as const;
 
@@ -259,11 +263,13 @@ export default async function Admin({
     return <Prihlaseni dal={dal.success ? dal.data : "/admin"} zFiltru={dal.success} />;
   }
 
-  const [kapacita, galerie, hry] = await Promise.all([
-    nebo(stavKapacity()),
+  const [ubytovani, galerie, hry, uklid] = await Promise.all([
+    nebo(prehledRezervaci()),
     nebo(seznamFotek("")),
     nebo(prehledHer()),
+    nebo(prehledUklidu()),
   ]);
+  const kapacita = ubytovani?.stav;
   const fotky = (galerie ?? []).filter((f) => !jeVideo(f.url)).map(polozka);
   const videa = (galerie ?? []).filter((f) => jeVideo(f.url)).map(polozka);
   const srdicek = (galerie ?? []).reduce((n, f) => n + f.lajky, 0);
@@ -303,7 +309,7 @@ export default async function Admin({
       <Tema
         id="ubytovani"
         nazev="Ubytování"
-        popis="Rezervace z formuláře na webu."
+        popis="Rezervace z formuláře na webu i zamluvené ručně."
         cislo={
           kapacita
             ? {
@@ -313,6 +319,7 @@ export default async function Admin({
             : { hodnota: "—", poznamka: "Airtable teď neodpovídá" }
         }
       >
+        {ubytovani && <Rezervace rezervace={ubytovani.rezervace} ulozeno={ubytovani.ulozeno} />}
         <Karty odkazy={ODKAZY.ubytovani} />
       </Tema>
 
@@ -354,6 +361,21 @@ export default async function Admin({
 
       <Tema id="web" nazev="Web pro hosty" popis="Veřejné stránky, jak je vidí hosté.">
         <Karty odkazy={ODKAZY.web} />
+      </Tema>
+
+      <Tema
+        id="uklid"
+        nazev="Úklid testovacích dat"
+        popis="Před rozesláním webu hostům: smaže skóre, jména, fotky a srdíčka z testování. Rezervace ubytování zůstanou."
+      >
+        {uklid ? (
+          <Uklid
+            prehled={uklid}
+            nazvyHer={Object.fromEntries(HRY.map((h) => [h, HRY_REGISTR[h].nazev]))}
+          />
+        ) : (
+          <p className={s.uvod}>Databáze teď neodpovídá.</p>
+        )}
       </Tema>
 
       <Tema

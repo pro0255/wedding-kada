@@ -29,6 +29,9 @@ export const KODY_CHYB = [
   "spatna-odpoved",
   "moc-pokusu",
 
+  // admin
+  "uklid-nedokoncen",
+
   // ubytování
   "kapacita-nenactena",
   "rezervace-neplatna",
@@ -114,6 +117,13 @@ export const CHYBY = {
     hlaska: "Uf, to bylo hodně pokusů. Chvilku si odpočinu, zkuste to za minutu.",
     znovu: false,
     kontakt: true,
+  },
+
+  "uklid-nedokoncen": {
+    status: 502,
+    hlaska: "Úklid se nedokončil. Rezervací se nedotkl — zkuste to znovu.",
+    znovu: true,
+    kontakt: false,
   },
 
   "kapacita-nenactena": {
