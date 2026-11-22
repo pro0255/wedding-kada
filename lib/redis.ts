@@ -30,7 +30,8 @@ export const KLIC = {
   lajky: "svatba:lajky", // set "fotkaId:deviceId"
   hoste: "svatba:hoste", // hash deviceId → jméno
   skore: (hra: string) => `svatba:skore:${hra}`, // zset deviceId → nejlepší skóre
-  ubytovani: "svatba:ubytovani:stav", // cache kapacity z Airtable
+  ubytovani: "svatba:ubytovani:posledni", // poslední stav kapacity z Airtable { stav, ulozeno }
+  ubytovaniZamek: "svatba:ubytovani:zamek", // kdo právě čte Airtable (ostatní dostanou poslední stav)
   // počet špatných odpovědí u vstupu do galerie za minutu, zvlášť na IP a na zařízení
   vstupPokusyIp: (ip: string) => `svatba:vstup:ip:${ip}`,
   vstupPokusyZarizeni: (deviceId: string) => `svatba:vstup:dev:${deviceId}`,

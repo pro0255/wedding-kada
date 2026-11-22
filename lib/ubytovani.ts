@@ -7,11 +7,20 @@ export const KAPACITA_CELKEM = 26;
  * Rezervace žijí v Airtable tabulce „Rezervace“ — ta je jediným zdrojem
  * pravdy. Každý řádek má Status: „Zamluveno“ (mimo web), „Rezervováno“
  * (z formuláře) nebo „Zrušeno“ (nepočítá se do obsazenosti).
- * Stav se drží v Redisu CACHE_S sekund — Airtable free má jen 1 000 volání
- * měsíčně a sekce ubytování se ptá při každém otevření webu. Ruční úpravy
- * v tabulce se proto na webu projeví nejpozději do 10 minut.
+ * Airtable free má jen 1 000 volání měsíčně a sekce ubytování se ptá při
+ * každém otevření webu. Proto:
+ * - poslední stav leží v Redisu bez expirace a hodinu (CERSTVY_MS) se bere
+ *   rovnou odtud — čtení z Airtable je tak nejvýš ~720 za měsíc,
+ * - po hodině jde do Airtable jen jeden požadavek (zámek), ostatní mezitím
+ *   dostanou poslední stav,
+ * - když Airtable selže (třeba vyčerpaný limit), web ukáže poslední stav
+ *   místo chyby a další pokus zkusí až za PAUZA_PO_CHYBE_S.
+ * Ruční úpravy v tabulce se na webu projeví nejpozději do hodiny.
+ * Rezervace z formuláře čte tabulku vždy čerstvě (duplicity, volná místa).
  */
-const CACHE_S = 600;
+const CERSTVY_MS = 60 * 60 * 1000;
+const ZAMEK_S = 30;
+const PAUZA_PO_CHYBE_S = 600;
 export const BASE_ID = "appw1s9BtzlKCPous";
 const TABULKA = "Rezervace";
 const API = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABULKA)}`;
@@ -91,34 +100,71 @@ function spocitej(zaznamy: AirtableZaznam[]): Stav {
   };
 }
 
-/** Aktuální stav kapacity (z cache, jinak z Airtable). */
-/** Uloží stav do cache, pokud je k dispozici. Selhání cache nesmí shodit
- *  odpověď — data jsou v Airtable, tohle je jen zrychlení. */
-async function ulozDoCache(stav: Stav): Promise<void> {
-  if (!maRedis()) return;
+type Ulozeny = { stav: Stav; ulozeno: number };
+
+/** Je uložený stav dost čerstvý, aby se Airtable nemusel ptát? */
+export function jeCerstvy(u: Ulozeny | null, ted: number = Date.now()): boolean {
+  return u !== null && ted - u.ulozeno < CERSTVY_MS;
+}
+
+/* Redis je tu jen paměť nad Airtable, ne zdroj pravdy. Když chybí
+   v prostředí nebo selže, kapacita se spočítá rovnou z Airtable — dřív se
+   o něj API opřelo hned prvním příkazem, vrátilo 502 a v rozhraní stálo
+   „volných míst: undefined“. */
+async function nactiUlozeny(): Promise<Ulozeny | null> {
+  if (!maRedis()) return null;
   try {
-    await redis().set(KLIC.ubytovani, stav, { ex: CACHE_S });
+    return await redis().get<Ulozeny>(KLIC.ubytovani);
   } catch (error) {
-    console.warn("[ubytovani] stav se nepodařilo uložit do cache", error);
+    console.warn("[ubytovani] uložený stav nedostupný, čtu rovnou z Airtable", error);
+    return null;
   }
 }
 
-export async function stavKapacity(): Promise<Stav> {
-  /* Redis je tu jen cache nad Airtable, ne zdroj pravdy. Když chybí
-     v prostředí nebo selže, kapacita se spočítá rovnou z Airtable — dřív se
-     o něj API opřelo hned prvním příkazem, vrátilo 502 a v rozhraní stálo
-     „volných míst: undefined“. */
-  if (maRedis()) {
-    try {
-      const ulozeny = await redis().get<Stav>(KLIC.ubytovani);
-      if (ulozeny) return ulozeny;
-    } catch (error) {
-      console.warn("[ubytovani] cache nedostupná, čtu rovnou z Airtable", error);
-    }
+/** Uloží stav (bez expirace — slouží i jako záloha, když Airtable nejde). */
+async function ulozStav(stav: Stav): Promise<void> {
+  if (!maRedis()) return;
+  try {
+    await redis().set<Ulozeny>(KLIC.ubytovani, { stav, ulozeno: Date.now() });
+  } catch (error) {
+    console.warn("[ubytovani] stav se nepodařilo uložit", error);
   }
-  const stav = spocitej(await nactiZaznamy());
-  await ulozDoCache(stav);
-  return stav;
+}
+
+/** Smí tenhle požadavek jít do Airtable? Jen jeden naráz; bez Redisu vždy. */
+async function vezmiZamek(): Promise<boolean> {
+  if (!maRedis()) return true;
+  try {
+    return (await redis().set(KLIC.ubytovaniZamek, 1, { nx: true, ex: ZAMEK_S })) === "OK";
+  } catch {
+    return true;
+  }
+}
+
+/** Aktuální stav kapacity (z Redisu, po hodině z Airtable, při chybě poslední známý). */
+export async function stavKapacity(): Promise<Stav> {
+  const ulozeny = await nactiUlozeny();
+  if (ulozeny && jeCerstvy(ulozeny)) return ulozeny.stav;
+  // Airtable už čte jiný požadavek — tenhle vystačí s posledním stavem
+  if (ulozeny && !(await vezmiZamek())) return ulozeny.stav;
+
+  try {
+    const stav = spocitej(await nactiZaznamy());
+    await ulozStav(stav);
+    return stav;
+  } catch (error) {
+    if (!ulozeny) throw error;
+    console.warn("[ubytovani] Airtable nejde, ukazuji poslední známý stav", error);
+    // zámek prodloužit, ať se do nefunkčního Airtable nebuší každých 30 s
+    if (maRedis()) {
+      try {
+        await redis().expire(KLIC.ubytovaniZamek, PAUZA_PO_CHYBE_S);
+      } catch {
+        /* bez pauzy to zkusí další požadavek — nevadí */
+      }
+    }
+    return ulozeny.stav;
+  }
 }
 
 export type VysledekRezervace =
@@ -170,6 +216,6 @@ export async function pridejRezervaci(jmeno: string, pocet: number): Promise<Vys
     obsazeno: pred.obsazeno + pocet,
     volno: Math.max(0, pred.volno - pocet),
   };
-  await ulozDoCache(stav);
+  await ulozStav(stav);
   return { ok: true, stav };
 }
